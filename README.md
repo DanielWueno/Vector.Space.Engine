@@ -6,8 +6,19 @@ equipo sin arrastrar retrieval, generación RAG, vista o analíticas.
 
 ## Estado
 
-2026-10-19: arranque documental. Sin código portado, sin repositorio remoto, sin
-despliegue, sin conexión a ningún servidor. Ver `docs/plan/ejecucion-plan.estado.json`.
+2026-10-19: API generada desde `Reyma.Microservice.Template` (`dotnet new reyma-api`,
+`Reyma.VectorSpace.Engine`) con el contrato de embeddings/ingesta y control de acceso por
+coleccion; el motor aun no esta portado (responde 501 hasta el item 1.4). Sin repositorio
+remoto, sin despliegue, sin conexion a ningun servidor. Ver `docs/plan/ejecucion-plan.estado.json`.
+
+- Contrato HTTP y multi-tenencia: [docs/servicio/contrato-api.md](docs/servicio/contrato-api.md).
+- Operacion del servicio generado (configuracion, Docker, pipeline):
+  [docs/servicio/README.md](docs/servicio/README.md).
+
+```powershell
+dotnet build Reyma.VectorSpace.Engine.Microservice.sln
+dotnet test --no-build
+```
 
 ## Origen
 

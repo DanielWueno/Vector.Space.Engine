@@ -1,0 +1,52 @@
+# syntax=docker/dockerfile:1
+#
+# Imagen de desarrollo del servicio (rama develop). Igual que el Dockerfile de
+# produccion pero compila en Debug, corre en Development y publica bajo
+# "<ruta base>/dev" para convivir con produccion en el mismo Ingress.
+# El token del feed usa BuildKit; no se guarda en la imagen.
+
+ARG BUILD_CONFIGURATION=Debug
+ARG CREDPROVIDER_VERSION=v1.4.0
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+ARG BUILD_CONFIGURATION
+ARG CREDPROVIDER_VERSION
+ARG FEED_URL
+
+ENV AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION=${CREDPROVIDER_VERSION}
+RUN curl -sSL https://aka.ms/install-artifacts-credprovider.sh | bash
+
+WORKDIR /src
+COPY ["NuGet.Config", "./"]
+COPY ["src/", "src/"]
+
+RUN --mount=type=secret,id=feed-token,env=FEED_ACCESSTOKEN,required=true \
+    test -n "${FEED_URL}" && test -n "${FEED_ACCESSTOKEN}" \
+    && VSS_NUGET_EXTERNAL_FEED_ENDPOINTS="{\"endpointCredentials\":[{\"endpoint\":\"${FEED_URL}\",\"password\":\"${FEED_ACCESSTOKEN}\"}]}" \
+       NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED=false \
+       NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED=false \
+       dotnet restore "src/Reyma.VectorSpace.Engine.Microservice.Api/Reyma.VectorSpace.Engine.Microservice.Api.csproj"
+RUN dotnet publish "src/Reyma.VectorSpace.Engine.Microservice.Api/Reyma.VectorSpace.Engine.Microservice.Api.csproj" \
+    -c "${BUILD_CONFIGURATION}" \
+    -o /app/publish \
+    --no-restore
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+
+ENV TZ=America/Mexico_City \
+    ASPNETCORE_ENVIRONMENT=Development \
+    ASPNETCORE_HTTP_PORTS=8080 \
+    ASPNETCORE_BASEPATH=/reyma/vectorspace/engine/dev
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends tzdata \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+EXPOSE 8080
+
+USER app
+
+COPY --from=build /app/publish .
+
+ENTRYPOINT ["dotnet", "Reyma.VectorSpace.Engine.Microservice.Api.dll"]

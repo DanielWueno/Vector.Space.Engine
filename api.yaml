@@ -1,0 +1,91 @@
+# Manifiesto de ejemplo (D7). Los identificadores del servicio ya quedaron
+# sustituidos por el generador (nombre, ruta base, etiquetas); los valores
+# de infraestructura (namespace, registry, tag, host de Ingress y entorno)
+# son marcadores de despliegue "${NOMBRE}" que resuelve el pipeline o quien
+# aplique el manifiesto. Este archivo no esta listo para aplicarse a un
+# cluster real sin resolver esos marcadores y sin crear antes el Secret
+# "reyma-vectorspace-engine-env" con la configuracion externa del README.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reyma-vectorspace-engine
+  namespace: ${K8S_NAMESPACE}
+  labels:
+    app: reyma-vectorspace-engine
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: reyma-vectorspace-engine
+  template:
+    metadata:
+      labels:
+        app: reyma-vectorspace-engine
+    spec:
+      containers:
+        - name: reyma-vectorspace-engine
+          image: ${IMAGE_REGISTRY}/reyma-vectorspace-engine:${IMAGE_TAG}
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: ${ASPNETCORE_ENVIRONMENT}
+          envFrom:
+            # Resto de la configuracion por entorno (columna derecha del
+            # README): lo crea Doppler o el operador, nunca este archivo.
+            - secretRef:
+                name: reyma-vectorspace-engine-env
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health/self
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reyma-vectorspace-engine
+  namespace: ${K8S_NAMESPACE}
+  labels:
+    app: reyma-vectorspace-engine
+spec:
+  type: ClusterIP
+  selector:
+    app: reyma-vectorspace-engine
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: reyma-vectorspace-engine
+  namespace: ${K8S_NAMESPACE}
+  labels:
+    app: reyma-vectorspace-engine
+spec:
+  rules:
+    - host: ${INGRESS_HOST}
+      http:
+        paths:
+          - path: /reyma/vectorspace/engine
+            pathType: Prefix
+            backend:
+              service:
+                name: reyma-vectorspace-engine
+                port:
+                  number: 80

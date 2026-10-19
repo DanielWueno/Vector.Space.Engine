@@ -55,7 +55,10 @@
           "modelo": "opus",
           "esfuerzo": "high",
           "multiagente": false,
-          "estado": "pendiente",
+          "estado": "hecho",
+          "fecha": "2026-10-19",
+          "resultado": "API generada con 'dotnet new reyma-api -n Reyma.VectorSpace.Engine' (plantilla instalada desde la copia local D:\\Git\\Reyma.Microservice.Template\\template, con cambios sin commitear en ese repo) y fusionada en la raiz: base intacta compilo y paso 45/45 antes de tocarla. Limpieza: fuera los endpoints de ejemplo y conexion; queda GET api/sesion; BD de Development apuntando a un PostgreSQL local ficticio y secreto de Swagger fuera del repo. Contrato (docs/servicio/contrato-api.md): GET api/colecciones y POST api/colecciones/{coleccion}/embeddings|busquedas|ingestas; embeddings separado de ingesta; ingesta con origen 'documentos' u 'ruta' (este en 501, reservado para 1.7); motor en 501 hasta 1.4. Multi-tenencia: tabla ControlDeAcceso (Usuarios sub/preferred_username, Clientes cli_id, Roles), denegada por defecto y aplicada por un behavior de MediatR antes de validar; el servicio no arranca con una tabla invalida ni con concesiones escritas como texto (el binder las descartaba en silencio). Hallazgo corregido en la identidad heredada: MapInboundClaims=false, porque con el mapeo por defecto GetUserId/GetRoles salian vacios con tokens reales (tambien afecta al ejemplo 'usuario' de la plantilla, no tocada). Politicas corporativas VECTORSPACE.ENGINE.API.COLECCIONES.* declaradas pero no aplicadas: no estan registradas en el servicio de permisos. Evidencia: dotnet test 112/112 con JWT firmados por el pipeline JwtBearer real (401 sin token, firma o audiencia o emisor ajenos, o expirado; 403 en colecciones ajenas o variantes del nombre, sin llegar al motor; 200 en la propia); quitar el registro del control de acceso deja 18 rojos. Smoke local: /health/self 200, endpoints sin token 401. Login real del usuario en Swagger (jdelgado, IdP de Development): sesion 200 con userId y roles; colecciones 200 con solo prueba-propia; embeddings prueba-propia 501; prueba-ajena 403; sin token 401 en los cuatro endpoints contra el servicio en marcha. Pendiente anotado en 1.9: Postgres de la plantilla sin uso (/health/ready 503).",
+          "_reentrada_resuelta_2026_10_19": "Usuario confirma: (1) identidad de la plantilla (JWT del IdentityServer corporativo, mismas credenciales que otras APIs Reyma; audiencia compartida de prueba en Development hasta registrar la propia); (2) multi-tenencia por tabla de acceso por claim: el servicio guarda que client_id/usuario/rol alcanza que colecciones (configuracion en el MVP), la politica de permiso dice la operacion y la tabla la coleccion, coleccion no listada -> 403; (3) el login real lo hace el usuario en Swagger y reporta solo codigos HTTP (sin pegar token), mas tests automaticos con emisor de prueba para la multi-tenencia; (4) nombre Reyma.VectorSpace.Engine.",
           "_paralelo_con_1_2_2026_10_19": "No depende de 1.2 a pesar de que ambas tocan 'el motor': el contrato HTTP y la identidad heredada de la plantilla son independientes de cual vector store quede detras de IVectorStoreWriter/IVectorStoreAdmin/ISemanticRetriever (los mismos puertos que ya desacoplan Qdrant/Milvus de ONNX, ver conversacion del 2026-10-19). Puede ejecutarse en paralelo con 1.2; solo 1.4 (portar codigo) necesita que ambas esten resueltas.",
           "horas_maquina": 0.5,
           "por_que_este_modelo": "Adaptar una base de identidad ya existente a un contrato nuevo exige criterio sobre que conservar/quitar, aunque el riesgo de disenar auth desde cero ya no aplica igual.",
@@ -163,6 +166,20 @@
           "_preparacion_de_verificacion": "No se ha instalado ni corrido Infinity, TEI, EmbedAnything ni ragit todavia; son hallazgos de investigacion, no pruebas. Antes de recomendar adopcion, correrlos localmente contra un caso real (minimo: un modelo de 1.6 sirviendo embeddings para un texto de prueba).",
           "_condicion_de_reentrada": "Responsable: usuario. Confirmar presupuesto de horas para probar los candidatos en Docker local, y si esta abierto a que el servicio de embeddings sea un sidecar no-.NET (Infinity/TEI/EmbedAnything) en vez de 100% propio, dado que 1.3 ya se apoya en una plantilla .NET de la empresa.",
           "rollback": "Documental; ningun motor de terceros se instala en el servidor ni se usa en produccion sin pasar esta evaluacion."
+        },
+        {
+          "id": "1.9-decidir-si-se-conserva-postgres-de-la-plantilla",
+          "titulo": "La API generada en 1.3 arrastra PostgreSQL de la plantilla sin usarlo: registra la persistencia corporativa, exige CONNECTION_STRING fuera de Development y su /health/ready comprueba esa base, asi que responde 503 en local y fallaria la readiness de un despliegue sin base aunque el servicio funcione.",
+          "modelo": "sonnet",
+          "esfuerzo": "medium",
+          "multiagente": false,
+          "estado": "pendiente",
+          "horas_maquina": 0.3,
+          "por_que_este_modelo": "Decision acotada con verificacion mecanica (build, tests, health), pero toca paquetes corporativos acoplados a Postgres (Mediator.Base.Postgres, Domain.Admin.Postgres, Dates.Base.Postgres).",
+          "origen": "Hallazgo de 1.3 el 2026-10-19: la composicion corporativa de la plantilla registra AddReymaPersistence y AddNpgSql en readiness; este servicio guarda vectores en Qdrant y su tabla de acceso esta en configuracion. Retirarlo no era limpieza de ejemplos sino reconstruir parte de la plantilla, por eso no se hizo en 1.3.",
+          "archivos": "src/Reyma.VectorSpace.Engine.Microservice.Api/Microsoft/Extensions/DependencyInjection/StartupExtensions.cs, HealthCheckExtensions.cs, ConnectionStringExtensions.cs, src/Reyma.VectorSpace.Engine.Microservice.Persistence/, tests/.../HealthTests.cs, docs/servicio/README.md.",
+          "verificacion": "Decision registrada: (a) retirar Postgres, o (b) conservarlo con un uso real (p. ej. la tabla de acceso o el registro de ingestas de 1.7). Si (a): el servicio arranca en Production sin CONNECTION_STRING, /health/ready refleja las dependencias reales (Qdrant/sidecar cuando 1.4 las agregue) y 'dotnet test' pasa. Si (b): el uso queda nombrado y /health/ready sigue comprobando la base con motivo.",
+          "rollback": "Revertir el commit; la API vuelve a la composicion generada por la plantilla."
         }
       ]
     }

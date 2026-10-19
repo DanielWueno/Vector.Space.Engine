@@ -1,0 +1,17 @@
+**/bin/
+**/obj/
+**/out/
+**/.vs/
+**/.idea/
+**/*.user
+**/TestResults/
+**/*.trx
+**/*.coverage
+**/*.coveragexml
+**/.git/
+**/.gitignore
+**/.dockerignore
+**/Dockerfile
+**/Dockerfile.develop
+**/appsettings.Development.json
+**/*.md

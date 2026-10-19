@@ -1,0 +1,150 @@
+# Pipeline de referencia (D6) con dos ambientes:
+#   - develop -> dev:  Dockerfile.develop, Debug, api.dev.yaml, grupo "reyma-vectorspace-engine-dev".
+#   - main    -> prod: Dockerfile, Release, api.yaml, grupo "reyma-vectorspace-engine".
+# El ambiente que se configura de inicio es dev. Produccion (main) viene completa
+# desde la generacion y no requiere cambios en este archivo: solo necesita su
+# configuracion (grupo "reyma-vectorspace-engine", Secret y conexiones de servicio de prod)
+# cuando se haga el primer despliegue a produccion.
+# Los identificadores del servicio ya quedaron sustituidos por el generador; los
+# valores de infraestructura (registry, cluster, feed, namespace, host de Ingress)
+# llegan por el grupo de variables de cada ambiente o por conexiones de servicio;
+# ninguno vive en este archivo.
+trigger:
+  branches:
+    include:
+      - develop
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  - name: solutionFile
+    value: Reyma.VectorSpace.Engine.Microservice.sln
+  - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/main') }}:
+      - group: reyma-vectorspace-engine
+      - name: ambiente
+        value: prod
+      - name: imageRepository
+        value: reyma-vectorspace-engine
+      - name: buildConfiguration
+        value: Release
+      - name: dockerfile
+        value: Dockerfile
+      - name: manifiesto
+        value: api.yaml
+      - name: deployEnvironment
+        value: reyma-vectorspace-engine
+  - ${{ else }}:
+      - group: reyma-vectorspace-engine-dev
+      - name: ambiente
+        value: dev
+      - name: imageRepository
+        value: reyma-vectorspace-engine-dev
+      - name: buildConfiguration
+        value: Debug
+      - name: dockerfile
+        value: Dockerfile.develop
+      - name: manifiesto
+        value: api.dev.yaml
+      - name: deployEnvironment
+        value: reyma-vectorspace-engine-dev
+      - name: aspnetcoreEnvironment
+        value: Development
+
+stages:
+  - stage: Build
+    displayName: Compilar y probar
+    jobs:
+      - job: BuildAndTest
+        steps:
+          - task: UseDotNet@2
+            displayName: Instalar SDK .NET 10
+            inputs:
+              packageType: sdk
+              version: 10.x
+
+          - task: NuGetAuthenticate@1
+            displayName: Autenticar feed Gr-Api
+
+          - script: dotnet restore "$(solutionFile)"
+            displayName: Restaurar paquetes
+
+          - script: dotnet build "$(solutionFile)" --configuration $(buildConfiguration) --no-restore
+            displayName: Compilar
+
+          - script: dotnet test "$(solutionFile)" --configuration $(buildConfiguration) --no-build --logger trx
+            displayName: Ejecutar pruebas
+
+          - task: PublishTestResults@2
+            displayName: Publicar resultados de pruebas
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: VSTest
+              testResultsFiles: "**/*.trx"
+
+  - stage: DockerBuildPush
+    displayName: Construir y publicar imagen ($(ambiente))
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - job: BuildPush
+        steps:
+          - task: Docker@2
+            displayName: Construir imagen con secreto BuildKit
+            env:
+              DOCKER_BUILDKIT: "1"
+              FEED_ACCESSTOKEN: $(System.AccessToken)
+            inputs:
+              command: build
+              repository: $(imageRepository)
+              dockerfile: $(dockerfile)
+              containerRegistry: $(dockerRegistryServiceConnection)
+              tags: |
+                $(Build.BuildId)
+              arguments: >
+                --build-arg FEED_URL=$(feedUrl)
+                --secret id=feed-token,env=FEED_ACCESSTOKEN
+                --build-arg BUILD_CONFIGURATION=$(buildConfiguration)
+
+          - task: Docker@2
+            displayName: Publicar imagen
+            inputs:
+              command: push
+              repository: $(imageRepository)
+              containerRegistry: $(dockerRegistryServiceConnection)
+              tags: |
+                $(Build.BuildId)
+
+  - stage: Deploy
+    displayName: Desplegar en Kubernetes ($(ambiente))
+    dependsOn: DockerBuildPush
+    condition: succeeded()
+    jobs:
+      - deployment: DeployApi
+        displayName: Aplicar manifiesto
+        environment: $(deployEnvironment)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: Bash@3
+                  displayName: Resolver marcadores de despliegue del manifiesto
+                  inputs:
+                    targetType: inline
+                    script: |
+                      set -euo pipefail
+                      export K8S_NAMESPACE="$(k8sNamespace)"
+                      export IMAGE_REGISTRY="$(imageRegistry)"
+                      export IMAGE_TAG="$(Build.BuildId)"
+                      export INGRESS_HOST="$(ingressHost)"
+                      export ASPNETCORE_ENVIRONMENT="$(aspnetcoreEnvironment)"
+                      envsubst < "$(manifiesto)" > "$(Pipeline.Workspace)/manifiesto.resuelto.yaml"
+
+                - task: KubernetesManifest@1
+                  displayName: Aplicar manifiesto resuelto
+                  inputs:
+                    action: deploy
+                    kubernetesServiceConnection: $(kubernetesServiceConnection)
+                    namespace: $(k8sNamespace)
+                    manifests: $(Pipeline.Workspace)/manifiesto.resuelto.yaml

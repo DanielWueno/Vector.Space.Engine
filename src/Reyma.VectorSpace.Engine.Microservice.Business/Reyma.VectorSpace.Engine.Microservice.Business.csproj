@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Reyma.VectorSpace.Engine.Microservice.Domain\Reyma.VectorSpace.Engine.Microservice.Domain.csproj" />
+    <ProjectReference Include="..\Reyma.VectorSpace.Engine.Microservice.Persistence\Reyma.VectorSpace.Engine.Microservice.Persistence.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Reyma.AutoMapper.Contracts" Version="1.0.1" />
+    <PackageReference Include="Reyma.Domain.Admin.Abstractions.Postgres" Version="1.0.3" />
+    <PackageReference Include="Reyma.Domain.Admin.Base.Postgres" Version="1.0.8" />
+    <PackageReference Include="Reyma.FluentValidations" Version="1.0.1" />
+    <PackageReference Include="Reyma.IntegrityService.Tools" Version="1.0.11" />
+    <PackageReference Include="Reyma.Mediator.Base.Postgres" Version="1.1.9" />
+    <PackageReference Include="Reyma.Mediator.Models.Base.Postgres" Version="1.0.2" />
+    <PackageReference Include="Reyma.Microservice.Communication" Version="1.0.10" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

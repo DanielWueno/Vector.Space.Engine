@@ -1,0 +1,88 @@
+# Manifiesto de ejemplo para el ambiente de desarrollo (rama develop).
+# Misma mecanica que api.yaml: los identificadores del servicio ya quedaron
+# sustituidos y los valores de infraestructura son marcadores "${NOMBRE}" que
+# resuelve el pipeline. Una sola replica, sufijo "-dev" y ruta "<ruta base>/dev"
+# para convivir con produccion. Requiere crear antes el Secret
+# "reyma-vectorspace-engine-dev-env" con la configuracion externa del README.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reyma-vectorspace-engine-dev
+  namespace: ${K8S_NAMESPACE}
+  labels:
+    app: reyma-vectorspace-engine-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reyma-vectorspace-engine-dev
+  template:
+    metadata:
+      labels:
+        app: reyma-vectorspace-engine-dev
+    spec:
+      containers:
+        - name: reyma-vectorspace-engine-dev
+          image: ${IMAGE_REGISTRY}/reyma-vectorspace-engine-dev:${IMAGE_TAG}
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+          envFrom:
+            - secretRef:
+                name: reyma-vectorspace-engine-dev-env
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health/self
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reyma-vectorspace-engine-dev
+  namespace: ${K8S_NAMESPACE}
+  labels:
+    app: reyma-vectorspace-engine-dev
+spec:
+  type: ClusterIP
+  selector:
+    app: reyma-vectorspace-engine-dev
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: reyma-vectorspace-engine-dev
+  namespace: ${K8S_NAMESPACE}
+  labels:
+    app: reyma-vectorspace-engine-dev
+spec:
+  rules:
+    - host: ${INGRESS_HOST}
+      http:
+        paths:
+          - path: /reyma/vectorspace/engine/dev
+            pathType: Prefix
+            backend:
+              service:
+                name: reyma-vectorspace-engine-dev
+                port:
+                  number: 80
