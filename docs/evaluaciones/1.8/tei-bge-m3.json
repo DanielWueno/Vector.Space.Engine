@@ -1,0 +1,71 @@
+{
+ "motor": "tei",
+ "modelo": "bge-m3",
+ "denso": {
+  "status": 200,
+  "dim": 1024,
+  "norma": 1.0,
+  "ms": 424.0,
+  "error": null
+ },
+ "dimensions_param": {
+  "256": {
+   "status": 200,
+   "dim": 256,
+   "norma": 1.0,
+   "cos_vs_truncar_y_L2": 1.0
+  },
+  "512": {
+   "status": 200,
+   "dim": 512,
+   "norma": 1.0,
+   "cos_vs_truncar_y_L2": 1.0
+  }
+ },
+ "simetria_es_en": {
+  "full": {
+   "cos_traducciones": [
+    0.7776,
+    0.9141,
+    0.8908
+   ],
+   "cos_no_relacionado": [
+    0.3822,
+    0.357,
+    0.301
+   ],
+   "separa": true
+  },
+  "256": {
+   "cos_traducciones": [
+    0.7377,
+    0.9149,
+    0.878
+   ],
+   "cos_no_relacionado": [
+    0.3034,
+    0.3708,
+    0.1946
+   ],
+   "separa": true
+  }
+ },
+ "lote_7_textos_ms": 905.8,
+ "sparse": {
+  "ruta": "/embed_sparse",
+  "status": 424,
+  "n_terminos": null,
+  "error": "{\"error\":\"Backend error: Model is not an embedding model with SPLADE pooling\",\"error_type\":\"Backend\"}"
+ },
+ "info": {
+  "model_id": "/data/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181",
+  "model_type": {
+   "embedding": {
+    "pooling": "cls"
+   }
+  },
+  "max_input_length": 8192,
+  "version": "1.8.3",
+  "sha": "78502d8e61223d2c73d4bb7aeaea46787e90d596"
+ }
+}

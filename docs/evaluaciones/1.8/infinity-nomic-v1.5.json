@@ -1,0 +1,75 @@
+{
+ "motor": "infinity",
+ "modelo": "nomic-embed-text-v1.5",
+ "denso": {
+  "status": 200,
+  "dim": 768,
+  "norma": 1.0,
+  "ms": 130.3,
+  "error": null
+ },
+ "dimensions_param": {
+  "256": {
+   "status": 200,
+   "dim": 256,
+   "norma": 0.6075,
+   "cos_vs_truncar_y_L2": 1.0
+  },
+  "512": {
+   "status": 200,
+   "dim": 512,
+   "norma": 0.8244,
+   "cos_vs_truncar_y_L2": 1.0
+  }
+ },
+ "simetria_es_en": {
+  "full": {
+   "cos_traducciones": [
+    0.5187,
+    0.6425,
+    0.6969
+   ],
+   "cos_no_relacionado": [
+    0.6308,
+    0.5619,
+    0.5821
+   ],
+   "separa": false
+  },
+  "256": {
+   "cos_traducciones": [
+    0.5447,
+    0.6342,
+    0.7146
+   ],
+   "cos_no_relacionado": [
+    0.6473,
+    0.5566,
+    0.6095
+   ],
+   "separa": false
+  }
+ },
+ "lote_7_textos_ms": 147.8,
+ "rutas": [
+  "/",
+  "/classify",
+  "/embeddings",
+  "/embeddings_audio",
+  "/embeddings_image",
+  "/health",
+  "/metrics",
+  "/models",
+  "/rerank"
+ ],
+ "version": "0.0.78",
+ "models": [
+  {
+   "id": "snapshots/e9b6763023c676ca8431644204f50c2b100d9aab",
+   "backend": "torch",
+   "capabilities": [
+    "embed"
+   ]
+  }
+ ]
+}

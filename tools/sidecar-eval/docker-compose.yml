@@ -1,0 +1,36 @@
+# 1.8-evaluar-adopcion-de-motor-de-embeddings-existente
+# Banco de prueba local de motores de embeddings existentes (CPU, sin GPU).
+# Los modelos los descarga el HOST con descargar_modelos.py a ../../.cache/hf (ignorado por git):
+# la inspeccion TLS corporativa rompe la descarga desde dentro del contenedor y no se desactiva
+# la validacion TLS. Por eso ambos motores corren offline sobre la ruta local del snapshot.
+# Uso:  $env:MODEL_DIR='models--BAAI--bge-m3/snapshots/<sha>'; docker compose -f tools/sidecar-eval/docker-compose.yml up -d tei infinity
+# Rollback: docker compose -f tools/sidecar-eval/docker-compose.yml down
+name: vse-sidecar-eval
+
+x-offline: &offline
+  HF_HUB_CACHE: /data
+  HF_HOME: /data
+  HF_HUB_OFFLINE: "1"
+  TRANSFORMERS_OFFLINE: "1"
+
+services:
+  tei:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.8
+    command: ["--model-id", "/data/${MODEL_DIR:?MODEL_DIR}", "--max-client-batch-size", "64", "--max-batch-tokens", "${TEI_MAX_BATCH_TOKENS:-2048}"]
+    # 16384 (defecto de TEI) hace OOM (exit 137) en el warmup de bge-m3 fp32 en CPU con ~14 GB de VM.
+    environment:
+      <<: *offline
+      AUTO_TRUNCATE: "${TEI_AUTO_TRUNCATE:-false}"
+    volumes:
+      - ../../.cache/hf:/data
+    ports:
+      - "127.0.0.1:8081:80"
+
+  infinity:
+    image: michaelf34/infinity:latest-cpu
+    command: ["v2", "--model-id", "/data/${MODEL_DIR:?MODEL_DIR}", "--engine", "torch", "--device", "cpu", "--port", "7997", "${INFINITY_EXTRA:---no-bettertransformer}"]
+    environment: *offline
+    volumes:
+      - ../../.cache/hf:/data
+    ports:
+      - "127.0.0.1:7997:7997"

@@ -1,0 +1,12 @@
+Salida de tools/sidecar-eval/medir.py (bge-m3, CPU, 2026-10-19), un motor a la vez, contenedor recien levantado.
+pico_arranque y mem_tras_medir: docker stats (memoria anonima; puede no contar paginas mapeadas de archivo).
+
+infinity torch fp32 | arranque_s=123 | pico_arranque_MiB=1572 | mem_tras_medir=1.194GiB / 15.46GiB | {"motor": "infinity", "lote": 32, "ms_por_lote": [9905, 9892, 9787], "mediana_ms": 9892, "textos_por_s": 3.2}
+tei ort mbt=8192 | arranque_s=153 | pico_arranque_MiB=14356 | mem_tras_medir=13.84GiB / 15.46GiB | {"motor": "tei", "lote": 32, "ms_por_lote": [7735, 7962, 8259], "mediana_ms": 7962, "textos_por_s": 4.0}
+tei ort mbt=2048 auto-truncate | arranque_s=79 | pico_arranque_MiB=7712 | mem_tras_medir=7.542GiB / 15.46GiB | {"motor": "tei", "lote": 32, "ms_por_lote": [10773, 10508, 9715], "mediana_ms": 10508, "textos_por_s": 3.0}
+
+Fallos de arranque registrados (logs de TEI 1.8.3):
+- bge-m3 solo con pytorch_model.bin: "Could not start Candle backend: Cannot allocate memory (os error 12)" y despues exit 137 (OOM).
+- bge-m3 con onnx/ y max-batch-tokens 16384 (defecto): exit 137 durante "Warming up model".
+- bge-m3 con max-batch-tokens 2048 sin auto-truncate: "--max-batch-tokens cannot be lower than the model max_input_length (8192 < 2048)".
+- nomic-embed-text-v1.5: "duplicate field `max_position_embeddings` at line 42 column 15" (config.json trae max_position_embeddings y n_positions).
