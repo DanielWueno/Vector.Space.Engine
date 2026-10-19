@@ -1,0 +1,78 @@
+# 1.2-comparar-qdrant-vs-milvus
+# Banco local para comparar Qdrant y Milvus (standalone) con el mismo dataset sintetico.
+# Proyecto compose propio y puertos propios: NO toca el contenedor rag-qdrant (6333/6334) de
+# Rag.Context.Engine ni sus colecciones.
+# Topologia de Milvus tomada del compose oficial de standalone v2.6.25 (etcd + MinIO + milvus),
+# sin publicar etcd ni MinIO fuera de la red de compose. MinIO y Milvus usan sus credenciales por
+# defecto internas (no se escribe ninguna aqui): es un banco efimero sin datos reales.
+# Uso:      docker compose -f tools/vectorstore-eval/docker-compose.yml up -d
+# Rollback: docker compose -f tools/vectorstore-eval/docker-compose.yml down -v
+name: vse-vectorstore-eval
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.19.2
+    volumes:
+      - qdrant-data:/qdrant/storage
+      - qdrant-snapshots:/qdrant/snapshots
+    ports:
+      - "127.0.0.1:16333:6333"
+      - "127.0.0.1:16334:6334"
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.25
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    volumes:
+      - etcd-data:/etcd
+    command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 10s
+      timeout: 20s
+      retries: 3
+
+  minio:
+    image: milvusdb/minio:RELEASE.2024-12-18T13-15-44Z
+    volumes:
+      - minio-data:/minio_data
+    command: minio server /minio_data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 20s
+      retries: 3
+
+  milvus:
+    image: milvusdb/milvus:${MILVUS_TAG:-v2.6.25}
+    command: ["milvus", "run", "standalone"]
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+      MQ_TYPE: woodpecker
+    volumes:
+      - milvus-data:/var/lib/milvus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 10s
+      start_period: 90s
+      timeout: 20s
+      retries: 3
+    ports:
+      - "127.0.0.1:19530:19530"
+      - "127.0.0.1:19091:9091"
+    depends_on:
+      - etcd
+      - minio
+
+volumes:
+  qdrant-data:
+  qdrant-snapshots:
+  etcd-data:
+  minio-data:
+  milvus-data:

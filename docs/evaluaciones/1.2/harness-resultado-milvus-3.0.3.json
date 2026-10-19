@@ -1,0 +1,437 @@
+{
+  "ficha": "1.2-comparar-qdrant-vs-milvus",
+  "versiones": {
+    "qdrant_server": "1.19.2",
+    "milvus_server": "3.0.3",
+    "qdrant_client": "1.0.0.0",
+    "milvus_client": "2.6.0.0"
+  },
+  "dataset": {
+    "semilla": 12345,
+    "puntos": 3000,
+    "dimension": 384,
+    "grupo_empate": 41,
+    "consultas": 30,
+    "filtros": [
+      "sin-filtro",
+      "tenant-a",
+      "modulo-Reyma.Ventas",
+      "lenguaje-Markdown",
+      "defined_symbols-any",
+      "salto-cualificado",
+      "ids-200"
+    ]
+  },
+  "milvus_brechas_de_adaptador": [],
+  "milvus_flush_rechazados_por_rate_limit": 1,
+  "milvus_tipo_count": "Milvus.Client.FieldData`1[System.Nullable`1[System.Int64]]",
+  "tiempos_s": {
+    "qdrant.crear_coleccion_s": 0.44,
+    "qdrant.carga_3000_puntos_s": 0.39,
+    "qdrant.paridad_630_consultas_s": 2.5,
+    "milvus.crear_coleccion_s": 3.55,
+    "milvus.carga_3000_puntos_s": 8.39,
+    "milvus.paridad_630_consultas_s": 3.32
+  },
+  "resultados": [
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "crear-coleccion-hibrida",
+      "Pass": true,
+      "Detail": "dense + sparse + dense-resumen opcional + indice keyword defined_symbols"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "manifiesto-ida-y-vuelta",
+      "Pass": true,
+      "Detail": "identico; denso de ceros sin sparse"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "empates-prefijo-completo-con-segmento-sin-flush-Dense",
+      "Pass": true,
+      "Detail": "3 consultas (ultimo limit 44); top10 identico al oraculo; scores del grupo de 41: 1 valor(es) distinto(s) (empate bit a bit)"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "empates-prefijo-completo-con-segmento-sin-flush-Sparse",
+      "Pass": true,
+      "Detail": "3 consultas (ultimo limit 44); top10 identico al oraculo; scores del grupo de 41: 1 valor(es) distinto(s) (empate bit a bit)"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "paridad-con-segmento-sin-flush-Dense",
+      "Pass": true,
+      "Detail": "7 filtros x 30 consultas, top40 exacto: 210 identicas, 0 equivalentes, 0 fallos"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "paridad-con-segmento-sin-flush-Sparse",
+      "Pass": true,
+      "Detail": "7 filtros x 30 consultas, top40 exacto: 210 identicas, 0 equivalentes, 0 fallos"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "paridad-con-segmento-sin-flush-Resumen",
+      "Pass": true,
+      "Detail": "7 filtros x 30 consultas, top40 exacto: 210 identicas, 0 equivalentes, 0 fallos"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "umbral-de-score-intermedio",
+      "Pass": true,
+      "Detail": "umbral 0.106688574: 50 resultados (oraculo 50); identicos"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "umbral-de-score-en-el-borde",
+      "Pass": true,
+      "Detail": "umbral = score propio del puesto 50 (0.10676722): 49 resultados -> estricto (>): el puesto con score igual al umbral queda fuera"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "empates-prefijo-completo-tras-flush-Dense",
+      "Pass": true,
+      "Detail": "3 consultas (ultimo limit 44); top10 identico al oraculo; scores del grupo de 41: 1 valor(es) distinto(s) (empate bit a bit)"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "empates-prefijo-completo-tras-flush-Sparse",
+      "Pass": true,
+      "Detail": "3 consultas (ultimo limit 44); top10 identico al oraculo; scores del grupo de 41: 1 valor(es) distinto(s) (empate bit a bit)"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "paridad-tras-flush-Dense",
+      "Pass": true,
+      "Detail": "7 filtros x 10 consultas, top40 exacto: 70 identicas, 0 equivalentes, 0 fallos"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "paridad-tras-flush-Sparse",
+      "Pass": true,
+      "Detail": "7 filtros x 10 consultas, top40 exacto: 70 identicas, 0 equivalentes, 0 fallos"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "paridad-tras-flush-Resumen",
+      "Pass": true,
+      "Detail": "7 filtros x 10 consultas, top40 exacto: 70 identicas, 0 equivalentes, 0 fallos"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "upsert-reemplazo-completo",
+      "Pass": true,
+      "Detail": "tenant-a 1209->1208; busqueda resumen del punto: 0 hits; retrieve pending=True resumen=ausente"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "update-vector-resumen",
+      "Pass": true,
+      "Detail": "top1 resumen=True score=1; resto del punto intacto=True"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "marcar-resumen-completo",
+      "Pass": true,
+      "Detail": "pendientes 1236->1226 (esperado -10); denso del punto intacto=True"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "scroll-completo",
+      "Pass": true,
+      "Detail": "3001 puntos paginados (esperado 3001), duplicados=0"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "retrieve-estado-resumen",
+      "Pass": true,
+      "Detail": "5 puntos, 0 con estado distinto al esperado"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "borrar-por-id",
+      "Pass": true,
+      "Detail": "conteo 3000->2995; busqueda de los borrados: 0 hits"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "lectura-tras-escritura",
+      "Pass": true,
+      "Detail": "top1 inmediato = punto recien escrito: True"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "paridad-tras-mutaciones",
+      "Pass": true,
+      "Detail": "3 ramas x 10 consultas con filtro tenant-a tras las mutaciones: 0 fallos"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "inspeccion-de-esquema",
+      "Pass": true,
+      "Detail": "densos [dense-resumen:384, dense:384], sparse [sparse-code], indices payload [defined_symbols], puntos 2997"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "limite-16384",
+      "Pass": true,
+      "Detail": "aceptado, 2996 resultados (la coleccion tiene 2996)"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "limite-16385",
+      "Pass": true,
+      "Detail": "aceptado, 2996 resultados (la coleccion tiene 2996)"
+    },
+    {
+      "Engine": "qdrant",
+      "Criterion": "1",
+      "Test": "limite-32767",
+      "Pass": true,
+      "Detail": "aceptado, 2996 resultados (la coleccion tiene 2996)"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "crear-coleccion-hibrida",
+      "Pass": true,
+      "Detail": "dense + sparse + dense-resumen opcional + indice keyword defined_symbols"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "manifiesto-ida-y-vuelta",
+      "Pass": true,
+      "Detail": "identico; estrategia: denso de ceros y sparse vacio (igual que Qdrant)"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "empates-prefijo-completo-con-segmento-sin-flush-Dense",
+      "Pass": true,
+      "Detail": "3 consultas (ultimo limit 44); top10 identico al oraculo; scores del grupo de 41: 1 valor(es) distinto(s) (empate bit a bit)"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "empates-prefijo-completo-con-segmento-sin-flush-Sparse",
+      "Pass": true,
+      "Detail": "3 consultas (ultimo limit 44); top10 identico al oraculo; scores del grupo de 41: 1 valor(es) distinto(s) (empate bit a bit)"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "paridad-con-segmento-sin-flush-Dense",
+      "Pass": true,
+      "Detail": "7 filtros x 30 consultas, top40 exacto: 210 identicas, 0 equivalentes, 0 fallos"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "paridad-con-segmento-sin-flush-Sparse",
+      "Pass": true,
+      "Detail": "7 filtros x 30 consultas, top40 exacto: 210 identicas, 0 equivalentes, 0 fallos"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "paridad-con-segmento-sin-flush-Resumen",
+      "Pass": true,
+      "Detail": "7 filtros x 30 consultas, top40 exacto: 210 identicas, 0 equivalentes, 0 fallos"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "umbral-de-score-intermedio",
+      "Pass": true,
+      "Detail": "umbral 0.106688574: 50 resultados (oraculo 50); identicos"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "umbral-de-score-en-el-borde",
+      "Pass": true,
+      "Detail": "umbral = score propio del puesto 50 (0.10676724): 49 resultados -> estricto (>): el puesto con score igual al umbral queda fuera"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "empates-prefijo-completo-tras-flush-Dense",
+      "Pass": true,
+      "Detail": "3 consultas (ultimo limit 44); top10 identico al oraculo; scores del grupo de 41: 1 valor(es) distinto(s) (empate bit a bit)"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "empates-prefijo-completo-tras-flush-Sparse",
+      "Pass": true,
+      "Detail": "3 consultas (ultimo limit 44); top10 identico al oraculo; scores del grupo de 41: 1 valor(es) distinto(s) (empate bit a bit)"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "paridad-tras-flush-Dense",
+      "Pass": true,
+      "Detail": "7 filtros x 10 consultas, top40 exacto: 70 identicas, 0 equivalentes, 0 fallos"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "paridad-tras-flush-Sparse",
+      "Pass": true,
+      "Detail": "7 filtros x 10 consultas, top40 exacto: 70 identicas, 0 equivalentes, 0 fallos"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "paridad-tras-flush-Resumen",
+      "Pass": true,
+      "Detail": "7 filtros x 10 consultas, top40 exacto: 70 identicas, 0 equivalentes, 0 fallos"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "upsert-reemplazo-completo",
+      "Pass": true,
+      "Detail": "tenant-a 1209->1208; busqueda resumen del punto: 0 hits; retrieve pending=True resumen=ausente"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "update-vector-resumen",
+      "Pass": true,
+      "Detail": "top1 resumen=True score=1; resto del punto intacto=True"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "marcar-resumen-completo",
+      "Pass": true,
+      "Detail": "pendientes 1236->1226 (esperado -10); denso del punto intacto=True"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "scroll-completo",
+      "Pass": true,
+      "Detail": "3001 puntos paginados (esperado 3001), duplicados=0"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "retrieve-estado-resumen",
+      "Pass": true,
+      "Detail": "5 puntos, 0 con estado distinto al esperado"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "borrar-por-id",
+      "Pass": true,
+      "Detail": "conteo 3000->2995; busqueda de los borrados: 0 hits"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "lectura-tras-escritura",
+      "Pass": true,
+      "Detail": "top1 inmediato = punto recien escrito: True"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "paridad-tras-mutaciones",
+      "Pass": true,
+      "Detail": "3 ramas x 10 consultas con filtro tenant-a tras las mutaciones: 0 fallos"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "inspeccion-de-esquema",
+      "Pass": true,
+      "Detail": "densos [dense:384, dense_resumen:384], sparse [sparse_code], indices payload [defined_symbols, tenant], puntos 2996"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "limite-16384",
+      "Pass": true,
+      "Detail": "aceptado, 2996 resultados (la coleccion tiene 2996)"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "limite-16385",
+      "Pass": false,
+      "Detail": "excepcion: ErrorCode: 1100 Reason: topk [16385] is invalid, it should be in range [1, 16384], but got 16385: invalid parameter: invalid parameter"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "limite-32767",
+      "Pass": false,
+      "Detail": "excepcion: ErrorCode: 1100 Reason: topk [32767] is invalid, it should be in range [1, 16384], but got 32767: invalid parameter: invalid parameter"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "sonda-nombre-con-guion",
+      "Pass": false,
+      "Detail": "ErrorCode: 1701 Reason: Invalid field name: sparse-code. Field name can only contain numbers, letters, and underscores.: field name invalid[field=sparse-code]"
+    },
+    {
+      "Engine": "milvus",
+      "Criterion": "1",
+      "Test": "sonda-vector-nullable",
+      "Pass": true,
+      "Detail": "esquema con vector nullable creado; insertar una fila SIN dense_resumen: aceptado. El cliente no tiene forma de enviar un vector null en una fila (FloatVectorFieldData sin mascara de validez)."
+    },
+    {
+      "Engine": "migracion",
+      "Criterion": "2",
+      "Test": "migracion-qdrant-a-milvus",
+      "Pass": true,
+      "Detail": "{\"puntos_migrados\":3000,\"conteo_destino\":3000,\"segundos\":8.29,\"puntos_por_segundo\":361.7,\"manifiesto_identico\":true,\"busquedas_identicas_origen_destino\":180,\"busquedas_equivalentes\":0,\"busquedas_distintas\":0}"
+    }
+  ],
+  "resumen": {
+    "qdrant": {
+      "ok": 26,
+      "fallos": 0
+    },
+    "milvus": {
+      "ok": 25,
+      "fallos": 3
+    },
+    "migracion": {
+      "ok": 1,
+      "fallos": 0
+    }
+  }
+}
