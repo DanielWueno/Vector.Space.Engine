@@ -1,0 +1,41 @@
+# Vector.Space.Engine
+
+Servicio independiente de embeddings e ingesta: el "músculo" de vectorización,
+separado de `Rag.Context.Engine` para poder exponerse como API compartida al
+equipo sin arrastrar retrieval, generación RAG, vista o analíticas.
+
+## Estado
+
+2026-10-19: arranque documental. Sin código portado, sin repositorio remoto, sin
+despliegue, sin conexión a ningún servidor. Ver `docs/plan/ejecucion-plan.estado.json`.
+
+## Origen
+
+Separado de `Rag.Context.Engine` el 2026-10-19 (`25.7-separar-motor-en-proyecto-independiente`
+en el ledger de ese repo). El análisis completo, la evidencia de código de origen y las
+preguntas abiertas que motivaron la separación están en
+`Rag.Context.Engine/docs/analisis-futuro/motor-embeddings-ingesta-servicio-compartido.md`.
+Este repositorio no duplica ese documento; lo referencia.
+
+## Alcance
+
+- Cálculo de embeddings y pipeline de ingesta (chunking, vectorización, upsert al
+  vector store que se decida) como servicio de red para cualquier equipo que lo
+  necesite.
+- Explícitamente fuera: generación RAG, gate de confianza, caché de resúmenes de
+  negocio, historial de conversación, consola de administración, vistas y
+  analíticas/paneles. Eso se queda en `Rag.Context.Engine` u otros proyectos.
+- Vector store: hoy Qdrant es el vigente en `Rag.Context.Engine`; Milvus está en
+  pruebas por el administrador del servidor destino. Se decide con evidencia en
+  `1.1-comparar-qdrant-vs-milvus`, no por preferencia.
+
+## Servidor destino
+
+Servidor de la empresa, distinto de `reyma-dev` y de `Servidor.IA` (Mac mini,
+acotado a Ollama). Acceso SSH anunciado, no otorgado. Sin despliegue ni conexión
+hasta tener acceso y aprobación explícita.
+
+## Ledger
+
+`docs/plan/ejecucion-plan.estado.json` es la fuente de verdad del avance de este
+proyecto, igual que en `Rag.Context.Engine` y `Mcp.ContextForge`.
