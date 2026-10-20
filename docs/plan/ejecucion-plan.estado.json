@@ -200,6 +200,22 @@
           "verificacion": "Sobre los mismos chunks y vectores arctic@256 de 1.6, comparacion pareada en hit@10 (ES y EN) de al menos: denso solo, RRF nativa actual y RRF ponderada con pesos barridos (denso/sparse). Se adopta una fusion solo si gana preguntas al denso solo sin perder ninguna en ES ni en EN; si no, el endpoint de busquedas usa denso solo y el sparse queda como rama opcional documentada. Decision registrada con la tabla pareada.",
           "_preparacion_de_verificacion": "Requiere .cache/embeddings-eval de 1.6 (chunks y vectores); si se borro, regenerarlo con tools/embeddings-eval/README.md antes de medir.",
           "rollback": "Documental y de configuracion del banco; revertir el commit."
+        },
+        {
+          "id": "1.11-aprovechar-ventana-de-contexto-de-arctic",
+          "titulo": "El chunker y los resumenes de Rag.Context.Engine estan dimensionados para la ventana de 256 tokens de MiniLM: MaxTokensPerChunk=512 tokens estimados (MiniLM truncaba la mitad final de los chunks largos, ver 11.1 de ese repo) y el resumen LLM se limita a 160 tokens 'para caber bajo los 256 del embedder'. arctic-embed-m-v2.0 admite 8192 tokens, pero 1.6 lo midio recortado a 512 y hay chunks de 1600+ tokens; no se sabe cuanto se gana aprovechando la ventana.",
+          "modelo": "opus",
+          "esfuerzo": "high",
+          "multiagente": false,
+          "estado": "pendiente",
+          "horas_maquina": 1.5,
+          "advertencia_de_coste": "1,5 h provisionales: re-embeber con arctic a ventanas mayores (solo cambian los chunks largos) y una o dos re-fragmentaciones con el CLI en Qdrant efimero, cada una re-embebida (~16 min en host). TEI escala con la longitud: medir tambien su coste. Reestimar con la primera medicion.",
+          "por_que_este_modelo": "Disenar el oraculo es el trabajo: chunks mas grandes suben hit@k casi por definicion (mas texto con el ancla por chunk) a costa del contexto que recibe el LLM; sin contrapeso el resultado seria el numero que se queria.",
+          "origen": "Conversacion del 2026-10-20 al revisar 1.6: el usuario recuerda que los tamanos se recortaron por el modelo anterior y propone aprovechar la ventana mayor. Verificado en codigo de Rag.Context.Engine: src/RagEngine.Core/Domain/ChunkingOptions.cs (MaxTokensPerChunk 512) y src/RagEngine.Core/Infrastructure/Summary/OllamaBusinessSummaryGenerator.cs (MaxTokens 160).",
+          "archivos": "tools/embeddings-eval (ventana por arm, re-fragmentacion via ingestar-control.ps1 con Chunking__MaxTokensPerChunk), docs/evaluaciones/1.11/. Rag.Context.Engine solo lectura.",
+          "verificacion": "Sobre los mismos tres eval-sets de 1.6, con arctic@256 y comparacion pareada en hit@10 ES y EN contra arctic@256 ventana 512 (resultado de 1.6): (a) mismos chunks con ventana 1024 y 8192; (b) re-fragmentacion con MaxTokensPerChunk mayor (al menos 1024) re-embebida con ventana suficiente. Junto a cada hit@10 se reporta el contrapeso: tokens totales del top-10 devuelto (contexto que recibe el LLM) y chunks/s en TEI. Se adopta un cambio solo si gana preguntas sin perder ninguna y el aumento de contexto queda declarado; si no, se mantiene 512. El limite del resumen (160 tokens) se anota pero no se mide aqui (banda resumen fuera del banco de 1.6).",
+          "_preparacion_de_verificacion": "Requiere .cache/embeddings-eval de 1.6. La regla de acierto (archivo + ancla por subcadena) es valida entre fragmentaciones distintas; comprobar antes que cada ancla sigue existiendo en algun chunk de cada fragmentacion (si no, la pregunta se excluye en todos los brazos y se dice).",
+          "rollback": "Documental y del banco; ninguna coleccion servida se toca. Revertir el commit."
         }
       ]
     }
