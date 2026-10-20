@@ -1,6 +1,22 @@
 # Capa Persistence
 
-Proyecto `Reyma.VectorSpace.Engine.Microservice.Persistence`. `ApplicationDbContext` hereda de `BaseDbContext`
+> **Retirada en el item `1.9-decidir-si-se-conserva-postgres-de-la-plantilla` del ledger**
+> (`docs/plan/ejecucion-plan.estado.json`, 2026-10-20). El proyecto
+> `Reyma.VectorSpace.Engine.Microservice.Persistence` y su `ApplicationDbContext` **no existen hoy**
+> en el codigo: se eliminaron por completo (csproj, entrada en la `.sln`, referencias desde Api y
+> Business, tests de wiring). Este servicio guarda vectores en Qdrant, no en PostgreSQL, y su tabla
+> de control de acceso vive en configuracion (`ControlDeAcceso:Concesiones`), sin uso real de base
+> relacional. Esta guia queda como referencia de ampliacion futura, no como descripcion del estado
+> actual.
+>
+> **Condicion para recrearla:** si el servicio llega a necesitar persistencia relacional real -por
+> ejemplo el registro de ingestas de `1.7-definir-modelo-de-consumo-de-ingesta`, hoy bloqueado y
+> diferido a proposito- se recrea el proyecto siguiendo las reglas de abajo, en vez de improvisar
+> una base de datos sin este patron. Antes de recrearla, releer `docs/plan/ejecucion-plan.estado.json`
+> (items 1.7 y 1.9) para confirmar que la necesidad es real y no un atajo para un caso que cabria en
+> configuracion.
+
+Si se recrea, el proyecto se llama `Reyma.VectorSpace.Engine.Microservice.Persistence`. `ApplicationDbContext` hereda de `BaseDbContext`
 (`Reyma.Persistence.Base.Postgres`) y recibe `ICurrentUserAccessor` para la auditoria de usuario.
 
 ## Reglas

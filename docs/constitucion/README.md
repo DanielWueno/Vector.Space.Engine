@@ -25,7 +25,7 @@ no reemplaza revision humana/tests y no concede permisos de infraestructura.
 | Guia | Cuando consultarla |
 |---|---|
 | [DOMAIN_LAYER.md](./DOMAIN_LAYER.md) | Antes de crear entidades |
-| [PERSISTENCE_LAYER.md](./PERSISTENCE_LAYER.md) | Antes de crear configuraciones de EF Core o migraciones |
+| [PERSISTENCE_LAYER.md](./PERSISTENCE_LAYER.md) | Capa retirada en 1.9 (ver nota); consultar solo si se evalua recrearla |
 | [BUSINESS_LAYER.md](./BUSINESS_LAYER.md) | Antes de crear queries, commands o responses |
 | [API_LAYER.md](./API_LAYER.md) | Antes de crear controllers o permisos |
 
@@ -49,22 +49,30 @@ significan que esos recursos o todas sus dependencias existan en el servicio ini
 - Los defaults sensibles de desarrollo existentes no autorizan agregar secretos
   versionados. No copiarlos a prompts, respuestas, logs, capturas o documentacion.
 - Aplicar migraciones o desplegar requiere autorizacion del entorno por separado.
+- El proyecto `Reyma.VectorSpace.Engine.Microservice.Persistence` (PostgreSQL/`ApplicationDbContext`)
+  que traia la plantilla se retiro por completo en el item `1.9-decidir-si-se-conserva-postgres-de-la-plantilla`
+  del ledger (`docs/plan/ejecucion-plan.estado.json`, 2026-10-20): no tenia uso real. Hoy el servicio
+  guarda datos en Qdrant, no en una base relacional. [PERSISTENCE_LAYER.md](./PERSISTENCE_LAYER.md)
+  queda solo como guia de ampliacion futura, con la condicion bajo la cual se recrearia esa capa.
 
 ## Estructura de capas
 
 ```
 src/
   Reyma.VectorSpace.Engine.Microservice.Domain/       Entidades
-  Reyma.VectorSpace.Engine.Microservice.Persistence/  ApplicationDbContext y configuraciones
   Reyma.VectorSpace.Engine.Microservice.Business/     Queries, commands, responses, validadores
   Reyma.VectorSpace.Engine.Microservice.Api/          Controllers y composicion
 tests/
   Reyma.VectorSpace.Engine.Microservice.Tests/        Pruebas de integracion y contrato
 ```
 
+`Reyma.VectorSpace.Engine.Microservice.Persistence/` (ApplicationDbContext y configuraciones) no
+existe hoy: fue retirada en 1.9 (ver "Consideraciones de la base inicial" arriba y
+[PERSISTENCE_LAYER.md](./PERSISTENCE_LAYER.md)). Solo se recrea si el servicio necesita persistencia
+relacional real.
+
 ```
-Request -> Controller -> Mediator -> Handler -> DbContext -> Base de datos
-Response <- Controller <- Response (record) <- Mapeo <- Entidad
+Request -> Controller -> Mediator -> Handler -> Response (record)
 ```
 
 ## Paquetes Reyma

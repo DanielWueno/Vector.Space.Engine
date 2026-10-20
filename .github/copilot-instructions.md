@@ -6,15 +6,21 @@ leerlas antes de crear codigo nuevo.
 
 ## Arquitectura
 
-Microservicio **.NET 10** con **PostgreSQL** y **Clean Architecture** en cuatro capas:
+Microservicio **.NET 10** con **Clean Architecture**. Capas vigentes hoy:
 
 1. **Domain** (`Reyma.VectorSpace.Engine.Microservice.Domain`) - entidades.
-2. **Persistence** (`Reyma.VectorSpace.Engine.Microservice.Persistence`) - `ApplicationDbContext` y configuraciones de EF Core.
-3. **Business** (`Reyma.VectorSpace.Engine.Microservice.Business`) - CQRS con MediatR (queries, commands, responses, validadores).
-4. **Api** (`Reyma.VectorSpace.Engine.Microservice.Api`) - controllers REST y composicion.
+2. **Business** (`Reyma.VectorSpace.Engine.Microservice.Business`) - CQRS con MediatR (queries, commands, responses, validadores).
+3. **Api** (`Reyma.VectorSpace.Engine.Microservice.Api`) - controllers REST y composicion.
 
-Flujo: `Request -> Controller -> Mediator -> Handler -> DbContext -> Base de datos`.
-Dependencias permitidas: Api -> Business, Persistence; Business -> Domain, Persistence; Persistence -> Domain.
+El proyecto `Reyma.VectorSpace.Engine.Microservice.Persistence` (PostgreSQL/`ApplicationDbContext`,
+EF Core) que traia la plantilla fue retirado por completo en el item `1.9-decidir-si-se-conserva-postgres-de-la-plantilla`
+del ledger (`docs/plan/ejecucion-plan.estado.json`): no tenia un solo `DbSet` en uso, nada fuera de su
+propio registro lo referenciaba, y la tabla de acceso del servicio vive en configuracion, no en base de
+datos. Este servicio guarda datos en Qdrant (vector store), no en PostgreSQL. Ver
+`docs/constitucion/PERSISTENCE_LAYER.md` para la condicion bajo la cual se recrearia esa capa.
+
+Flujo hoy: `Request -> Controller -> Mediator -> Handler -> Response`.
+Dependencias permitidas: Api -> Business; Business -> Domain.
 No invertirlas.
 
 ## Reglas criticas
@@ -48,13 +54,16 @@ No invertirlas.
 
 ```
 Domain/<Recurso>.cs
-Persistence/Configurations/<Recurso>Configuration.cs
 Business/Models/Responses/<Recurso>Response.cs
 Business/Queries/<Recurso>/Get<Recurso>Query.cs
 Api/Controllers/<Recurso>Controller.cs
 Api/ApiSecurityConstants.cs            (nueva politica)
 tests/.../<Recurso>Tests.cs
 ```
+
+Si el recurso necesitara persistencia relacional real (ver condicion en
+`docs/constitucion/PERSISTENCE_LAYER.md`), se agrega tambien
+`Persistence/Configurations/<Recurso>Configuration.cs`, lo que implica recrear esa capa.
 
 ## Estilo
 
