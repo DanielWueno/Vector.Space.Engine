@@ -1,0 +1,2771 @@
+{
+ "arm": "qwen3-0.6b@256",
+ "modelo": "Qwen/Qwen3-Embedding-0.6B",
+ "dimensiones": 256,
+ "protocolo": {
+  "top_k": 10,
+  "prefetch": 40,
+  "min_score_denso": 0.10000000149011612,
+  "bandas": "denso+sparse-code, sin resumen"
+ },
+ "colecciones": {
+  "bsuite-auditorias-test": {
+   "eval_set_sha256": "8a322c20b68e76875aa5121ead7c6537d4483ff290be58dbc88689a2ae7b7efa",
+   "chunks": 2084,
+   "denso": {
+    "respondibles": 16,
+    "aciertos": {
+     "1": 4,
+     "3": 8,
+     "5": 12,
+     "10": 13
+    },
+    "preguntas": [
+     {
+      "question": "¿Qué significa que un hallazgo de auditoría sea recurrente?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "a7b68030-ce62-515b-8849-97246469113c",
+       "8bc49b17-a023-5432-b164-3d9ceceed424",
+       "aa1ba6bc-ee89-580e-841a-1300ec2e75ff",
+       "798b01a7-eb90-5c97-be66-99111439a10e",
+       "6c2b4d2d-fab0-5de1-93ff-4cc8bfb9d920",
+       "cf183fc0-454d-5c27-9f36-bf871b4ada76",
+       "221e559b-7657-5af5-bc8f-57811e7eda96",
+       "0a5f9d13-f4f4-5770-a235-0ce05df0f62a",
+       "da24843f-c758-5b10-b568-0542ff8776bc",
+       "9cd1b04f-fd4d-5fad-ab3f-756933ab3328"
+      ]
+     },
+     {
+      "question": "¿Cuándo se puede reabrir una acción correctiva ya finalizada?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "e96b4a72-1fad-5a6f-aeb4-9f57c52137ae",
+       "4071c8e8-0bef-5838-a40b-6c6e1fdb34ab",
+       "246af470-45d7-5573-80c9-7efd65f429c0",
+       "a2b39dff-c9be-5c2a-9c26-03d8efddee37",
+       "9150a72f-6aa6-5cc6-a8cd-ff15042fc97e",
+       "da8b4b50-47f9-51a3-a981-3880aac8e895",
+       "df753cfc-610e-5d3c-bef3-3ad4e657bbbe",
+       "674fb56b-c958-5297-ae85-e7f91971b88d",
+       "52b79aa7-216e-57b1-855c-4c6952f8e92d",
+       "11830434-0cdd-5774-b50d-969d98c22cd4"
+      ]
+     },
+     {
+      "question": "¿Cuándo pasa un hallazgo de auditoría a estatus de validación?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "cf183fc0-454d-5c27-9f36-bf871b4ada76",
+       "798b01a7-eb90-5c97-be66-99111439a10e",
+       "3b5e2fff-23e1-5b83-9409-5c6a12708697",
+       "dda2fc43-c1d8-5e9c-a6dd-74561d62041b",
+       "9cd1b04f-fd4d-5fad-ab3f-756933ab3328",
+       "4bc9b6e8-c23a-5310-8880-745f8a1a0c33",
+       "7b4b549f-810f-5765-8603-d67668c9a3ec",
+       "aa1ba6bc-ee89-580e-841a-1300ec2e75ff",
+       "3b367fe4-bb73-5ad6-a3a2-4a2b817279df",
+       "6c2b4d2d-fab0-5de1-93ff-4cc8bfb9d920"
+      ]
+     },
+     {
+      "question": "¿Qué información se registra al validar o rechazar un hallazgo de auditoría?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "dda2fc43-c1d8-5e9c-a6dd-74561d62041b",
+       "cf183fc0-454d-5c27-9f36-bf871b4ada76",
+       "9cd1b04f-fd4d-5fad-ab3f-756933ab3328",
+       "3b5e2fff-23e1-5b83-9409-5c6a12708697",
+       "798b01a7-eb90-5c97-be66-99111439a10e",
+       "3b367fe4-bb73-5ad6-a3a2-4a2b817279df",
+       "4bc9b6e8-c23a-5310-8880-745f8a1a0c33",
+       "026b963f-2f93-58f6-a112-b288909b9f0e",
+       "8bc49b17-a023-5432-b164-3d9ceceed424",
+       "7b4b549f-810f-5765-8603-d67668c9a3ec"
+      ]
+     },
+     {
+      "question": "¿Qué se necesita para reprogramar la ejecución de una auditoría?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "6972f145-d5ac-51d6-8a39-668d791851c5",
+       "28324354-cdeb-5377-aa6e-47bb2465c5fd",
+       "5d9390e1-c43b-595b-a35e-69b5492db709",
+       "4e5a72ba-3206-56a7-8889-4494fe8d9ddd",
+       "68512590-2e20-5741-be55-c2bb93a98d08",
+       "358b0011-94cc-5f6f-b62c-f33c7c4ca3a7",
+       "693b81eb-389a-5306-a7d1-8b605a12e88d",
+       "a63043d5-2f87-5f0d-acef-755f2e09b214",
+       "0a4f683f-57e8-5399-a053-d4316be4dab7",
+       "46821b09-c75d-520d-989f-0ba01d99e71c"
+      ]
+     },
+     {
+      "question": "¿Desde dónde reprogramo una auditoría ya planificada?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "5d9390e1-c43b-595b-a35e-69b5492db709",
+       "6972f145-d5ac-51d6-8a39-668d791851c5",
+       "28324354-cdeb-5377-aa6e-47bb2465c5fd",
+       "46821b09-c75d-520d-989f-0ba01d99e71c",
+       "ac2cdf8c-5648-5494-9d2f-c9683966b41e",
+       "4e5a72ba-3206-56a7-8889-4494fe8d9ddd",
+       "f0dc0219-6ce7-520c-a70e-876cf23d54fc",
+       "68512590-2e20-5741-be55-c2bb93a98d08",
+       "beca8fe9-967c-559c-8372-b7e8dfb4c945",
+       "f1c01085-d541-5049-9647-bf80d15451fe"
+      ]
+     },
+     {
+      "question": "¿Cuándo se puede finalizar completamente una auditoría?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "3cc1c09b-2ccb-5494-bf17-985b39605664",
+       "f7e6d4b2-d513-57b7-be35-a1d4cc98fcf3",
+       "da24843f-c758-5b10-b568-0542ff8776bc",
+       "56024cbc-7f96-5b95-9a4c-f295e6452349",
+       "7b4b549f-810f-5765-8603-d67668c9a3ec",
+       "a7010ad2-cf12-5f98-a654-6d84d865346b",
+       "b5b6a479-7565-5e0a-a081-881263fa47dc",
+       "ca352bde-a4a8-52b5-89f2-84302372450c",
+       "dc78d00c-d57e-5e05-9728-37cdc4f68c70",
+       "f5cc363a-99c2-5606-a6a6-74a46f70dedd"
+      ]
+     },
+     {
+      "question": "¿Qué pasa con una auditoría si no se encontraron hallazgos activos al completarla?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "8bc49b17-a023-5432-b164-3d9ceceed424",
+       "bb914cce-6870-52b7-87f7-8fac57b2c7f1",
+       "da24843f-c758-5b10-b568-0542ff8776bc",
+       "f5faf7e7-9f77-57f1-88b2-f1e045bdf28c",
+       "6c2b4d2d-fab0-5de1-93ff-4cc8bfb9d920",
+       "aa1ba6bc-ee89-580e-841a-1300ec2e75ff",
+       "ca352bde-a4a8-52b5-89f2-84302372450c",
+       "429b9e08-d411-5d04-9769-72e339e802fe",
+       "67ffdb6a-701e-5041-afed-bb248752f13a",
+       "0a5f9d13-f4f4-5770-a235-0ce05df0f62a"
+      ]
+     },
+     {
+      "question": "¿Cuándo puedo exportar la plantilla de hallazgos de una auditoría?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "de84fef0-19d3-58d0-8f5a-6f5618cbe2bd",
+       "bb914cce-6870-52b7-87f7-8fac57b2c7f1",
+       "d3e84683-3488-51de-9695-bdee95fdc1d8",
+       "ebbf2c24-a786-50fd-a799-27f6f2774fd6",
+       "0a5f9d13-f4f4-5770-a235-0ce05df0f62a",
+       "ca352bde-a4a8-52b5-89f2-84302372450c",
+       "d496e55e-cbd4-5cec-ae91-6a2817868da7",
+       "60166ca6-04ef-54e5-9c68-66f8c7ad7a45",
+       "2c1da699-45fb-5d8c-a1a7-3373bd0516c2",
+       "51eec19d-6985-5461-a0c0-0c21409830b2"
+      ]
+     },
+     {
+      "question": "¿Cómo se determina si un empleado es el auditado de una auditoría?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "a755863c-59fe-58e5-ad95-a56f3a8be151",
+       "da24843f-c758-5b10-b568-0542ff8776bc",
+       "e406542c-29e0-5f75-807d-22e2c6ec017e",
+       "14accb12-e534-56e5-ad31-26dfee3027a7",
+       "f0dc0219-6ce7-520c-a70e-876cf23d54fc",
+       "7c543b27-098d-55e5-a235-e28d22e87cf0",
+       "6a689f47-04bd-5615-a702-1f72eba65815",
+       "d61ce005-b335-5870-9de5-a939c8612787",
+       "5b0d7272-c41d-5cd4-b4ee-342dc43cdd6a",
+       "a578cd5d-e561-53c2-a6e7-d732d3602e0c"
+      ]
+     },
+     {
+      "question": "¿Qué motivo se registra cuando se reprograma un plan de auditoría?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "5d9390e1-c43b-595b-a35e-69b5492db709",
+       "28324354-cdeb-5377-aa6e-47bb2465c5fd",
+       "6972f145-d5ac-51d6-8a39-668d791851c5",
+       "ac2cdf8c-5648-5494-9d2f-c9683966b41e",
+       "f0dc0219-6ce7-520c-a70e-876cf23d54fc",
+       "68512590-2e20-5741-be55-c2bb93a98d08",
+       "46821b09-c75d-520d-989f-0ba01d99e71c",
+       "4e5a72ba-3206-56a7-8889-4494fe8d9ddd",
+       "beca8fe9-967c-559c-8372-b7e8dfb4c945",
+       "4e4f2b74-f4d2-5cca-8e14-58d6fc5e53ee"
+      ]
+     },
+     {
+      "question": "¿Cómo se calcula la calificación global de una auditoría?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "dc78d00c-d57e-5e05-9728-37cdc4f68c70",
+       "fdd3faea-b8cf-51e4-ae7e-564f2e2f0cd7",
+       "4f7f0c10-7dbc-5689-9ab5-529a55075a96",
+       "04c96937-ca65-59d9-aca0-d489ff0d168b",
+       "7b4b549f-810f-5765-8603-d67668c9a3ec",
+       "22c7828a-e41b-5b4e-95ce-634e4fb581cb",
+       "e2ed4a6d-b36b-54f1-b6ef-b82b0b9fe9c1",
+       "d61ce005-b335-5870-9de5-a939c8612787",
+       "983df0b6-2772-5d74-a657-6f912416727e",
+       "796aab70-e100-5028-9e51-448be405685f"
+      ]
+     },
+     {
+      "question": "¿Cómo se calcula la calificación de un grupo de criterios del checklist?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "71916034-5b14-589f-a5b7-ee7dc3e0df3e",
+       "fdd3faea-b8cf-51e4-ae7e-564f2e2f0cd7",
+       "a3c11ac1-914c-5e3e-a324-26c7c567daa2",
+       "ceab5810-0977-5127-92e1-23625e48865a",
+       "48e761c6-30ef-56db-9404-a6ece48ea252",
+       "50c35248-a0f4-5d45-9241-e3627734aa46",
+       "d0ed3601-d4db-5299-a52d-4ad5f7732e7e",
+       "dc78d00c-d57e-5e05-9728-37cdc4f68c70",
+       "efaa0960-1f57-5af8-a9a8-d49a81eb46d5",
+       "4ca86aff-57e0-5866-9a90-c368513a389a"
+      ]
+     },
+     {
+      "question": "¿Cómo registro el plan de acción de una auditoría?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "e3ce3f2d-02be-598f-b859-d55e58228469",
+       "beca8fe9-967c-559c-8372-b7e8dfb4c945",
+       "46821b09-c75d-520d-989f-0ba01d99e71c",
+       "693b81eb-389a-5306-a7d1-8b605a12e88d",
+       "2e3609b8-1c61-5450-a8d8-b1dbbd9dfea6",
+       "358b0011-94cc-5f6f-b62c-f33c7c4ca3a7",
+       "6972f145-d5ac-51d6-8a39-668d791851c5",
+       "5d9390e1-c43b-595b-a35e-69b5492db709",
+       "b41d3e3c-d817-5482-bbcc-d790a51fdb63",
+       "f0dc0219-6ce7-520c-a70e-876cf23d54fc"
+      ]
+     },
+     {
+      "question": "¿Cómo importo auditorías desde un archivo Excel?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "8dfb8fd2-3ff0-5915-aecd-8e301e7d592c",
+       "5e6d0c55-4285-514d-b507-68a1eff0a200",
+       "f1c01085-d541-5049-9647-bf80d15451fe",
+       "d89120d5-f932-56dd-8344-28a2ca71ddab",
+       "bbf7cb0d-eedb-59d6-b6a9-d817891d1bcd",
+       "539efe48-65bb-55ce-ac9f-5b683aeacae9",
+       "96c93bd5-336c-5f72-bc94-d9a14239d0a8",
+       "e43aba96-11e8-5c77-a532-6fd7034d52a3",
+       "7d229dbc-18b6-5f91-8adc-ab05ded9eea4",
+       "bd506c02-1102-5c1f-8292-70b76b7a112b"
+      ]
+     },
+     {
+      "question": "¿Qué significa recibir el plan de acción PDCA de una auditoría?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "b6830f55-67fa-50d3-a3dd-777fc2398fe7",
+       "358b0011-94cc-5f6f-b62c-f33c7c4ca3a7",
+       "1275ac19-0450-541d-8c5c-dfad792089c4",
+       "5ae51b0d-9eea-5787-8647-df729fb6ba94",
+       "693b81eb-389a-5306-a7d1-8b605a12e88d",
+       "2e3609b8-1c61-5450-a8d8-b1dbbd9dfea6",
+       "46821b09-c75d-520d-989f-0ba01d99e71c",
+       "beca8fe9-967c-559c-8372-b7e8dfb4c945",
+       "f0dc0219-6ce7-520c-a70e-876cf23d54fc",
+       "b25259f3-c8dd-5f3b-98f8-19d9424bba12"
+      ]
+     }
+    ]
+   },
+   "fusion": {
+    "respondibles": 16,
+    "aciertos": {
+     "1": 5,
+     "3": 6,
+     "5": 9,
+     "10": 13
+    },
+    "preguntas": [
+     {
+      "question": "¿Qué significa que un hallazgo de auditoría sea recurrente?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "a7b68030-ce62-515b-8849-97246469113c",
+       "c39de502-ca96-5666-8103-77eca901f5b9",
+       "8bc49b17-a023-5432-b164-3d9ceceed424",
+       "d3e84683-3488-51de-9695-bdee95fdc1d8",
+       "6c2b4d2d-fab0-5de1-93ff-4cc8bfb9d920",
+       "aa1ba6bc-ee89-580e-841a-1300ec2e75ff",
+       "e09dc8f9-57c9-5b94-a138-3b4cf051dbaf",
+       "221e559b-7657-5af5-bc8f-57811e7eda96",
+       "bb914cce-6870-52b7-87f7-8fac57b2c7f1",
+       "798b01a7-eb90-5c97-be66-99111439a10e"
+      ]
+     },
+     {
+      "question": "¿Cuándo se puede reabrir una acción correctiva ya finalizada?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "e96b4a72-1fad-5a6f-aeb4-9f57c52137ae",
+       "429b9e08-d411-5d04-9769-72e339e802fe",
+       "2d6b9390-d26f-5438-8f76-29713627f2f2",
+       "11830434-0cdd-5774-b50d-969d98c22cd4",
+       "4071c8e8-0bef-5838-a40b-6c6e1fdb34ab",
+       "246af470-45d7-5573-80c9-7efd65f429c0",
+       "9150a72f-6aa6-5cc6-a8cd-ff15042fc97e",
+       "da8b4b50-47f9-51a3-a981-3880aac8e895",
+       "a2b39dff-c9be-5c2a-9c26-03d8efddee37",
+       "df753cfc-610e-5d3c-bef3-3ad4e657bbbe"
+      ]
+     },
+     {
+      "question": "¿Cuándo pasa un hallazgo de auditoría a estatus de validación?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "cf183fc0-454d-5c27-9f36-bf871b4ada76",
+       "bb914cce-6870-52b7-87f7-8fac57b2c7f1",
+       "7b4b549f-810f-5765-8603-d67668c9a3ec",
+       "f5cc363a-99c2-5606-a6a6-74a46f70dedd",
+       "798b01a7-eb90-5c97-be66-99111439a10e",
+       "3b5e2fff-23e1-5b83-9409-5c6a12708697",
+       "6c2b4d2d-fab0-5de1-93ff-4cc8bfb9d920",
+       "dda2fc43-c1d8-5e9c-a6dd-74561d62041b",
+       "9cd1b04f-fd4d-5fad-ab3f-756933ab3328",
+       "d3223214-bfd7-58a8-ad09-0ea583df9eaf"
+      ]
+     },
+     {
+      "question": "¿Qué información se registra al validar o rechazar un hallazgo de auditoría?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "cae4837b-00f6-5581-8a51-366c3c2a1a68",
+       "dda2fc43-c1d8-5e9c-a6dd-74561d62041b",
+       "727916d7-6dba-5329-9743-b9b1891f3e7b",
+       "bb914cce-6870-52b7-87f7-8fac57b2c7f1",
+       "cf183fc0-454d-5c27-9f36-bf871b4ada76",
+       "8bc49b17-a023-5432-b164-3d9ceceed424",
+       "9cd1b04f-fd4d-5fad-ab3f-756933ab3328",
+       "6c2b4d2d-fab0-5de1-93ff-4cc8bfb9d920",
+       "3b5e2fff-23e1-5b83-9409-5c6a12708697",
+       "026b963f-2f93-58f6-a112-b288909b9f0e"
+      ]
+     },
+     {
+      "question": "¿Qué se necesita para reprogramar la ejecución de una auditoría?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "6972f145-d5ac-51d6-8a39-668d791851c5",
+       "8d6a67cc-7608-50fc-bacb-5755b60978ae",
+       "46821b09-c75d-520d-989f-0ba01d99e71c",
+       "28324354-cdeb-5377-aa6e-47bb2465c5fd",
+       "60cacef5-408a-5fd1-be83-1d540a7a2a8f",
+       "5d9390e1-c43b-595b-a35e-69b5492db709",
+       "429b9e08-d411-5d04-9769-72e339e802fe",
+       "693b81eb-389a-5306-a7d1-8b605a12e88d",
+       "4e5a72ba-3206-56a7-8889-4494fe8d9ddd",
+       "68512590-2e20-5741-be55-c2bb93a98d08"
+      ]
+     },
+     {
+      "question": "¿Desde dónde reprogramo una auditoría ya planificada?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "5d9390e1-c43b-595b-a35e-69b5492db709",
+       "90c88c76-c61a-5780-8a45-3ab8fd239a35",
+       "6972f145-d5ac-51d6-8a39-668d791851c5",
+       "e685c3c8-73bc-5f26-9ae3-f6cce819a66e",
+       "46821b09-c75d-520d-989f-0ba01d99e71c",
+       "28324354-cdeb-5377-aa6e-47bb2465c5fd",
+       "f5cc363a-99c2-5606-a6a6-74a46f70dedd",
+       "22c7828a-e41b-5b4e-95ce-634e4fb581cb",
+       "3cc1c09b-2ccb-5494-bf17-985b39605664",
+       "7d7eef04-48d6-50cc-81c9-586ad77743f1"
+      ]
+     },
+     {
+      "question": "¿Cuándo se puede finalizar completamente una auditoría?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "3cc1c09b-2ccb-5494-bf17-985b39605664",
+       "693b81eb-389a-5306-a7d1-8b605a12e88d",
+       "da24843f-c758-5b10-b568-0542ff8776bc",
+       "f7e6d4b2-d513-57b7-be35-a1d4cc98fcf3",
+       "56024cbc-7f96-5b95-9a4c-f295e6452349",
+       "02f737bb-6270-5766-a9fb-2001614b3dea",
+       "358b0011-94cc-5f6f-b62c-f33c7c4ca3a7",
+       "4e4f2b74-f4d2-5cca-8e14-58d6fc5e53ee",
+       "a7010ad2-cf12-5f98-a654-6d84d865346b",
+       "7b4b549f-810f-5765-8603-d67668c9a3ec"
+      ]
+     },
+     {
+      "question": "¿Qué pasa con una auditoría si no se encontraron hallazgos activos al completarla?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "bb914cce-6870-52b7-87f7-8fac57b2c7f1",
+       "11830434-0cdd-5774-b50d-969d98c22cd4",
+       "8bc49b17-a023-5432-b164-3d9ceceed424",
+       "6c2b4d2d-fab0-5de1-93ff-4cc8bfb9d920",
+       "da24843f-c758-5b10-b568-0542ff8776bc",
+       "e685c3c8-73bc-5f26-9ae3-f6cce819a66e",
+       "429b9e08-d411-5d04-9769-72e339e802fe",
+       "d3223214-bfd7-58a8-ad09-0ea583df9eaf",
+       "f5faf7e7-9f77-57f1-88b2-f1e045bdf28c",
+       "796c84b1-98c4-5cca-a7c6-f61792e1fe2f"
+      ]
+     },
+     {
+      "question": "¿Cuándo puedo exportar la plantilla de hallazgos de una auditoría?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "bb914cce-6870-52b7-87f7-8fac57b2c7f1",
+       "de84fef0-19d3-58d0-8f5a-6f5618cbe2bd",
+       "6c2b4d2d-fab0-5de1-93ff-4cc8bfb9d920",
+       "d3e84683-3488-51de-9695-bdee95fdc1d8",
+       "90c88c76-c61a-5780-8a45-3ab8fd239a35",
+       "0a5f9d13-f4f4-5770-a235-0ce05df0f62a",
+       "a87fe1b9-0d88-51dd-a05d-679ffedbc3df",
+       "ebbf2c24-a786-50fd-a799-27f6f2774fd6",
+       "351554f4-7297-523c-bbab-daf6452553fe",
+       "ca352bde-a4a8-52b5-89f2-84302372450c"
+      ]
+     },
+     {
+      "question": "¿Cómo se determina si un empleado es el auditado de una auditoría?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "a755863c-59fe-58e5-ad95-a56f3a8be151",
+       "02f737bb-6270-5766-a9fb-2001614b3dea",
+       "e406542c-29e0-5f75-807d-22e2c6ec017e",
+       "da24843f-c758-5b10-b568-0542ff8776bc",
+       "7d229dbc-18b6-5f91-8adc-ab05ded9eea4",
+       "f0dc0219-6ce7-520c-a70e-876cf23d54fc",
+       "5b0d7272-c41d-5cd4-b4ee-342dc43cdd6a",
+       "0a5f9d13-f4f4-5770-a235-0ce05df0f62a",
+       "14accb12-e534-56e5-ad31-26dfee3027a7",
+       "d120bd76-331b-5dac-994b-496eaf5ed210"
+      ]
+     },
+     {
+      "question": "¿Qué motivo se registra cuando se reprograma un plan de auditoría?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "5d9390e1-c43b-595b-a35e-69b5492db709",
+       "60cacef5-408a-5fd1-be83-1d540a7a2a8f",
+       "ac2cdf8c-5648-5494-9d2f-c9683966b41e",
+       "28324354-cdeb-5377-aa6e-47bb2465c5fd",
+       "6972f145-d5ac-51d6-8a39-668d791851c5",
+       "46821b09-c75d-520d-989f-0ba01d99e71c",
+       "fde4f82f-ff67-5df2-b73f-a786d758e460",
+       "cae4837b-00f6-5581-8a51-366c3c2a1a68",
+       "f0dc0219-6ce7-520c-a70e-876cf23d54fc",
+       "90c88c76-c61a-5780-8a45-3ab8fd239a35"
+      ]
+     },
+     {
+      "question": "¿Cómo se calcula la calificación global de una auditoría?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "dc78d00c-d57e-5e05-9728-37cdc4f68c70",
+       "d4f8bb1f-2bde-586c-a2fb-e4b19b6194ab",
+       "079cb3a9-0a52-5ca3-8c73-e7e3bbd2aef3",
+       "fdd3faea-b8cf-51e4-ae7e-564f2e2f0cd7",
+       "4f7f0c10-7dbc-5689-9ab5-529a55075a96",
+       "22c7828a-e41b-5b4e-95ce-634e4fb581cb",
+       "796aab70-e100-5028-9e51-448be405685f",
+       "7b4b549f-810f-5765-8603-d67668c9a3ec",
+       "983df0b6-2772-5d74-a657-6f912416727e",
+       "04c96937-ca65-59d9-aca0-d489ff0d168b"
+      ]
+     },
+     {
+      "question": "¿Cómo se calcula la calificación de un grupo de criterios del checklist?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "fdd3faea-b8cf-51e4-ae7e-564f2e2f0cd7",
+       "71916034-5b14-589f-a5b7-ee7dc3e0df3e",
+       "a3c11ac1-914c-5e3e-a324-26c7c567daa2",
+       "ca352bde-a4a8-52b5-89f2-84302372450c",
+       "f5faf7e7-9f77-57f1-88b2-f1e045bdf28c",
+       "dc78d00c-d57e-5e05-9728-37cdc4f68c70",
+       "48e761c6-30ef-56db-9404-a6ece48ea252",
+       "ceab5810-0977-5127-92e1-23625e48865a",
+       "f1c01085-d541-5049-9647-bf80d15451fe",
+       "50c35248-a0f4-5d45-9241-e3627734aa46"
+      ]
+     },
+     {
+      "question": "¿Cómo registro el plan de acción de una auditoría?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "e3ce3f2d-02be-598f-b859-d55e58228469",
+       "fde4f82f-ff67-5df2-b73f-a786d758e460",
+       "46821b09-c75d-520d-989f-0ba01d99e71c",
+       "60cacef5-408a-5fd1-be83-1d540a7a2a8f",
+       "beca8fe9-967c-559c-8372-b7e8dfb4c945",
+       "693b81eb-389a-5306-a7d1-8b605a12e88d",
+       "5d9390e1-c43b-595b-a35e-69b5492db709",
+       "cae4837b-00f6-5581-8a51-366c3c2a1a68",
+       "429b9e08-d411-5d04-9769-72e339e802fe",
+       "6972f145-d5ac-51d6-8a39-668d791851c5"
+      ]
+     },
+     {
+      "question": "¿Cómo importo auditorías desde un archivo Excel?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "f5cc363a-99c2-5606-a6a6-74a46f70dedd",
+       "8dfb8fd2-3ff0-5915-aecd-8e301e7d592c",
+       "5e6d0c55-4285-514d-b507-68a1eff0a200",
+       "22c7828a-e41b-5b4e-95ce-634e4fb581cb",
+       "f1c01085-d541-5049-9647-bf80d15451fe",
+       "7d7eef04-48d6-50cc-81c9-586ad77743f1",
+       "3cc1c09b-2ccb-5494-bf17-985b39605664",
+       "d89120d5-f932-56dd-8344-28a2ca71ddab",
+       "429b9e08-d411-5d04-9769-72e339e802fe",
+       "bbf7cb0d-eedb-59d6-b6a9-d817891d1bcd"
+      ]
+     },
+     {
+      "question": "¿Qué significa recibir el plan de acción PDCA de una auditoría?",
+      "category": "bsuite-auditorias",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "693b81eb-389a-5306-a7d1-8b605a12e88d",
+       "b6830f55-67fa-50d3-a3dd-777fc2398fe7",
+       "358b0011-94cc-5f6f-b62c-f33c7c4ca3a7",
+       "60cacef5-408a-5fd1-be83-1d540a7a2a8f",
+       "1275ac19-0450-541d-8c5c-dfad792089c4",
+       "fde4f82f-ff67-5df2-b73f-a786d758e460",
+       "02f737bb-6270-5766-a9fb-2001614b3dea",
+       "46821b09-c75d-520d-989f-0ba01d99e71c",
+       "5ae51b0d-9eea-5787-8647-df729fb6ba94",
+       "cae4837b-00f6-5581-8a51-366c3c2a1a68"
+      ]
+     }
+    ]
+   }
+  },
+  "innovapp-docs": {
+   "eval_set_sha256": "5642fe0d8a6e3785eecfaba95013015d898f3adb8540a4e8a227135dfc27e5a0",
+   "chunks": 743,
+   "denso": {
+    "respondibles": 22,
+    "aciertos": {
+     "1": 5,
+     "3": 8,
+     "5": 11,
+     "10": 13
+    },
+    "preguntas": [
+     {
+      "question": "¿Quién puede cancelar un ticket que está en estatus Registrado?",
+      "category": "literal",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "cda67294-19db-57ff-9d95-c92d62de30bc",
+       "85cb5846-fbd7-5fd2-9246-7ae2bc1f00db",
+       "a7aee964-2a22-5c52-a235-d0674afbb965",
+       "cba43862-18bb-58b5-a6a0-6cb92d7434f4",
+       "9dd5e773-8c81-50b0-85b3-c1417678d8bf",
+       "1b299784-524f-5a43-bc4a-2be0a0b6adca",
+       "9c18827a-4edc-5066-9980-4b0066ae4ddd",
+       "aebad1c4-e810-51e1-ae0f-41031a5f6a09",
+       "270b5694-55c5-5059-a18f-62b99b9f9b2e",
+       "69b1c3d1-9258-5152-beaf-f7d5919c41ab"
+      ]
+     },
+     {
+      "question": "¿Qué pasa si el motivo de cancelación seleccionado es 'Otro'?",
+      "category": "literal",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "8246b186-4705-5ff3-8db3-4c9dec5ed071",
+       "d712a03f-5ef0-5f9b-a684-5bda7397ba29",
+       "90d04a2d-5c71-5f04-8968-62f3273101a2",
+       "9c181c00-2c0f-5836-a928-e79edd873c07",
+       "0ace2c86-34f6-5b83-b5a9-3983dbef0733",
+       "68a4d9df-080b-58d5-94da-c472562545e7",
+       "25e4e4a0-1860-5b34-9d8e-a3dec58ab4c0",
+       "cda67294-19db-57ff-9d95-c92d62de30bc",
+       "270b5694-55c5-5059-a18f-62b99b9f9b2e",
+       "420affbd-c246-512f-b278-ad211d9d7db1"
+      ]
+     },
+     {
+      "question": "¿Cuándo se muestra el bloque de encuesta de satisfacción en la Trayectoria?",
+      "category": "literal",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "087f091d-373e-52c9-b754-1c48551cb7f3",
+       "0f358fcb-9d76-57e9-81e2-5b106af10286",
+       "c7c6db68-4aee-5ea3-859b-7b496010a6c0",
+       "1d3499c0-5ba7-59a4-a168-d75836de5e13",
+       "8a18275f-5f33-5a70-bd7b-26d683ff3c6b",
+       "8488ad08-bb6d-521d-99ae-d97f06c78357",
+       "40c61972-6575-5657-b033-c72d4a2ce44b",
+       "a0402d17-17f5-5a64-bcb9-df658d3e6e7c",
+       "b06ee52d-25e9-59a2-ba68-82b4d49fc22d",
+       "fc95c695-f688-5bd1-b06e-39eb25fe34db"
+      ]
+     },
+     {
+      "question": "¿Qué es el Folio Único de Atención?",
+      "category": "literal",
+      "hit_any_at_k": {
+       "1": false,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "a31686ee-18a9-54f5-8942-8ac914f7059e",
+       "fbadfdd8-7a2c-57c8-bf2e-917e0fd645d9",
+       "7c7129a9-5e78-5a77-837c-4fd59aee98fc",
+       "e35e27a1-16c6-5ebe-b423-b21cbdc4654a",
+       "c2f7d2bf-dddf-5e27-8ad0-524dd68e245c",
+       "985b2f71-61d2-5a5d-ba42-ad908a471edc",
+       "addbb813-591c-5948-bae2-25b019640a6d",
+       "b3b746d0-13e5-5f85-8b75-4864c534d2ee",
+       "83c34fea-d4e1-55b1-8450-f1e11d6570c3",
+       "d359dbc8-1c91-575f-b355-bb389e1ccc1f"
+      ]
+     },
+     {
+      "question": "¿Qué estatus del Ticket generan correo electrónico?",
+      "category": "literal",
+      "hit_any_at_k": {
+       "1": false,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "12721662-9c05-5500-8f3c-c023329ad7a1",
+       "54b3ffa7-0223-505c-9d23-74e37f47fd5c",
+       "2af1ea2e-731d-561e-a4c3-d236a25c6cdd",
+       "d189c34f-05ca-5910-8a11-23cf12c21538",
+       "6528ab02-a27e-5e77-80bf-7600e9bd192e",
+       "e56fe6e8-25b5-5341-935a-861fdf9a6890",
+       "07137b80-af0f-529f-bb09-195faec64772",
+       "1f8e6626-48f2-5bce-b31a-f6731d07c606",
+       "554cbf15-f201-5be8-828b-541d72ac80c6",
+       "7ab5497f-b593-5a1e-b0cb-42b373805ec0"
+      ]
+     },
+     {
+      "question": "¿Cómo se marca una notificación como leída?",
+      "category": "literal",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "d44382e5-9afa-5da9-ba2d-5f13c65f2b48",
+       "e49ab13b-45e8-5412-b2a0-0d55a0ad3760",
+       "a0ef6fa8-ea2e-5a43-a13d-f352ccc31c1d",
+       "453850e8-a211-5087-a13a-3b7a9b041d94",
+       "c5d0438d-7670-5e57-8fb2-a8db517b60da",
+       "91d351ff-7e97-5047-8d1b-d428ea5113c0",
+       "6ee1c3d0-bfdd-5e86-8796-5bad81555908",
+       "b14a949d-c23a-5972-9990-c05a6a8f0e36",
+       "cd16565f-0934-593a-b16c-677cfb0c5096",
+       "58fb9fcd-fb43-5ec2-95de-9b9a7f243882"
+      ]
+     },
+     {
+      "question": "¿Qué insignia se muestra cuando un estatus del timeline es terminal?",
+      "category": "literal",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "32d870d2-e624-51f2-8c0c-91bfb4029142",
+       "96fb9c79-c43f-5a01-9727-909bf73b4de0",
+       "f91efb20-8763-557e-973b-28155a92849f",
+       "e5f1b1e8-3a53-5096-b347-98f27e8fa929",
+       "86df0e0a-8cf4-57ce-8910-1cd90661db65",
+       "51598a6f-62cd-51de-8fcd-4bf8e430bee1",
+       "c9726191-d614-563e-b2b2-3f5ff5e83414",
+       "f31869f6-5464-59ec-8c65-7da7fa9e12ad",
+       "e9498ebb-2dbc-5d78-a01d-5fd83bc6ce27",
+       "20b38537-9ab8-5a21-852c-32e66fa9eedc"
+      ]
+     },
+     {
+      "question": "¿Qué permiso se necesita para marcar un ticket como 'Ing. en Traslado'?",
+      "category": "literal",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "9cfd5669-aca2-5243-b798-5a23123b4530",
+       "caa18a3f-0ea5-5b29-892d-9a65caef717b",
+       "d50436ce-cb07-5777-9993-e58dd22c4d90",
+       "f8706d4d-074d-5912-88dd-88a803777f1a",
+       "1ed31e29-ef50-574f-890b-0eddfda9d024",
+       "4d63e7f3-7d40-50ed-85a6-ff57b2be730f",
+       "8bff9c4b-529f-5c87-8459-b878d50960a0",
+       "1c86ae63-ae53-543a-8e90-d097f5cc855c",
+       "04da117e-0b34-5f1c-b40b-6ce76e13d856",
+       "5c1dd663-0a2a-5059-ad9d-a58046cb3490"
+      ]
+     },
+     {
+      "question": "Si levanté un ticket por error y ya no lo necesito, ¿lo puedo borrar yo mismo?",
+      "category": "parafraseada",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "cda67294-19db-57ff-9d95-c92d62de30bc",
+       "85cb5846-fbd7-5fd2-9246-7ae2bc1f00db",
+       "69b1c3d1-9258-5152-beaf-f7d5919c41ab",
+       "a7aee964-2a22-5c52-a235-d0674afbb965",
+       "aebad1c4-e810-51e1-ae0f-41031a5f6a09",
+       "cc36b2ce-6fc9-5a8c-87af-6e6129e9a98b",
+       "7e6ee850-3980-5817-bf02-caf6fe612c53",
+       "9dd5e773-8c81-50b0-85b3-c1417678d8bf",
+       "cba43862-18bb-58b5-a6a0-6cb92d7434f4",
+       "9c18827a-4edc-5066-9980-4b0066ae4ddd"
+      ]
+     },
+     {
+      "question": "Si escojo 'otro' como razón para cancelar, ¿tengo que explicar por qué?",
+      "category": "parafraseada",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "8246b186-4705-5ff3-8db3-4c9dec5ed071",
+       "7e6ee850-3980-5817-bf02-caf6fe612c53",
+       "90d04a2d-5c71-5f04-8968-62f3273101a2",
+       "d712a03f-5ef0-5f9b-a684-5bda7397ba29",
+       "3f6eed4d-1544-526e-ba09-dcb6c9155bbb",
+       "25e4e4a0-1860-5b34-9d8e-a3dec58ab4c0",
+       "6758f112-2911-5d75-b2e3-2fbe91c25e1a",
+       "85cb5846-fbd7-5fd2-9246-7ae2bc1f00db",
+       "a7aee964-2a22-5c52-a235-d0674afbb965",
+       "9dd5e773-8c81-50b0-85b3-c1417678d8bf"
+      ]
+     },
+     {
+      "question": "¿En qué momento me sale la pregunta de qué tan contento quedé con el servicio?",
+      "category": "parafraseada",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "40c61972-6575-5657-b033-c72d4a2ce44b",
+       "0f358fcb-9d76-57e9-81e2-5b106af10286",
+       "d20983c9-c7b6-56de-ba42-9d9e042c4988",
+       "c45d4228-92f6-5d72-8488-5612a1cbdbc6",
+       "1d3499c0-5ba7-59a4-a168-d75836de5e13",
+       "fc95c695-f688-5bd1-b06e-39eb25fe34db",
+       "c7c6db68-4aee-5ea3-859b-7b496010a6c0",
+       "087f091d-373e-52c9-b754-1c48551cb7f3",
+       "3de19ae6-1a7b-5bd4-b1f3-1768115b0c7c",
+       "15f63fd2-48fe-5dcc-99d2-b984011464e6"
+      ]
+     },
+     {
+      "question": "¿Hay un número que identifique mi caso sin importar si terminó siendo ticket o solicitud de servicio?",
+      "category": "parafraseada",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "c2f7d2bf-dddf-5e27-8ad0-524dd68e245c",
+       "ea2fd209-f230-57a1-90bc-dfb27e972dd2",
+       "516a7495-0fc6-5805-996f-465f3316f0aa",
+       "7c7129a9-5e78-5a77-837c-4fd59aee98fc",
+       "7cd3df1e-167e-5257-9091-a1d6c63059b5",
+       "1cf1a6c8-c108-5626-bfae-3b0e27369a5b",
+       "b3b746d0-13e5-5f85-8b75-4864c534d2ee",
+       "d1d1aa62-736d-5a94-bc39-28116fc48949",
+       "1d697e18-0125-5b32-8d4d-74c7c9d4cc24",
+       "b218bc21-c4f4-5bfd-bec0-7428529d57c4"
+      ]
+     },
+     {
+      "question": "¿Me avisan por correo cuando resuelven mi problema?",
+      "category": "parafraseada",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "ea4ecbc4-7f05-5ce9-8f11-f4c8b62270d6",
+       "def66c36-e5b5-567e-82f2-25b480e35a68",
+       "db00cbd0-b0de-52ab-9994-f7aa979171ba",
+       "15f63fd2-48fe-5dcc-99d2-b984011464e6",
+       "011bdce8-24ab-5ec3-9efa-1dc760542f70",
+       "814746cb-f3ab-5104-915b-efd5e948dac9",
+       "54b3ffa7-0223-505c-9d23-74e37f47fd5c",
+       "52d8626a-e792-5707-a73e-0df0b1312d70",
+       "fe04c434-2487-542b-8c70-44bc857aabca",
+       "42e24ef2-c273-5071-a803-9183ee2a7c89"
+      ]
+     },
+     {
+      "question": "¿Cómo le hago para que ya no me aparezca como pendiente algo que ya vi?",
+      "category": "parafraseada",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "7e6ee850-3980-5817-bf02-caf6fe612c53",
+       "6ee1c3d0-bfdd-5e86-8796-5bad81555908",
+       "270b16fd-6f5d-544a-8f77-5c55bb055884",
+       "6758f112-2911-5d75-b2e3-2fbe91c25e1a",
+       "42e24ef2-c273-5071-a803-9183ee2a7c89",
+       "0e69098c-af81-57ec-8cfc-e9e1ae37acc5",
+       "bfc1c941-3852-5d23-9933-32b8ad2570d9",
+       "a7aee964-2a22-5c52-a235-d0674afbb965",
+       "9c181c00-2c0f-5836-a928-e79edd873c07",
+       "814746cb-f3ab-5104-915b-efd5e948dac9"
+      ]
+     },
+     {
+      "question": "¿Cómo sé qué pasos ya se completaron en mi caso?",
+      "category": "parafraseada",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "12332ae4-8479-53a3-ae7f-e63c4bfd09ca",
+       "3adca293-1c56-5ccf-916f-9b23662036d4",
+       "f585733b-548e-5f4d-b146-36b5a52cde70",
+       "c7c6db68-4aee-5ea3-859b-7b496010a6c0",
+       "96fb9c79-c43f-5a01-9727-909bf73b4de0",
+       "310df8fc-60bd-5bc5-b3f9-ca4486b199d0",
+       "54dd9942-96ff-539b-9462-55a7d912118a",
+       "80ebbd45-1fa3-5576-b907-9e8644eb3e76",
+       "ef733d3b-8936-5d10-8f98-03301de528e8",
+       "580f8720-9252-58aa-a95a-d5dcae8488b7"
+      ]
+     },
+     {
+      "question": "¿Necesito un permiso especial para decir que el técnico ya va en camino a atender mi ticket?",
+      "category": "parafraseada",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "2af1ea2e-731d-561e-a4c3-d236a25c6cdd",
+       "d50436ce-cb07-5777-9993-e58dd22c4d90",
+       "76a936dd-e76e-5ecc-8951-e3953d461639",
+       "caa18a3f-0ea5-5b29-892d-9a65caef717b",
+       "554cbf15-f201-5be8-828b-541d72ac80c6",
+       "74049ac9-7d04-5cf4-9b0b-8fd4875a8bdd",
+       "8bff9c4b-529f-5c87-8459-b878d50960a0",
+       "e6a018dc-92d9-54d5-a5b0-d6a8e2e3bda9",
+       "4d63e7f3-7d40-50ed-85a6-ff57b2be730f",
+       "6cf72464-a36d-59af-b806-87bc17dfd03a"
+      ]
+     },
+     {
+      "question": "¿Puedo cancelar mi ticket en cualquier momento?",
+      "category": "ambigua",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "cda67294-19db-57ff-9d95-c92d62de30bc",
+       "85cb5846-fbd7-5fd2-9246-7ae2bc1f00db",
+       "9dd5e773-8c81-50b0-85b3-c1417678d8bf",
+       "9c18827a-4edc-5066-9980-4b0066ae4ddd",
+       "bf29277b-a992-52d2-875a-6acd2a72d541",
+       "78d5428b-8413-5661-afcb-7edde1c90027",
+       "cba43862-18bb-58b5-a6a0-6cb92d7434f4",
+       "aebad1c4-e810-51e1-ae0f-41031a5f6a09",
+       "80170800-8d5e-50dc-a05c-adaeed11a2e6",
+       "69b1c3d1-9258-5152-beaf-f7d5919c41ab"
+      ]
+     },
+     {
+      "question": "¿Cuál es la diferencia entre el folio del ticket y el Folio Único de Atención?",
+      "category": "ambigua",
+      "hit_any_at_k": {
+       "1": false,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "b3b746d0-13e5-5f85-8b75-4864c534d2ee",
+       "7c7129a9-5e78-5a77-837c-4fd59aee98fc",
+       "fbadfdd8-7a2c-57c8-bf2e-917e0fd645d9",
+       "c2f7d2bf-dddf-5e27-8ad0-524dd68e245c",
+       "a31686ee-18a9-54f5-8942-8ac914f7059e",
+       "addbb813-591c-5948-bae2-25b019640a6d",
+       "d359dbc8-1c91-575f-b355-bb389e1ccc1f",
+       "e35e27a1-16c6-5ebe-b423-b21cbdc4654a",
+       "77636bea-8b1e-5825-8057-990310697e22",
+       "83c34fea-d4e1-55b1-8450-f1e11d6570c3"
+      ]
+     },
+     {
+      "question": "¿Se me notifica igual por correo que por la app cuando mi ticket cambia de estatus?",
+      "category": "ambigua",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "e6a018dc-92d9-54d5-a5b0-d6a8e2e3bda9",
+       "2af1ea2e-731d-561e-a4c3-d236a25c6cdd",
+       "12721662-9c05-5500-8f3c-c023329ad7a1",
+       "15f63fd2-48fe-5dcc-99d2-b984011464e6",
+       "d189c34f-05ca-5910-8a11-23cf12c21538",
+       "1fa00eec-93f5-50bd-83ad-51212ff41e70",
+       "821bbbd3-cb73-584a-823e-1eb18fd581c8",
+       "e63d6a80-ac48-54f9-a0c8-54ce20174242",
+       "554cbf15-f201-5be8-828b-541d72ac80c6",
+       "fe04c434-2487-542b-8c70-44bc857aabca"
+      ]
+     },
+     {
+      "question": "¿Qué significa que un nodo del timeline esté 'en curso' comparado con uno que ya pasó pero no terminó el proceso?",
+      "category": "ambigua",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "32d870d2-e624-51f2-8c0c-91bfb4029142",
+       "96fb9c79-c43f-5a01-9727-909bf73b4de0",
+       "f91efb20-8763-557e-973b-28155a92849f",
+       "e5f1b1e8-3a53-5096-b347-98f27e8fa929",
+       "51598a6f-62cd-51de-8fcd-4bf8e430bee1",
+       "8e193129-9442-5f32-a4ea-df7d0aa6d3c3",
+       "86df0e0a-8cf4-57ce-8910-1cd90661db65",
+       "20b38537-9ab8-5a21-852c-32e66fa9eedc",
+       "5fc880b0-47f4-5fbd-8514-0a8af7ff6f02",
+       "b6fdbea1-7900-5be0-aedd-8955bfae83d4"
+      ]
+     },
+     {
+      "question": "¿Cómo solicito mis vacaciones o días económicos?",
+      "category": "fuera-de-dominio",
+      "hit_any_at_k": null,
+      "top_ids": [
+       "fe04c434-2487-542b-8c70-44bc857aabca",
+       "900bc178-bb75-5ce1-9f66-95706c1ac430",
+       "fc5d7ccf-3e30-5f4b-a8c9-da4329017e59",
+       "9c0a02da-b1a1-548c-ac75-ca45e768c1d9",
+       "be316bcd-608c-5b97-a197-47c20b47d6ce",
+       "88f9ea35-fa7e-5d10-a21c-1dfcfd67c149",
+       "f9073ec4-c95c-53f8-b6ce-fa44da1a91f3",
+       "62642412-4fe3-5122-aa4a-645543745c36",
+       "043ebcc9-3e79-5b06-ac17-d5997539a36f",
+       "a70351bf-f246-5fdc-a02d-c319ff2bfd23"
+      ]
+     },
+     {
+      "question": "¿Cómo se factura un ticket a un cliente externo?",
+      "category": "fuera-de-dominio",
+      "hit_any_at_k": null,
+      "top_ids": [
+       "2d0287f8-6134-5ec8-bb84-a42877a28754",
+       "12721662-9c05-5500-8f3c-c023329ad7a1",
+       "32e99791-31ee-578a-9163-5d4bf3fb0d99",
+       "7ab5497f-b593-5a1e-b0cb-42b373805ec0",
+       "93377ac8-e3cb-5c2b-b037-61767f76abba",
+       "516a7495-0fc6-5805-996f-465f3316f0aa",
+       "28fcfd36-6bc0-5306-9876-bbf72d409aa8",
+       "7cd3df1e-167e-5257-9091-a1d6c63059b5",
+       "1f8e6626-48f2-5bce-b31a-f6731d07c606",
+       "2e4cdfb5-ebc4-5310-bbe6-1d86d40bb67e"
+      ]
+     },
+     {
+      "question": "¿Puedo cancelar una encuesta de satisfacción después de haberla enviado?",
+      "category": "fuera-de-dominio",
+      "hit_any_at_k": null,
+      "top_ids": [
+       "0f358fcb-9d76-57e9-81e2-5b106af10286",
+       "8a18275f-5f33-5a70-bd7b-26d683ff3c6b",
+       "0dc45350-d62e-5672-8ec3-c9730bdea4e7",
+       "db95d1ef-b5e5-5f5c-b5b8-8a13e553d63a",
+       "2d0708c6-a515-52d5-ad4e-343a1da9e36c",
+       "40c61972-6575-5657-b033-c72d4a2ce44b",
+       "a0402d17-17f5-5a64-bcb9-df658d3e6e7c",
+       "bc8789ee-d451-5433-a925-c5b822bf295e",
+       "f15eb7fe-b30f-5656-8690-a5d26bd38b3d",
+       "1d3499c0-5ba7-59a4-a168-d75836de5e13"
+      ]
+     },
+     {
+      "question": "¿Qué pasa si el CAU pierde la conexión a internet durante una investigación?",
+      "category": "fuera-de-dominio",
+      "hit_any_at_k": null,
+      "top_ids": [
+       "735c36b0-c2d3-5b7f-864a-20a6977a02b0",
+       "33b5e5c0-4916-55cd-8556-1d9521ed61e3",
+       "3e3a4991-5c72-5c51-bb55-5db58ad5dce7",
+       "0155bc65-568e-5979-ba67-b4bb898c0f72",
+       "ee31d6e3-3676-5937-b859-83943484a9a1",
+       "5aaea212-1da4-5fa7-8bfa-41c304e736e4",
+       "fd40b4f4-99cf-5f73-b438-702a41e23df8",
+       "c0345a9c-3a43-5713-9920-2cb421fff7c4",
+       "db1fcce3-7dde-5db9-b7b4-e573fb87dc49",
+       "89a53b24-67d5-599f-b934-fe30dafeb5a6"
+      ]
+     },
+     {
+      "question": "¿Puedo ver la encuesta de un ticket ajeno?",
+      "category": "regresion-conocida",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "087f091d-373e-52c9-b754-1c48551cb7f3",
+       "c45d4228-92f6-5d72-8488-5612a1cbdbc6",
+       "0f358fcb-9d76-57e9-81e2-5b106af10286",
+       "c7c6db68-4aee-5ea3-859b-7b496010a6c0",
+       "b06ee52d-25e9-59a2-ba68-82b4d49fc22d",
+       "e358880d-6352-5899-b627-a168308c34de",
+       "1d3499c0-5ba7-59a4-a168-d75836de5e13",
+       "bc8789ee-d451-5433-a925-c5b822bf295e",
+       "80ebbd45-1fa3-5576-b907-9e8644eb3e76",
+       "8f42a633-077e-5e0d-b260-6cf2878bf441"
+      ]
+     },
+     {
+      "question": "¿Qué pasa si un ticket espera confirmación y nadie responde?",
+      "category": "regresion-conocida",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "2af1ea2e-731d-561e-a4c3-d236a25c6cdd",
+       "74049ac9-7d04-5cf4-9b0b-8fd4875a8bdd",
+       "ac8d7073-1c6c-5af0-9189-fe416438b6e6",
+       "76a936dd-e76e-5ecc-8951-e3953d461639",
+       "9eaa7ae5-f7a8-57f4-9c2b-8a92b041f17a",
+       "e6a018dc-92d9-54d5-a5b0-d6a8e2e3bda9",
+       "12721662-9c05-5500-8f3c-c023329ad7a1",
+       "8b9bb563-da3f-59a0-aa93-4ba6ac99b798",
+       "7833837d-f711-57a7-88b9-822620d61cf9",
+       "6cf72464-a36d-59af-b806-87bc17dfd03a"
+      ]
+     }
+    ]
+   },
+   "fusion": {
+    "respondibles": 22,
+    "aciertos": {
+     "1": 3,
+     "3": 7,
+     "5": 10,
+     "10": 14
+    },
+    "preguntas": [
+     {
+      "question": "¿Quién puede cancelar un ticket que está en estatus Registrado?",
+      "category": "literal",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "cda67294-19db-57ff-9d95-c92d62de30bc",
+       "2e4cdfb5-ebc4-5310-bbe6-1d86d40bb67e",
+       "1b299784-524f-5a43-bc4a-2be0a0b6adca",
+       "5a21d929-ecb0-53c1-bfba-d8fc641885ad",
+       "85cb5846-fbd7-5fd2-9246-7ae2bc1f00db",
+       "a7aee964-2a22-5c52-a235-d0674afbb965",
+       "b218bc21-c4f4-5bfd-bec0-7428529d57c4",
+       "cba43862-18bb-58b5-a6a0-6cb92d7434f4",
+       "7833837d-f711-57a7-88b9-822620d61cf9",
+       "74049ac9-7d04-5cf4-9b0b-8fd4875a8bdd"
+      ]
+     },
+     {
+      "question": "¿Qué pasa si el motivo de cancelación seleccionado es 'Otro'?",
+      "category": "literal",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "8246b186-4705-5ff3-8db3-4c9dec5ed071",
+       "9c18827a-4edc-5066-9980-4b0066ae4ddd",
+       "9c181c00-2c0f-5836-a928-e79edd873c07",
+       "d712a03f-5ef0-5f9b-a684-5bda7397ba29",
+       "1b299784-524f-5a43-bc4a-2be0a0b6adca",
+       "90d04a2d-5c71-5f04-8968-62f3273101a2",
+       "cda67294-19db-57ff-9d95-c92d62de30bc",
+       "68a4d9df-080b-58d5-94da-c472562545e7",
+       "0ace2c86-34f6-5b83-b5a9-3983dbef0733",
+       "85cb5846-fbd7-5fd2-9246-7ae2bc1f00db"
+      ]
+     },
+     {
+      "question": "¿Cuándo se muestra el bloque de encuesta de satisfacción en la Trayectoria?",
+      "category": "literal",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "db95d1ef-b5e5-5f5c-b5b8-8a13e553d63a",
+       "087f091d-373e-52c9-b754-1c48551cb7f3",
+       "1d3499c0-5ba7-59a4-a168-d75836de5e13",
+       "0f358fcb-9d76-57e9-81e2-5b106af10286",
+       "2d0708c6-a515-52d5-ad4e-343a1da9e36c",
+       "8a18275f-5f33-5a70-bd7b-26d683ff3c6b",
+       "bc8789ee-d451-5433-a925-c5b822bf295e",
+       "c7c6db68-4aee-5ea3-859b-7b496010a6c0",
+       "8488ad08-bb6d-521d-99ae-d97f06c78357",
+       "b06ee52d-25e9-59a2-ba68-82b4d49fc22d"
+      ]
+     },
+     {
+      "question": "¿Qué es el Folio Único de Atención?",
+      "category": "literal",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "a31686ee-18a9-54f5-8942-8ac914f7059e",
+       "d359dbc8-1c91-575f-b355-bb389e1ccc1f",
+       "e13bf75b-ee2d-5a65-8e01-37771bcf531b",
+       "fbadfdd8-7a2c-57c8-bf2e-917e0fd645d9",
+       "7c7129a9-5e78-5a77-837c-4fd59aee98fc",
+       "bd85df6a-3302-5d72-b749-0a01cfd6e84b",
+       "addbb813-591c-5948-bae2-25b019640a6d",
+       "e35e27a1-16c6-5ebe-b423-b21cbdc4654a",
+       "77636bea-8b1e-5825-8057-990310697e22",
+       "c2f7d2bf-dddf-5e27-8ad0-524dd68e245c"
+      ]
+     },
+     {
+      "question": "¿Qué estatus del Ticket generan correo electrónico?",
+      "category": "literal",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "54b3ffa7-0223-505c-9d23-74e37f47fd5c",
+       "12721662-9c05-5500-8f3c-c023329ad7a1",
+       "d189c34f-05ca-5910-8a11-23cf12c21538",
+       "6093ef98-0b3a-5f4c-87a1-d6e55218ab27",
+       "6528ab02-a27e-5e77-80bf-7600e9bd192e",
+       "2af1ea2e-731d-561e-a4c3-d236a25c6cdd",
+       "eca6b72f-06cc-52e3-b317-bf828b79417d",
+       "1f8e6626-48f2-5bce-b31a-f6731d07c606",
+       "e56fe6e8-25b5-5341-935a-861fdf9a6890",
+       "07137b80-af0f-529f-bb09-195faec64772"
+      ]
+     },
+     {
+      "question": "¿Cómo se marca una notificación como leída?",
+      "category": "literal",
+      "hit_any_at_k": {
+       "1": false,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "453850e8-a211-5087-a13a-3b7a9b041d94",
+       "e49ab13b-45e8-5412-b2a0-0d55a0ad3760",
+       "d44382e5-9afa-5da9-ba2d-5f13c65f2b48",
+       "a0ef6fa8-ea2e-5a43-a13d-f352ccc31c1d",
+       "52d8626a-e792-5707-a73e-0df0b1312d70",
+       "c82c4a51-ec4e-553f-9e65-39e31746fdac",
+       "58fb9fcd-fb43-5ec2-95de-9b9a7f243882",
+       "25814750-6653-5bc3-b8fd-65e369b13276",
+       "b14a949d-c23a-5972-9990-c05a6a8f0e36",
+       "cd16565f-0934-593a-b16c-677cfb0c5096"
+      ]
+     },
+     {
+      "question": "¿Qué insignia se muestra cuando un estatus del timeline es terminal?",
+      "category": "literal",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "96fb9c79-c43f-5a01-9727-909bf73b4de0",
+       "32d870d2-e624-51f2-8c0c-91bfb4029142",
+       "f91efb20-8763-557e-973b-28155a92849f",
+       "86df0e0a-8cf4-57ce-8910-1cd90661db65",
+       "e5f1b1e8-3a53-5096-b347-98f27e8fa929",
+       "51598a6f-62cd-51de-8fcd-4bf8e430bee1",
+       "1da793a5-23d6-5f3c-aa53-ac810297c9ef",
+       "c9726191-d614-563e-b2b2-3f5ff5e83414",
+       "bc8789ee-d451-5433-a925-c5b822bf295e",
+       "f31869f6-5464-59ec-8c65-7da7fa9e12ad"
+      ]
+     },
+     {
+      "question": "¿Qué permiso se necesita para marcar un ticket como 'Ing. en Traslado'?",
+      "category": "literal",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "9cfd5669-aca2-5243-b798-5a23123b4530",
+       "7dc79bcc-44f5-5f5d-a9b4-4693b444ac11",
+       "4d63e7f3-7d40-50ed-85a6-ff57b2be730f",
+       "caa18a3f-0ea5-5b29-892d-9a65caef717b",
+       "d50436ce-cb07-5777-9993-e58dd22c4d90",
+       "6cf72464-a36d-59af-b806-87bc17dfd03a",
+       "8bff9c4b-529f-5c87-8459-b878d50960a0",
+       "76a936dd-e76e-5ecc-8951-e3953d461639",
+       "1ed31e29-ef50-574f-890b-0eddfda9d024",
+       "f8706d4d-074d-5912-88dd-88a803777f1a"
+      ]
+     },
+     {
+      "question": "Si levanté un ticket por error y ya no lo necesito, ¿lo puedo borrar yo mismo?",
+      "category": "parafraseada",
+      "hit_any_at_k": {
+       "1": false,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "3b01e9a0-8655-5c23-8a86-402ebce4fbb5",
+       "cda67294-19db-57ff-9d95-c92d62de30bc",
+       "85cb5846-fbd7-5fd2-9246-7ae2bc1f00db",
+       "f62661f4-45a8-5221-8ee2-ca07618ec7bd",
+       "80170800-8d5e-50dc-a05c-adaeed11a2e6",
+       "69753ce0-2d1a-5e5b-88c9-93ad3bacd559",
+       "69b1c3d1-9258-5152-beaf-f7d5919c41ab",
+       "a7aee964-2a22-5c52-a235-d0674afbb965",
+       "2e4cdfb5-ebc4-5310-bbe6-1d86d40bb67e",
+       "aebad1c4-e810-51e1-ae0f-41031a5f6a09"
+      ]
+     },
+     {
+      "question": "Si escojo 'otro' como razón para cancelar, ¿tengo que explicar por qué?",
+      "category": "parafraseada",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "1b299784-524f-5a43-bc4a-2be0a0b6adca",
+       "8246b186-4705-5ff3-8db3-4c9dec5ed071",
+       "3f6eed4d-1544-526e-ba09-dcb6c9155bbb",
+       "01907ee2-1033-5a3f-ba72-be7cf1ad4b80",
+       "7e6ee850-3980-5817-bf02-caf6fe612c53",
+       "90d04a2d-5c71-5f04-8968-62f3273101a2",
+       "d23f48c1-7a35-56d3-8fdd-4ea67e7e156d",
+       "d712a03f-5ef0-5f9b-a684-5bda7397ba29",
+       "9c181c00-2c0f-5836-a928-e79edd873c07",
+       "0dc45350-d62e-5672-8ec3-c9730bdea4e7"
+      ]
+     },
+     {
+      "question": "¿En qué momento me sale la pregunta de qué tan contento quedé con el servicio?",
+      "category": "parafraseada",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "1d3499c0-5ba7-59a4-a168-d75836de5e13",
+       "40c61972-6575-5657-b033-c72d4a2ce44b",
+       "afc9f58c-bfb9-5747-8684-06bf0c3c9906",
+       "0f358fcb-9d76-57e9-81e2-5b106af10286",
+       "c45d4228-92f6-5d72-8488-5612a1cbdbc6",
+       "087f091d-373e-52c9-b754-1c48551cb7f3",
+       "a9eb40c3-3932-5e36-b0dc-e20f4102d416",
+       "d20983c9-c7b6-56de-ba42-9d9e042c4988",
+       "8fdc91e8-585c-5010-ad2e-374610fe8593",
+       "db95d1ef-b5e5-5f5c-b5b8-8a13e553d63a"
+      ]
+     },
+     {
+      "question": "¿Hay un número que identifique mi caso sin importar si terminó siendo ticket o solicitud de servicio?",
+      "category": "parafraseada",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "c2f7d2bf-dddf-5e27-8ad0-524dd68e245c",
+       "eca6b72f-06cc-52e3-b317-bf828b79417d",
+       "69753ce0-2d1a-5e5b-88c9-93ad3bacd559",
+       "ea2fd209-f230-57a1-90bc-dfb27e972dd2",
+       "1b299784-524f-5a43-bc4a-2be0a0b6adca",
+       "516a7495-0fc6-5805-996f-465f3316f0aa",
+       "d359dbc8-1c91-575f-b355-bb389e1ccc1f",
+       "7c7129a9-5e78-5a77-837c-4fd59aee98fc",
+       "7cd3df1e-167e-5257-9091-a1d6c63059b5",
+       "f87021d0-da74-56d8-848d-e9f26b6ead1d"
+      ]
+     },
+     {
+      "question": "¿Me avisan por correo cuando resuelven mi problema?",
+      "category": "parafraseada",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "ea4ecbc4-7f05-5ce9-8f11-f4c8b62270d6",
+       "db00cbd0-b0de-52ab-9994-f7aa979171ba",
+       "d189c34f-05ca-5910-8a11-23cf12c21538",
+       "def66c36-e5b5-567e-82f2-25b480e35a68",
+       "40990970-6fb3-5d96-9a95-91bd3dafe166",
+       "ddf02df3-e1d9-58da-b78b-80e194eadb5a",
+       "15f63fd2-48fe-5dcc-99d2-b984011464e6",
+       "011bdce8-24ab-5ec3-9efa-1dc760542f70",
+       "eca6b72f-06cc-52e3-b317-bf828b79417d",
+       "db95d1ef-b5e5-5f5c-b5b8-8a13e553d63a"
+      ]
+     },
+     {
+      "question": "¿Cómo le hago para que ya no me aparezca como pendiente algo que ya vi?",
+      "category": "parafraseada",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "7e6ee850-3980-5817-bf02-caf6fe612c53",
+       "86df0e0a-8cf4-57ce-8910-1cd90661db65",
+       "0ab96cf3-42f3-5972-8e10-233d04fc86f0",
+       "6ee1c3d0-bfdd-5e86-8796-5bad81555908",
+       "270b16fd-6f5d-544a-8f77-5c55bb055884",
+       "f37af621-3214-524d-ae04-6fc62214fc72",
+       "94bf2e78-7645-5502-91ac-ed2da15c611f",
+       "6758f112-2911-5d75-b2e3-2fbe91c25e1a",
+       "d00d43d1-1f6f-564e-93a3-e93c152ca538",
+       "1d3499c0-5ba7-59a4-a168-d75836de5e13"
+      ]
+     },
+     {
+      "question": "¿Cómo sé qué pasos ya se completaron en mi caso?",
+      "category": "parafraseada",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "12332ae4-8479-53a3-ae7f-e63c4bfd09ca",
+       "69753ce0-2d1a-5e5b-88c9-93ad3bacd559",
+       "3adca293-1c56-5ccf-916f-9b23662036d4",
+       "e13bf75b-ee2d-5a65-8e01-37771bcf531b",
+       "f585733b-548e-5f4d-b146-36b5a52cde70",
+       "cbded650-0560-52f3-96af-859801146d9c",
+       "1b299784-524f-5a43-bc4a-2be0a0b6adca",
+       "c7c6db68-4aee-5ea3-859b-7b496010a6c0",
+       "16251137-2309-5d86-9016-a8df2ae745f8",
+       "96fb9c79-c43f-5a01-9727-909bf73b4de0"
+      ]
+     },
+     {
+      "question": "¿Necesito un permiso especial para decir que el técnico ya va en camino a atender mi ticket?",
+      "category": "parafraseada",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "2af1ea2e-731d-561e-a4c3-d236a25c6cdd",
+       "eca6b72f-06cc-52e3-b317-bf828b79417d",
+       "d50436ce-cb07-5777-9993-e58dd22c4d90",
+       "69753ce0-2d1a-5e5b-88c9-93ad3bacd559",
+       "76a936dd-e76e-5ecc-8951-e3953d461639",
+       "a92e0725-a673-5fa4-a99e-9598d524fdb9",
+       "4d63e7f3-7d40-50ed-85a6-ff57b2be730f",
+       "74049ac9-7d04-5cf4-9b0b-8fd4875a8bdd",
+       "6cf72464-a36d-59af-b806-87bc17dfd03a",
+       "5b8e0380-5437-5880-af4b-320da2d3396a"
+      ]
+     },
+     {
+      "question": "¿Puedo cancelar mi ticket en cualquier momento?",
+      "category": "ambigua",
+      "hit_any_at_k": {
+       "1": false,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "3f6eed4d-1544-526e-ba09-dcb6c9155bbb",
+       "cda67294-19db-57ff-9d95-c92d62de30bc",
+       "2d0708c6-a515-52d5-ad4e-343a1da9e36c",
+       "85cb5846-fbd7-5fd2-9246-7ae2bc1f00db",
+       "f30551be-d9af-570c-8cdb-d2f2402b321b",
+       "9dd5e773-8c81-50b0-85b3-c1417678d8bf",
+       "2e4cdfb5-ebc4-5310-bbe6-1d86d40bb67e",
+       "9c18827a-4edc-5066-9980-4b0066ae4ddd",
+       "5f692a8d-7970-571a-85a4-405a5de810b8",
+       "bf29277b-a992-52d2-875a-6acd2a72d541"
+      ]
+     },
+     {
+      "question": "¿Cuál es la diferencia entre el folio del ticket y el Folio Único de Atención?",
+      "category": "ambigua",
+      "hit_any_at_k": {
+       "1": false,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "d359dbc8-1c91-575f-b355-bb389e1ccc1f",
+       "b3b746d0-13e5-5f85-8b75-4864c534d2ee",
+       "7c7129a9-5e78-5a77-837c-4fd59aee98fc",
+       "addbb813-591c-5948-bae2-25b019640a6d",
+       "a31686ee-18a9-54f5-8942-8ac914f7059e",
+       "bd85df6a-3302-5d72-b749-0a01cfd6e84b",
+       "fbadfdd8-7a2c-57c8-bf2e-917e0fd645d9",
+       "77636bea-8b1e-5825-8057-990310697e22",
+       "c2f7d2bf-dddf-5e27-8ad0-524dd68e245c",
+       "6810ffad-dc25-53d2-8598-09ca17f072bb"
+      ]
+     },
+     {
+      "question": "¿Se me notifica igual por correo que por la app cuando mi ticket cambia de estatus?",
+      "category": "ambigua",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "d189c34f-05ca-5910-8a11-23cf12c21538",
+       "e6a018dc-92d9-54d5-a5b0-d6a8e2e3bda9",
+       "2af1ea2e-731d-561e-a4c3-d236a25c6cdd",
+       "eca6b72f-06cc-52e3-b317-bf828b79417d",
+       "e63d6a80-ac48-54f9-a0c8-54ce20174242",
+       "12721662-9c05-5500-8f3c-c023329ad7a1",
+       "1b5846f1-4433-5b70-af65-f125b2178322",
+       "15f63fd2-48fe-5dcc-99d2-b984011464e6",
+       "3ac3ee1c-3edc-59ab-83d7-0e460ae4dfe5",
+       "c82c4a51-ec4e-553f-9e65-39e31746fdac"
+      ]
+     },
+     {
+      "question": "¿Qué significa que un nodo del timeline esté 'en curso' comparado con uno que ya pasó pero no terminó el proceso?",
+      "category": "ambigua",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "32d870d2-e624-51f2-8c0c-91bfb4029142",
+       "f91efb20-8763-557e-973b-28155a92849f",
+       "b9cc7e9c-a2f3-5a11-b567-9fa94b2f91b0",
+       "96fb9c79-c43f-5a01-9727-909bf73b4de0",
+       "f62661f4-45a8-5221-8ee2-ca07618ec7bd",
+       "e5f1b1e8-3a53-5096-b347-98f27e8fa929",
+       "45853218-0cf4-50b3-bc78-16773008c8af",
+       "86df0e0a-8cf4-57ce-8910-1cd90661db65",
+       "51598a6f-62cd-51de-8fcd-4bf8e430bee1",
+       "0da822d9-078a-58f2-afde-ff8c0d92895e"
+      ]
+     },
+     {
+      "question": "¿Cómo solicito mis vacaciones o días económicos?",
+      "category": "fuera-de-dominio",
+      "hit_any_at_k": null,
+      "top_ids": [
+       "6f16cb8e-e08e-5796-bfef-1e0e333b30b7",
+       "fe04c434-2487-542b-8c70-44bc857aabca",
+       "8d66c477-f815-50c8-b8f8-23f1e249ccfc",
+       "900bc178-bb75-5ce1-9f66-95706c1ac430",
+       "39fbee52-a6b1-5f2f-8755-2d68c013702e",
+       "fc5d7ccf-3e30-5f4b-a8c9-da4329017e59",
+       "452b7197-2965-5c1d-ac92-59b32d1e65fe",
+       "9c0a02da-b1a1-548c-ac75-ca45e768c1d9",
+       "4c39ca96-4024-540f-ae21-b60b1a821a0f",
+       "be316bcd-608c-5b97-a197-47c20b47d6ce"
+      ]
+     },
+     {
+      "question": "¿Cómo se factura un ticket a un cliente externo?",
+      "category": "fuera-de-dominio",
+      "hit_any_at_k": null,
+      "top_ids": [
+       "2d0287f8-6134-5ec8-bb84-a42877a28754",
+       "eca6b72f-06cc-52e3-b317-bf828b79417d",
+       "12721662-9c05-5500-8f3c-c023329ad7a1",
+       "6def1a43-d6ad-5de5-b4d2-b980bc793eab",
+       "32e99791-31ee-578a-9163-5d4bf3fb0d99",
+       "7057d926-ce9a-5934-9cea-8ed0e93797ef",
+       "8d66c477-f815-50c8-b8f8-23f1e249ccfc",
+       "7ab5497f-b593-5a1e-b0cb-42b373805ec0",
+       "b218bc21-c4f4-5bfd-bec0-7428529d57c4",
+       "2d8ad2e1-9478-5326-97cd-54b83024d7ca"
+      ]
+     },
+     {
+      "question": "¿Puedo cancelar una encuesta de satisfacción después de haberla enviado?",
+      "category": "fuera-de-dominio",
+      "hit_any_at_k": null,
+      "top_ids": [
+       "0dc45350-d62e-5672-8ec3-c9730bdea4e7",
+       "0f358fcb-9d76-57e9-81e2-5b106af10286",
+       "d00d43d1-1f6f-564e-93a3-e93c152ca538",
+       "8a18275f-5f33-5a70-bd7b-26d683ff3c6b",
+       "2d0708c6-a515-52d5-ad4e-343a1da9e36c",
+       "a0402d17-17f5-5a64-bcb9-df658d3e6e7c",
+       "db95d1ef-b5e5-5f5c-b5b8-8a13e553d63a",
+       "39a1722c-1d44-5c90-9be7-62b09853f5a4",
+       "40c61972-6575-5657-b033-c72d4a2ce44b",
+       "1d3499c0-5ba7-59a4-a168-d75836de5e13"
+      ]
+     },
+     {
+      "question": "¿Qué pasa si el CAU pierde la conexión a internet durante una investigación?",
+      "category": "fuera-de-dominio",
+      "hit_any_at_k": null,
+      "top_ids": [
+       "1b299784-524f-5a43-bc4a-2be0a0b6adca",
+       "735c36b0-c2d3-5b7f-864a-20a6977a02b0",
+       "33b5e5c0-4916-55cd-8556-1d9521ed61e3",
+       "eca6b72f-06cc-52e3-b317-bf828b79417d",
+       "3e3a4991-5c72-5c51-bb55-5db58ad5dce7",
+       "6093ef98-0b3a-5f4c-87a1-d6e55218ab27",
+       "db1fcce3-7dde-5db9-b7b4-e573fb87dc49",
+       "0155bc65-568e-5979-ba67-b4bb898c0f72",
+       "07137b80-af0f-529f-bb09-195faec64772",
+       "2fe153dc-e282-588f-9603-c8f7fe0a72ab"
+      ]
+     },
+     {
+      "question": "¿Puedo ver la encuesta de un ticket ajeno?",
+      "category": "regresion-conocida",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "087f091d-373e-52c9-b754-1c48551cb7f3",
+       "3b01e9a0-8655-5c23-8a86-402ebce4fbb5",
+       "c31dd34f-2769-54c1-bf9c-b99d9844299f",
+       "c45d4228-92f6-5d72-8488-5612a1cbdbc6",
+       "1d3499c0-5ba7-59a4-a168-d75836de5e13",
+       "e358880d-6352-5899-b627-a168308c34de",
+       "8fdc91e8-585c-5010-ad2e-374610fe8593",
+       "0f358fcb-9d76-57e9-81e2-5b106af10286",
+       "b06ee52d-25e9-59a2-ba68-82b4d49fc22d",
+       "c7c6db68-4aee-5ea3-859b-7b496010a6c0"
+      ]
+     },
+     {
+      "question": "¿Qué pasa si un ticket espera confirmación y nadie responde?",
+      "category": "regresion-conocida",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "c63182ae-2ced-54ac-b665-294e7017dcc8",
+       "2af1ea2e-731d-561e-a4c3-d236a25c6cdd",
+       "2fe153dc-e282-588f-9603-c8f7fe0a72ab",
+       "74049ac9-7d04-5cf4-9b0b-8fd4875a8bdd",
+       "ac8d7073-1c6c-5af0-9189-fe416438b6e6",
+       "afc9f58c-bfb9-5747-8684-06bf0c3c9906",
+       "1b299784-524f-5a43-bc4a-2be0a0b6adca",
+       "76a936dd-e76e-5ecc-8951-e3953d461639",
+       "7833837d-f711-57a7-88b9-822620d61cf9",
+       "9eaa7ae5-f7a8-57f4-9c2b-8a92b041f17a"
+      ]
+     }
+    ]
+   }
+  },
+  "micro-repo": {
+   "eval_set_sha256": "d961a14a3dc08704001ff6db2febdc34f8166e9bd8443c393c8957120b0b8d43",
+   "chunks": 1903,
+   "denso": {
+    "respondibles": 19,
+    "aciertos": {
+     "1": 5,
+     "3": 6,
+     "5": 8,
+     "10": 13
+    },
+    "preguntas": [
+     {
+      "question": "¿Cómo levanto un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "2e04161a-bb23-51f7-89e8-7754d59e677b",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "35169c1c-b6aa-58ab-9f2b-c299f53b097b",
+       "c75e9289-ae17-5ac0-b059-d070b1f260bd",
+       "72d823c0-0e82-501c-ad41-4661df5b40ce",
+       "a175dea6-115d-51e9-a839-529cede6e5ef",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "3e4f201f-95aa-53d3-bfca-7393b4cf1707",
+       "1744fca5-ac5a-5b75-adb1-2920bc0abdde",
+       "5f1e2aea-fb1f-50ab-a478-a4f478c38114"
+      ]
+     },
+     {
+      "question": "¿Qué datos son obligatorios para crear un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "2e04161a-bb23-51f7-89e8-7754d59e677b",
+       "11223f39-3b33-578b-841f-67d865330e5a",
+       "c75e9289-ae17-5ac0-b059-d070b1f260bd",
+       "6f269e16-d5a6-5d83-901a-d79bd094c750",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "ec0c8b77-0ca6-540b-9957-acbf4660a0e9",
+       "05eee0fd-bcaf-5297-8808-74c01f2e2bbc",
+       "35169c1c-b6aa-58ab-9f2b-c299f53b097b",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5"
+      ]
+     },
+     {
+      "question": "¿Qué se necesita para cerrar un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "3913d9d3-e51e-50f2-91cc-104df6cc239b",
+       "9af607c1-d61a-590b-83f3-9de47e9c14ea",
+       "70bdef9b-5d17-580d-90a5-997b344a1417",
+       "5f4d695f-b773-5244-a2f2-752f04aba815",
+       "4ea2cc87-0341-5cac-b1fb-5f2554a45bdd",
+       "1e36fc8a-5835-5bcd-9b03-7223b97e049f",
+       "7c7c1c44-e3de-5bc2-8e28-cf76dee006fc"
+      ]
+     },
+     {
+      "question": "¿Cómo reasigno un ticket a otra persona?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "8f5e9cf5-6fc7-55a8-bb83-4444ef1d2994",
+       "c7f42a27-21ff-5b41-b80e-c6256d43ddc8",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "3e4f201f-95aa-53d3-bfca-7393b4cf1707",
+       "3182305c-e1d8-5cbb-8348-100c7ab4be1f",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "c4850236-f340-54a8-a0c5-f6b36a380256",
+       "10bf1e11-95b2-5755-9b4d-98fab1d1be4d",
+       "58a8c3dc-2da7-55a0-9d46-0d7676267e49"
+      ]
+     },
+     {
+      "question": "¿Cómo adjunto un documento o evidencia a un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "c05de946-bd72-5e5c-a33e-d3a9395c58e9",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "70e96c3c-8193-5da9-b54d-dd00215cf51f",
+       "1e36fc8a-5835-5bcd-9b03-7223b97e049f",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "70bdef9b-5d17-580d-90a5-997b344a1417",
+       "e8cc1c3d-e76b-5c55-b2a1-8a2bc3e69b73",
+       "a8fe6804-cb8a-51fe-afc7-2f4212414555",
+       "a22d76a8-7d4b-5a75-aced-bf67fa25a5b6",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab"
+      ]
+     },
+     {
+      "question": "¿Cómo registro el avance o una actividad en un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "5435771b-51f7-56fc-9f20-f12160ef28b7",
+       "7fad1ae3-0c8b-53d4-a901-a4f2bc5e7841",
+       "3bbcc4db-7725-567e-8927-d01f0e30d3c3",
+       "fecc3c5c-c594-5b87-920e-7036946d0c43",
+       "795b3679-283a-558c-8495-dca250208053",
+       "9698df8b-729d-56be-9a9c-88eab9a7199f",
+       "1e36fc8a-5835-5bcd-9b03-7223b97e049f",
+       "9caf3d43-2acc-5a1f-b8db-05da84b4fec6",
+       "76e60639-7b66-5421-ba9f-b4501aa8f600",
+       "05319ad7-a478-53db-9cc4-753bee4431c9"
+      ]
+     },
+     {
+      "question": "¿Cómo paso un ticket a Mesa de Ayuda?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "33b68229-774d-52e7-a33e-af32bbae590b",
+       "6add22f1-a6a2-5885-a113-60db1adc8309",
+       "7b90de4f-4b5d-550c-8914-bc2cd06424f6",
+       "4a99da7e-c9b2-5765-a5eb-6727c4885404",
+       "2c679ab0-cfd8-5ffb-acff-ff045f9a8a79",
+       "94b578fd-a1ee-514b-ba94-4358d8e7b05d",
+       "be894c7f-f3c1-55ce-9f3c-5b3a92e4b181",
+       "68a9ba32-f86d-5f79-964a-ba07b1d8e22e",
+       "ee5c6526-7555-5539-a96f-b9421c6d0c95",
+       "99da79fa-75d8-5c30-89a3-05421c3e258c"
+      ]
+     },
+     {
+      "question": "¿Cómo recibo un ticket que me asignaron?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "2e04161a-bb23-51f7-89e8-7754d59e677b",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "1e36fc8a-5835-5bcd-9b03-7223b97e049f",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "72d823c0-0e82-501c-ad41-4661df5b40ce",
+       "c4d398ae-a29c-5a2b-ad99-daa6cb73eec3",
+       "1744fca5-ac5a-5b75-adb1-2920bc0abdde",
+       "e0eae41e-b2a2-5c4e-969a-617082effced"
+      ]
+     },
+     {
+      "question": "¿Cómo cambio el tipo de servicio de un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "a14c7fb3-fefa-5bfe-8806-74ed28186860",
+       "f75919f5-a5fb-55aa-80c6-45dfefcb2ede",
+       "69f25202-8e70-54e7-bbac-70de68b291e2",
+       "1288001e-04b0-538f-b004-04a41da59981",
+       "5ac3bcdc-5dce-5674-8eb3-25465e1cf0c0",
+       "2e04161a-bb23-51f7-89e8-7754d59e677b",
+       "c75e9289-ae17-5ac0-b059-d070b1f260bd",
+       "ec0c0545-7be7-509b-89ba-cb23ee9734ac",
+       "53f84f47-213d-5039-89a3-1f01f824a6d2",
+       "a0c6573a-50da-5451-9a0e-b7d8b0072216"
+      ]
+     },
+     {
+      "question": "¿Cómo actualizo o subo el documento de cierre de un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "70bdef9b-5d17-580d-90a5-997b344a1417",
+       "614deed8-b7bf-5fb5-b5eb-dbdf2162a549",
+       "44dfcc95-bee5-5cf2-8131-4ba0d2e49f61",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "a22d76a8-7d4b-5a75-aced-bf67fa25a5b6",
+       "7c7c1c44-e3de-5bc2-8e28-cf76dee006fc",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "81238eec-260b-55de-a8e6-2cd3a6f47557",
+       "97ff608c-38b5-5498-89d0-5c8f59af0d78"
+      ]
+     },
+     {
+      "question": "¿Qué condiciones deben cumplirse para poder reasignar un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "641bdb39-a697-50bf-9ab8-4c3848710656",
+       "c7f42a27-21ff-5b41-b80e-c6256d43ddc8",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "8f5e9cf5-6fc7-55a8-bb83-4444ef1d2994",
+       "3182305c-e1d8-5cbb-8348-100c7ab4be1f",
+       "3e4f201f-95aa-53d3-bfca-7393b4cf1707",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "1e36fc8a-5835-5bcd-9b03-7223b97e049f",
+       "f7d63373-f748-5076-b2fb-12c20d45335a"
+      ]
+     },
+     {
+      "question": "¿En qué casos un ticket necesita autorización digital?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "63e90e3d-9f34-5152-b8ac-1f4d8e2c7a3b",
+       "2e04161a-bb23-51f7-89e8-7754d59e677b",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "1e36fc8a-5835-5bcd-9b03-7223b97e049f",
+       "4b64e293-7ee7-5abd-8389-0727dabd1855",
+       "e77feeff-cfa7-511f-972b-80c7382fe717",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "e0eae41e-b2a2-5c4e-969a-617082effced"
+      ]
+     },
+     {
+      "question": "¿Por qué a veces me piden llenar el campo Módulo al cerrar un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "9af607c1-d61a-590b-83f3-9de47e9c14ea",
+       "3913d9d3-e51e-50f2-91cc-104df6cc239b",
+       "05eee0fd-bcaf-5297-8808-74c01f2e2bbc",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b"
+      ]
+     },
+     {
+      "question": "¿Cuándo puedo mandar un ticket a Mesa de Ayuda?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "33b68229-774d-52e7-a33e-af32bbae590b",
+       "6add22f1-a6a2-5885-a113-60db1adc8309",
+       "4a99da7e-c9b2-5765-a5eb-6727c4885404",
+       "7b90de4f-4b5d-550c-8914-bc2cd06424f6",
+       "be894c7f-f3c1-55ce-9f3c-5b3a92e4b181",
+       "2c679ab0-cfd8-5ffb-acff-ff045f9a8a79",
+       "68a9ba32-f86d-5f79-964a-ba07b1d8e22e",
+       "94b578fd-a1ee-514b-ba94-4358d8e7b05d",
+       "1e36fc8a-5835-5bcd-9b03-7223b97e049f",
+       "8f92f2b9-2647-5e5d-9b3b-a5811218063b"
+      ]
+     },
+     {
+      "question": "¿Cómo consulto mis solicitudes de servicio?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "8f92f2b9-2647-5e5d-9b3b-a5811218063b",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "22f6f009-ed20-5aca-aec8-2ce4138f973b",
+       "1e36fc8a-5835-5bcd-9b03-7223b97e049f",
+       "72973a7a-fda8-59ae-9afb-2176279d9ffc",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "f3a2506f-5c98-533f-8f81-985dfff8aa3f",
+       "7cf7f790-7d0b-59e0-994e-d4f0abdd378b",
+       "1fe1338f-971a-56e2-be23-68bc8ddf415b",
+       "941392cb-be0e-5f1d-8818-996ecc83d2d8"
+      ]
+     },
+     {
+      "question": "¿Dónde veo a quién se han asignado los tickets?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "2e04161a-bb23-51f7-89e8-7754d59e677b",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "1e36fc8a-5835-5bcd-9b03-7223b97e049f",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "c4d398ae-a29c-5a2b-ad99-daa6cb73eec3",
+       "a514d5f5-d337-5286-8ce7-040890f3f86a",
+       "bd6706e8-43c9-5c55-b2f8-405f0b70b37b",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "fa791421-929e-5ad3-a758-eef5d5e64091"
+      ]
+     },
+     {
+      "question": "¿Qué tipos de servicio corresponden a un departamento?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "9d0d1fdf-1eb7-50e3-a521-ef8704b2cb6a",
+       "4cbed8f1-70ab-51fc-92b6-7984aa3c585b",
+       "410792d0-bb46-5763-95e2-dcdce22bc7fe",
+       "a87f6b71-2c98-5d8f-a0ef-8c6db6662e17",
+       "2e5445fb-0bcd-5b69-94e8-a6d4f3c22fb7",
+       "f1702486-02cb-5b71-a9f5-07504a33e8ba",
+       "c4b47e74-1db5-51ab-9a30-945fe246df01",
+       "849a941a-48b3-5a23-8293-af14ad69cc3b",
+       "1d3cadae-3497-5edc-9d1b-563c33fcea75",
+       "dac46cb0-5f37-5623-91fc-32038ed913d6"
+      ]
+     },
+     {
+      "question": "¿Qué información se guarda de un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "2e04161a-bb23-51f7-89e8-7754d59e677b",
+       "0fa8fc13-49f6-5622-997d-6d96743961ef",
+       "ffe71e61-4b31-56f4-9451-1dfbe4102868",
+       "9ebd9e56-3e76-5ee3-9ffd-299c63656d1b",
+       "eb2c5510-2943-57fa-91b4-5cb457cb060c",
+       "05eee0fd-bcaf-5297-8808-74c01f2e2bbc",
+       "50875903-d1fc-5027-8ea6-679b79da8bed",
+       "2c05692a-eb66-5440-8e7a-c85a4fa9d520",
+       "53f84f47-213d-5039-89a3-1f01f824a6d2",
+       "a514d5f5-d337-5286-8ce7-040890f3f86a"
+      ]
+     },
+     {
+      "question": "¿Cómo se registra el seguimiento y las actividades de un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "2e04161a-bb23-51f7-89e8-7754d59e677b",
+       "7fad1ae3-0c8b-53d4-a901-a4f2bc5e7841",
+       "5435771b-51f7-56fc-9f20-f12160ef28b7",
+       "1e36fc8a-5835-5bcd-9b03-7223b97e049f",
+       "3bcb119e-e435-5f4d-8aa8-6e589cd8cc3f",
+       "05319ad7-a478-53db-9cc4-753bee4431c9",
+       "a514d5f5-d337-5286-8ce7-040890f3f86a",
+       "3bbcc4db-7725-567e-8927-d01f0e30d3c3",
+       "795b3679-283a-558c-8495-dca250208053",
+       "8f92f2b9-2647-5e5d-9b3b-a5811218063b"
+      ]
+     }
+    ]
+   },
+   "fusion": {
+    "respondibles": 19,
+    "aciertos": {
+     "1": 3,
+     "3": 6,
+     "5": 7,
+     "10": 9
+    },
+    "preguntas": [
+     {
+      "question": "¿Cómo levanto un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "2e04161a-bb23-51f7-89e8-7754d59e677b",
+       "0f1bb290-8c02-578a-aa5f-dd2e642d8210",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "35169c1c-b6aa-58ab-9f2b-c299f53b097b",
+       "2b6184ff-1d71-5095-87e7-f985dbcc3b34",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "340547c7-707c-5f5e-8ed1-f5fbff93e309",
+       "c75e9289-ae17-5ac0-b059-d070b1f260bd",
+       "4a99da7e-c9b2-5765-a5eb-6727c4885404"
+      ]
+     },
+     {
+      "question": "¿Qué datos son obligatorios para crear un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "2e04161a-bb23-51f7-89e8-7754d59e677b",
+       "5856e1ce-4e92-5699-903f-8aaebdf49e4d",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "11223f39-3b33-578b-841f-67d865330e5a",
+       "c75e9289-ae17-5ac0-b059-d070b1f260bd",
+       "6f269e16-d5a6-5d83-901a-d79bd094c750",
+       "74429c04-c52d-54de-88a9-54c6f3da92be",
+       "a9317366-a774-55e1-98de-0d6358db7431"
+      ]
+     },
+     {
+      "question": "¿Qué se necesita para cerrar un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "3913d9d3-e51e-50f2-91cc-104df6cc239b",
+       "5f4d695f-b773-5244-a2f2-752f04aba815",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "f74d1ad6-a8e4-5653-a67a-92a904545d00",
+       "9af607c1-d61a-590b-83f3-9de47e9c14ea",
+       "c5d854b3-3b7f-5093-90a2-7583074c9518"
+      ]
+     },
+     {
+      "question": "¿Cómo reasigno un ticket a otra persona?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "8f5e9cf5-6fc7-55a8-bb83-4444ef1d2994",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "c7f42a27-21ff-5b41-b80e-c6256d43ddc8",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "3e4f201f-95aa-53d3-bfca-7393b4cf1707",
+       "3f4e4588-31ab-526f-834d-6d8a2317ca79",
+       "0f04ae62-aab7-5613-abbb-292d98e86913"
+      ]
+     },
+     {
+      "question": "¿Cómo adjunto un documento o evidencia a un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "c05de946-bd72-5e5c-a33e-d3a9395c58e9",
+       "1e36fc8a-5835-5bcd-9b03-7223b97e049f",
+       "257f8754-227f-5fab-8a92-87426d59995f",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "70bdef9b-5d17-580d-90a5-997b344a1417",
+       "52a206aa-75b4-5d43-80be-b7174a5e0831",
+       "e8cc1c3d-e76b-5c55-b2a1-8a2bc3e69b73",
+       "70e96c3c-8193-5da9-b54d-dd00215cf51f",
+       "8f92f2b9-2647-5e5d-9b3b-a5811218063b",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5"
+      ]
+     },
+     {
+      "question": "¿Cómo registro el avance o una actividad en un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "5435771b-51f7-56fc-9f20-f12160ef28b7",
+       "3bcb119e-e435-5f4d-8aa8-6e589cd8cc3f",
+       "76e60639-7b66-5421-ba9f-b4501aa8f600",
+       "7fad1ae3-0c8b-53d4-a901-a4f2bc5e7841",
+       "3bbcc4db-7725-567e-8927-d01f0e30d3c3",
+       "9caf3d43-2acc-5a1f-b8db-05da84b4fec6",
+       "fecc3c5c-c594-5b87-920e-7036946d0c43",
+       "795b3679-283a-558c-8495-dca250208053",
+       "a88c92fc-d041-5f97-a8b0-a5f829c84b17",
+       "9698df8b-729d-56be-9a9c-88eab9a7199f"
+      ]
+     },
+     {
+      "question": "¿Cómo paso un ticket a Mesa de Ayuda?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "7b90de4f-4b5d-550c-8914-bc2cd06424f6",
+       "33b68229-774d-52e7-a33e-af32bbae590b",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "4a99da7e-c9b2-5765-a5eb-6727c4885404",
+       "6add22f1-a6a2-5885-a113-60db1adc8309",
+       "2c679ab0-cfd8-5ffb-acff-ff045f9a8a79",
+       "94b578fd-a1ee-514b-ba94-4358d8e7b05d",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "f36653e7-4135-5365-bdbb-79b925f36e8a",
+       "68a9ba32-f86d-5f79-964a-ba07b1d8e22e"
+      ]
+     },
+     {
+      "question": "¿Cómo recibo un ticket que me asignaron?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "2e04161a-bb23-51f7-89e8-7754d59e677b",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "16a6e2b8-e0a6-5723-be3e-8df9a1bad49d",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "0f1bb290-8c02-578a-aa5f-dd2e642d8210",
+       "1e36fc8a-5835-5bcd-9b03-7223b97e049f",
+       "2b6184ff-1d71-5095-87e7-f985dbcc3b34"
+      ]
+     },
+     {
+      "question": "¿Cómo cambio el tipo de servicio de un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "f75919f5-a5fb-55aa-80c6-45dfefcb2ede",
+       "a14c7fb3-fefa-5bfe-8806-74ed28186860",
+       "e77feeff-cfa7-511f-972b-80c7382fe717",
+       "555d2c67-57fa-5419-9ddd-66dc98a93c9d",
+       "69f25202-8e70-54e7-bbac-70de68b291e2",
+       "decd8673-e8c8-5f18-8c95-93535171e645",
+       "1288001e-04b0-538f-b004-04a41da59981",
+       "5ac3bcdc-5dce-5674-8eb3-25465e1cf0c0",
+       "86cf4094-bac9-571d-aa6b-2b04557b1977",
+       "2e04161a-bb23-51f7-89e8-7754d59e677b"
+      ]
+     },
+     {
+      "question": "¿Cómo actualizo o subo el documento de cierre de un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "70bdef9b-5d17-580d-90a5-997b344a1417",
+       "6b0f00c9-1bcc-5358-b3d1-5f255eb8980d",
+       "44dfcc95-bee5-5cf2-8131-4ba0d2e49f61",
+       "cd04bee3-73e7-5d0d-8755-79d30e330be8",
+       "614deed8-b7bf-5fb5-b5eb-dbdf2162a549",
+       "97ff608c-38b5-5498-89d0-5c8f59af0d78",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "1e36fc8a-5835-5bcd-9b03-7223b97e049f",
+       "81238eec-260b-55de-a8e6-2cd3a6f47557"
+      ]
+     },
+     {
+      "question": "¿Qué condiciones deben cumplirse para poder reasignar un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "f7d63373-f748-5076-b2fb-12c20d45335a",
+       "641bdb39-a697-50bf-9ab8-4c3848710656",
+       "c7f42a27-21ff-5b41-b80e-c6256d43ddc8",
+       "8f5e9cf5-6fc7-55a8-bb83-4444ef1d2994",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "c4850236-f340-54a8-a0c5-f6b36a380256",
+       "693e660a-be70-52c0-a697-442640dda25f",
+       "58a8c3dc-2da7-55a0-9d46-0d7676267e49"
+      ]
+     },
+     {
+      "question": "¿En qué casos un ticket necesita autorización digital?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": true,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "63e90e3d-9f34-5152-b8ac-1f4d8e2c7a3b",
+       "41d81c48-09d8-5bbc-9565-306ea140871c",
+       "a88c92fc-d041-5f97-a8b0-a5f829c84b17",
+       "e77feeff-cfa7-511f-972b-80c7382fe717",
+       "2e04161a-bb23-51f7-89e8-7754d59e677b",
+       "35169c1c-b6aa-58ab-9f2b-c299f53b097b",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "caf93b14-ad41-5dc5-b2a0-51219c903d55"
+      ]
+     },
+     {
+      "question": "¿Por qué a veces me piden llenar el campo Módulo al cerrar un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "e3da4771-ba75-5087-af8f-f9a7172aeee6",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "f74d1ad6-a8e4-5653-a67a-92a904545d00",
+       "693e660a-be70-52c0-a697-442640dda25f",
+       "edb3504c-481e-56e6-aa4a-d66ea7e2aeb2",
+       "04c07bf4-3118-5285-864c-81465d0d7f10"
+      ]
+     },
+     {
+      "question": "¿Cuándo puedo mandar un ticket a Mesa de Ayuda?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "33b68229-774d-52e7-a33e-af32bbae590b",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "7b90de4f-4b5d-550c-8914-bc2cd06424f6",
+       "4a99da7e-c9b2-5765-a5eb-6727c4885404",
+       "6add22f1-a6a2-5885-a113-60db1adc8309",
+       "2c679ab0-cfd8-5ffb-acff-ff045f9a8a79",
+       "68a9ba32-f86d-5f79-964a-ba07b1d8e22e",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "f36653e7-4135-5365-bdbb-79b925f36e8a",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe"
+      ]
+     },
+     {
+      "question": "¿Cómo consulto mis solicitudes de servicio?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "8f92f2b9-2647-5e5d-9b3b-a5811218063b",
+       "b78b4fe4-fc65-5bf5-87e8-c46bc7aceb1a",
+       "4209ec26-c866-54a6-9a98-80606a03935a",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "58146a4a-f9af-537c-90cc-3a2209986c30",
+       "22f6f009-ed20-5aca-aec8-2ce4138f973b",
+       "72973a7a-fda8-59ae-9afb-2176279d9ffc",
+       "1e36fc8a-5835-5bcd-9b03-7223b97e049f",
+       "86cf4094-bac9-571d-aa6b-2b04557b1977",
+       "dc9791a1-aa39-5097-8795-a6ddc6d28fa2"
+      ]
+     },
+     {
+      "question": "¿Dónde veo a quién se han asignado los tickets?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "2e04161a-bb23-51f7-89e8-7754d59e677b",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "1e36fc8a-5835-5bcd-9b03-7223b97e049f",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "a514d5f5-d337-5286-8ce7-040890f3f86a",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "641bdb39-a697-50bf-9ab8-4c3848710656"
+      ]
+     },
+     {
+      "question": "¿Qué tipos de servicio corresponden a un departamento?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "4cbed8f1-70ab-51fc-92b6-7984aa3c585b",
+       "9d0d1fdf-1eb7-50e3-a521-ef8704b2cb6a",
+       "555d2c67-57fa-5419-9ddd-66dc98a93c9d",
+       "4209ec26-c866-54a6-9a98-80606a03935a",
+       "410792d0-bb46-5763-95e2-dcdce22bc7fe",
+       "2e5445fb-0bcd-5b69-94e8-a6d4f3c22fb7",
+       "a87f6b71-2c98-5d8f-a0ef-8c6db6662e17",
+       "dc9791a1-aa39-5097-8795-a6ddc6d28fa2",
+       "f1702486-02cb-5b71-a9f5-07504a33e8ba",
+       "5fd8f0a2-7cc3-5d3d-a1be-9dac6f4191d9"
+      ]
+     },
+     {
+      "question": "¿Qué información se guarda de un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "2e04161a-bb23-51f7-89e8-7754d59e677b",
+       "c5d854b3-3b7f-5093-90a2-7583074c9518",
+       "0fa8fc13-49f6-5622-997d-6d96743961ef",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "ffe71e61-4b31-56f4-9451-1dfbe4102868",
+       "7dcc26ff-baff-5763-96fd-56b792084afb",
+       "9ebd9e56-3e76-5ee3-9ffd-299c63656d1b",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "eb2c5510-2943-57fa-91b4-5cb457cb060c"
+      ]
+     },
+     {
+      "question": "¿Cómo se registra el seguimiento y las actividades de un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "3bcb119e-e435-5f4d-8aa8-6e589cd8cc3f",
+       "2e04161a-bb23-51f7-89e8-7754d59e677b",
+       "5435771b-51f7-56fc-9f20-f12160ef28b7",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "7fad1ae3-0c8b-53d4-a901-a4f2bc5e7841",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "1e36fc8a-5835-5bcd-9b03-7223b97e049f",
+       "76e60639-7b66-5421-ba9f-b4501aa8f600",
+       "05319ad7-a478-53db-9cc4-753bee4431c9",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff"
+      ]
+     }
+    ]
+   }
+  }
+ },
+ "embeber": {
+  "arm": "qwen3-0.6b",
+  "repo": "Qwen/Qwen3-Embedding-0.6B",
+  "max_seq_length": 512,
+  "carga_s": 5.6,
+  "prompts_modelo": {
+   "query": "Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery:",
+   "document": ""
+  },
+  "torch_threads": 20,
+  "dim": 1024,
+  "colecciones": {
+   "innovapp-docs": {
+    "chunks": 743,
+    "doc_s": 2971.3,
+    "chunks_por_s": 0.25,
+    "preguntas": 26,
+    "ms_por_pregunta": 517.3
+   },
+   "micro-repo": {
+    "chunks": 1903,
+    "doc_s": 6950.5,
+    "chunks_por_s": 0.27,
+    "preguntas": 19,
+    "ms_por_pregunta": 459.9
+   },
+   "bsuite-auditorias-test": {
+    "chunks": 2084,
+    "doc_s": 6719,
+    "chunks_por_s": 0.31,
+    "preguntas": 16,
+    "nota": "Reconstruido de marcas de tiempo (proceso 17:34:37 -> .npy 19:26:36, incluye carga del modelo); el proceso murio despues de guardar al cortarse su tuberia de salida."
+   }
+  },
+  "rss_pico_mib": 3745
+ }
+}

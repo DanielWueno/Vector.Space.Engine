@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- 1.6: herramienta de evaluacion, no producto. Reutiliza el SparseTokenizer y el ONNX brain
+       REALES de Rag.Context.Engine (checkout hermano, solo lectura) para vectorizar las preguntas
+       del eval-set exactamente como lo hace su retriever. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RagContextEngineRoot Condition="'$(RagContextEngineRoot)' == ''">$(MSBuildThisFileDirectory)..\..\..\..\Rag.Context.Engine</RagContextEngineRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.10" />
+    <ProjectReference Include="$(RagContextEngineRoot)\src\RagEngine.Core\RagEngine.Core.csproj" />
+  </ItemGroup>
+</Project>

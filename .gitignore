@@ -1,5 +1,6 @@
 # Cache local de modelos descargados para pruebas (GB, no versionar)
 .cache/
+__pycache__/
 
 ## .NET
 bin/

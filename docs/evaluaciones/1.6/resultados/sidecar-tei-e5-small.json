@@ -1,0 +1,14 @@
+{
+ "arm": "e5-small",
+ "motor": "tei",
+ "modelo": "e5",
+ "textos": 251,
+ "chunks_por_s": 5.08,
+ "ms_consulta": 33.8,
+ "paridad_cos_min_p01_p50": [
+  0.99902,
+  0.99977,
+  1.0
+ ],
+ "paridad_cos_lt_0_999": 0
+}

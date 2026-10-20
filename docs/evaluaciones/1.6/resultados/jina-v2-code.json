@@ -1,0 +1,896 @@
+{
+ "arm": "jina-v2-code",
+ "modelo": "jinaai/jina-embeddings-v2-base-code",
+ "protocolo": {
+  "top_k": 10,
+  "prefetch": 40,
+  "min_score_denso": 0.10000000149011612,
+  "bandas": "denso+sparse-code, sin resumen"
+ },
+ "colecciones": {
+  "micro-repo": {
+   "eval_set_sha256": "d961a14a3dc08704001ff6db2febdc34f8166e9bd8443c393c8957120b0b8d43",
+   "chunks": 1903,
+   "denso": {
+    "respondibles": 19,
+    "aciertos": {
+     "1": 0,
+     "3": 0,
+     "5": 0,
+     "10": 1
+    },
+    "preguntas": [
+     {
+      "question": "¿Cómo levanto un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "3f4e4588-31ab-526f-834d-6d8a2317ca79",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "f0188fab-0476-508e-a228-2b211a1debc1",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe"
+      ]
+     },
+     {
+      "question": "¿Qué datos son obligatorios para crear un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "f0188fab-0476-508e-a228-2b211a1debc1",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "8f92f2b9-2647-5e5d-9b3b-a5811218063b",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b"
+      ]
+     },
+     {
+      "question": "¿Qué se necesita para cerrar un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "f0188fab-0476-508e-a228-2b211a1debc1",
+       "3f4e4588-31ab-526f-834d-6d8a2317ca79",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "71ad75a0-e616-5f0f-a854-386e863798d0"
+      ]
+     },
+     {
+      "question": "¿Cómo reasigno un ticket a otra persona?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "3f4e4588-31ab-526f-834d-6d8a2317ca79",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab"
+      ]
+     },
+     {
+      "question": "¿Cómo adjunto un documento o evidencia a un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "3f4e4588-31ab-526f-834d-6d8a2317ca79",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "05eee0fd-bcaf-5297-8808-74c01f2e2bbc",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab"
+      ]
+     },
+     {
+      "question": "¿Cómo registro el avance o una actividad en un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "3f4e4588-31ab-526f-834d-6d8a2317ca79",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "8f92f2b9-2647-5e5d-9b3b-a5811218063b"
+      ]
+     },
+     {
+      "question": "¿Cómo paso un ticket a Mesa de Ayuda?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "8f92f2b9-2647-5e5d-9b3b-a5811218063b",
+       "3f4e4588-31ab-526f-834d-6d8a2317ca79",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe"
+      ]
+     },
+     {
+      "question": "¿Cómo recibo un ticket que me asignaron?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "f0188fab-0476-508e-a228-2b211a1debc1",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "3f4e4588-31ab-526f-834d-6d8a2317ca79",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab"
+      ]
+     },
+     {
+      "question": "¿Cómo cambio el tipo de servicio de un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "c3dff086-49ca-5056-9ebd-bd905dac5f56",
+       "11223f39-3b33-578b-841f-67d865330e5a",
+       "9af607c1-d61a-590b-83f3-9de47e9c14ea",
+       "ae92c77c-8366-5eb8-8cb7-d34de49cbec8",
+       "d30927cd-e735-529d-ad94-5f7556800144",
+       "ec0c8b77-0ca6-540b-9957-acbf4660a0e9",
+       "d4fd182e-26d6-5fab-a1e7-d59ec1443006",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "487a6598-fcd4-5e04-8f82-b76d2bc1b5df"
+      ]
+     },
+     {
+      "question": "¿Cómo actualizo o subo el documento de cierre de un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "05eee0fd-bcaf-5297-8808-74c01f2e2bbc",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "041f99d8-e41e-5835-a210-855b4f119974",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "afba504a-b7b7-58e2-9e9c-88e06c2b04db",
+       "d298245f-4400-55f5-9260-1291fbe1c8b3",
+       "caf93b14-ad41-5dc5-b2a0-51219c903d55"
+      ]
+     },
+     {
+      "question": "¿Qué condiciones deben cumplirse para poder reasignar un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "3f4e4588-31ab-526f-834d-6d8a2317ca79",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "f0188fab-0476-508e-a228-2b211a1debc1",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff"
+      ]
+     },
+     {
+      "question": "¿En qué casos un ticket necesita autorización digital?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "3f4e4588-31ab-526f-834d-6d8a2317ca79",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "f0188fab-0476-508e-a228-2b211a1debc1"
+      ]
+     },
+     {
+      "question": "¿Por qué a veces me piden llenar el campo Módulo al cerrar un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "f0188fab-0476-508e-a228-2b211a1debc1",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "f4a35251-2d91-54b1-aea9-38d7afd77402",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "71ad75a0-e616-5f0f-a854-386e863798d0"
+      ]
+     },
+     {
+      "question": "¿Cuándo puedo mandar un ticket a Mesa de Ayuda?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "3f4e4588-31ab-526f-834d-6d8a2317ca79",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "f0188fab-0476-508e-a228-2b211a1debc1",
+       "8f92f2b9-2647-5e5d-9b3b-a5811218063b"
+      ]
+     },
+     {
+      "question": "¿Cómo consulto mis solicitudes de servicio?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "b5d2b49d-a927-5ce0-9e42-73572519972a",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "fa9921c4-91ea-57ec-b615-af0b7f6b6e2a",
+       "dc9791a1-aa39-5097-8795-a6ddc6d28fa2",
+       "e12bcd23-7f20-565c-a73c-ca28b3bc49e7",
+       "9eb8de7b-e890-574e-b235-4c6a8f6873d0",
+       "c91deb6b-27a2-51d4-abb2-0e57ad52a4c4",
+       "be4d7fe6-855e-5c43-a7c7-392b46f45556",
+       "f880ef99-7480-5448-83f7-7133eada01d1"
+      ]
+     },
+     {
+      "question": "¿Dónde veo a quién se han asignado los tickets?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "3f4e4588-31ab-526f-834d-6d8a2317ca79",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "8f92f2b9-2647-5e5d-9b3b-a5811218063b",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5"
+      ]
+     },
+     {
+      "question": "¿Qué tipos de servicio corresponden a un departamento?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "849a941a-48b3-5a23-8293-af14ad69cc3b",
+       "4cbed8f1-70ab-51fc-92b6-7984aa3c585b",
+       "9d0d1fdf-1eb7-50e3-a521-ef8704b2cb6a",
+       "2936abce-7510-510b-bed9-b653abf33a96",
+       "f84b75e3-d01e-5b07-8fd2-2f4c6fdb4888",
+       "9defb3c2-ff0e-56ca-aded-4b40bb13bc69",
+       "2b97a200-0a05-5ebb-80a1-119fd964c2a8",
+       "0e5678b3-b0c6-5254-8fb8-9a27d6806a7b",
+       "b81b80e1-536f-558c-8f9a-220b9cd8af1a",
+       "717e181e-2ca2-56f0-a8ec-2ec64e3032e6"
+      ]
+     },
+     {
+      "question": "¿Qué información se guarda de un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "8f92f2b9-2647-5e5d-9b3b-a5811218063b",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "caf93b14-ad41-5dc5-b2a0-51219c903d55",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "f0188fab-0476-508e-a228-2b211a1debc1",
+       "041f99d8-e41e-5835-a210-855b4f119974"
+      ]
+     },
+     {
+      "question": "¿Cómo se registra el seguimiento y las actividades de un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "3f4e4588-31ab-526f-834d-6d8a2317ca79"
+      ]
+     }
+    ]
+   },
+   "fusion": {
+    "respondibles": 19,
+    "aciertos": {
+     "1": 0,
+     "3": 1,
+     "5": 2,
+     "10": 5
+    },
+    "preguntas": [
+     {
+      "question": "¿Cómo levanto un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "0f1bb290-8c02-578a-aa5f-dd2e642d8210",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "2b6184ff-1d71-5095-87e7-f985dbcc3b34",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "4a99da7e-c9b2-5765-a5eb-6727c4885404",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab"
+      ]
+     },
+     {
+      "question": "¿Qué datos son obligatorios para crear un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "5856e1ce-4e92-5699-903f-8aaebdf49e4d",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "f0188fab-0476-508e-a228-2b211a1debc1",
+       "74429c04-c52d-54de-88a9-54c6f3da92be",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5"
+      ]
+     },
+     {
+      "question": "¿Qué se necesita para cerrar un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "3f4e4588-31ab-526f-834d-6d8a2317ca79",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "c5d854b3-3b7f-5093-90a2-7583074c9518",
+       "71ad75a0-e616-5f0f-a854-386e863798d0"
+      ]
+     },
+     {
+      "question": "¿Cómo reasigno un ticket a otra persona?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "3f4e4588-31ab-526f-834d-6d8a2317ca79",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "0f04ae62-aab7-5613-abbb-292d98e86913"
+      ]
+     },
+     {
+      "question": "¿Cómo adjunto un documento o evidencia a un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "257f8754-227f-5fab-8a92-87426d59995f",
+       "1e36fc8a-5835-5bcd-9b03-7223b97e049f",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "52a206aa-75b4-5d43-80be-b7174a5e0831",
+       "8f92f2b9-2647-5e5d-9b3b-a5811218063b",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "70bdef9b-5d17-580d-90a5-997b344a1417",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5"
+      ]
+     },
+     {
+      "question": "¿Cómo registro el avance o una actividad en un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "3bcb119e-e435-5f4d-8aa8-6e589cd8cc3f",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "76e60639-7b66-5421-ba9f-b4501aa8f600",
+       "a88c92fc-d041-5f97-a8b0-a5f829c84b17",
+       "5435771b-51f7-56fc-9f20-f12160ef28b7",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "e16361eb-0577-5ad1-836f-fcfb8b440bdc",
+       "555d2c67-57fa-5419-9ddd-66dc98a93c9d"
+      ]
+     },
+     {
+      "question": "¿Cómo paso un ticket a Mesa de Ayuda?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "7b90de4f-4b5d-550c-8914-bc2cd06424f6",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "4a99da7e-c9b2-5765-a5eb-6727c4885404",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "f36653e7-4135-5365-bdbb-79b925f36e8a"
+      ]
+     },
+     {
+      "question": "¿Cómo recibo un ticket que me asignaron?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "16a6e2b8-e0a6-5723-be3e-8df9a1bad49d",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "0f1bb290-8c02-578a-aa5f-dd2e642d8210",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7"
+      ]
+     },
+     {
+      "question": "¿Cómo cambio el tipo de servicio de un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "e77feeff-cfa7-511f-972b-80c7382fe717",
+       "f75919f5-a5fb-55aa-80c6-45dfefcb2ede",
+       "c3dff086-49ca-5056-9ebd-bd905dac5f56",
+       "11223f39-3b33-578b-841f-67d865330e5a",
+       "decd8673-e8c8-5f18-8c95-93535171e645",
+       "555d2c67-57fa-5419-9ddd-66dc98a93c9d",
+       "9af607c1-d61a-590b-83f3-9de47e9c14ea",
+       "86cf4094-bac9-571d-aa6b-2b04557b1977",
+       "ae92c77c-8366-5eb8-8cb7-d34de49cbec8"
+      ]
+     },
+     {
+      "question": "¿Cómo actualizo o subo el documento de cierre de un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": true,
+       "5": true,
+       "10": true
+      },
+      "top_ids": [
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "6b0f00c9-1bcc-5358-b3d1-5f255eb8980d",
+       "05eee0fd-bcaf-5297-8808-74c01f2e2bbc",
+       "70bdef9b-5d17-580d-90a5-997b344a1417",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "7dd9deb0-6fc1-5458-bb62-ad81e73ac565",
+       "041f99d8-e41e-5835-a210-855b4f119974",
+       "cd04bee3-73e7-5d0d-8755-79d30e330be8",
+       "44dfcc95-bee5-5cf2-8131-4ba0d2e49f61",
+       "f75919f5-a5fb-55aa-80c6-45dfefcb2ede"
+      ]
+     },
+     {
+      "question": "¿Qué condiciones deben cumplirse para poder reasignar un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "f7d63373-f748-5076-b2fb-12c20d45335a",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "c2d0bc10-4f04-5d29-acb7-080707f5b9a5",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "693e660a-be70-52c0-a697-442640dda25f"
+      ]
+     },
+     {
+      "question": "¿En qué casos un ticket necesita autorización digital?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": true
+      },
+      "top_ids": [
+       "41d81c48-09d8-5bbc-9565-306ea140871c",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "a88c92fc-d041-5f97-a8b0-a5f829c84b17",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "e77feeff-cfa7-511f-972b-80c7382fe717",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "35169c1c-b6aa-58ab-9f2b-c299f53b097b",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5"
+      ]
+     },
+     {
+      "question": "¿Por qué a veces me piden llenar el campo Módulo al cerrar un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "e3da4771-ba75-5087-af8f-f9a7172aeee6",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "f74d1ad6-a8e4-5653-a67a-92a904545d00",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "04c07bf4-3118-5285-864c-81465d0d7f10",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "c5d854b3-3b7f-5093-90a2-7583074c9518"
+      ]
+     },
+     {
+      "question": "¿Cuándo puedo mandar un ticket a Mesa de Ayuda?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "7b90de4f-4b5d-550c-8914-bc2cd06424f6",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "4a99da7e-c9b2-5765-a5eb-6727c4885404",
+       "3f4e4588-31ab-526f-834d-6d8a2317ca79",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "f36653e7-4135-5365-bdbb-79b925f36e8a"
+      ]
+     },
+     {
+      "question": "¿Cómo consulto mis solicitudes de servicio?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "b5d2b49d-a927-5ce0-9e42-73572519972a",
+       "b78b4fe4-fc65-5bf5-87e8-c46bc7aceb1a",
+       "4209ec26-c866-54a6-9a98-80606a03935a",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "dc9791a1-aa39-5097-8795-a6ddc6d28fa2",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "c91deb6b-27a2-51d4-abb2-0e57ad52a4c4",
+       "58146a4a-f9af-537c-90cc-3a2209986c30",
+       "86cf4094-bac9-571d-aa6b-2b04557b1977",
+       "fa9921c4-91ea-57ec-b615-af0b7f6b6e2a"
+      ]
+     },
+     {
+      "question": "¿Dónde veo a quién se han asignado los tickets?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "3f4e4588-31ab-526f-834d-6d8a2317ca79",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "25093614-e935-50e5-a449-6d2ab6a4c1f5",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "71ad75a0-e616-5f0f-a854-386e863798d0"
+      ]
+     },
+     {
+      "question": "¿Qué tipos de servicio corresponden a un departamento?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "4cbed8f1-70ab-51fc-92b6-7984aa3c585b",
+       "555d2c67-57fa-5419-9ddd-66dc98a93c9d",
+       "849a941a-48b3-5a23-8293-af14ad69cc3b",
+       "4209ec26-c866-54a6-9a98-80606a03935a",
+       "9d0d1fdf-1eb7-50e3-a521-ef8704b2cb6a",
+       "dc9791a1-aa39-5097-8795-a6ddc6d28fa2",
+       "2936abce-7510-510b-bed9-b653abf33a96",
+       "5fd8f0a2-7cc3-5d3d-a1be-9dac6f4191d9",
+       "f84b75e3-d01e-5b07-8fd2-2f4c6fdb4888",
+       "8a46b9ac-af42-5ba1-8e13-10013359ab26"
+      ]
+     },
+     {
+      "question": "¿Qué información se guarda de un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "c5d854b3-3b7f-5093-90a2-7583074c9518",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "80c1e685-5d83-5773-825c-cc4e3b0d7ae5",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "7dcc26ff-baff-5763-96fd-56b792084afb",
+       "8f92f2b9-2647-5e5d-9b3b-a5811218063b"
+      ]
+     },
+     {
+      "question": "¿Cómo se registra el seguimiento y las actividades de un ticket?",
+      "category": "bsuite-codigo",
+      "hit_any_at_k": {
+       "1": false,
+       "3": false,
+       "5": false,
+       "10": false
+      },
+      "top_ids": [
+       "be65d7a3-b6c3-5fc0-af3d-09e7609b0fff",
+       "4bdefc6f-a8e2-59be-a34c-b6ebf1588f6b",
+       "3bcb119e-e435-5f4d-8aa8-6e589cd8cc3f",
+       "5e373aaa-27ab-5dd0-b80b-ec0fb22a95ab",
+       "5e19959e-c3d6-542e-9d5e-6854f1f636fe",
+       "92e8ce64-8a20-5845-bb40-a1bcc49cd51e",
+       "e0eae41e-b2a2-5c4e-969a-617082effced",
+       "013fe305-2ca8-582e-a6ec-727dacaa74b7",
+       "76e60639-7b66-5421-ba9f-b4501aa8f600",
+       "a88c92fc-d041-5f97-a8b0-a5f829c84b17"
+      ]
+     }
+    ]
+   }
+  }
+ },
+ "embeber": {
+  "arm": "jina-v2-code",
+  "repo": "jinaai/jina-embeddings-v2-base-code",
+  "max_seq_length": 512,
+  "carga_s": 13.0,
+  "prompts_modelo": {
+   "query": "",
+   "document": ""
+  },
+  "torch_threads": 20,
+  "dim": 768,
+  "colecciones": {
+   "micro-repo": {
+    "chunks": 1903,
+    "doc_s": 504.0,
+    "chunks_por_s": 3.78,
+    "preguntas": 19,
+    "ms_por_pregunta": 17.5
+   }
+  },
+  "rss_pico_mib": 1972
+ }
+}

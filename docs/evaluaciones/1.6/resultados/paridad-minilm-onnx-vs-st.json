@@ -1,0 +1,50 @@
+{
+ "bsuite-auditorias-test": {
+  "chunks_cos_p01_p50_p99": [
+   1.0,
+   1.0,
+   1.0
+  ],
+  "chunks_cos_min": 1.0,
+  "chunks_cos_lt_0_99": 0,
+  "chunks": 2084,
+  "preguntas_cos_min_mediana": [
+   1.0,
+   1.0
+  ],
+  "largo_mediano_chars_cos_lt_0_99": null,
+  "largo_mediano_chars_cos_ge_0_99": 643
+ },
+ "innovapp-docs": {
+  "chunks_cos_p01_p50_p99": [
+   0.9999,
+   1.0,
+   1.0
+  ],
+  "chunks_cos_min": 0.9998,
+  "chunks_cos_lt_0_99": 0,
+  "chunks": 743,
+  "preguntas_cos_min_mediana": [
+   1.0,
+   1.0
+  ],
+  "largo_mediano_chars_cos_lt_0_99": null,
+  "largo_mediano_chars_cos_ge_0_99": 876
+ },
+ "micro-repo": {
+  "chunks_cos_p01_p50_p99": [
+   1.0,
+   1.0,
+   1.0
+  ],
+  "chunks_cos_min": 1.0,
+  "chunks_cos_lt_0_99": 0,
+  "chunks": 1903,
+  "preguntas_cos_min_mediana": [
+   1.0,
+   1.0
+  ],
+  "largo_mediano_chars_cos_lt_0_99": null,
+  "largo_mediano_chars_cos_ge_0_99": 726
+ }
+}

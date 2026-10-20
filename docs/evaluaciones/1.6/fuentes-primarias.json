@@ -1,0 +1,385 @@
+{
+ "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2": {
+  "consultado": "2026-10-19 (API de Hugging Face, model card y config.json)",
+  "sha": "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
+  "creado": "2022-03-02",
+  "ultima_modificacion": "2026-01-28",
+  "licencia": "apache-2.0",
+  "acceso_restringido": false,
+  "parametros": 117654272,
+  "idiomas_declarados": 50,
+  "declara_es": true,
+  "declara_multilingual": true,
+  "config": {
+   "model_type": "bert",
+   "hidden_size": 384,
+   "max_position_embeddings": 512,
+   "num_hidden_layers": 12,
+   "architectures": [
+    "BertModel"
+   ]
+  },
+  "config_error": null,
+  "descargas": 44406763
+ },
+ "BAAI/bge-m3": {
+  "consultado": "2026-10-19 (API de Hugging Face, model card y config.json)",
+  "sha": "5617a9f61b028005a4858fdac845db406aefb181",
+  "creado": "2024-01-27",
+  "ultima_modificacion": "2024-07-03",
+  "licencia": "mit",
+  "acceso_restringido": false,
+  "parametros": null,
+  "idiomas_declarados": 0,
+  "declara_es": false,
+  "declara_multilingual": false,
+  "config": {
+   "model_type": "xlm-roberta",
+   "hidden_size": 1024,
+   "max_position_embeddings": 8194,
+   "num_hidden_layers": 24,
+   "architectures": [
+    "XLMRobertaModel"
+   ]
+  },
+  "config_error": null,
+  "descargas": 31504439
+ },
+ "nomic-ai/nomic-embed-text-v1.5": {
+  "consultado": "2026-10-19 (API de Hugging Face, model card y config.json)",
+  "sha": "e9b6763023c676ca8431644204f50c2b100d9aab",
+  "creado": "2024-02-10",
+  "ultima_modificacion": "2026-04-07",
+  "licencia": "apache-2.0",
+  "acceso_restringido": false,
+  "parametros": 136731648,
+  "idiomas_declarados": 1,
+  "declara_es": false,
+  "declara_multilingual": false,
+  "config": {
+   "model_type": "nomic_bert",
+   "hidden_size": 768,
+   "max_position_embeddings": 2048,
+   "num_hidden_layers": 12,
+   "architectures": [
+    "NomicBertModel"
+   ]
+  },
+  "config_error": null,
+  "descargas": 13280393
+ },
+ "nomic-ai/nomic-embed-text-v2-moe": {
+  "consultado": "2026-10-19 (API de Hugging Face, model card y config.json)",
+  "sha": "1066b6599d099fbb93dfcb64f9c37a7c9e503e85",
+  "creado": "2025-02-07",
+  "ultima_modificacion": "2025-04-01",
+  "licencia": "apache-2.0",
+  "acceso_restringido": false,
+  "parametros": 475292928,
+  "idiomas_declarados": 101,
+  "declara_es": true,
+  "declara_multilingual": false,
+  "config": {
+   "model_type": "nomic_bert",
+   "hidden_size": null,
+   "max_position_embeddings": null,
+   "num_hidden_layers": null,
+   "architectures": [
+    "NomicBertModel"
+   ]
+  },
+  "config_error": null,
+  "descargas": 1106567
+ },
+ "intfloat/multilingual-e5-small": {
+  "consultado": "2026-10-19 (API de Hugging Face, model card y config.json)",
+  "sha": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+  "creado": "2023-06-30",
+  "ultima_modificacion": "2026-04-02",
+  "licencia": "mit",
+  "acceso_restringido": false,
+  "parametros": 117654272,
+  "idiomas_declarados": 94,
+  "declara_es": true,
+  "declara_multilingual": true,
+  "config": {
+   "model_type": "bert",
+   "hidden_size": 384,
+   "max_position_embeddings": 512,
+   "num_hidden_layers": 12,
+   "architectures": [
+    "BertModel"
+   ]
+  },
+  "config_error": null,
+  "descargas": 9428143
+ },
+ "Snowflake/snowflake-arctic-embed-s": {
+  "consultado": "2026-10-19 (API de Hugging Face, model card y config.json)",
+  "sha": "e596f507467533e48a2e17c007f0e1dacc837b33",
+  "creado": "2024-04-12",
+  "ultima_modificacion": "2024-12-04",
+  "licencia": "apache-2.0",
+  "acceso_restringido": false,
+  "parametros": 33212160,
+  "idiomas_declarados": 0,
+  "declara_es": false,
+  "declara_multilingual": false,
+  "config": {
+   "model_type": "bert",
+   "hidden_size": 384,
+   "max_position_embeddings": 512,
+   "num_hidden_layers": 12,
+   "architectures": [
+    "BertModel"
+   ]
+  },
+  "config_error": null,
+  "descargas": 45538
+ },
+ "Snowflake/snowflake-arctic-embed-m-v2.0": {
+  "consultado": "2026-10-19 (API de Hugging Face, model card y config.json)",
+  "sha": "95c2741480856aa9666782eb4afe11959938017f",
+  "creado": "2024-11-08",
+  "ultima_modificacion": "2025-04-24",
+  "licencia": "apache-2.0",
+  "acceso_restringido": false,
+  "parametros": 305368320,
+  "idiomas_declarados": 74,
+  "declara_es": true,
+  "declara_multilingual": false,
+  "config": {
+   "model_type": "gte",
+   "hidden_size": 768,
+   "max_position_embeddings": 8192,
+   "num_hidden_layers": 12,
+   "architectures": [
+    "GteModel"
+   ]
+  },
+  "config_error": null,
+  "descargas": 81385
+ },
+ "google/embeddinggemma-300m": {
+  "consultado": "2026-10-19 (API de Hugging Face, model card y config.json)",
+  "sha": "57c266a740f537b4dc058e1b0cda161fd15afa75",
+  "creado": "2025-07-17",
+  "ultima_modificacion": "2025-09-25",
+  "licencia": "gemma",
+  "acceso_restringido": "manual",
+  "parametros": 302863104,
+  "idiomas_declarados": 0,
+  "declara_es": false,
+  "declara_multilingual": false,
+  "config": null,
+  "config_error": "GatedRepoError",
+  "descargas": 2747257
+ },
+ "Qwen/Qwen3-Embedding-0.6B": {
+  "consultado": "2026-10-19 (API de Hugging Face, model card y config.json)",
+  "sha": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+  "creado": "2025-06-03",
+  "ultima_modificacion": "2026-04-20",
+  "licencia": "apache-2.0",
+  "acceso_restringido": false,
+  "parametros": 595776512,
+  "idiomas_declarados": 0,
+  "declara_es": false,
+  "declara_multilingual": false,
+  "config": {
+   "model_type": "qwen3",
+   "hidden_size": 1024,
+   "max_position_embeddings": 32768,
+   "num_hidden_layers": 28,
+   "architectures": [
+    "Qwen3ForCausalLM"
+   ]
+  },
+  "config_error": null,
+  "descargas": 8555413
+ },
+ "jinaai/jina-embeddings-v2-base-code": {
+  "consultado": "2026-10-19 (API de Hugging Face, model card y config.json)",
+  "sha": "516f4baf13dec4ddddda8631e019b5737c8bc250",
+  "creado": "2023-11-17",
+  "ultima_modificacion": "2025-01-06",
+  "licencia": "apache-2.0",
+  "acceso_restringido": false,
+  "parametros": 160869120,
+  "idiomas_declarados": 1,
+  "declara_es": false,
+  "declara_multilingual": false,
+  "config": {
+   "model_type": "bert",
+   "hidden_size": 768,
+   "max_position_embeddings": 8192,
+   "num_hidden_layers": 12,
+   "architectures": [
+    "JinaBertForMaskedLM"
+   ]
+  },
+  "config_error": null,
+  "descargas": 177393
+ },
+ "jinaai/jina-code-embeddings-0.5b": {
+  "consultado": "2026-10-19 (API de Hugging Face, model card y config.json)",
+  "sha": "4db235132dafbe56a8b9c5f59b59795ecf58a4a7",
+  "creado": "2025-08-19",
+  "ultima_modificacion": "2025-10-02",
+  "licencia": "cc-by-nc-4.0",
+  "acceso_restringido": false,
+  "parametros": 494032768,
+  "idiomas_declarados": 0,
+  "declara_es": false,
+  "declara_multilingual": false,
+  "config": {
+   "model_type": "qwen2",
+   "hidden_size": 896,
+   "max_position_embeddings": 32768,
+   "num_hidden_layers": 24,
+   "architectures": [
+    "Qwen2ForCausalLM"
+   ]
+  },
+  "config_error": null,
+  "descargas": 44570
+ },
+ "jinaai/jina-embeddings-v3": {
+  "consultado": "2026-10-19 (API de Hugging Face, model card y config.json)",
+  "sha": "ab036b023d30b4d1138c4c3bfa9f0c445ab455d6",
+  "creado": "2024-09-05",
+  "ultima_modificacion": "2026-04-08",
+  "licencia": "cc-by-nc-4.0",
+  "acceso_restringido": false,
+  "parametros": 572310396,
+  "idiomas_declarados": 94,
+  "declara_es": true,
+  "declara_multilingual": true,
+  "config": {
+   "model_type": null,
+   "hidden_size": 1024,
+   "max_position_embeddings": 8194,
+   "num_hidden_layers": 24,
+   "architectures": [
+    "XLMRobertaModel"
+   ]
+  },
+  "config_error": null,
+  "descargas": 1716437
+ },
+ "google/embeddinggemma-2": {
+  "consultado": "2026-10-19 (API de Hugging Face, model card y config.json)",
+  "sha": "914f7f89142e33e77833254d9c9b90c3cef7303b",
+  "creado": "2026-09-14",
+  "ultima_modificacion": "2026-10-06",
+  "licencia": "apache-2.0",
+  "acceso_restringido": false,
+  "parametros": 744371512,
+  "idiomas_declarados": 1,
+  "declara_es": false,
+  "declara_multilingual": true,
+  "config": {
+   "model_type": "embedding_gemma2",
+   "hidden_size": null,
+   "max_position_embeddings": null,
+   "num_hidden_layers": null,
+   "architectures": [
+    "EmbeddingGemma2Model"
+   ]
+  },
+  "config_error": null,
+  "descargas": 167750
+ },
+ "ibm-granite/granite-embedding-97m-multilingual-r2": {
+  "consultado": "2026-10-19 (API de Hugging Face, model card y config.json)",
+  "sha": "835ad14087e140460703cf0fae09f97d469d65c2",
+  "creado": "2026-04-20",
+  "ultima_modificacion": "2026-05-18",
+  "licencia": "apache-2.0",
+  "acceso_restringido": false,
+  "parametros": 97441152,
+  "idiomas_declarados": 52,
+  "declara_es": true,
+  "declara_multilingual": false,
+  "config": {
+   "model_type": "modernbert",
+   "hidden_size": 384,
+   "max_position_embeddings": 32768,
+   "num_hidden_layers": 12,
+   "architectures": [
+    "ModernBertModel"
+   ]
+  },
+  "config_error": null,
+  "descargas": 109701
+ },
+ "ibm-granite/granite-embedding-311m-multilingual-r2": {
+  "consultado": "2026-10-19 (API de Hugging Face, model card y config.json)",
+  "sha": "44399559930365213510b1ee2eb15ded83374f0e",
+  "creado": "2026-04-20",
+  "ultima_modificacion": "2026-05-18",
+  "licencia": "apache-2.0",
+  "acceso_restringido": false,
+  "parametros": 311664384,
+  "idiomas_declarados": 52,
+  "declara_es": true,
+  "declara_multilingual": false,
+  "config": {
+   "model_type": "modernbert",
+   "hidden_size": 768,
+   "max_position_embeddings": 32768,
+   "num_hidden_layers": 22,
+   "architectures": [
+    "ModernBertModel"
+   ]
+  },
+  "config_error": null,
+  "descargas": 114139
+ },
+ "nomic-ai/nomic-embed-code": {
+  "consultado": "2026-10-19 (API de Hugging Face, model card y config.json)",
+  "sha": "11114029805cee545ef111d5144b623787462a52",
+  "creado": "2025-03-24",
+  "ultima_modificacion": "2025-03-31",
+  "licencia": "apache-2.0",
+  "acceso_restringido": false,
+  "parametros": 7070619136,
+  "idiomas_declarados": 0,
+  "declara_es": false,
+  "declara_multilingual": false,
+  "config": {
+   "model_type": "qwen2",
+   "hidden_size": 3584,
+   "max_position_embeddings": 32768,
+   "num_hidden_layers": 28,
+   "architectures": [
+    "Qwen2Model"
+   ]
+  },
+  "config_error": null,
+  "descargas": 438275
+ },
+ "Snowflake/snowflake-arctic-embed-l-v2.0": {
+  "consultado": "2026-10-19 (API de Hugging Face, model card y config.json)",
+  "sha": "ac6544c8a46e00af67e330e85a9028c66b8cfd9a",
+  "creado": "2024-11-08",
+  "ultima_modificacion": "2025-07-28",
+  "licencia": "apache-2.0",
+  "acceso_restringido": false,
+  "parametros": 567754752,
+  "idiomas_declarados": 74,
+  "declara_es": true,
+  "declara_multilingual": false,
+  "config": {
+   "model_type": "xlm-roberta",
+   "hidden_size": 1024,
+   "max_position_embeddings": 8194,
+   "num_hidden_layers": 24,
+   "architectures": [
+    "XLMRobertaModel"
+   ]
+  },
+  "config_error": null,
+  "descargas": 1889654
+ }
+}
