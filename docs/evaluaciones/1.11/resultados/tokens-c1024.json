@@ -1,0 +1,62 @@
+{
+ "bsuite-auditorias-test": {
+  "chunks": 2084,
+  "p50": 195,
+  "p90": 1658,
+  "max": 2025,
+  "gt512": 354,
+  "gt1024": 239,
+  "tokens_total": 807190,
+  "tokens_gt512": 466103
+ },
+ "innovapp-docs": {
+  "chunks": 743,
+  "p50": 219,
+  "p90": 494,
+  "max": 3576,
+  "gt512": 62,
+  "gt1024": 9,
+  "tokens_total": 197283,
+  "tokens_gt512": 46074
+ },
+ "micro-repo": {
+  "chunks": 1903,
+  "p50": 232,
+  "p90": 519,
+  "max": 1154,
+  "gt512": 203,
+  "gt1024": 2,
+  "tokens_total": 539085,
+  "tokens_gt512": 122955
+ },
+ "bsuite-auditorias-test-c1024": {
+  "chunks": 1794,
+  "p50": 172,
+  "p90": 769,
+  "max": 3420,
+  "gt512": 254,
+  "gt1024": 135,
+  "tokens_total": 755017,
+  "tokens_gt512": 473879
+ },
+ "innovapp-docs-c1024": {
+  "chunks": 629,
+  "p50": 208,
+  "p90": 784,
+  "max": 3576,
+  "gt512": 115,
+  "gt1024": 20,
+  "tokens_total": 195481,
+  "tokens_gt512": 96559
+ },
+ "micro-repo-c1024": {
+  "chunks": 1734,
+  "p50": 221,
+  "p90": 528,
+  "max": 1523,
+  "gt512": 192,
+  "gt1024": 35,
+  "tokens_total": 512595,
+  "tokens_gt512": 145716
+ }
+}

@@ -41,5 +41,24 @@ python comparar.py
 # Sidecar: .\tei.ps1 <repo>; .\py.ps1 sidecar.py medir <arm> tei http://127.0.0.1:18080 <nombre>
 ```
 
+## Ventana y re-fragmentación (1.11)
+
+Decisión: [docs/evaluaciones/1.11/decision.md](../../docs/evaluaciones/1.11/decision.md). `ventana.py` compara
+arctic@256 con ventana 512 (vectores de 1.6), 1024 y 8192, y con chunks re-fragmentados. `Refragmentar/` corre el
+`IIngestionPipeline` real con otro `MaxTokensPerChunk`, porque el CLI lo fija en 512 en código.
+
+```powershell
+dotnet build Refragmentar -c Release
+.\ingestar-control.ps1 -Sufijo -r512 -MaxTokensPerChunk 512; .\py.ps1 exportar -r512; .\py.ps1 ventana.py fidelidad -r512
+.\ingestar-control.ps1 -Sufijo -c1024 -MaxTokensPerChunk 1024; .\py.ps1 exportar -c1024
+$env:VSE_LEGACY=1; .\py.ps1 ventana.py embeber w1024 w8192 c1024-w8192
+.\py.ps1 ventana.py evaluar w512 w1024 w8192 c1024-w8192; .\py.ps1 ventana.py comparar w1024 w8192 c1024-w8192
+.\py.ps1 ventana.py presupuesto c1024-w8192
+.\tei.ps1 Snowflake/snowflake-arctic-embed-m-v2.0 8192; .\py.ps1 ventana.py tei <brazo> http://127.0.0.1:18080
+```
+
+No lances dos `py.ps1` a la vez con distinto `VSE_LEGACY`: `uv` choca al preparar los entornos y el proceso
+termina con código 10.
+
 Arms con código remoto antiguo (`arctic-m-v2`, `jina-v2-code`) necesitan `$env:VSE_LEGACY=1`
 (transformers 4.x). Rollback: `docker rm -f vse-16-qdrant vse-16-tei` y borrar `.cache/embeddings-eval`.

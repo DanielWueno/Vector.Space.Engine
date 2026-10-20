@@ -14,7 +14,12 @@ param(
     [string]$RagRoot = "D:\Git\Rag.Context.Engine",
     [string]$Fuentes = "D:\Git",
     [string]$ModelsDir = "$env:USERPROFILE\models",
-    [string[]]$Colecciones = @("bsuite-auditorias-test", "innovapp-docs", "micro-repo")
+    [string[]]$Colecciones = @("bsuite-auditorias-test", "innovapp-docs", "micro-repo"),
+    # 1.11: con -Sufijo la ingesta va a "<coleccion><Sufijo>" con Refragmentar/ (mismo pipeline que el
+    # CLI, que fija MaxTokensPerChunk=512 en codigo) y sin `rag eval`. -Sufijo -r512 es la prueba de
+    # fidelidad: debe reproducir los chunks de la ingesta del CLI.
+    [string]$Sufijo = "",
+    [int]$MaxTokensPerChunk = 512
 )
 $ErrorActionPreference = "Stop"
 $repo = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
@@ -36,10 +41,22 @@ $env:RAG_LOGS_DIR = Join-Path $out "logs"
 $cli = Join-Path $RagRoot "src\RagEngine.Cli\bin\Release\net10.0\RagEngine.Cli.dll"
 if (-not (Test-Path $cli)) { throw "Falta $cli (dotnet build -c Release de RagEngine.Cli)" }
 
+$refrag = Join-Path $PSScriptRoot "Refragmentar\bin\Release\net10.0\Refragmentar.dll"
+if ($Sufijo) {
+    if (-not (Test-Path $refrag)) { throw "Falta $refrag (dotnet build -c Release de Refragmentar)" }
+    $env:RAG_CLI_BIN = Split-Path -Parent $cli
+}
+
 function Ingest([string]$ruta, [string]$col, [string[]]$extra) {
     $t = [Diagnostics.Stopwatch]::StartNew()
-    & dotnet $cli ingest $ruta --collection $col @extra --yes 2>&1 | Out-File -Append -Encoding utf8 (Join-Path $out "ingest-$col.log")
-    if ($LASTEXITCODE -ne 0) { throw "ingest $col ($ruta) salio con $LASTEXITCODE" }
+    if ($Sufijo) {
+        $repoName = if ($extra -contains "--repo-name") { $extra[[array]::IndexOf($extra, "--repo-name") + 1] } else { "my-repo" }
+        & dotnet $refrag $ruta "$col$Sufijo" $MaxTokensPerChunk ($extra -contains "--force") $repoName 2>&1 |
+            Out-File -Append -Encoding utf8 (Join-Path $out "ingest-$col$Sufijo.log")
+    } else {
+        & dotnet $cli ingest $ruta --collection $col @extra --yes 2>&1 | Out-File -Append -Encoding utf8 (Join-Path $out "ingest-$col.log")
+    }
+    if ($LASTEXITCODE -ne 0) { throw "ingest $col$Sufijo ($ruta) salio con $LASTEXITCODE" }
     "{0}: {1} en {2:n1} s" -f $col, $ruta, $t.Elapsed.TotalSeconds
 }
 
@@ -59,6 +76,11 @@ foreach ($col in $Colecciones) {
         }
         "innovapp-docs" { Ingest (Join-Path $Fuentes "docs-bsute-innovapp-plan") $col @("--force") }
         "micro-repo"    { Ingest (Join-Path $Fuentes "Reyma.TI.Tickets.Microservice") $col @("--force") }
+    }
+    if ($Sufijo) {
+        $n = (Invoke-RestMethod "http://127.0.0.1:16333/collections/$col$Sufijo" -TimeoutSec 10).result.points_count
+        "{0}{1}: {2} puntos (MaxTokensPerChunk {3})" -f $col, $Sufijo, $n, $MaxTokensPerChunk
+        continue
     }
     # Eval de control con el retriever real (dos bandas, fusion nativa): sirve de ancla para el harness.
     Push-Location $RagRoot

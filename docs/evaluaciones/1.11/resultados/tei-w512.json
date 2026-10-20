@@ -1,0 +1,10 @@
+{
+ "brazo": "w512",
+ "ventana": 512,
+ "textos": 251,
+ "tokens": 66229,
+ "max_tokens": 512,
+ "s": 129.8,
+ "chunks_por_s": 1.93,
+ "tokens_por_s": 510
+}

@@ -1,0 +1,824 @@
+{
+ "brazo": "c1024-w8192",
+ "control": "w512 denso con el mismo presupuesto de tokens por pregunta",
+ "modos": {
+  "denso-es": {
+   "n": 57,
+   "w512_presupuesto_hit": 42,
+   "brazo_hit10": 46,
+   "brazo_gana": 4,
+   "brazo_pierde": 0,
+   "k_medio_w512": 12.6,
+   "preguntas": [
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "¿Qué significa que un hallazgo de auditoría sea recurrente?",
+     "k": 12,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "¿Cuándo se puede reabrir una acción correctiva ya finalizada?",
+     "k": 17,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "¿Cuándo pasa un hallazgo de auditoría a estatus de validación?",
+     "k": 11,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "¿Qué información se registra al validar o rechazar un hallazgo de auditoría?",
+     "k": 10,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "¿Qué se necesita para reprogramar la ejecución de una auditoría?",
+     "k": 18,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "¿Desde dónde reprogramo una auditoría ya planificada?",
+     "k": 13,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "¿Cuándo se puede finalizar completamente una auditoría?",
+     "k": 23,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "¿Qué pasa con una auditoría si no se encontraron hallazgos activos al completarla?",
+     "k": 14,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "¿Cuándo puedo exportar la plantilla de hallazgos de una auditoría?",
+     "k": 15,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "¿Cómo se determina si un empleado es el auditado de una auditoría?",
+     "k": 19,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "¿Qué motivo se registra cuando se reprograma un plan de auditoría?",
+     "k": 13,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "¿Cómo se calcula la calificación global de una auditoría?",
+     "k": 18,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "¿Cómo se calcula la calificación de un grupo de criterios del checklist?",
+     "k": 14,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "¿Cómo registro el plan de acción de una auditoría?",
+     "k": 9,
+     "w512_presupuesto": false,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "¿Cómo importo auditorías desde un archivo Excel?",
+     "k": 17,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "¿Qué significa recibir el plan de acción PDCA de una auditoría?",
+     "k": 15,
+     "w512_presupuesto": false,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿Quién puede cancelar un ticket que está en estatus Registrado?",
+     "k": 12,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿Qué pasa si el motivo de cancelación seleccionado es 'Otro'?",
+     "k": 16,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿Cuándo se muestra el bloque de encuesta de satisfacción en la Trayectoria?",
+     "k": 14,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿Qué es el Folio Único de Atención?",
+     "k": 11,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿Qué estatus del Ticket generan correo electrónico?",
+     "k": 10,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿Cómo se marca una notificación como leída?",
+     "k": 14,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿Qué insignia se muestra cuando un estatus del timeline es terminal?",
+     "k": 13,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿Qué permiso se necesita para marcar un ticket como 'Ing. en Traslado'?",
+     "k": 12,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "Si levanté un ticket por error y ya no lo necesito, ¿lo puedo borrar yo mismo?",
+     "k": 11,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "Si escojo 'otro' como razón para cancelar, ¿tengo que explicar por qué?",
+     "k": 15,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿En qué momento me sale la pregunta de qué tan contento quedé con el servicio?",
+     "k": 11,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿Hay un número que identifique mi caso sin importar si terminó siendo ticket o solicitud de servicio?",
+     "k": 14,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿Me avisan por correo cuando resuelven mi problema?",
+     "k": 8,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿Cómo le hago para que ya no me aparezca como pendiente algo que ya vi?",
+     "k": 13,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿Cómo sé qué pasos ya se completaron en mi caso?",
+     "k": 13,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿Necesito un permiso especial para decir que el técnico ya va en camino a atender mi ticket?",
+     "k": 8,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿Puedo cancelar mi ticket en cualquier momento?",
+     "k": 14,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿Cuál es la diferencia entre el folio del ticket y el Folio Único de Atención?",
+     "k": 10,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿Se me notifica igual por correo que por la app cuando mi ticket cambia de estatus?",
+     "k": 11,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿Qué significa que un nodo del timeline esté 'en curso' comparado con uno que ya pasó pero no terminó el proceso?",
+     "k": 13,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿Puedo ver la encuesta de un ticket ajeno?",
+     "k": 11,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "¿Qué pasa si un ticket espera confirmación y nadie responde?",
+     "k": 14,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "micro-repo",
+     "question": "¿Cómo levanto un ticket?",
+     "k": 10,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "micro-repo",
+     "question": "¿Qué datos son obligatorios para crear un ticket?",
+     "k": 10,
+     "w512_presupuesto": false,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "¿Qué se necesita para cerrar un ticket?",
+     "k": 15,
+     "w512_presupuesto": false,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "¿Cómo reasigno un ticket a otra persona?",
+     "k": 16,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "¿Cómo adjunto un documento o evidencia a un ticket?",
+     "k": 14,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "¿Cómo registro el avance o una actividad en un ticket?",
+     "k": 11,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "¿Cómo paso un ticket a Mesa de Ayuda?",
+     "k": 12,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "¿Cómo recibo un ticket que me asignaron?",
+     "k": 12,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "micro-repo",
+     "question": "¿Cómo cambio el tipo de servicio de un ticket?",
+     "k": 8,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "¿Cómo actualizo o subo el documento de cierre de un ticket?",
+     "k": 10,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "¿Qué condiciones deben cumplirse para poder reasignar un ticket?",
+     "k": 12,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "¿En qué casos un ticket necesita autorización digital?",
+     "k": 7,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "¿Por qué a veces me piden llenar el campo Módulo al cerrar un ticket?",
+     "k": 10,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "¿Cuándo puedo mandar un ticket a Mesa de Ayuda?",
+     "k": 10,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "¿Cómo consulto mis solicitudes de servicio?",
+     "k": 8,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "micro-repo",
+     "question": "¿Dónde veo a quién se han asignado los tickets?",
+     "k": 12,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "¿Qué tipos de servicio corresponden a un departamento?",
+     "k": 9,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "micro-repo",
+     "question": "¿Qué información se guarda de un ticket?",
+     "k": 13,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "¿Cómo se registra el seguimiento y las actividades de un ticket?",
+     "k": 11,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    }
+   ]
+  },
+  "denso-en": {
+   "n": 57,
+   "w512_presupuesto_hit": 40,
+   "brazo_hit10": 36,
+   "brazo_gana": 2,
+   "brazo_pierde": 6,
+   "k_medio_w512": 12.2,
+   "preguntas": [
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "What does it mean for an audit finding to be recurring?",
+     "k": 16,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "When can a corrective action that is already finished be reopened?",
+     "k": 13,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "When does an audit finding move to validation status?",
+     "k": 11,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "What information is recorded when an audit finding is validated or rejected?",
+     "k": 11,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "What is needed to reschedule the execution of an audit?",
+     "k": 14,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "Where do I reschedule an audit that is already planned?",
+     "k": 12,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "When can an audit be fully completed?",
+     "k": 23,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "What happens to an audit if no active findings were found when completing it?",
+     "k": 16,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "When can I export the findings template of an audit?",
+     "k": 17,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "How is it determined whether an employee is the auditee of an audit?",
+     "k": 16,
+     "w512_presupuesto": true,
+     "brazo_hit10": false
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "What reason is recorded when an audit plan is rescheduled?",
+     "k": 12,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "How is the overall score of an audit calculated?",
+     "k": 16,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "How is the score of a group of checklist criteria calculated?",
+     "k": 13,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "How do I register the action plan of an audit?",
+     "k": 8,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "How do I import audits from an Excel file?",
+     "k": 11,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "bsuite-auditorias-test",
+     "question": "What does it mean to receive the PDCA action plan of an audit?",
+     "k": 16,
+     "w512_presupuesto": false,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "Who can cancel a ticket that is in Registered status?",
+     "k": 13,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "What happens if the selected cancellation reason is 'Other'?",
+     "k": 16,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "When is the satisfaction survey block shown in the Trajectory?",
+     "k": 13,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "What is the Single Service Folio?",
+     "k": 14,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "Which Ticket statuses generate an email?",
+     "k": 12,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "How is a notification marked as read?",
+     "k": 15,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "Which badge is shown when a timeline status is terminal?",
+     "k": 14,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "What permission is needed to mark a ticket as 'Engineer in Transit'?",
+     "k": 11,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "If I opened a ticket by mistake and no longer need it, can I delete it myself?",
+     "k": 7,
+     "w512_presupuesto": true,
+     "brazo_hit10": false
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "If I choose 'other' as the reason to cancel, do I have to explain why?",
+     "k": 13,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "At what point am I asked how satisfied I was with the service?",
+     "k": 9,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "Is there a number that identifies my case regardless of whether it ended up as a ticket or a service request?",
+     "k": 14,
+     "w512_presupuesto": true,
+     "brazo_hit10": false
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "Do they notify me by email when they solve my problem?",
+     "k": 9,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "How do I make something I already saw stop showing up as pending?",
+     "k": 14,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "How do I know which steps of my case are already completed?",
+     "k": 13,
+     "w512_presupuesto": true,
+     "brazo_hit10": false
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "Do I need a special permission to say the technician is on the way to handle my ticket?",
+     "k": 12,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "Can I cancel my ticket at any time?",
+     "k": 13,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "What is the difference between the ticket folio and the Single Service Folio?",
+     "k": 9,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "Am I notified by email the same way as in the app when my ticket changes status?",
+     "k": 11,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "What does it mean for a timeline node to be 'in progress' compared to one that already passed but did not finish the process?",
+     "k": 12,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "Can I see the survey of someone else's ticket?",
+     "k": 10,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "innovapp-docs",
+     "question": "What happens if a ticket is waiting for confirmation and nobody answers?",
+     "k": 10,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "micro-repo",
+     "question": "How do I open a ticket?",
+     "k": 14,
+     "w512_presupuesto": true,
+     "brazo_hit10": false
+    },
+    {
+     "col": "micro-repo",
+     "question": "Which fields are required to create a ticket?",
+     "k": 10,
+     "w512_presupuesto": false,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "What is needed to close a ticket?",
+     "k": 11,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "micro-repo",
+     "question": "How do I reassign a ticket to another person?",
+     "k": 15,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "How do I attach a document or evidence to a ticket?",
+     "k": 10,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "How do I record progress or an activity on a ticket?",
+     "k": 11,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "How do I transfer a ticket to the Help Desk?",
+     "k": 11,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "How do I receive a ticket that was assigned to me?",
+     "k": 12,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "micro-repo",
+     "question": "How do I change the service type of a ticket?",
+     "k": 9,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "How do I update or upload the closing document of a ticket?",
+     "k": 11,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "What conditions must be met to be able to reassign a ticket?",
+     "k": 14,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "In which cases does a ticket need digital authorization?",
+     "k": 8,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "Why am I sometimes asked to fill in the Module field when closing a ticket?",
+     "k": 10,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "When can I send a ticket to the Help Desk?",
+     "k": 11,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "micro-repo",
+     "question": "How do I look up my service requests?",
+     "k": 8,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "micro-repo",
+     "question": "Where do I see who the tickets have been assigned to?",
+     "k": 10,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    },
+    {
+     "col": "micro-repo",
+     "question": "Which service types belong to a department?",
+     "k": 9,
+     "w512_presupuesto": false,
+     "brazo_hit10": false
+    },
+    {
+     "col": "micro-repo",
+     "question": "What information is stored about a ticket?",
+     "k": 11,
+     "w512_presupuesto": true,
+     "brazo_hit10": false
+    },
+    {
+     "col": "micro-repo",
+     "question": "How are the follow-up and activities of a ticket recorded?",
+     "k": 11,
+     "w512_presupuesto": true,
+     "brazo_hit10": true
+    }
+   ]
+  }
+ }
+}

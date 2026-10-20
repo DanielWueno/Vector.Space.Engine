@@ -1,0 +1,252 @@
+{
+ "control": "w512",
+ "excluidas_sin_ancla": [],
+ "brazos": {
+  "w512": {
+   "denso-es": {
+    "n": 57,
+    "hit10": 40,
+    "control_hit10": 40,
+    "gana": 0,
+    "pierde": 0,
+    "tokens_top10_media": 2784.9,
+    "control_tokens_top10_media": 2784.9,
+    "gana_preguntas": [],
+    "pierde_preguntas": []
+   },
+   "denso-en": {
+    "n": 57,
+    "hit10": 36,
+    "control_hit10": 36,
+    "gana": 0,
+    "pierde": 0,
+    "tokens_top10_media": 2695.4,
+    "control_tokens_top10_media": 2695.4,
+    "gana_preguntas": [],
+    "pierde_preguntas": []
+   },
+   "fusion-es": {
+    "n": 57,
+    "hit10": 36,
+    "control_hit10": 36,
+    "gana": 0,
+    "pierde": 0,
+    "tokens_top10_media": 4050.8,
+    "control_tokens_top10_media": 4050.8,
+    "gana_preguntas": [],
+    "pierde_preguntas": []
+   },
+   "fusion-en": {
+    "n": 57,
+    "hit10": 33,
+    "control_hit10": 33,
+    "gana": 0,
+    "pierde": 0,
+    "tokens_top10_media": 3459.1,
+    "control_tokens_top10_media": 3459.1,
+    "gana_preguntas": [],
+    "pierde_preguntas": []
+   }
+  },
+  "w1024": {
+   "denso-es": {
+    "n": 57,
+    "hit10": 40,
+    "control_hit10": 40,
+    "gana": 1,
+    "pierde": 1,
+    "tokens_top10_media": 2802.1,
+    "control_tokens_top10_media": 2784.9,
+    "gana_preguntas": [
+     "¿Qué significa recibir el plan de acción PDCA de una auditoría?"
+    ],
+    "pierde_preguntas": [
+     "¿Cómo se determina si un empleado es el auditado de una auditoría?"
+    ]
+   },
+   "denso-en": {
+    "n": 57,
+    "hit10": 35,
+    "control_hit10": 36,
+    "gana": 1,
+    "pierde": 2,
+    "tokens_top10_media": 2760.7,
+    "control_tokens_top10_media": 2695.4,
+    "gana_preguntas": [
+     "¿Qué significa recibir el plan de acción PDCA de una auditoría?"
+    ],
+    "pierde_preguntas": [
+     "¿Cómo se determina si un empleado es el auditado de una auditoría?",
+     "¿Se me notifica igual por correo que por la app cuando mi ticket cambia de estatus?"
+    ]
+   },
+   "fusion-es": {
+    "n": 57,
+    "hit10": 37,
+    "control_hit10": 36,
+    "gana": 2,
+    "pierde": 1,
+    "tokens_top10_media": 4013.1,
+    "control_tokens_top10_media": 4050.8,
+    "gana_preguntas": [
+     "¿Cómo registro el plan de acción de una auditoría?",
+     "¿Qué pasa con una auditoría si no se encontraron hallazgos activos al completarla?"
+    ],
+    "pierde_preguntas": [
+     "¿Cómo se determina si un empleado es el auditado de una auditoría?"
+    ]
+   },
+   "fusion-en": {
+    "n": 57,
+    "hit10": 31,
+    "control_hit10": 33,
+    "gana": 0,
+    "pierde": 2,
+    "tokens_top10_media": 3464.3,
+    "control_tokens_top10_media": 3459.1,
+    "gana_preguntas": [],
+    "pierde_preguntas": [
+     "¿Cómo se determina si un empleado es el auditado de una auditoría?",
+     "¿Qué información se guarda de un ticket?"
+    ]
+   }
+  },
+  "w8192": {
+   "denso-es": {
+    "n": 57,
+    "hit10": 42,
+    "control_hit10": 40,
+    "gana": 3,
+    "pierde": 1,
+    "tokens_top10_media": 2816.6,
+    "control_tokens_top10_media": 2784.9,
+    "gana_preguntas": [
+     "¿Cómo registro el plan de acción de una auditoría?",
+     "¿Qué significa recibir el plan de acción PDCA de una auditoría?",
+     "¿Puedo ver la encuesta de un ticket ajeno?"
+    ],
+    "pierde_preguntas": [
+     "¿Cómo se determina si un empleado es el auditado de una auditoría?"
+    ]
+   },
+   "denso-en": {
+    "n": 57,
+    "hit10": 35,
+    "control_hit10": 36,
+    "gana": 1,
+    "pierde": 2,
+    "tokens_top10_media": 2713.3,
+    "control_tokens_top10_media": 2695.4,
+    "gana_preguntas": [
+     "¿Qué significa recibir el plan de acción PDCA de una auditoría?"
+    ],
+    "pierde_preguntas": [
+     "¿Cómo se determina si un empleado es el auditado de una auditoría?",
+     "¿Se me notifica igual por correo que por la app cuando mi ticket cambia de estatus?"
+    ]
+   },
+   "fusion-es": {
+    "n": 57,
+    "hit10": 37,
+    "control_hit10": 36,
+    "gana": 2,
+    "pierde": 1,
+    "tokens_top10_media": 4008.8,
+    "control_tokens_top10_media": 4050.8,
+    "gana_preguntas": [
+     "¿Cómo registro el plan de acción de una auditoría?",
+     "¿Qué pasa con una auditoría si no se encontraron hallazgos activos al completarla?"
+    ],
+    "pierde_preguntas": [
+     "¿Cómo se determina si un empleado es el auditado de una auditoría?"
+    ]
+   },
+   "fusion-en": {
+    "n": 57,
+    "hit10": 31,
+    "control_hit10": 33,
+    "gana": 0,
+    "pierde": 2,
+    "tokens_top10_media": 3448.4,
+    "control_tokens_top10_media": 3459.1,
+    "gana_preguntas": [],
+    "pierde_preguntas": [
+     "¿Cómo se determina si un empleado es el auditado de una auditoría?",
+     "¿Qué información se guarda de un ticket?"
+    ]
+   }
+  },
+  "c1024-w8192": {
+   "denso-es": {
+    "n": 57,
+    "hit10": 46,
+    "control_hit10": 40,
+    "gana": 6,
+    "pierde": 0,
+    "tokens_top10_media": 3518.3,
+    "control_tokens_top10_media": 2784.9,
+    "gana_preguntas": [
+     "¿Cómo registro el plan de acción de una auditoría?",
+     "¿Qué significa recibir el plan de acción PDCA de una auditoría?",
+     "¿Puedo ver la encuesta de un ticket ajeno?",
+     "¿Se me notifica igual por correo que por la app cuando mi ticket cambia de estatus?",
+     "¿Qué datos son obligatorios para crear un ticket?",
+     "¿Qué se necesita para cerrar un ticket?"
+    ],
+    "pierde_preguntas": []
+   },
+   "denso-en": {
+    "n": 57,
+    "hit10": 36,
+    "control_hit10": 36,
+    "gana": 3,
+    "pierde": 3,
+    "tokens_top10_media": 3315.6,
+    "control_tokens_top10_media": 2695.4,
+    "gana_preguntas": [
+     "¿Qué pasa con una auditoría si no se encontraron hallazgos activos al completarla?",
+     "¿Qué significa recibir el plan de acción PDCA de una auditoría?",
+     "¿Qué datos son obligatorios para crear un ticket?"
+    ],
+    "pierde_preguntas": [
+     "¿Cómo se determina si un empleado es el auditado de una auditoría?",
+     "Si levanté un ticket por error y ya no lo necesito, ¿lo puedo borrar yo mismo?",
+     "¿Qué información se guarda de un ticket?"
+    ]
+   },
+   "fusion-es": {
+    "n": 57,
+    "hit10": 38,
+    "control_hit10": 36,
+    "gana": 2,
+    "pierde": 0,
+    "tokens_top10_media": 5315.9,
+    "control_tokens_top10_media": 4050.8,
+    "gana_preguntas": [
+     "¿Cómo registro el plan de acción de una auditoría?",
+     "¿Qué pasa con una auditoría si no se encontraron hallazgos activos al completarla?"
+    ],
+    "pierde_preguntas": []
+   },
+   "fusion-en": {
+    "n": 57,
+    "hit10": 29,
+    "control_hit10": 33,
+    "gana": 1,
+    "pierde": 5,
+    "tokens_top10_media": 4971.8,
+    "control_tokens_top10_media": 3459.1,
+    "gana_preguntas": [
+     "¿Qué datos son obligatorios para crear un ticket?"
+    ],
+    "pierde_preguntas": [
+     "¿Cuándo pasa un hallazgo de auditoría a estatus de validación?",
+     "¿Cómo se determina si un empleado es el auditado de una auditoría?",
+     "¿Cómo paso un ticket a Mesa de Ayuda?",
+     "¿Qué información se guarda de un ticket?",
+     "¿Qué se necesita para cerrar un ticket?"
+    ]
+   }
+  }
+ }
+}

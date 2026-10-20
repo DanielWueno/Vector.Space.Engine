@@ -14,7 +14,8 @@ $versiones = if ($env:VSE_LEGACY -eq "1") {
 }
 # Primer argumento *.py: otro script de esta carpeta (p. ej. sidecar.py); si no, harness.py.
 $script = "harness.py"
-if ($args.Count -gt 0 -and $args[0] -like "*.py") { $script, $args = $args }
+# @(...): con un solo argumento tras el script, `$script, $args = $args` dejaba un escalar y no llegaba.
+if ($args.Count -gt 0 -and $args[0] -like "*.py") { $script = $args[0]; $args = @($args | Select-Object -Skip 1) }
 uv run --system-certs --no-project --python 3.12 @versiones --with "torch==2.14.1" `
     --with einops --with psutil --with numpy --with truststore `
     python (Join-Path $PSScriptRoot $script) @args

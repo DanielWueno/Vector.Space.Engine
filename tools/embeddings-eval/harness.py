@@ -10,7 +10,7 @@ son los de produccion:
   - acierto: EvalCommand.Evaluate (archivo objetivo por nombre, ancla por subcadena ordinal).
 
 Subcomandos:
-  exportar                 baja chunks/sparse/denso-ONNX del Qdrant efimero a .cache/embeddings-eval
+  exportar [sufijo]        baja chunks/sparse/denso-ONNX del Qdrant efimero a .cache/embeddings-eval
   descargar <arm>...       baja los pesos de cada modelo al cache local
   embeber <arm>...         calcula el denso de chunks y preguntas con el modelo del arm (sentence-transformers)
   traducir                 copias en ingles de los eval-sets (docs/evaluaciones/1.6/preguntas-en.json)
@@ -67,9 +67,11 @@ def qdrant(ruta, cuerpo=None):
         return json.loads(r.read())["result"]
 
 
-def exportar():
+def exportar(sufijo=""):
+    """sufijo (1.11): exporta '<col><sufijo>' de una re-fragmentacion a chunks-<col><sufijo>.jsonl."""
     CACHE.mkdir(parents=True, exist_ok=True)
-    for col in COLECCIONES:
+    for base in COLECCIONES:
+        col = base + sufijo
         filas, offset = [], None
         while True:
             cuerpo = {"limit": 256, "with_payload": ["relative_path", "content", "enriched_content", "content_hash", "is_manifest"],
@@ -344,7 +346,7 @@ def fidelidad():
 if __name__ == "__main__":
     cmd, *resto = sys.argv[1:]
     if cmd == "exportar":
-        exportar()
+        exportar(*resto[:1])
     elif cmd == "traducir":
         traducir()
     elif cmd == "descargar":

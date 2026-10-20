@@ -1,0 +1,10 @@
+{
+ "brazo": "w1024",
+ "ventana": 1024,
+ "textos": 251,
+ "tokens": 75142,
+ "max_tokens": 1024,
+ "s": 160.5,
+ "chunks_por_s": 1.56,
+ "tokens_por_s": 468
+}
