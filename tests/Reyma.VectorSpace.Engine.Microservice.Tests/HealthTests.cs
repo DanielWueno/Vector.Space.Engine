@@ -21,14 +21,17 @@ public sealed class HealthTests(ApiFactory factory)
     [Theory]
     [InlineData("/health")]
     [InlineData("/health/ready")]
-    public async Task ReadinessFallaSinBaseDeDatos(string path)
+    public async Task ReadinessRespondeSanoSinDependenciasExternasReales(string path)
     {
+        // Item 1.9: el servicio no tiene Postgres ni ninguna otra dependencia externa real todavia
+        // (Qdrant/sidecar llega en 1.4, bloqueado); el readiness no debe fingir una dependencia que
+        // no existe.
         using var client = factory.CreateClient();
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
         using var response = await client.GetAsync(path, timeout.Token);
 
-        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
-        Assert.Equal("Unhealthy", await response.Content.ReadAsStringAsync());
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("Healthy", await response.Content.ReadAsStringAsync());
     }
 
     [Fact]

@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Reyma.VectorSpace.Engine.Microservice.Business;
-using Reyma.VectorSpace.Engine.Microservice.Persistence;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -19,15 +18,15 @@ internal static class StartupExtensions
     {
         services.AddOptions();
 
-        var connectionString = config.GetReymaConnectionString(env);
-
         services.AddReymaAutoMapper(opts => { opts.Assemblies = new Assembly[] { typeof(BusinessAssembly).Assembly }; });
         services.AddReymaMediatorDefault(typeof(BusinessAssembly).Assembly);
 
         services.AddDomainManager();
 
         services.AddReymaFluentValidations(typeof(BusinessAssembly).Assembly);
-        services.AddReymaPersistence<ApplicationDbContext>(connectionString, false, "Oid");
+        // Item 1.9: este servicio guarda vectores en Qdrant, no en Postgres; la tabla de control de
+        // acceso de 1.3 vive en configuracion (ControlDeAcceso), no en una base relacional. Se retiro
+        // AddReymaPersistence/AddNpgSql y la exigencia de CONNECTION_STRING; ver docs/servicio/README.md.
         services.AddReymaPermissionsValidator(config);
         services.AddHttpContextAccessor();
         services.AddReymaIdentityServiceTools();
@@ -61,7 +60,7 @@ internal static class StartupExtensions
         services.AddReymaJsonSerializersDefault(env);
         services.AddReymaRateLimit();
         services.AddReymaSwagger(config);
-        services.AddHealthChecks(connectionString);
+        services.AddServiceHealthChecks();
         services.AddLocalServices(config, env);
     }
 

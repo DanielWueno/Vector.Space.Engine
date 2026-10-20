@@ -2,15 +2,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Reyma.VectorSpace.Engine.Microservice.Business\Reyma.VectorSpace.Engine.Microservice.Business.csproj" />
-    <ProjectReference Include="..\Reyma.VectorSpace.Engine.Microservice.Persistence\Reyma.VectorSpace.Engine.Microservice.Persistence.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
     <PackageReference Include="Graceterm" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.9" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9" />
     <PackageReference Include="Reyma.AutoMapper.DependencyInjection" Version="1.0.7" />
     <PackageReference Include="Reyma.Dates.Base.Postgres.DependencyInjection" Version="1.0.3" />
     <PackageReference Include="Reyma.FluentValidations.DependencyInjection" Version="1.0.1" />
@@ -20,7 +17,6 @@
     <PackageReference Include="Reyma.Mvc.Base.Controllers" Version="1.0.2" />
     <PackageReference Include="Reyma.Mvc.Extensions" Version="1.0.1" />
     <PackageReference Include="Reyma.Permissions.Validator.DependencyInjection" Version="1.0.7" />
-    <PackageReference Include="Reyma.Persistence.Base.Postgres.DependencyInjection" Version="1.0.20" />
     <PackageReference Include="Reyma.RateLimit.DependencyInjection" Version="1.0.2" />
     <PackageReference Include="Reyma.Swagger.Extensions" Version="1.0.6" />
     <PackageReference Include="Serilog" Version="4.3.1" />

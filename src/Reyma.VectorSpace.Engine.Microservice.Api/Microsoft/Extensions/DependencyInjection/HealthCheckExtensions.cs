@@ -10,11 +10,14 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         private const string TagServices = "services";
 
-        internal static void AddHealthChecks(this IServiceCollection services, string connectionString)
+        internal static void AddServiceHealthChecks(this IServiceCollection services)
         {
+            // Item 1.9: el servicio no usa Postgres (guarda vectores en Qdrant, aun no integrado -
+            // eso llega en 1.4). Hoy no tiene dependencias externas reales que comprobar en el
+            // readiness; cuando 1.4 agregue Qdrant/sidecar, su check se agrega aqui con tag "services".
             services.AddHealthChecks()
                 .AddCheck("Self", () => HealthCheckResult.Healthy())
-                .AddNpgSql(connectionString, name: "SQL Database", tags: new string[] { "db", TagServices });
+                .AddCheck("Dependencies", () => HealthCheckResult.Healthy(), tags: new string[] { TagServices });
         }
 
         internal static void MapHealthCheckEndPoints(this IEndpointRouteBuilder endpoints)

@@ -9,10 +9,21 @@ completar es la configuracion de entorno que se describe abajo.
 
 ## Arquitectura y reglas de trabajo
 
-Esta API usa C#/.NET 10, ASP.NET Core, PostgreSQL/EF Core, MediatR, AutoMapper,
-FluentValidation, JWT, Swagger y paquetes corporativos Reyma. Los `.csproj`
-son la referencia de versiones y dependencias por capa. La solucion separa
-Domain, Persistence, Business y Api, con un proyecto Tests de xUnit.
+Esta API usa C#/.NET 10, ASP.NET Core, MediatR, AutoMapper, FluentValidation,
+JWT, Swagger y paquetes corporativos Reyma. Los `.csproj` son la referencia
+de versiones y dependencias por capa. La solucion separa Domain, Business y
+Api, con un proyecto Tests de xUnit.
+
+Este servicio no usa PostgreSQL/EF Core: guarda vectores en Qdrant (la
+integracion real llega con el item 1.4 del ledger, aun bloqueado) y su tabla
+de control de acceso por coleccion vive en configuracion (`ControlDeAcceso`
+en `appsettings`), no en una base relacional. El item 1.9 del ledger retiro
+el proyecto `Persistence` que traia la plantilla (`ApplicationDbContext` no
+llego a declarar ningun `DbSet`), junto con `AddReymaPersistence`/`AddNpgSql`,
+el chequeo de Postgres en `/health/ready` y la exigencia de `CONNECTION_STRING`.
+Si en el futuro se nombra un uso real (por ejemplo, el registro de ingestas
+de 1.7), se reintroduce la capa de persistencia con ese alcance concreto, no
+como trabajo especulativo.
 
 La constitucion esta incluida. Antes de modificar el servicio, consulta
 [su indice y forma de trabajo](../constitucion/README.md) y las guias de
@@ -53,8 +64,11 @@ dotnet run --project src/Reyma.VectorSpace.Engine.Microservice.Api
 ```
 
 Con solo la configuracion obligatoria (siguiente seccion) el servicio
-arranca y responde en `/health/self`; `/health/ready` responde distinto
-de 200 mientras la base de datos no sea alcanzable.
+arranca y responde 200 en `/health/self` y en `/health/ready`: hoy el
+servicio no tiene ninguna dependencia externa real que comprobar (ver nota
+de PostgreSQL/Qdrant arriba), asi que el readiness no finge una que no
+existe. Cuando el item 1.4 integre Qdrant/sidecar, su chequeo se agrega a
+`/health/ready` con ese alcance.
 
 ## Configuración por entorno
 
@@ -71,7 +85,10 @@ grupo de variables del pipeline; fuera de Development, nunca como opciones adici
 | Variable | Notas |
 |---|---|
 | `ASPNETCORE_ENVIRONMENT` | La imagen ya trae `Production`. |
-| `CONNECTION_STRING` | Fuera de Development. En Development se arma a partir de `DatabaseConnection__Host`, `DatabaseConnection__Database`, `DatabaseConnection__UserId` y la credencial de la base (ver nota abajo). |
+
+El servicio no requiere ninguna variable adicional para arrancar: no usa
+PostgreSQL (ver nota de arquitectura arriba) y por eso no exige
+`CONNECTION_STRING` en ningun entorno.
 
 ### Para operar o desplegar
 
@@ -84,14 +101,6 @@ grupo de variables del pipeline; fuera de Development, nunca como opciones adici
 | `AllowedOrigins` | CORS; vacio deshabilita el origen cruzado sin romper el arranque. |
 | `Serilog__WriteTo__1__Name` / `Serilog__WriteTo__1__Args__serverUrl` | Activan el sumidero Seq (ponerlos ambos a `Seq` y a la URL del servidor). |
 | Variables del grupo del pipeline y de `api.yaml` | Ver "Pipeline y despliegue". |
-
-La cadena `ConnectionStrings:Default` de `appsettings.Development.json` se
-genero apuntando a un PostgreSQL local ficticio (`localhost`, sin uso real):
-este servicio no consulta base relacional, pero la composicion corporativa de
-la plantilla registra la persistencia y el health de readiness sobre ella.
-Conservarla o retirarla se decide en el item 1.9 del ledger. Fuera de
-Development la cadena llega por `CONNECTION_STRING`. Tambien puede
-sobrescribirse con `DatabaseConnection__*` en variables de entorno.
 
 El secreto OAuth de Swagger no esta versionado (`SwaggerConstants` trae un
 marcador). Para iniciar sesion desde Swagger en local, darlo por variable de
@@ -115,7 +124,6 @@ docker build \
   -t reyma-vectorspace-engine:local .
 
 docker run -p 8080:8080 \
-  -e CONNECTION_STRING=<cadena-de-conexion> \
   reyma-vectorspace-engine:local
 ```
 

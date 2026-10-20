@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Npgsql;
 using Reyma.VectorSpace.Engine.Microservice.Api;
 using Reyma.VectorSpace.Engine.Microservice.Api.Filters;
 
@@ -15,16 +14,6 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 {
     // La factory padre libera sus derivadas al final: Graceterm comparte el estado de apagado entre hosts.
     public ErrorLogger Errors { get; } = new();
-
-    internal static string ConnectionString => new NpgsqlConnectionStringBuilder
-    {
-        Host = "database.invalid",
-        Database = "test-db",
-        Username = "test-user",
-        Timeout = 1,
-        CommandTimeout = 1,
-        Pooling = false
-    }.ConnectionString;
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -36,7 +25,6 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
             config.AddJsonFile("appsettings.json", optional: false);
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["CONNECTION_STRING"] = ConnectionString,
                 ["ASPNETCORE_BASEPATH"] = "",
                 ["AllowedOrigins"] = "",
                 ["IdentityServerAuthenticationOptions:Authority"] = "",
