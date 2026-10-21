@@ -14,7 +14,7 @@
     <PackageReference Include="Reyma.FluentValidations.DependencyInjection" Version="1.0.1" />
     <PackageReference Include="Reyma.IdentityService.Tools.DependencyInjection" Version="1.0.8" />
     <PackageReference Include="Reyma.IntegrityService.Tools.DependencyInjection" Version="1.0.11" />
-    <PackageReference Include="Reyma.Mediator.Base.Postgres.DependencyInjection" Version="1.0.5" />
+    <PackageReference Include="Reyma.Mediator.Base.DependencyInjection" Version="1.0.4" />
     <PackageReference Include="Reyma.Mvc.Base.Controllers" Version="1.0.2" />
     <PackageReference Include="Reyma.Mvc.Extensions" Version="1.0.1" />
     <PackageReference Include="Reyma.Permissions.Validator.DependencyInjection" Version="1.0.7" />

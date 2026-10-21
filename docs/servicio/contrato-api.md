@@ -42,10 +42,14 @@ El motor es el de Rag.Context.Engine portado (ver
   - `documentosIndexados`: se vectorizo y se borraron los puntos que el documento ya no genera.
   Dos rutas que solo difieren en el separador (`a/b.cs`, `a\b.cs`) en la misma solicitud responden 400.
   La primera ingesta crea la coleccion. Las ingestas sobre una misma coleccion se serializan.
-- **Limite conocido (item 1.4.1)**: el mediador corporativo envuelve cada solicitud en una transaccion
-  que expira a los 10 minutos. Una ingesta que tarde mas responde 500 aunque los puntos ya se guardaron
-  (reenviarla la completa como "sin cambios"). Con TEI en CPU (~1 chunk/s con chunks largos) conviene
-  enviar solicitudes de decenas de KB, no de 100 documentos grandes.
+  Nota historica (item TransactionPipelineBehavior, resuelta): el mediador corporativo
+  (`AddReymaMediatorDefault`) envolvia cada solicitud en una transaccion que expiraba a los 10 minutos,
+  lo que podia responder 500 en una ingesta grande aunque los puntos ya hubieran quedado guardados. El
+  servicio no tiene ningun recurso transaccional de .NET (Qdrant y el sidecar de embeddings no participan
+  de un `TransactionScope`), asi que se compone el mediador con `AddReymaMediator` (sin ese behavior); ya
+  no hay un limite de tiempo por solicitud impuesto por el mediador. Con TEI en CPU (~1 chunk/s con chunks
+  largos) una ingesta grande en una sola solicitud puede tardar minutos u horas; eso sigue siendo un costo
+  real del hardware, no un limite del contrato.
 
 ## Cuerpos
 

@@ -19,7 +19,16 @@ internal static class StartupExtensions
         services.AddOptions();
 
         services.AddReymaAutoMapper(opts => { opts.Assemblies = new Assembly[] { typeof(BusinessAssembly).Assembly }; });
-        services.AddReymaMediatorDefault(typeof(BusinessAssembly).Assembly);
+        // Item (TransactionPipelineBehavior): se usa AddReymaMediator (Reyma.Mediator.Base.DependencyInjection)
+        // en vez de AddReymaMediatorDefault (Reyma.Mediator.Base.Postgres.DependencyInjection) a proposito.
+        // AddReymaMediatorDefault agrega ademas TransactionPipelineBehavior, que envuelve cada solicitud en un
+        // TransactionScope de hasta TransactionManager.MaximumTimeout (10 min). Este servicio no tiene ningun
+        // recurso transaccional de .NET (Qdrant y el sidecar de embeddings no participan en TransactionScope);
+        // ese behavior solo aportaba un timeout artificial. La ingesta de innovapp-docs (629 chunks, una sola
+        // solicitud, TEI en CPU) tardo mas de 10 minutos, guardo los puntos correctamente en Qdrant pero la
+        // solicitud HTTP respondio 500 "The transaction has aborted." al expirar el scope. Ver
+        // docs/plan/ejecucion-plan.estado.json (item 1.4) y Tests/Mediator/MediatorPipelineTests.
+        services.AddReymaMediator(typeof(BusinessAssembly).Assembly);
 
         services.AddDomainManager();
 
