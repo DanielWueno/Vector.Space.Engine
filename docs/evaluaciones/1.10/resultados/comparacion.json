@@ -1,0 +1,238 @@
+{
+ "brazo": "c1024-w8192",
+ "control": "denso solo (c1024-w8192)",
+ "filas": {
+  "denso": {
+   "es": {
+    "hit10": 46,
+    "n": 57
+   },
+   "en": {
+    "hit10": 36,
+    "n": 57
+   }
+  },
+  "nativa (1,1)": {
+   "es": {
+    "n": 57,
+    "hit10": 38,
+    "denso_hit10": 46,
+    "gana": 0,
+    "pierde": 8,
+    "gana_preguntas": [],
+    "pierde_preguntas": [
+     "¿Qué se necesita para reprogramar la ejecución de una auditoría?",
+     "¿Hay un número que identifique mi caso sin importar si terminó siendo ticket o solicitud de servicio?",
+     "¿Se me notifica igual por correo que por la app cuando mi ticket cambia de estatus?",
+     "¿Cómo reasigno un ticket a otra persona?",
+     "¿Dónde veo a quién se han asignado los tickets?",
+     "¿Qué datos son obligatorios para crear un ticket?",
+     "¿Qué información se guarda de un ticket?",
+     "¿Qué se necesita para cerrar un ticket?"
+    ]
+   },
+   "en": {
+    "n": 57,
+    "hit10": 29,
+    "denso_hit10": 36,
+    "gana": 1,
+    "pierde": 8,
+    "gana_preguntas": [
+     "Which service types belong to a department?"
+    ],
+    "pierde_preguntas": [
+     "What happens to an audit if no active findings were found when completing it?",
+     "When does an audit finding move to validation status?",
+     "Am I notified by email the same way as in the app when my ticket changes status?",
+     "When is the satisfaction survey block shown in the Trajectory?",
+     "How are the follow-up and activities of a ticket recorded?",
+     "How do I reassign a ticket to another person?",
+     "How do I transfer a ticket to the Help Desk?",
+     "Where do I see who the tickets have been assigned to?"
+    ]
+   }
+  },
+  "ponderada 1:0.75": {
+   "es": {
+    "n": 57,
+    "hit10": 38,
+    "denso_hit10": 46,
+    "gana": 0,
+    "pierde": 8,
+    "gana_preguntas": [],
+    "pierde_preguntas": [
+     "¿Qué se necesita para reprogramar la ejecución de una auditoría?",
+     "¿Hay un número que identifique mi caso sin importar si terminó siendo ticket o solicitud de servicio?",
+     "¿Se me notifica igual por correo que por la app cuando mi ticket cambia de estatus?",
+     "¿Cómo reasigno un ticket a otra persona?",
+     "¿Dónde veo a quién se han asignado los tickets?",
+     "¿Qué datos son obligatorios para crear un ticket?",
+     "¿Qué información se guarda de un ticket?",
+     "¿Qué se necesita para cerrar un ticket?"
+    ]
+   },
+   "en": {
+    "n": 57,
+    "hit10": 30,
+    "denso_hit10": 36,
+    "gana": 1,
+    "pierde": 7,
+    "gana_preguntas": [
+     "Which service types belong to a department?"
+    ],
+    "pierde_preguntas": [
+     "What happens to an audit if no active findings were found when completing it?",
+     "When does an audit finding move to validation status?",
+     "Am I notified by email the same way as in the app when my ticket changes status?",
+     "How are the follow-up and activities of a ticket recorded?",
+     "How do I reassign a ticket to another person?",
+     "How do I transfer a ticket to the Help Desk?",
+     "Where do I see who the tickets have been assigned to?"
+    ]
+   }
+  },
+  "ponderada 1:0.5": {
+   "es": {
+    "n": 57,
+    "hit10": 40,
+    "denso_hit10": 46,
+    "gana": 0,
+    "pierde": 6,
+    "gana_preguntas": [],
+    "pierde_preguntas": [
+     "¿Qué se necesita para reprogramar la ejecución de una auditoría?",
+     "¿Hay un número que identifique mi caso sin importar si terminó siendo ticket o solicitud de servicio?",
+     "¿Se me notifica igual por correo que por la app cuando mi ticket cambia de estatus?",
+     "¿Qué datos son obligatorios para crear un ticket?",
+     "¿Qué información se guarda de un ticket?",
+     "¿Qué se necesita para cerrar un ticket?"
+    ]
+   },
+   "en": {
+    "n": 57,
+    "hit10": 33,
+    "denso_hit10": 36,
+    "gana": 1,
+    "pierde": 4,
+    "gana_preguntas": [
+     "Which service types belong to a department?"
+    ],
+    "pierde_preguntas": [
+     "Am I notified by email the same way as in the app when my ticket changes status?",
+     "How are the follow-up and activities of a ticket recorded?",
+     "How do I reassign a ticket to another person?",
+     "How do I transfer a ticket to the Help Desk?"
+    ]
+   }
+  },
+  "ponderada 1:0.25": {
+   "es": {
+    "n": 57,
+    "hit10": 44,
+    "denso_hit10": 46,
+    "gana": 0,
+    "pierde": 2,
+    "gana_preguntas": [],
+    "pierde_preguntas": [
+     "¿Hay un número que identifique mi caso sin importar si terminó siendo ticket o solicitud de servicio?",
+     "¿Qué se necesita para cerrar un ticket?"
+    ]
+   },
+   "en": {
+    "n": 57,
+    "hit10": 34,
+    "denso_hit10": 36,
+    "gana": 1,
+    "pierde": 3,
+    "gana_preguntas": [
+     "Which service types belong to a department?"
+    ],
+    "pierde_preguntas": [
+     "Am I notified by email the same way as in the app when my ticket changes status?",
+     "How are the follow-up and activities of a ticket recorded?",
+     "Which fields are required to create a ticket?"
+    ]
+   }
+  },
+  "ponderada 1:0.1": {
+   "es": {
+    "n": 57,
+    "hit10": 46,
+    "denso_hit10": 46,
+    "gana": 0,
+    "pierde": 0,
+    "gana_preguntas": [],
+    "pierde_preguntas": []
+   },
+   "en": {
+    "n": 57,
+    "hit10": 36,
+    "denso_hit10": 36,
+    "gana": 0,
+    "pierde": 0,
+    "gana_preguntas": [],
+    "pierde_preguntas": []
+   }
+  },
+  "ponderada 1:0.05": {
+   "es": {
+    "n": 57,
+    "hit10": 46,
+    "denso_hit10": 46,
+    "gana": 0,
+    "pierde": 0,
+    "gana_preguntas": [],
+    "pierde_preguntas": []
+   },
+   "en": {
+    "n": 57,
+    "hit10": 36,
+    "denso_hit10": 36,
+    "gana": 0,
+    "pierde": 0,
+    "gana_preguntas": [],
+    "pierde_preguntas": []
+   }
+  },
+  "ponderada 1:0.02": {
+   "es": {
+    "n": 57,
+    "hit10": 46,
+    "denso_hit10": 46,
+    "gana": 0,
+    "pierde": 0,
+    "gana_preguntas": [],
+    "pierde_preguntas": []
+   },
+   "en": {
+    "n": 57,
+    "hit10": 36,
+    "denso_hit10": 36,
+    "gana": 0,
+    "pierde": 0,
+    "gana_preguntas": [],
+    "pierde_preguntas": []
+   }
+  },
+  "ponderada 1:0": {
+   "es": {
+    "n": 57,
+    "hit10": 46,
+    "denso_hit10": 46,
+    "gana": 0,
+    "pierde": 0,
+    "gana_preguntas": [],
+    "pierde_preguntas": []
+   },
+   "en": {
+    "n": 57,
+    "hit10": 36,
+    "denso_hit10": 36,
+    "gana": 0,
+    "pierde": 0,
+    "gana_preguntas": [],
+    "pierde_preguntas": []
+   }
+  }
+ }
+}
