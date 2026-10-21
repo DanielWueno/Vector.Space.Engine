@@ -79,6 +79,11 @@ namespace Reyma.VectorSpace.Engine.Microservice.Api.Filters
                     result.errors = new[] { ex.Message };
                     code = HttpStatusCode.NotImplemented;
                     break;
+                case Exception ex when ex is MotorNoDisponibleException:
+                    // El detalle de la dependencia ya quedo en el log de quien la lanzo; el mensaje es para el cliente.
+                    result.errors = new[] { ex.Message };
+                    code = HttpStatusCode.ServiceUnavailable;
+                    break;
                 default:
                     _logger.LogError(context.Exception, context.Exception.Message);
                     result.errors = new[] { context.Exception.Message };

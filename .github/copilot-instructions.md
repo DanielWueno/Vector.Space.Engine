@@ -10,7 +10,10 @@ Microservicio **.NET 10** con **Clean Architecture**. Capas vigentes hoy:
 
 1. **Domain** (`Reyma.VectorSpace.Engine.Microservice.Domain`) - entidades.
 2. **Business** (`Reyma.VectorSpace.Engine.Microservice.Business`) - CQRS con MediatR (queries, commands, responses, validadores).
-3. **Api** (`Reyma.VectorSpace.Engine.Microservice.Api`) - controllers REST y composicion.
+3. **Infrastructure** (`Reyma.VectorSpace.Engine.Microservice.Infrastructure`) - motor de embeddings/ingesta (item 1.4):
+   implementa los puertos `IMotorDe*` de Business con Qdrant, el sidecar de embeddings y el chunking portado de
+   Rag.Context.Engine. Ver `docs/constitucion/INFRASTRUCTURE_LAYER.md`.
+4. **Api** (`Reyma.VectorSpace.Engine.Microservice.Api`) - controllers REST y composicion.
 
 El proyecto `Reyma.VectorSpace.Engine.Microservice.Persistence` (PostgreSQL/`ApplicationDbContext`,
 EF Core) que traia la plantilla fue retirado por completo en el item `1.9-decidir-si-se-conserva-postgres-de-la-plantilla`
@@ -20,7 +23,7 @@ datos. Este servicio guarda datos en Qdrant (vector store), no en PostgreSQL. Ve
 `docs/constitucion/PERSISTENCE_LAYER.md` para la condicion bajo la cual se recrearia esa capa.
 
 Flujo hoy: `Request -> Controller -> Mediator -> Handler -> Response`.
-Dependencias permitidas: Api -> Business; Business -> Domain.
+Dependencias permitidas: Api -> Business; Business -> Domain; Api -> Infrastructure -> Business.
 No invertirlas.
 
 ## Reglas criticas

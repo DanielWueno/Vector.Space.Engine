@@ -318,19 +318,23 @@ public sealed class ColeccionesTests(ApiFactory factory)
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
-    // --- Sin motor portado (registro real del servicio) ---
+    // --- Registro real del servicio con sus dependencias caidas ---
 
     [Theory]
     [MemberData(nameof(Operaciones))]
-    public async Task ConElRegistroRealElMotorPendienteResponde501TrasAutorizar(string operacion, string _)
+    public async Task ConElRegistroRealYDependenciasCaidasResponde503SinExponerLaConexion(string operacion, string _)
     {
+        // ApiFactory apunta Qdrant y el sidecar a un puerto sin servicio. Autorizado, el motor real llega a la dependencia
+        // y responde 503 (no 500 ni 501); el cuerpo no dice a que host ni puerto intento conectar.
         var api = factory.ConIdentidad();
         using var client = api.Cliente(TokenAna);
 
         using (var propia = await client.PostJson($"/api/colecciones/propia/{operacion}", Cuerpo(operacion)))
         {
-            Assert.Equal(HttpStatusCode.NotImplemented, propia.StatusCode);
-            Assert.Contains("1.4", await propia.Content.ReadAsStringAsync());
+            Assert.Equal(HttpStatusCode.ServiceUnavailable, propia.StatusCode);
+            var cuerpo = await propia.Content.ReadAsStringAsync();
+            Assert.DoesNotContain("127.0.0.1", cuerpo);
+            Assert.DoesNotContain($":{ApiFactory.SinServicio}", cuerpo);
         }
 
         using (var ajena = await client.PostJson($"/api/colecciones/ajena/{operacion}", Cuerpo(operacion)))

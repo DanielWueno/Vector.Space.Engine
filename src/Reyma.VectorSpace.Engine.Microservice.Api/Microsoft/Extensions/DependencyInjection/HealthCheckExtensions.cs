@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Reyma.VectorSpace.Engine.Microservice.Infrastructure;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -12,12 +13,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
         internal static void AddServiceHealthChecks(this IServiceCollection services)
         {
-            // Item 1.9: el servicio no usa Postgres (guarda vectores en Qdrant, aun no integrado -
-            // eso llega en 1.4). Hoy no tiene dependencias externas reales que comprobar en el
-            // readiness; cuando 1.4 agregue Qdrant/sidecar, su check se agrega aqui con tag "services".
+            // Item 1.9 retiro Postgres; item 1.4: el readiness comprueba las dependencias reales del motor
+            // (Qdrant y el sidecar de embeddings).
             services.AddHealthChecks()
                 .AddCheck("Self", () => HealthCheckResult.Healthy())
-                .AddCheck("Dependencies", () => HealthCheckResult.Healthy(), tags: new string[] { TagServices });
+                .AddMotorVectorialChecks(TagServices);
         }
 
         internal static void MapHealthCheckEndPoints(this IEndpointRouteBuilder endpoints)

@@ -81,9 +81,11 @@
           "modelo": "opus",
           "esfuerzo": "high",
           "multiagente": false,
-          "estado": "bloqueado",
-          "bloqueado_por": "1.3-definir-contrato-api-y-autenticacion",
+          "estado": "hecho",
+          "fecha": "2026-10-21",
+          "resultado": "Motor portado en el proyecto nuevo src/Reyma.VectorSpace.Engine.Microservice.Infrastructure (Api -> Infrastructure -> Business; guia docs/constitucion/INFRASTRUCTURE_LAYER.md, detalle en su PORTE.md). Copiado de Rag.Context.Engine aae1de8 solo con cambio de namespace: las 4 estrategias de chunking y sus auxiliares, SparseTokenizer, ContentHasher, DeterministicGuid, TokenEstimator, modelos de chunk y DeterministicVectorQuery. Adaptado al contrato de 1.3: DocumentIngestionPipeline (fase 1 sobre documentos HTTP, repositorio = coleccion, MaxTokensPerChunk 1024 configurable, huella por documento para 'sin cambios', barrido de obsoletos por documento), QdrantVectorStore (mismo esquema y payload + document_fingerprint, Qdrant.Client 1.19.0, 409 si la coleccion tiene otra dimension) y QdrantSemanticRetriever (densa exacta, coseno >= 0,10, por defecto; RRF nativa tras Motor:Busqueda:Modo, 1.10). IVectorizationBrain es TeiVectorizationBrain (ruta OpenAI-compatible, sin recorte, 'query: ' solo en consultas, truncado a 256 + L2 en cliente). No portado y declarado: resumen LLM, reranker, salto por simbolo, perfiles, filtros de modulo/tenant, manifiesto, auditoria/estado SQLite y escaner (origen 'ruta' = 1.7). MotorPendiente retirado; /health/ready comprueba Qdrant y el sidecar; fallos de dependencia -> 503 sin host ni puerto. docker-compose.motor.yml: Qdrant 1.19.2 (16333/16334) + TEI cpu-1.8 arctic (18080, --auto-truncate, max-batch-tokens 8192). Evidencia (verificada con el build final): (1) golden master del chunking de Rag.Context.Engine portado SIN regenerar (fixtures LF/CRLF, .gitattributes -text) pasa; alterar un hash del golden lo pone rojo. (2) Equivalencia sobre colecciones aisladas del Qdrant efimero: referencia fresca con el pipeline real (Refragmentar, 1024) y el servicio por POST ingestas con documentos del escaner real (tools/equivalencia-motor, API en proceso con JWT de prueba): innovapp-docs 629/629 Ids y micro-repo 1734/1734 Ids, payload identico en todas las claves salvo last_modified y la clave extra document_fingerprint, sparse-code identico bit a bit; el comparador detecta un content_hash alterado. Segunda pasada: 15/15 y 567/567 'sin cambios', mismos puntos. (3) micro-repo contra el banco de 1.11: mismos 1734 Ids y content_hash; denso del servicio vs arctic c1024-w8192 coseno min 0,999993. (4) Eval micro-repo por POST busquedas: hit@10 15/19, igual que 1.11 denso-es pregunta por pregunta (19/19), top-10 identico en orden 16/19. (5) dotnet test: 161 + 4 omitidas; con VSE_MOTOR_LOCAL=1 y el compose, 165/165 (ingesta incremental = desde cero tras editar un metodo, CRLF sin cambios, documento vaciado sin puntos, 384d -> 409 intacta, rutas a/b y a\\b -> 400, .py omitido, embeddings = vector guardado). MiniLM 384d: el servicio las rechaza (409) y 1.6 las manda reingestar. Rag.Context.Engine no se toco (sigue con su pipeline; su paso a cliente es 1.12); rag-qdrant sin conexion. Hallazgo anotado como 1.4.1: el TransactionScope del mediador corporativo aborta solicitudes de mas de 10 min (500 con los puntos ya guardados); la herramienta parte la ingesta en solicitudes de 64 KB y el contrato declara el limite. Rendimiento TEI CPU: ~1,5 chunks/s ordenando por longitud (1,0 sin ordenar). Nota para 1.5: .dockerignore no excluye .cache/ (~5 GB de modelos). Tiempo de maquina ~1,6 h. Compose bajado con -v; imagenes conservadas. Fuera de git: hook credential-read-guard bloqueo dos 'python3 -c' de lectura de JSON no secretos (ledger, resultados de 1.11); se uso Read/Grep sin reformular el comando.",
           "_dependencias_adicionales": ["1.2-comparar-qdrant-vs-milvus", "1.6-decidir-estrategia-de-modelos-de-embeddings", "1.8-evaluar-adopcion-de-motor-de-embeddings-existente"],
+          "_reentrada_resuelta_2026_10_21": "Usuario autoriza al arrancar el tiempo de maquina sin tope ('las horas no nos detendran') y fija el alcance: solo portar y verificar equivalencia en coleccion aislada; Rag.Context.Engine conserva su pipeline local y su paso a cliente queda como item aparte (1.12), sin tocar ese repo aqui.",
           "horas_maquina": 2,
           "advertencia_de_coste": "2 h provisionales de build/test/migracion; no autorizadas por esta ficha. Confirmar con el usuario antes de gastar, y reestimar si crece durante el trabajo.",
           "por_que_este_modelo": "Mueve codigo que hoy sirve colecciones reales en Rag.Context.Engine; exige no duplicar logica, no romper sus puertos 9.1/9.2, y aplicar correctamente la decision sobre si ese proyecto conserva o no su pipeline propio.",
@@ -92,6 +94,20 @@
           "verificacion": "El servicio nuevo calcula embeddings/ingesta de forma equivalente a la actual de Rag.Context.Engine (mismos content_hash e IDs deterministicos) sobre una coleccion de prueba aislada. Si se conservan colecciones MiniLM 384d sin reingestar, paridad numerica medida (coseno ~1 sobre los mismos textos) entre el ONNX propio de Rag.Context.Engine y el sidecar sirviendo el mismo MiniLM; sin esa medida, esas colecciones se tratan como a reingestar. Si Rag.Context.Engine pasa a cliente, sus endpoints /api/search y /api/ask siguen respondiendo igual contra el servicio remoto, medido con el mismo eval-set y la misma baseline vigente de ese repo (docs/eval/quality/5.e/). No se reingiere ni se toca ninguna coleccion servida.",
           "rollback": "Rag.Context.Engine mantiene su pipeline local actual hasta que este servicio pase la verificacion; revertir el commit de porte en este repo no afecta colecciones existentes.",
           "_trazabilidad_origen": "Rag.Context.Engine, 25.5-portar-codigo-motor-a-repositorio (trazabilidad externa)."
+        },
+        {
+          "id": "1.4.1-retirar-transaccion-del-mediador",
+          "titulo": "AddReymaMediatorDefault (Reyma.Mediator.Base.Postgres.DependencyInjection) registra TransactionPipelineBehavior, que envuelve cada solicitud de MediatR en un TransactionScope con el plazo de TransactionManager.MaximumTimeout (10 min por defecto). Desde 1.9 el servicio no tiene ningun recurso transaccional: Qdrant y el sidecar no se enlistan. Una ingesta que tarda mas de 10 min responde 500 'The transaction has aborted.' aunque Qdrant ya guardo todos sus puntos.",
+          "modelo": "sonnet",
+          "esfuerzo": "medium",
+          "multiagente": false,
+          "estado": "pendiente",
+          "horas_maquina": 0.3,
+          "por_que_este_modelo": "Cambio acotado en la composicion corporativa (AddReymaDefaults) con verificacion mecanica; el criterio es no romper otros behaviors del mediador al quitar uno.",
+          "origen": "Hallazgo de 1.4 el 2026-10-21: la primera ingesta de innovapp-docs (15 documentos, 629 chunks, una sola solicitud, TEI en CPU) dejo los 629 puntos en Qdrant y respondio 500 'The transaction has aborted.'. Reflexion sobre Reyma.Mediator.Behaviors.Base.Postgres 1.0.4: TransactionPipelineBehavior abre un TransactionScope en Handle. 1.4 no lo corrige (fuera de su alcance): su herramienta de equivalencia parte la ingesta en solicitudes de 64 KB y el contrato declara el limite.",
+          "archivos": "src/Reyma.VectorSpace.Engine.Microservice.Api/Microsoft/Extensions/DependencyInjection/StartupExtensions.cs (AddReymaDefaults), tests de composicion, docs/servicio/contrato-api.md (quitar la nota del limite).",
+          "verificacion": "Decision registrada: (a) quitar TransactionPipelineBehavior del pipeline (prueba que lista los IPipelineBehavior registrados y no lo encuentra, conservando AutorizacionColeccionBehavior y ValidacionBehavior en su orden) y una ingesta por el contrato que tarde mas de 10 min (innovapp-docs completo en una sola solicitud contra docker-compose.motor.yml) responde 200 con los conteos; o (b) conservarlo con motivo y el limite de duracion por solicitud documentado en el contrato y en Limites. 'dotnet test' pasa en ambos casos.",
+          "rollback": "Revertir el commit: el mediador vuelve a la composicion de la plantilla."
         },
         {
           "id": "1.5-preparar-acceso-ssh-y-despliegue-offline",
@@ -243,6 +259,22 @@
           "verificacion": "Sobre los mismos tres eval-sets de 1.6, con arctic@256 y comparacion pareada en hit@10 ES y EN contra arctic@256 ventana 512 (resultado de 1.6): (a) mismos chunks con ventana 1024 y 8192; (b) re-fragmentacion con MaxTokensPerChunk mayor (al menos 1024) re-embebida con ventana suficiente. Junto a cada hit@10 se reporta el contrapeso: tokens totales del top-10 devuelto (contexto que recibe el LLM) y chunks/s en TEI. Se adopta un cambio solo si gana preguntas sin perder ninguna y el aumento de contexto queda declarado; si no, se mantiene 512. El limite del resumen (160 tokens) se anota pero no se mide aqui (banda resumen fuera del banco de 1.6).",
           "_preparacion_de_verificacion": "Requiere .cache/embeddings-eval de 1.6. La regla de acierto (archivo + ancla por subcadena) es valida entre fragmentaciones distintas; comprobar antes que cada ancla sigue existiendo en algun chunk de cada fragmentacion (si no, la pregunta se excluye en todos los brazos y se dice).",
           "rollback": "Documental y del banco; ninguna coleccion servida se toca. Revertir el commit."
+        },
+        {
+          "id": "1.12-decidir-si-rag-context-engine-pasa-a-cliente",
+          "titulo": "Rag.Context.Engine sigue con su pipeline local (OnnxVectorizationBrain MiniLM 384d, chunks de 512) y no consume este servicio; el titulo de 1.4 decia 'pasa a cliente si asi se decidio', pero esa decision no existe en ningun ledger.",
+          "modelo": "opus",
+          "esfuerzo": "high",
+          "multiagente": false,
+          "estado": "pendiente",
+          "horas_maquina": 1,
+          "advertencia_de_coste": "1 h provisional: el eval-set de 5.e contra el servicio remoto implica reingestar en una coleccion aislada con arctic (~85 min de TEI segun 1.11 para el corpus completo). Reestimar al arrancar.",
+          "por_que_este_modelo": "Toca otro repositorio que sirve colecciones reales y cambia su modelo de embeddings; decidir mal rompe /api/search y /api/ask de ese proyecto.",
+          "origen": "Usuario, 2026-10-21, al arrancar 1.4: el paso de Rag.Context.Engine a cliente queda fuera de 1.4 (solo portar) y se registra aparte.",
+          "archivos": "Rag.Context.Engine (otro repo): composicion de IVectorizationBrain/ISemanticRetriever y su ledger. Este repo: solo consumo del contrato de docs/servicio/contrato-api.md.",
+          "verificacion": "Decision registrada (pasa a cliente o conserva pipeline propio) con motivo. Si pasa a cliente: /api/search y /api/ask de Rag.Context.Engine responden contra el servicio remoto con el mismo eval-set y la baseline vigente de ese repo (docs/eval/quality/5.e/), pareado, sin reingestar ni tocar colecciones servidas.",
+          "_condicion_de_reentrada": "Requiere 1.4 hecho (servicio portado y verificado). Responsable: usuario, que decide si ese proyecto cambia de dueno del pipeline.",
+          "rollback": "Rag.Context.Engine conserva su pipeline local; revertir el commit en ese repo devuelve la composicion actual."
         }
       ]
     }

@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Item 1.4: motor de embeddings/ingesta portado de Rag.Context.Engine (ver PORTE.md). Implementa los puertos
+       IMotorDe* de Business; Api solo lo registra. Qdrant y Roslyn quedan fuera de Business. -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\Reyma.VectorSpace.Engine.Microservice.Business\Reyma.VectorSpace.Engine.Microservice.Business.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.6.0" />
+    <!-- 1.19.0 frente al 1.14.0 de Rag.Context.Engine: es el cliente probado en 1.2 contra Qdrant 1.19.2. -->
+    <PackageReference Include="Qdrant.Client" Version="1.19.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Reyma.VectorSpace.Engine.Microservice.Tests" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

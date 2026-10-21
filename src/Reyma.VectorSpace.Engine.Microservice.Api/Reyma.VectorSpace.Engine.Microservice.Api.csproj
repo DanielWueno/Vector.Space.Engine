@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Reyma.VectorSpace.Engine.Microservice.Business\Reyma.VectorSpace.Engine.Microservice.Business.csproj" />
+    <ProjectReference Include="..\Reyma.VectorSpace.Engine.Microservice.Infrastructure\Reyma.VectorSpace.Engine.Microservice.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

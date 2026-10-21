@@ -27,6 +27,7 @@ no reemplaza revision humana/tests y no concede permisos de infraestructura.
 | [DOMAIN_LAYER.md](./DOMAIN_LAYER.md) | Antes de crear entidades |
 | [PERSISTENCE_LAYER.md](./PERSISTENCE_LAYER.md) | Capa retirada en 1.9 (ver nota); consultar solo si se evalua recrearla |
 | [BUSINESS_LAYER.md](./BUSINESS_LAYER.md) | Antes de crear queries, commands o responses |
+| [INFRASTRUCTURE_LAYER.md](./INFRASTRUCTURE_LAYER.md) | Antes de tocar el motor (Qdrant, sidecar de embeddings, chunking portado) |
 | [API_LAYER.md](./API_LAYER.md) | Antes de crear controllers o permisos |
 
 ## Como trabajar
@@ -60,7 +61,8 @@ significan que esos recursos o todas sus dependencias existan en el servicio ini
 ```
 src/
   Reyma.VectorSpace.Engine.Microservice.Domain/       Entidades
-  Reyma.VectorSpace.Engine.Microservice.Business/     Queries, commands, responses, validadores
+  Reyma.VectorSpace.Engine.Microservice.Business/     Queries, commands, responses, validadores, puertos del motor
+  Reyma.VectorSpace.Engine.Microservice.Infrastructure/  Motor: Qdrant, sidecar de embeddings, chunking portado (1.4)
   Reyma.VectorSpace.Engine.Microservice.Api/          Controllers y composicion
 tests/
   Reyma.VectorSpace.Engine.Microservice.Tests/        Pruebas de integracion y contrato

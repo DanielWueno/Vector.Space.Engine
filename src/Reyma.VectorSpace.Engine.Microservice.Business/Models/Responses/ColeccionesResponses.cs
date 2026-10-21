@@ -20,6 +20,8 @@ public sealed record ResultadoBusquedaResponse(string Id, float Puntuacion, stri
 /// <summary>
 /// Resultado de una ingesta. En el MVP es sincrona y vuelve con <see cref="Estado"/> "completada"; el identificador y
 /// el estado existen para que una ingesta en cola (item 1.7) use la misma forma con 202 sin romper a los clientes.
+/// Recibidos = indexados + sin cambios + omitidos. Omitido: extension fuera del perfil de ingesta o tamano mayor que su
+/// limite, los mismos filtros por archivo que el escaner de Rag.Context.Engine (item 1.4).
 /// </summary>
 public sealed record IngestaResponse(
     Guid IngestaId,
@@ -27,4 +29,5 @@ public sealed record IngestaResponse(
     string Estado,
     int DocumentosRecibidos,
     int DocumentosIndexados,
-    int DocumentosSinCambios);
+    int DocumentosSinCambios,
+    int DocumentosOmitidos = 0);

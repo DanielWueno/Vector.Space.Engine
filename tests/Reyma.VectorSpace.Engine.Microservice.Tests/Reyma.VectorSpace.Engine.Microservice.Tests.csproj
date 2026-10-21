@@ -20,6 +20,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Item 1.4: fixtures y golden master del chunking, copiados sin cambios de Rag.Context.Engine. -->
+    <Content Include="Motor\Fixtures\*.fixture" Link="Fixtures\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Motor\GoldenMaster\*.json" Link="GoldenMaster\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Reyma.VectorSpace.Engine.Microservice.Api\Reyma.VectorSpace.Engine.Microservice.Api.csproj" />
   </ItemGroup>
 

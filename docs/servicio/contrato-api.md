@@ -15,10 +15,37 @@ ruta base del servicio (`/reyma/vectorspace/engine` desplegado; vacia en local) 
 Codigos comunes: **401** sin token valido (firma, emisor, audiencia y vigencia se validan como en
 la plantilla); **403** si la tabla de acceso no otorga esa operacion sobre esa coleccion;
 **400** cuerpo invalido (solo despues de autorizar: sin acceso es 403 aunque el cuerpo sea invalido);
-**501** parte del contrato aun sin implementar.
+**409** la coleccion ya existe con vectores de otra dimension; **501** parte del contrato aun sin
+implementar (origen `ruta`); **503** Qdrant o el sidecar de embeddings no respondieron (el mensaje no
+dice a que host ni puerto se intento conectar).
 
-Hasta el item 1.4 el motor no esta portado: las tres operaciones POST autorizadas y validas
-responden **501**. El contrato, la autenticacion y el control de acceso ya son los definitivos del MVP.
+## Motor (item 1.4)
+
+El motor es el de Rag.Context.Engine portado (ver
+`src/Reyma.VectorSpace.Engine.Microservice.Infrastructure/PORTE.md`): mismo chunking, mismos Id y
+`content_hash`, mismo esquema de coleccion en Qdrant. El vector denso lo calcula el sidecar (TEI) con
+`snowflake-arctic-embed-m-v2.0` a 256 dimensiones (1.6), normalizado L2; el vector `sparse-code` es el
+`SparseTokenizer` propio.
+
+- **embeddings**: vectores de *documento* (sin el prefijo `query: `), los mismos que guardaria una ingesta
+  de esos textos. No escribe nada.
+- **busquedas**: rama densa exacta (coseno >= 0,10, desempate por id), sin fusion con el sparse (1.10).
+  `puntuacion` es el coseno. Una coleccion autorizada que aun no tiene ingestas responde 200 sin resultados.
+- **ingestas**: cada documento se trocea por su extension con el perfil del CLI de Rag.Context.Engine
+  (`.cs .ts .tsx .js .jsx .xaml .sql .md .txt .json .xml .csproj`, hasta 512 KB en UTF-8), con
+  `MaxTokensPerChunk` 1024 (1.11). La coleccion hace de repositorio: el Id de un chunk sale de
+  `coleccion/ruta` (separadores normalizados), linea inicial y hash. Por documento:
+  - `documentosOmitidos`: extension fuera del perfil, mas de 512 KB, o el chunker no pudo procesarlo
+    (sus puntos anteriores se conservan).
+  - `documentosSinCambios`: ya estaba indexado con el mismo contenido (finales de linea aparte), la misma
+    ruta y la misma configuracion de chunking y modelo; no se vuelve a vectorizar.
+  - `documentosIndexados`: se vectorizo y se borraron los puntos que el documento ya no genera.
+  Dos rutas que solo difieren en el separador (`a/b.cs`, `a\b.cs`) en la misma solicitud responden 400.
+  La primera ingesta crea la coleccion. Las ingestas sobre una misma coleccion se serializan.
+- **Limite conocido (item 1.4.1)**: el mediador corporativo envuelve cada solicitud en una transaccion
+  que expira a los 10 minutos. Una ingesta que tarde mas responde 500 aunque los puntos ya se guardaron
+  (reenviarla la completa como "sin cambios"). Con TEI en CPU (~1 chunk/s con chunks largos) conviene
+  enviar solicitudes de decenas de KB, no de 100 documentos grandes.
 
 ## Cuerpos
 
@@ -36,7 +63,7 @@ responden **501**. El contrato, la autenticacion y el control de acceso ya son l
 // origen 'ruta': reservado para el item 1.7, hoy responde 501
 { "origen": { "tipo": "ruta", "ruta": "/ruta/accesible/al/servicio" } }
 // 200: { "ingestaId", "coleccion", "estado": "completada", "documentosRecibidos",
-//        "documentosIndexados", "documentosSinCambios" }
+//        "documentosIndexados", "documentosSinCambios", "documentosOmitidos" }
 ```
 
 Decisiones que dejan abierto el item 1.7 (modelo de consumo de ingesta):

@@ -12,6 +12,8 @@ namespace Reyma.VectorSpace.Engine.Microservice.Tests;
 
 public sealed class ApiFactory : WebApplicationFactory<Program>
 {
+    public const string SinServicio = "9";
+
     // La factory padre libera sus derivadas al final: Graceterm comparte el estado de apagado entre hosts.
     public ErrorLogger Errors { get; } = new();
 
@@ -30,6 +32,11 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
                 ["IdentityServerAuthenticationOptions:Authority"] = "",
                 ["PermissionsValidatorOptions:ApiUri"] = "",
                 ["IntegrityServiceOptions:ApiUri"] = "",
+                // Dependencias del motor apuntando a un puerto sin servicio (9, discard): las pruebas que necesitan un
+                // motor lo sustituyen (MotorDePrueba); las de readiness comprueban que se reportan caidas.
+                ["Motor:Qdrant:Host"] = "127.0.0.1",
+                ["Motor:Qdrant:PuertoGrpc"] = SinServicio,
+                ["Motor:Embeddings:UrlBase"] = $"http://127.0.0.1:{SinServicio}",
                 ["Serilog:MinimumLevel:Default"] = "Fatal",
                 ["Serilog:MinimumLevel:Override:Microsoft"] = "Fatal",
                 ["Serilog:MinimumLevel:Override:System"] = "Fatal"

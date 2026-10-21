@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Reyma.VectorSpace.Engine.Microservice.Business.Colecciones;
-using Reyma.VectorSpace.Engine.Microservice.Business.Motor;
 using Reyma.VectorSpace.Engine.Microservice.Business.Validacion;
+using Reyma.VectorSpace.Engine.Microservice.Infrastructure;
 using System.Diagnostics.CodeAnalysis;
 
 /// <summary>
@@ -33,10 +33,7 @@ internal static class CustomContainer
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AutorizacionColeccionBehavior<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidacionBehavior<,>));
 
-        // Hasta el item 1.4 el motor responde 501.
-        services.AddSingleton<MotorPendiente>();
-        services.AddSingleton<IMotorDeEmbeddings>(sp => sp.GetRequiredService<MotorPendiente>());
-        services.AddSingleton<IMotorDeBusqueda>(sp => sp.GetRequiredService<MotorPendiente>());
-        services.AddSingleton<IMotorDeIngesta>(sp => sp.GetRequiredService<MotorPendiente>());
+        // Item 1.4: motor portado (Qdrant + sidecar de embeddings) detras de los puertos IMotorDe*.
+        services.AddMotorVectorial(config);
     }
 }

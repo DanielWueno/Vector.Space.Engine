@@ -1,0 +1,44 @@
+# Item 1.4: dependencias del motor para desarrollo local (Docker, CPU). La API corre fuera (dotnet run, Development),
+# que apunta a estos puertos en appsettings.Development.json. Solo escucha en 127.0.0.1.
+#
+# - Qdrant 1.19.2: version probada en 1.2 con Qdrant.Client 1.19.0. Puertos 16333/16334 para no chocar con rag-qdrant
+#   (6333/6334) de Rag.Context.Engine, que este compose nunca toca.
+# - TEI cpu-1.8 con snowflake-arctic-embed-m-v2.0 (1.6). --auto-truncate y --max-batch-tokens 8192: el chunk entra
+#   completo y TEI solo trunca por encima de la ventana del modelo (1.11).
+#   El modelo lo descarga el HOST a .cache/hf (tools/sidecar-eval/descargar_modelos.py): la inspeccion TLS corporativa
+#   rompe la descarga desde el contenedor y no se desactiva la validacion TLS. TEI corre offline sobre esa copia.
+#
+# Uso:      docker compose -f docker-compose.motor.yml up -d
+# Rollback: docker compose -f docker-compose.motor.yml down -v   (borra tambien las colecciones de este Qdrant)
+name: vse-motor
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.19.2
+    volumes:
+      - qdrant-data:/qdrant/storage
+    ports:
+      - "127.0.0.1:16333:6333"
+      - "127.0.0.1:16334:6334"
+
+  tei:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.8
+    command:
+      - "--model-id"
+      - "/data/${MODEL_DIR:-models--Snowflake--snowflake-arctic-embed-m-v2.0/snapshots/95c2741480856aa9666782eb4afe11959938017f}"
+      - "--max-client-batch-size"
+      - "64"
+      - "--max-batch-tokens"
+      - "8192"
+      - "--auto-truncate"
+    environment:
+      HF_HUB_CACHE: /data
+      HF_HOME: /data
+      HF_HUB_OFFLINE: "1"
+    volumes:
+      - ./.cache/hf:/data
+    ports:
+      - "127.0.0.1:18080:80"
+
+volumes:
+  qdrant-data:

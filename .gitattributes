@@ -1,0 +1,4 @@
+# Fixtures de chunking portados de Rag.Context.Engine (item 1.4): pares LF/CRLF del MISMO contenido. Si git
+# normalizara sus finales de linea, el fixture CRLF llegaria como LF al checkout y el golden master dejaria de
+# probar nada. -text desactiva toda conversion.
+tests/Reyma.VectorSpace.Engine.Microservice.Tests/Motor/Fixtures/*.fixture -text

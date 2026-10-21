@@ -8,8 +8,10 @@ equipo sin arrastrar retrieval, generación RAG, vista o analíticas.
 
 2026-10-19: API generada desde `Reyma.Microservice.Template` (`dotnet new reyma-api`,
 `Reyma.VectorSpace.Engine`) con el contrato de embeddings/ingesta y control de acceso por
-coleccion; el motor aun no esta portado (responde 501 hasta el item 1.4). Sin repositorio
-remoto, sin despliegue, sin conexion a ningun servidor. Ver `docs/plan/ejecucion-plan.estado.json`.
+coleccion. 2026-10-21 (item 1.4): motor portado de `Rag.Context.Engine` (chunking, sparse,
+adaptador Qdrant) con el vector denso de un sidecar TEI; corre en local contra
+`docker-compose.motor.yml`. Sin repositorio remoto, sin despliegue, sin conexion a ningun
+servidor. Ver `docs/plan/ejecucion-plan.estado.json`.
 
 - Contrato HTTP y multi-tenencia: [docs/servicio/contrato-api.md](docs/servicio/contrato-api.md).
 - Operacion del servicio generado (configuracion, Docker, pipeline):
@@ -18,6 +20,7 @@ remoto, sin despliegue, sin conexion a ningun servidor. Ver `docs/plan/ejecucion
 ```powershell
 dotnet build Reyma.VectorSpace.Engine.Microservice.sln
 dotnet test --no-build
+docker compose -f docker-compose.motor.yml up -d   # Qdrant + TEI locales para correr el motor
 ```
 
 ## Origen

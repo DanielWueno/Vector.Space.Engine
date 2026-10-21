@@ -11,13 +11,14 @@ completar es la configuracion de entorno que se describe abajo.
 
 Esta API usa C#/.NET 10, ASP.NET Core, MediatR, AutoMapper, FluentValidation,
 JWT, Swagger y paquetes corporativos Reyma. Los `.csproj` son la referencia
-de versiones y dependencias por capa. La solucion separa Domain, Business y
-Api, con un proyecto Tests de xUnit.
+de versiones y dependencias por capa. La solucion separa Domain, Business,
+Infrastructure (motor de embeddings/ingesta, item 1.4) y Api, con un proyecto
+Tests de xUnit.
 
-Este servicio no usa PostgreSQL/EF Core: guarda vectores en Qdrant (la
-integracion real llega con el item 1.4 del ledger, aun bloqueado) y su tabla
-de control de acceso por coleccion vive en configuracion (`ControlDeAcceso`
-en `appsettings`), no en una base relacional. El item 1.9 del ledger retiro
+Este servicio no usa PostgreSQL/EF Core: guarda vectores en Qdrant, calcula el
+vector denso con un sidecar de embeddings (TEI) y su tabla de control de acceso
+por coleccion vive en configuracion (`ControlDeAcceso` en `appsettings`), no en
+una base relacional. El item 1.9 del ledger retiro
 el proyecto `Persistence` que traia la plantilla (`ApplicationDbContext` no
 llego a declarar ningun `DbSet`), junto con `AddReymaPersistence`/`AddNpgSql`,
 el chequeo de Postgres en `/health/ready` y la exigencia de `CONNECTION_STRING`.
@@ -59,16 +60,20 @@ estan en [contrato-api.md](contrato-api.md).
 ## Ejecutar en local
 
 ```bash
+docker compose -f docker-compose.motor.yml up -d   # Qdrant 1.19.2 (127.0.0.1:16334) y TEI (127.0.0.1:18080)
 dotnet build
 dotnet run --project src/Reyma.VectorSpace.Engine.Microservice.Api
 ```
 
-Con solo la configuracion obligatoria (siguiente seccion) el servicio
-arranca y responde 200 en `/health/self` y en `/health/ready`: hoy el
-servicio no tiene ninguna dependencia externa real que comprobar (ver nota
-de PostgreSQL/Qdrant arriba), asi que el readiness no finge una que no
-existe. Cuando el item 1.4 integre Qdrant/sidecar, su chequeo se agrega a
-`/health/ready` con ese alcance.
+`docker-compose.motor.yml` levanta las dependencias del motor (ver su cabecera: el modelo lo descarga el
+host a `.cache/hf`); `appsettings.Development.json` ya apunta a esos puertos. `rag-qdrant` de
+Rag.Context.Engine (6333/6334) no se toca. Rollback: `docker compose -f docker-compose.motor.yml down -v`.
+
+`/health/self` responde 200 sin dependencias. `/health/ready` comprueba Qdrant y el sidecar (5 s cada uno)
+y responde 503 `Unhealthy` si alguno no contesta.
+
+Pruebas del motor real (opcionales): con el compose levantado, `$env:VSE_MOTOR_LOCAL = "1"; dotnet test`
+corre tambien `MotorIntegracionTests`; sin la variable se omiten.
 
 ## Configuración por entorno
 
@@ -85,10 +90,22 @@ grupo de variables del pipeline; fuera de Development, nunca como opciones adici
 | Variable | Notas |
 |---|---|
 | `ASPNETCORE_ENVIRONMENT` | La imagen ya trae `Production`. |
+| `Motor__Embeddings__UrlBase` | URL del sidecar de embeddings (TEI). Sin ella el servicio no arranca. |
 
-El servicio no requiere ninguna variable adicional para arrancar: no usa
-PostgreSQL (ver nota de arquitectura arriba) y por eso no exige
+No usa PostgreSQL (ver nota de arquitectura arriba) y por eso no exige
 `CONNECTION_STRING` en ningun entorno.
+
+### Motor (seccion `Motor`)
+
+| Variable | Defecto | Notas |
+|---|---|---|
+| `Motor__Qdrant__Host` / `Motor__Qdrant__PuertoGrpc` | `localhost` / `6334` | Qdrant por gRPC. |
+| `Motor__Qdrant__Https` / `Motor__Qdrant__ApiKey` | `false` / vacia | La clave solo por variable de entorno o gestor de secretos. |
+| `Motor__Embeddings__Modelo` / `Motor__Embeddings__Dimension` | arctic-embed-m-v2.0 / `256` | Decision de 1.6; cambiarlos exige reingestar. |
+| `Motor__Ingesta__MaxTokensPorChunk` | `1024` | Decision de 1.11. |
+| `Motor__Busqueda__Modo` | `Denso` | `FusionNativa` reactiva la RRF denso+sparse de Rag.Context.Engine (1.10). |
+
+Valores incoherentes (URL invalida, dimension o lotes no positivos) impiden arrancar.
 
 ### Para operar o desplegar
 

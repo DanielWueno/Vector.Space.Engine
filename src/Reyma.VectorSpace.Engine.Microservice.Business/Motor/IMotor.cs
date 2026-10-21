@@ -3,8 +3,8 @@ using Reyma.VectorSpace.Engine.Microservice.Business.Models.Responses;
 
 namespace Reyma.VectorSpace.Engine.Microservice.Business.Motor;
 
-// Puertos del contrato HTTP hacia el motor. Los implementa 1.4 (pipeline de ingesta portado, SparseTokenizer,
-// cliente HTTP del sidecar de embeddings y adaptador Qdrant); hasta entonces responde MotorPendiente.
+// Puertos del contrato HTTP hacia el motor. Los implementa MotorVectorial en el proyecto Infrastructure (item 1.4:
+// pipeline de ingesta portado, SparseTokenizer, cliente HTTP del sidecar de embeddings y adaptador Qdrant).
 // Reciben la coleccion ya autorizada: no repiten el control de acceso.
 
 public interface IMotorDeEmbeddings
