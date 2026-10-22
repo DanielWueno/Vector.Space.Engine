@@ -24,8 +24,10 @@ Proyecto `Reyma.VectorSpace.Engine.Microservice.Api`. Expone REST y compone el s
 
 - `Startup.cs` delega en `AddReymaDefaults` / `UseReymaDefaults`; las extensiones especificas estan en
   `Microsoft/Extensions/DependencyInjection/`. Agregar ahi nuevos registros, no en `Startup`.
-- Configuracion nueva por entorno: variables de entorno, user-secrets o Doppler; no agregar secretos a `appsettings*.json`.
-  Los defaults sensibles de desarrollo existentes requieren revision/externalizacion y no deben reproducirse.
+- Configuracion nueva por entorno: `.env` local (item 1.5, ver `.env.example`) o user-secrets en desarrollo; en el
+  entorno de despliegue real, el gestor de secretos que se decida (no hay ninguno implementado hoy). Nunca secretos
+  en `appsettings*.json`. Los defaults sensibles de desarrollo existentes requieren revision/externalizacion y no
+  deben reproducirse.
 
 ## Pruebas
 

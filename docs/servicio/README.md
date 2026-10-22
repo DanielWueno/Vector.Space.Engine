@@ -78,11 +78,14 @@ corre tambien `MotorIntegracionTests`; sin la variable se omiten.
 ## Configuración por entorno
 
 Los archivos versionados (`appsettings.json`, `appsettings.Development.json`,
-`api.yaml`, `azure-pipelines.yml`) traen la estructura (claves) con valores
-vacios o no sensibles (en Development, la cadena de conexion del dev
-general; ver abajo). Los valores reales de infraestructura se entregan
-por variables de entorno, user-secrets (solo en desarrollo), Doppler o el
-grupo de variables del pipeline; fuera de Development, nunca como opciones adicionales de
+`appsettings.Production.json`, `api.yaml`, `azure-pipelines.yml`) traen la
+estructura (claves) con valores vacios, placeholders o no sensibles (en
+Development, la cadena de conexion del dev general; ver abajo). Los valores
+reales de infraestructura se entregan por `.env` local (item 1.5, ver
+`.env.example` en la raiz) o user-secrets en desarrollo, o por el grupo de
+variables del pipeline/Secret del entorno destino fuera de Development; el
+gestor de secretos de ese entorno real todavia no esta decidido (no hay
+Doppler ni ningun otro implementado hoy). Nunca como opciones adicionales de
 `dotnet new`.
 
 ### Obligatoria para arrancar
@@ -182,8 +185,9 @@ conexiones de servicio, nunca como texto en el YAML:
 | `${ASPNETCORE_ENVIRONMENT}` | Entorno del despliegue (solo `api.yaml`; dev usa `Development` fijo). |
 
 El resto de la configuracion por entorno llega al pod por `envFrom` de un
-Secret `reyma-vectorspace-engine-env` que crea el entorno destino (Doppler o el
-operador); `api.yaml` solo lo nombra, no lo crea. El pipeline toma el
+Secret `reyma-vectorspace-engine-env` que crea quien opere ese entorno (el
+gestor de secretos concreto todavia no esta decidido); `api.yaml` solo lo
+nombra, no lo crea. El pipeline toma el
 token del feed de `System.AccessToken` mediante el entorno de la tarea
 de build, nunca por interpolacion en sus argumentos, y las conexiones
 de registry/cluster de variables del grupo, sin valores reales en el

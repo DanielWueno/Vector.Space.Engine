@@ -15,3 +15,18 @@
 **/Dockerfile.develop
 **/appsettings.Development.json
 **/*.md
+
+# 1.5: .cache/ guarda los modelos que el HOST descarga para el sidecar TEI
+# (docker-compose.motor.yml -> ./.cache/hf), ~5-17 GB segun el modelo. No lo
+# usa la imagen de la API (el build solo copia NuGet.Config y src/, pero el
+# contexto de build es la raiz del repo y sin esta regla Docker lo
+# empaquetaria igual al calcular el contexto). docs/, tests/ y tools/ tampoco
+# hacen falta para compilar ni correr la API.
+**/.cache/
+.cache/
+docs/
+tests/
+tools/
+**/*.log
+api*.yaml
+azure-pipelines.yml

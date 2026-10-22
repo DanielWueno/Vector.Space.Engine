@@ -1,0 +1,81 @@
+# Item 1.5: overlay que agrega la API al stack de `docker-compose.motor.yml`
+# (Qdrant + TEI, item 1.4) para poder levantar el servicio completo con un
+# solo comando en Docker local. No se usa solo: se combina con el compose del
+# motor para compartir la misma red y los mismos nombres de servicio
+# (`qdrant`, `tei`) que la API necesita para resolver sus dependencias.
+#
+# Build de la imagen: requiere el feed privado Gr-Api (ver Dockerfile y
+# docs/servicio/README.md, seccion "Imagen de contenedor"). La empresa
+# autentica ese feed con usuario/contrasena (no PAT: vencen a 1 ano y hay
+# demasiados proyectos para rotarlos a tiempo). Ninguna de las dos va en
+# este archivo: se entregan por los secretos de BuildKit `feed-username` y
+# `feed-password`, leidos de las variables de entorno FEED_USERNAME y
+# FEED_PASSWORD del host que ejecuta el build; NuGet.Config las referencia
+# como %FEED_USERNAME%/%FEED_PASSWORD%, nunca como valores literales.
+#
+# Certificado CA corporativo (opcional, item 1.5): solo hace falta si la red
+# donde se construye intercepta TLS (Netskope, confirmado en desarrollo
+# local: intercepta pkgs.dev.azure.com y aka.ms, no api.nuget.org). Por
+# defecto apunta a certs/corp-ca-placeholder.crt (vacio, versionado): con
+# ese archivo vacio el Dockerfile no instala nada y el build se comporta
+# igual que sin certificado. Para usarlo de verdad, exporta CORP_CA_CERT_PATH
+# con la ruta LOCAL (no versionada) a tu .crt/.pem (root + intermedio de
+# Netskope exportados de Cert:\LocalMachine\Root y \CA); nunca se commitea
+# el certificado real.
+#
+# Uso (una sola linea, Qdrant + TEI + API):
+#   $env:FEED_USERNAME = "<usuario-feed>"; $env:FEED_PASSWORD = "<password-feed>"
+#   $env:CORP_CA_CERT_PATH = "<ruta-local-a-tu-cert>"   # opcional
+#   docker compose -f docker-compose.motor.yml -f docker-compose.api.yml up -d --build
+#
+# Rollback: docker compose -f docker-compose.motor.yml -f docker-compose.api.yml down
+# (agregar -v solo si tambien se quiere borrar el volumen de Qdrant).
+#
+# Esto NO conecta a ningun servidor real: todo corre en Docker local, igual
+# que docker-compose.motor.yml. La API arranca en Development con
+# ControlDeAcceso limitado a una coleccion de prueba aislada, para poder
+# verificar ingesta+busqueda sin tocar nada productivo. Las variables de
+# identidad (IdentityServerAuthenticationOptions, PermissionsValidatorOptions,
+# IntegrityServiceOptions) quedan en appsettings.Development.json tal como
+# estan versionadas: siguen apuntando a servicios de desarrollo compartidos,
+# no a un servidor nuevo. Este overlay no los toca ni los sobreescribe.
+
+name: vse-motor
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      secrets:
+        - feed-username
+        - feed-password
+        - corp-ca-cert
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      # Nombres de servicio del compose, no hostnames reales (DD: ningun
+      # servidor real detras de esto).
+      Motor__Qdrant__Host: qdrant
+      Motor__Qdrant__PuertoGrpc: "6334"
+      Motor__Embeddings__UrlBase: http://tei:80
+      # Coleccion de prueba aislada para verificar el stack sin inventar
+      # ni reutilizar nombres de colecciones productivas.
+      ControlDeAcceso__Concesiones__0__Coleccion: coleccion-prueba-1.5
+      ControlDeAcceso__Concesiones__0__Operaciones__0: Consultar
+      ControlDeAcceso__Concesiones__0__Operaciones__1: Ingestar
+      ControlDeAcceso__Concesiones__0__Usuarios__0: ${VSE_USUARIO_PRUEBA:-usuario.de.prueba}
+    ports:
+      # Host:contenedor. 18081 para no chocar con una API local corrida con
+      # `dotnet run` (5000/5001) ni con otro servicio en 8080.
+      - "18081:8080"
+    depends_on:
+      - qdrant
+      - tei
+
+secrets:
+  feed-username:
+    environment: FEED_USERNAME
+  feed-password:
+    environment: FEED_PASSWORD
+  corp-ca-cert:
+    file: ${CORP_CA_CERT_PATH:-./certs/corp-ca-placeholder.crt}

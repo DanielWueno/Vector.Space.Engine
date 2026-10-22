@@ -32,7 +32,8 @@ spec:
               value: ${ASPNETCORE_ENVIRONMENT}
           envFrom:
             # Resto de la configuracion por entorno (columna derecha del
-            # README): lo crea Doppler o el operador, nunca este archivo.
+            # README): lo crea quien opere ese entorno, nunca este archivo
+            # (gestor de secretos concreto todavia sin decidir).
             - secretRef:
                 name: reyma-vectorspace-engine-env
           readinessProbe:

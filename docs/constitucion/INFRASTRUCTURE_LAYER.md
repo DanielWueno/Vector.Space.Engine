@@ -17,7 +17,8 @@ Api -> Infrastructure -> Business
   detalle de la excepcion; el detalle va al log. Conflictos de estado (p. ej. dimension distinta) como
   `ConflictException` (409).
 - Opciones validadas al arrancar (`ValidateOnStart`): una configuracion incoherente no deja arrancar el servicio.
-- Credenciales de dependencias (p. ej. `Motor__Qdrant__ApiKey`) solo por variables de entorno, user-secrets o Doppler.
+- Credenciales de dependencias (p. ej. `Motor__Qdrant__ApiKey`) solo por `.env` local/user-secrets en desarrollo, o el
+  gestor de secretos del entorno de despliegue real cuando exista (ninguno implementado hoy).
 - El readiness (`/health/ready`) comprueba cada dependencia real con un limite de tiempo y sin exponer su direccion.
 
 ## Codigo portado

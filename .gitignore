@@ -38,3 +38,10 @@ appsettings.*.local.json
 *.pfx
 *.pem
 .env
+
+## Certificados locales reales (item 1.5): el placeholder vacio y su README
+## si quedan versionados a proposito, cualquier .crt/.pem real que alguien
+## ponga en certs/ no.
+certs/*
+!certs/corp-ca-placeholder.crt
+!certs/README.md

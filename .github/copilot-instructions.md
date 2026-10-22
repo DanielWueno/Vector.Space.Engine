@@ -38,7 +38,7 @@ No invertirlas.
 - Respuestas como `record` en `Business/Models/Responses/`; nunca exponer entidades.
 - Fechas via `IDateTime` (UTC), no `DateTime.Now`.
 - Propagar siempre `CancellationToken`.
-- Nunca poner secretos, cadenas de conexion ni credenciales en archivos versionados: van por variables de entorno, user-secrets o Doppler.
+- Nunca poner secretos, cadenas de conexion ni credenciales en archivos versionados: en desarrollo local van por `.env` (ver `.env.example`, raiz del repo, item 1.5) o user-secrets; en el entorno de despliegue real, por el gestor de secretos que se decida en su momento (hoy no hay ninguno implementado: nada de Doppler ni equivalente todavia, pese a lo que decian versiones previas de esta regla).
 - Los defaults sensibles de desarrollo que ya vienen generados son una limitacion existente, no permiso
   para agregar otros o reproducirlos en respuestas, logs y documentacion. Revisar su externalizacion antes de distribuir.
 - Cambios de esquema solo con migraciones de EF Core.
