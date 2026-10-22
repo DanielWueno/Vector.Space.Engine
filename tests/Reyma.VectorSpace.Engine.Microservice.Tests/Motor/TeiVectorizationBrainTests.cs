@@ -33,12 +33,13 @@ public sealed class TeiVectorizationBrainTests
         public HttpClient CreateClient(string name) => new(handler, disposeHandler: false) { BaseAddress = new Uri("http://sidecar.invalid/") };
     }
 
-    private static TeiVectorizationBrain Brain(Sidecar sidecar, int dimension = 2, int porLlamada = 16) =>
+    private static TeiVectorizationBrain Brain(Sidecar sidecar, int dimension = 2, int porLlamada = 16, string? apiKey = null) =>
         new(new Fabrica(sidecar), Options.Create(new MotorOptions
         {
             Embeddings = new EmbeddingsOptions
             {
-                UrlBase = "http://sidecar.invalid", Modelo = "modelo-x", Dimension = dimension, TextosPorLlamada = porLlamada
+                UrlBase = "http://sidecar.invalid", Modelo = "modelo-x", Dimension = dimension, TextosPorLlamada = porLlamada,
+                ApiKey = apiKey
             }
         }), NullLogger<TeiVectorizationBrain>.Instance);
 
@@ -88,6 +89,21 @@ public sealed class TeiVectorizationBrainTests
     }
 
     [Fact]
+    public async Task ConDimensionIgualALaNativaNoTrunca()
+    {
+        // Respuesta() devuelve [i+1, 1, 5]: con Dimension=3 (la longitud nativa) no se recorta nada.
+        var brain = Brain(new Sidecar(Respuesta), dimension: 3);
+
+        var vectores = await brain.EmbedDocumentsAsync(["a"], CancellationToken.None);
+
+        Assert.Equal(3, vectores[0].Length);
+        var norma = Math.Sqrt(1 * 1 + 1 * 1 + 5 * 5);
+        Assert.Equal(1 / norma, vectores[0][0], 6);
+        Assert.Equal(1 / norma, vectores[0][1], 6);
+        Assert.Equal(5 / norma, vectores[0][2], 6);
+    }
+
+    [Fact]
     public async Task PartePorTextosPorLlamadaSinPerderElOrden()
     {
         var sidecar = new Sidecar(Respuesta);
@@ -133,5 +149,19 @@ public sealed class TeiVectorizationBrainTests
         var ex = await Assert.ThrowsAsync<MotorNoDisponibleException>(() => brain.EmbedQueryAsync("x", CancellationToken.None));
         Assert.Contains("413", ex.Message);
         Assert.DoesNotContain("sidecar.invalid", ex.Message);
+    }
+
+    [Fact]
+    public async Task UnErrorDelSidecarConClaveConfiguradaNoFiltraLaClave()
+    {
+        const string clave = "clave-super-secreta-altheia";
+        var brain = Brain(new Sidecar(_ => new HttpResponseMessage(HttpStatusCode.Unauthorized)
+        {
+            Content = new StringContent($"detalle interno que menciona {clave} de forma accidental")
+        }), apiKey: clave);
+
+        var ex = await Assert.ThrowsAsync<MotorNoDisponibleException>(() => brain.EmbedQueryAsync("x", CancellationToken.None));
+        Assert.Contains("401", ex.Message);
+        Assert.DoesNotContain(clave, ex.Message);
     }
 }

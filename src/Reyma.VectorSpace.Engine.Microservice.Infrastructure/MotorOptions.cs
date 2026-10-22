@@ -48,7 +48,10 @@ public sealed class EmbeddingsOptions
     /// <summary>Dimension guardada (Matryoshka): el cliente trunca a este tamano y normaliza L2 (1.6, 1.8).</summary>
     public int Dimension { get; set; } = 256;
 
-    /// <summary>Prefijo de arctic-embed-m-v2.0 solo para consultas; los documentos van sin prefijo (1.6).</summary>
+    /// <summary>
+    /// Prefijo de arctic-embed-m-v2.0 solo para consultas; los documentos van sin prefijo (1.6). Configurable a
+    /// cadena vacia para servidores que no necesiten prefijo de consulta (1.13: perfil AltheIA/bge-m3).
+    /// </summary>
     public string PrefijoConsulta { get; set; } = "query: ";
 
     /// <summary>Textos por llamada HTTP; TEI rechaza mas que su --max-client-batch-size.</summary>
@@ -56,6 +59,21 @@ public sealed class EmbeddingsOptions
 
     /// <summary>Tiempo maximo de una llamada. Un lote de chunks largos en CPU tarda decenas de segundos (1.11).</summary>
     public int TiempoMaximoSegundos { get; set; } = 600;
+
+    /// <summary>
+    /// Opcional (1.13). Clave Bearer del servidor de IA corporativo AltheIA. Va por variable de entorno o
+    /// user-secrets (Motor__Embeddings__ApiKey), nunca en appsettings. Vacio = sin cabecera Authorization,
+    /// igual que el perfil TEI local de hoy.
+    /// </summary>
+    public string? ApiKey { get; set; }
+
+    /// <summary>
+    /// Opcional (1.13). Ruta local a un certificado CA adicional en el que confiar al validar TLS contra el
+    /// sidecar, para cuando esta detras de un proxy/CA corporativo (AltheIA detras de Netskope, ver item 1.5).
+    /// Si se define, debe existir en disco: el servicio no arranca si no se puede cargar. Vacio = validacion
+    /// TLS estandar, sin CA adicional (perfil TEI local de hoy).
+    /// </summary>
+    public string? RutaCertificadoCA { get; set; }
 }
 
 public sealed class IngestaOptions
