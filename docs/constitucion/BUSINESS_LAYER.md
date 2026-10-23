@@ -17,6 +17,17 @@ Proyecto `Reyma.VectorSpace.Engine.Microservice.Business`. CQRS con MediatR; el 
   (`ILimiteDeIngestas` en `IngerirCommand`) y lo libera con `using`. Asi el limite corre despues de los behaviors de
   autorizacion y validacion. Rebasarlo lanza `IngestasSaturadasException` (429 con `Retry-After`). Los valores viven en
   opciones validadas al arrancar (`LimiteDeIngestasOptions`), no en constantes.
+- Comando con trabajo en segundo plano (1.7.5, `IngerirProyectoZipCommand`): cuando el trabajo real tarda demasiado
+  para una respuesta HTTP sincrona (minutos u horas, ver 1.7.3), el handler hace la validacion y la admision de forma
+  sincrona (para que un 400/429 no dependa de haber hecho trabajo de mas) y lanza el resto con `_ = Task.Run(...)`,
+  usando `CancellationToken.None` dentro de esa tarea: cerrar la conexion HTTP no debe abortar un trabajo ya admitido.
+  El permiso del limitador (`ILimiteDeIngestas`) se libera en el `finally` de la tarea, no en el handler. El progreso
+  se expone con un registro de estado en memoria (`IRegistroDeIngestasProyecto`, singleton, un diccionario
+  concurrente por `ingestaId`) que una query de solo lectura consulta (`GetEstadoIngestaQuery`, Operacion
+  `Consultar`); como el limitador, no persiste entre reinicios ni se comparte entre replicas. Los puertos de
+  Business que necesita este patron van en `Business/Motor/IMotor.cs` junto a los demas `IMotorDe*`: el comando
+  orquesta la asincronia, pero la lectura/validacion del contenido (p. ej. el .zip) y el trabajo pesado viven en
+  Infrastructure, igual que el resto del motor.
 
 ## Responses
 

@@ -42,6 +42,9 @@ internal static class CustomContainer
             .ValidateOnStart();
         services.AddSingleton<ILimiteDeIngestas, LimiteDeIngestas>();
 
+        // Item 1.7.5: estado en memoria de las ingestas de proyecto (origen 'zip', asincrono).
+        services.AddSingleton<IRegistroDeIngestasProyecto, RegistroDeIngestasProyecto>();
+
         // Item 1.4: motor portado (Qdrant + sidecar de embeddings) detras de los puertos IMotorDe*.
         services.AddMotorVectorial(config);
     }

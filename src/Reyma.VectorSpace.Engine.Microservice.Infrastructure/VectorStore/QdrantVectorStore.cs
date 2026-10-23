@@ -315,6 +315,43 @@ public sealed class QdrantVectorStore
         await _client.UpsertAsync(collectionName, points, wait: true, cancellationToken: ct);
     }
 
+    /// <summary>
+    /// Todas las rutas ya indexadas en la coleccion, con los Ids de sus puntos (1.7.5): sin filtro, para el barrido de
+    /// documentos ausentes del origen 'proyecto' (el .zip conoce el arbol completo, a diferencia del origen
+    /// 'documentos', que solo ve lo que el cliente decide enviar). Coleccion inexistente: diccionario vacio.
+    /// </summary>
+    public async Task<IReadOnlyDictionary<string, List<Guid>>> ListarRutasDocumentadasAsync(string collectionName, CancellationToken ct)
+    {
+        var result = new Dictionary<string, List<Guid>>(StringComparer.Ordinal);
+        if (!await _client.CollectionExistsAsync(collectionName, ct))
+            return result;
+
+        PointId? offset = null;
+        while (true)
+        {
+            var response = await _client.ScrollAsync(collectionName, limit: 1024, offset: offset,
+                payloadSelector: new WithPayloadSelector
+                {
+                    Include = new PayloadIncludeSelector { Fields = { FilePathPayloadKey } }
+                },
+                vectorsSelector: new WithVectorsSelector { Enable = false },
+                cancellationToken: ct);
+
+            foreach (var point in response.Result)
+            {
+                var filePath = point.Payload[FilePathPayloadKey].StringValue;
+                if (!result.TryGetValue(filePath, out var list))
+                    result[filePath] = list = [];
+                list.Add(Guid.Parse(point.Id.Uuid));
+            }
+
+            var next = response.NextPageOffset;
+            if (next is null || next.PointIdOptionsCase == PointId.PointIdOptionsOneofCase.None) break;
+            offset = next;
+        }
+        return result;
+    }
+
     public async Task DeletePointsAsync(string collectionName, IReadOnlyList<Guid> ids, CancellationToken ct)
     {
         const int DeleteBatch = 1024;

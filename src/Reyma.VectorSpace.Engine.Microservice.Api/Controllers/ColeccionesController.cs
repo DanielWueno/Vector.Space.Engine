@@ -63,4 +63,46 @@ public sealed class ColeccionesController : BaseController
     public async Task<ActionResult<IngestaResponse>> PostIngesta(
         string coleccion, [FromBody] IngestaRequest? request, CancellationToken cancellationToken) =>
         Ok(await Mediator.Send(new IngerirCommand(coleccion, request?.Origen, request?.Perfil), cancellationToken));
+
+    /// <summary>
+    /// Ingesta de un proyecto completo subido como .zip (origen 'proyecto', item 1.7.5); asincrona: responde 202 con
+    /// el mismo identificador que se consulta en <see cref="GetEstadoIngesta"/>. <paramref name="carpetaRaiz"/> quita
+    /// el envoltorio "repo-rama/" de un "descargar como zip"; <paramref name="perfil"/> es el perfil de embeddings (1.7.4).
+    /// </summary>
+    [HttpPost("{coleccion}/ingestas/proyecto")]
+    [Authorize]
+    // 1.7.5: el .zip admite hasta 100 MiB (LimitesZip.MaxBytesZip); el margen de Limites.MaxBytesZipProyecto cubre
+    // el resto del multipart.
+    [RequestSizeLimit(Limites.MaxBytesZipProyecto)]
+    [ProducesResponseType(typeof(IngestaResponse), StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
+    public async Task<ActionResult<IngestaResponse>> PostIngestaProyectoZip(
+        string coleccion, IFormFile? zip, [FromForm] string? carpetaRaiz, [FromForm] string? perfil, CancellationToken cancellationToken)
+    {
+        byte[]? contenido = null;
+        if (zip is not null)
+        {
+            using var memoria = new MemoryStream();
+            await zip.CopyToAsync(memoria, cancellationToken);
+            contenido = memoria.ToArray();
+        }
+
+        var respuesta = await Mediator.Send(new IngerirProyectoZipCommand(coleccion, contenido, carpetaRaiz, perfil), cancellationToken);
+        return Accepted($"/api/colecciones/{coleccion}/ingestas/{respuesta.IngestaId}", respuesta);
+    }
+
+    /// <summary>Estado de una ingesta de proyecto (item 1.7.5); 404 si no existe o no es de esta coleccion.</summary>
+    [HttpGet("{coleccion}/ingestas/{ingestaId:guid}")]
+    [Authorize]
+    [ProducesResponseType(typeof(IngestaResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IngestaResponse>> GetEstadoIngesta(
+        string coleccion, Guid ingestaId, CancellationToken cancellationToken) =>
+        Ok(await Mediator.Send(new GetEstadoIngestaQuery(coleccion, ingestaId), cancellationToken));
 }

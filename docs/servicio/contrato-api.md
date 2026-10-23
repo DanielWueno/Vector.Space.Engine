@@ -10,19 +10,25 @@ ruta base del servicio (`/reyma/vectorspace/engine` desplegado; vacia en local) 
 | GET | `api/colecciones` | — (solo login) | Colecciones que alcanza el usuario y sus operaciones |
 | POST | `api/colecciones/{coleccion}/embeddings` | `Consultar` | Vectores densos de textos sueltos |
 | POST | `api/colecciones/{coleccion}/busquedas` | `Consultar` | Resultados de busqueda en la coleccion |
-| POST | `api/colecciones/{coleccion}/ingestas` | `Ingestar` | Resultado de la ingesta |
+| POST | `api/colecciones/{coleccion}/ingestas` | `Ingestar` | Resultado de la ingesta (origen `documentos`, sincrona) |
+| POST | `api/colecciones/{coleccion}/ingestas/proyecto` | `Ingestar` | **202**: ingesta admitida (origen `proyecto` desde `.zip`, asincrona, item 1.7.5) |
+| GET | `api/colecciones/{coleccion}/ingestas/{ingestaId}` | `Consultar` | Estado de una ingesta de proyecto (item 1.7.5) |
 
 Codigos comunes: **401** sin token valido (firma, emisor, audiencia y vigencia se validan como en
 la plantilla); **403** si la tabla de acceso no otorga esa operacion sobre esa coleccion;
 **400** cuerpo invalido (solo despues de autorizar: sin acceso es 403 aunque el cuerpo sea invalido),
 incluido pedir un `perfil` de embeddings no registrado en el servicio o un modelo que el servidor remoto
-no tiene cargado para esa clave (1.7.4: nunca 503, siempre con los perfiles disponibles);
+no tiene cargado para esa clave (1.7.4: nunca 503, siempre con los perfiles disponibles), o un `.zip`
+invalido o malicioso en `ingestas/proyecto` (1.7.5: limites de tamano/entradas/ratio, Zip Slip, enlaces
+simbolicos o sin documentos admitidos por el perfil de escaneo);
+**404** (solo `ingestas/proyecto/{ingestaId}`) ese identificador no existe o no es de esta coleccion;
 **409** la coleccion ya existe con vectores de otra dimension, **o** con el mismo numero de dimensiones
 pero de otro perfil de embeddings (1.7.4: el perfil, no solo la dimension, identifica si dos vectores son
-comparables); **413** (solo `ingestas`) el cuerpo de la solicitud supera el limite de la accion (1.7.1);
-**429** (solo `ingestas`) hay demasiadas ingestas en curso o en espera, reintentar despues de
-`Retry-After` (1.7); **501** parte del contrato aun sin implementar (origen `ruta`); **503** Qdrant o el
-sidecar de embeddings no respondieron (el mensaje no dice a que host ni puerto se intento conectar).
+comparables); **413** (`ingestas` e `ingestas/proyecto`) el cuerpo de la solicitud supera el limite de la
+accion (1.7.1/1.7.5); **429** (`ingestas` e `ingestas/proyecto`) hay demasiadas ingestas en curso o en
+espera, reintentar despues de `Retry-After` (1.7); **501** parte del contrato aun sin implementar (origen
+`ruta`); **503** Qdrant o el sidecar de embeddings no respondieron (el mensaje no dice a que host ni
+puerto se intento conectar).
 
 ## Motor (item 1.4)
 
@@ -90,7 +96,17 @@ El motor es el de Rag.Context.Engine portado (ver
 // origen 'ruta': reservado para el item 1.7, hoy responde 501
 { "origen": { "tipo": "ruta", "ruta": "/ruta/accesible/al/servicio" } }
 // 200: { "ingestaId", "coleccion", "estado": "completada", "documentosRecibidos",
-//        "documentosIndexados", "documentosSinCambios", "documentosOmitidos" }
+//        "documentosIndexados", "documentosSinCambios", "documentosOmitidos", "documentosEliminados" }
+
+// POST .../ingestas/proyecto   origen 'proyecto' desde .zip (item 1.7.5); multipart/form-data, no JSON:
+//   zip          archivo .zip (campo de archivo), hasta 100 MiB, leido en memoria
+//   carpetaRaiz  opcional: quita el envoltorio "repo-rama/" de un "descargar como zip"
+//   perfil       opcional, igual que en los demas endpoints
+// 202: { "ingestaId", "coleccion", "estado": "pendiente", "documentosRecibidos", ... } (conteos en 0)
+
+// GET .../ingestas/{ingestaId}   estado de una ingesta de proyecto (item 1.7.5)
+// 200: mismo cuerpo que el 202 de arriba; "estado" en "pendiente" | "procesando" | "completada" | "error";
+//      los conteos (documentosIndexados/SinCambios/Omitidos/Eliminados) solo son definitivos en "completada"
 ```
 
 ## Perfiles de embeddings y metadata de coleccion (item 1.7.4)
@@ -137,20 +153,49 @@ entero en 0,4 s; lo que cuesta es calcular los embeddings.
 - La respuesta de ingesta ya trae `ingestaId` y `estado`, para que una ingesta en cola pueda
   responder 202 con la misma forma si mas adelante se vuelve asincrona.
 
-## Proyecto completo (items 1.7.3/1.7.5-1.7.8): decidido, no implementado
+## Proyecto completo desde .zip (item 1.7.5)
 
-Decidido en `docs/evaluaciones/1.7.3/decision.md`. La seleccion de perfil de embeddings y la metadata de
-coleccion (criterio 5 de esa decision) ya estan implementadas, ver la seccion anterior. **El resto no
-existe todavia en la API**; los items 1.7.5-1.7.8 lo implementan. Forma prevista:
+Decidido en `docs/evaluaciones/1.7.3/decision.md`, criterio 2/3; implementado en 1.7.5. Origen nuevo
+`proyecto`, aparte de `documentos` y de `ruta` (que sigue en 501): `POST .../ingestas/proyecto` recibe un
+`.zip` subido como `multipart/form-data` (nunca JSON, por el tamano del archivo) y responde **202**
+de inmediato; el trabajo pesado (chunking, vectorizacion, barrido de documentos ausentes) corre en
+segundo plano, fuera del ciclo de vida de esa solicitud HTTP (cancelar o cerrar la conexion del cliente no
+lo aborta). El cliente consulta `GET .../ingestas/{ingestaId}` hasta ver `"estado": "completada"` (o
+`"error"`).
 
-- Un origen nuevo `proyecto`, aparte de `documentos` y de `ruta` (que sigue en 501), con dos fuentes:
-  URL de un repo Git (solo hosts de una lista blanca de configuracion: la organizacion de Azure DevOps;
-  el servicio clona con su propia identidad, nunca con la del usuario) o `.zip` subido (hasta 100 MiB,
-  leido en memoria, con `carpetaRaiz` opcional para el envoltorio `repo-rama/`). Respeta el
-  `.gitignore` y el `.ragignore` del proyecto. Es **asincrona**: 202 con `ingestaId` y consulta de estado.
-- Perfil de LLM para el resumen de negocio (por defecto de la coleccion, sustituible por solicitud) como
-  fase reanudable con cache y tope de cuota (1.7.7).
-- Resumen de negocio, perfil de escaneo y lenguajes: atributos de la coleccion, fijados al crearla.
+- **Lectura del .zip**: en memoria, sin extraer nada a disco — el nombre de cada entrada solo se convierte
+  en la `ruta` del documento (su identidad en la coleccion), nunca en una ruta del sistema de archivos, asi
+  que un intento de Zip Slip (`../`, rutas absolutas, `C:/...`) no tiene donde escribir; se rechaza igual
+  por validacion de nombre. Limites (medidos en 1.7.3, `tools/ingesta-proyecto/`): 100 MiB de subida,
+  20 000 entradas, 256 MiB descomprimidos en total, ratio declarado/real de hasta 100:1 por entrada
+  (verificado antes de descomprimir), y el tope por archivo del perfil de escaneo (512 KiB). Una entrada
+  marcada como enlace simbolico Unix (`S_IFLNK`) se rechaza sin abrirla. Una cabecera que miente sobre el
+  tamano descomprimido no logra amplificar nada: .NET corta la lectura en el tamano que la cabecera
+  declara, no en el real (medido en 1.7.3).
+- **Si el .zip es invalido, excede un limite, o no trae ningun documento admitido por el perfil de
+  escaneo** (`.cs .ts .tsx .js .jsx .xaml .sql .md .txt .json .xml .csproj`, igual que `documentos`):
+  **400**, sin tocar el limite de admision de ingestas ni crear ningun registro de estado.
+- **`carpetaRaiz`** (opcional): quita el envoltorio `repo-rama/` que agrega un "descargar como zip" de
+  GitHub/Azure DevOps. Si alguna entrada no esta bajo esa carpeta, **400** (no se adivina el envoltorio:
+  cambiar la ruta de un documento revectoriza todo).
+- **`.gitignore`/`.ragignore` del proyecto**: si el `.zip` trae esos archivos en su raiz, sus reglas se
+  aplican igual que al escanear un checkout (mismo `IgnoreRules`, mismas dos fuentes, `.ragignore` puede
+  re-incluir con `!patron` algo que `.gitignore` excluye).
+- **Barrido de documentos ausentes**: a diferencia del origen `documentos` (que solo ve lo que el cliente
+  decide enviar y borra un documento puntual enviandolo con contenido vacio, item 1.7.2), el origen
+  `proyecto` conoce el arbol completo: tras indexar, borra los puntos de cualquier documento que ya estaba
+  en la coleccion pero no reaparecio en este `.zip`. El conteo queda en `documentosEliminados` del estado
+  final.
+- **Limite de admision (1.7)**: antes de admitir, compite por el mismo cupo global que el origen
+  `documentos` (`LimiteDeIngestas`); saturado, **429** con `Retry-After`, igual que `ingestas`, sin crear
+  registro de estado.
+- **Estado en memoria, por instancia**: igual filosofia que `LimiteDeIngestas` — no persiste entre
+  reinicios ni se comparte entre replicas; una ingesta en curso cuando el proceso se reinicia pierde su
+  `ingestaId` consultable (el trabajo ya escrito en Qdrant no se deshace).
+- **Pendiente** (items 1.7.6-1.7.8, no implementados): origen `proyecto` desde URL de un repo Git (bloqueado
+  por la identidad del servicio en Azure DevOps); resumen de negocio via LLM como fase reanudable con cache
+  y tope de cuota; perfil de escaneo y lenguajes como atributos de la coleccion (hoy siempre
+  `DotNetEnterprise`); el bug de `IgnoreRules` en Rag.Context.Engine (item 1.7.8, otro repo).
 
 ## Identidad
 

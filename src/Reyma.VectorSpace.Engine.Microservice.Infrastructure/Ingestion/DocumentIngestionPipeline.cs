@@ -90,19 +90,51 @@ public sealed class DocumentIngestionPipeline
         BatchSize = _options.LoteDeChunks
     };
 
+    /// <param name="barrerDocumentosAusentes">
+    /// 1.7.5 (origen 'proyecto'): tras indexar, borra los puntos de documentos que ya estaban en la coleccion pero no
+    /// reaparecieron en <paramref name="documents"/>. Solo tiene sentido cuando <paramref name="documents"/> es el
+    /// arbol completo del proyecto (el .zip lo conoce); el origen 'documentos' lo deja en false porque un cliente
+    /// puede enviar un subconjunto sin que eso signifique que el resto se borro. Corre dentro del mismo
+    /// <see cref="SemaphoreSlim"/> por coleccion que el resto del metodo, para no pisarse con otra ingesta concurrente.
+    /// </param>
     public async Task<IngestionResult> IngestAsync(
-        string collectionName, string? perfil, IReadOnlyList<(string Path, string Content)> documents, CancellationToken ct)
+        string collectionName, string? perfil, IReadOnlyList<(string Path, string Content)> documents, CancellationToken ct,
+        bool barrerDocumentosAusentes = false)
     {
         var gate = _collectionLocks.GetOrAdd(collectionName, _ => new SemaphoreSlim(1, 1));
         await gate.WaitAsync(ct);
         try
         {
-            return await IngestLockedAsync(collectionName, perfil, documents, ct);
+            var resultado = await IngestLockedAsync(collectionName, perfil, documents, ct);
+            if (!barrerDocumentosAusentes)
+                return resultado;
+
+            // El file_path guardado en Qdrant es la clave de identidad compuesta (ChunkBuilder.BuildIdentityKey),
+            // no la ruta cruda: compararlas tal cual aqui habria barrido todo lo que se acababa de escribir.
+            var actuales = documents.Select(d => ChunkBuilder.BuildIdentityKey(collectionName, d.Path)).ToHashSet(StringComparer.Ordinal);
+            var eliminados = await BarrerDocumentosAusentesAsync(collectionName, actuales, ct);
+            return resultado with { DocumentsSweptAway = eliminados };
         }
         finally
         {
             gate.Release();
         }
+    }
+
+    /// <summary>Puntos de documentos indexados que no estan en <paramref name="actuales"/>; devuelve cuantos documentos se barrieron.</summary>
+    private async Task<int> BarrerDocumentosAusentesAsync(string collectionName, HashSet<string> actuales, CancellationToken ct)
+    {
+        var existentes = await _store.ListarRutasDocumentadasAsync(collectionName, ct);
+        var ausentes = existentes.Where(kv => !actuales.Contains(kv.Key)).ToList();
+        if (ausentes.Count == 0)
+            return 0;
+
+        var ids = ausentes.SelectMany(kv => kv.Value).ToList();
+        await _store.DeletePointsAsync(collectionName, ids, ct);
+        _logger.LogInformation(
+            "Barrido en '{Collection}': {Documentos} documentos ausentes del proyecto, {Puntos} puntos borrados.",
+            collectionName, ausentes.Count, ids.Count);
+        return ausentes.Count;
     }
 
     private async Task<IngestionResult> IngestLockedAsync(
@@ -249,6 +281,10 @@ public sealed class DocumentIngestionPipeline
     private sealed record PreparedDocument(string FilePath, string Fingerprint, List<CodeChunk> Chunks);
 }
 
-/// <summary>Conteos de una ingesta: documentos por desenlace, chunks indexados y puntos obsoletos borrados.</summary>
+/// <summary>
+/// Conteos de una ingesta: documentos por desenlace, chunks indexados y puntos obsoletos borrados.
+/// <see cref="DocumentsSweptAway"/> (1.7.5): documentos barridos por completo por no reaparecer en el proyecto; 0
+/// salvo que <see cref="DocumentIngestionPipeline.IngestAsync"/> se haya llamado con <c>barrerDocumentosAusentes: true</c>.
+/// </summary>
 public sealed record IngestionResult(
-    int Received, int Indexed, int Unchanged, int Omitted, int ChunksIndexed, int PointsDeleted);
+    int Received, int Indexed, int Unchanged, int Omitted, int ChunksIndexed, int PointsDeleted, int DocumentsSweptAway = 0);

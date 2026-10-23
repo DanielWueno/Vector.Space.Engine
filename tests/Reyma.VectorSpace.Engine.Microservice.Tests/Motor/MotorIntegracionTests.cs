@@ -20,6 +20,17 @@ public sealed class RequiereMotorLocalFactAttribute : FactAttribute
     }
 }
 
+/// <summary>Igual que <see cref="RequiereMotorLocalFactAttribute"/> pero para <c>[Theory]</c> (1.7.5).</summary>
+public sealed class RequiereMotorLocalTheoryAttribute : TheoryAttribute
+{
+    public RequiereMotorLocalTheoryAttribute()
+    {
+        if (Environment.GetEnvironmentVariable(RequiereMotorLocalFactAttribute.Variable) != "1")
+            Skip = $"Requiere {RequiereMotorLocalFactAttribute.Variable}=1 y docker-compose.motor.yml levantado " +
+                   "(Qdrant 127.0.0.1:16334, TEI 127.0.0.1:18080).";
+    }
+}
+
 /// <summary>
 /// Motor real (1.4) por el contrato HTTP contra el Qdrant y el TEI locales: los escenarios de riesgo de una ingesta
 /// incremental por documento. Cada prueba usa colecciones propias con nombre aleatorio y las borra al terminar.

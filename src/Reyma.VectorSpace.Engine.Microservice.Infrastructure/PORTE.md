@@ -33,6 +33,12 @@ Pruebas portadas igual (`tests/.../Motor/`): golden master del chunking con sus 
 - `VectorStore/QdrantSemanticRetriever`: densa sola por defecto (1.10); RRF nativa tras `Motor:Busqueda:Modo`.
 - `Vectorization/TeiVectorizationBrain`: sustituye a `OnnxVectorizationBrain` (1.8). Ruta OpenAI-compatible, sin
   recortar el texto, `query: ` solo en consultas, truncado a 256 y L2 en el cliente (1.6, 1.8, 1.11).
+- `Scanning/IgnoreRules.cs` y `Scanning/LectorZip.cs` (item 1.7.5): portados de `tools/ingesta-proyecto/Prototipo/`
+  (a su vez copia de `Infrastructure/Scanning/IgnoreRules.cs` de Rag.Context.Engine), con la correccion del bug de
+  `IsIgnored` ya hecha en el prototipo (`TrimStart('.', '/')` del origen se comia el punto de `.cache`/`.ragignore`;
+  aqui solo se quita el prefijo `./`). `LectorZip` usa `ScanProfile` del motor en vez del `PerfilEscaneo` propio del
+  prototipo. Sirve el origen `proyecto` desde `.zip`; el escaner de disco (`EscanerDeCheckout`/`FileSystemIngestionScanner`,
+  para `ruta` y para `proyecto` desde URL Git) sigue sin portar (items 1.7.2/1.7.6).
 
 ## No portado
 

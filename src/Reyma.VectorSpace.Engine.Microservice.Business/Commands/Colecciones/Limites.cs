@@ -27,4 +27,11 @@ public static class Limites
     /// (claves, comillas, escapes de la ruta y del contenido) en vez de medir el peor caso exacto.
     /// </summary>
     public const long MaxBytesPorIngesta = 125_000_000;
+
+    /// <summary>
+    /// Limite de cuerpo HTTP para <c>POST {coleccion}/ingestas/proyecto</c> (1.7.5): el .zip subido admite hasta
+    /// 100 MiB (<c>LimitesZip.MaxBytesZip</c>), mas margen para el resto del multipart (cabeceras, carpetaRaiz,
+    /// perfil).
+    /// </summary>
+    public const long MaxBytesZipProyecto = 110_000_000;
 }
