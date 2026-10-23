@@ -1,0 +1,18 @@
+{
+  "raiz": "D:\\Git\\Reyma.TI.Tickets.Microservice",
+  "documentos": 567,
+  "contenido_mb_utf8": 1.23,
+  "documento_mayor_kb": 23.3,
+  "escanear_y_leer_segundos": 0.592,
+  "solicitudes_de_100": 6,
+  "cuerpos_json_mb": 1.53,
+  "cuerpo_json_mayor_mb": 0.47,
+  "serializar_segundos": 0.029,
+  "por_extension": {
+    ".cs": 551,
+    ".json": 5,
+    ".csproj": 5,
+    ".md": 3,
+    ".xml": 3
+  }
+}

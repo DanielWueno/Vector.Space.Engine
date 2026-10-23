@@ -1,0 +1,85 @@
+{
+  "documentos_a": 16,
+  "documentos_b": 21,
+  "latencia_en_reposo": {
+    "muestras": 5,
+    "busqueda_mediana_s": 0.03,
+    "busqueda_max_s": 0.26,
+    "embeddings_mediana_s": 0.01,
+    "embeddings_max_s": 0.03
+  },
+  "secuencial": {
+    "a": {
+      "coleccion": "it-1-7-sec-a",
+      "status": 200,
+      "segundos": 4.02,
+      "puntos": 62,
+      "indexados": 16,
+      "sin_cambios": 0,
+      "chunks_por_s": 15.42
+    },
+    "b": {
+      "coleccion": "it-1-7-sec-b",
+      "status": 200,
+      "segundos": 3.13,
+      "puntos": 72,
+      "indexados": 21,
+      "sin_cambios": 0,
+      "chunks_por_s": 23
+    },
+    "segundos_total": 8.2,
+    "latencia_con_una_ingesta": {
+      "muestras": 3,
+      "busqueda_mediana_s": 0.19,
+      "busqueda_max_s": 1.72,
+      "embeddings_mediana_s": 0.01,
+      "embeddings_max_s": 0.02
+    }
+  },
+  "simultaneo": {
+    "a": {
+      "coleccion": "it-1-7-con-a",
+      "status": 200,
+      "segundos": 5.43,
+      "puntos": 62,
+      "indexados": 16,
+      "sin_cambios": 0,
+      "chunks_por_s": 11.42
+    },
+    "b": {
+      "coleccion": "it-1-7-con-b",
+      "status": 200,
+      "segundos": 6.83,
+      "puntos": 72,
+      "indexados": 21,
+      "sin_cambios": 0,
+      "chunks_por_s": 10.54
+    },
+    "segundos_total": 7.8,
+    "latencia_con_dos_ingestas": {
+      "muestras": 3,
+      "busqueda_mediana_s": 1.28,
+      "busqueda_max_s": 1.4,
+      "embeddings_mediana_s": 0.6,
+      "embeddings_max_s": 1.49
+    }
+  },
+  "disparo_duplicado": {
+    "respuestas": [
+      {
+        "status": 200,
+        "segundos": 3.55,
+        "indexados": 16,
+        "sin_cambios": 0
+      },
+      {
+        "status": 200,
+        "segundos": 3.58,
+        "indexados": 0,
+        "sin_cambios": 16
+      }
+    ],
+    "puntos": 62,
+    "puntos_esperados_como_sec_a": 62
+  }
+}

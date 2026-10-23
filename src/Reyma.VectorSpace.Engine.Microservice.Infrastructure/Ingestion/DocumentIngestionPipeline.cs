@@ -41,7 +41,8 @@ public sealed class DocumentIngestionPipeline
     private readonly ILogger<DocumentIngestionPipeline> _logger;
 
     // Dos ingestas sobre la misma coleccion se serializan: el barrido de obsoletos de una no debe ver a medias los
-    // upserts de la otra. Solo dentro de este proceso; varias replicas necesitarian un bloqueo externo (item 1.7).
+    // upserts de la otra. Solo dentro de este proceso; varias replicas necesitarian un bloqueo externo. El limite
+    // global de ingestas en curso y en cola (1.7) vive en Business (LimiteDeIngestas), antes del motor.
     private readonly ConcurrentDictionary<string, SemaphoreSlim> _collectionLocks = new(StringComparer.Ordinal);
 
     public DocumentIngestionPipeline(

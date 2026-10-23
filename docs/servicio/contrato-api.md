@@ -15,8 +15,9 @@ ruta base del servicio (`/reyma/vectorspace/engine` desplegado; vacia en local) 
 Codigos comunes: **401** sin token valido (firma, emisor, audiencia y vigencia se validan como en
 la plantilla); **403** si la tabla de acceso no otorga esa operacion sobre esa coleccion;
 **400** cuerpo invalido (solo despues de autorizar: sin acceso es 403 aunque el cuerpo sea invalido);
-**409** la coleccion ya existe con vectores de otra dimension; **501** parte del contrato aun sin
-implementar (origen `ruta`); **503** Qdrant o el sidecar de embeddings no respondieron (el mensaje no
+**409** la coleccion ya existe con vectores de otra dimension; **429** (solo `ingestas`) hay demasiadas
+ingestas en curso o en espera, reintentar despues de `Retry-After` (1.7); **501** parte del contrato aun
+sin implementar (origen `ruta`); **503** Qdrant o el sidecar de embeddings no respondieron (el mensaje no
 dice a que host ni puerto se intento conectar).
 
 ## Motor (item 1.4)
@@ -50,6 +51,19 @@ El motor es el de Rag.Context.Engine portado (ver
   no hay un limite de tiempo por solicitud impuesto por el mediador. Con TEI en CPU (~1 chunk/s con chunks
   largos) una ingesta grande en una sola solicitud puede tardar minutos u horas; eso sigue siendo un costo
   real del hardware, no un limite del contrato.
+- **Limite de admision (1.7)**: una ingesta en curso por instancia, entre todas las colecciones, y hasta
+  cuatro en espera (`LimiteDeIngestas:MaximoSimultaneas` 1, `MaximoEnCola` 4). La siguiente responde
+  **429** con `Retry-After: 60` (`SegundosParaReintentar`) sin llegar al motor. Va despues de autorizar y
+  validar: un 403 o un 400 no ocupan lugar. `embeddings` y `busquedas` no pasan por el limite. Es por
+  instancia: varias replicas no comparten cola. Medido en `docs/evaluaciones/1.7/decision.md`: dos ingestas
+  a la vez no terminan antes que una tras otra con TEI en CPU.
+- **Cuerpo**: el limite efectivo hoy es el de Kestrel, 30 000 000 bytes (~28,6 MiB) por solicitud, por
+  debajo de 100 documentos de 1 MiB. Al rebasarlo responde 500 en vez de 413 (item 1.7.1).
+- **Borrar un documento**: enviarlo con contenido vacio; sus puntos se borran.
+- **Clientes**: una solicitud puede esperar en cola y luego correr (~7 min en el peor caso con lotes de 100
+  documentos). Usar un timeout de al menos 10 min (el de `HttpClient` por defecto, 100 s, no alcanza),
+  reintentar el 429 despues de `Retry-After` y reintentar ante fallos de red: repetir una ingesta es
+  idempotente y solo vuelve a vectorizar los documentos que no quedaron completos.
 
 ## Cuerpos
 
@@ -70,15 +84,22 @@ El motor es el de Rag.Context.Engine portado (ver
 //        "documentosIndexados", "documentosSinCambios", "documentosOmitidos" }
 ```
 
-Decisiones que dejan abierto el item 1.7 (modelo de consumo de ingesta):
+## Modelo de consumo (item 1.7)
+
+Decidido en `docs/evaluaciones/1.7/decision.md`: **hibrido, con el envio por API como mecanismo de
+produccion**. Un pipeline de Azure DevOps (al hacer push), que ya tiene el repo descargado, envia por
+`ingestas` (origen `documentos`) los archivos cambiados, y los borrados con contenido vacio (item 1.7.2).
+La transferencia no es el coste: un repo de 567 documentos (1,5 MB de JSON) que no cambio se reenvia
+entero en 0,4 s; lo que cuesta es calcular los embeddings.
 
 - Calcular embeddings de un texto suelto y la ingesta son **superficies separadas**; la primera no
-  escribe en la coleccion.
-- La ingesta declara su `origen`: el contenido en el cuerpo es solo uno de los tipos. Disparar sobre
-  una ruta ya accesible al servicio cabe en el mismo contrato sin romperlo; queda en 501 porque leer
-  rutas del servidor exige antes fijar raices permitidas por coleccion.
+  escribe en la coleccion ni pasa por el limite de ingestas.
+- La ingesta declara su `origen`. `ruta` (disparar sobre un repo ya accesible al servicio) sigue
+  reservado en 501: solo ahorraria la transferencia, y exige credenciales de Azure DevOps en el servidor,
+  un aviso de cambios que llegue al servidor (o *polling*) y raices permitidas por coleccion. Se retoma
+  si un repo deja de caber razonablemente en envios por lotes.
 - La respuesta de ingesta ya trae `ingestaId` y `estado`, para que una ingesta en cola pueda
-  responder 202 con la misma forma.
+  responder 202 con la misma forma si mas adelante se vuelve asincrona.
 
 ## Identidad
 

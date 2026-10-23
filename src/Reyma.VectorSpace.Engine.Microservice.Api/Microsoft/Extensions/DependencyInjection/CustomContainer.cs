@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Reyma.VectorSpace.Engine.Microservice.Business.Colecciones;
+using Reyma.VectorSpace.Engine.Microservice.Business.Commands.Colecciones;
 using Reyma.VectorSpace.Engine.Microservice.Business.Validacion;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure;
 using System.Diagnostics.CodeAnalysis;
@@ -32,6 +33,14 @@ internal static class CustomContainer
         // MediatR los anida en orden de registro: primero el control de acceso, despues la validacion del cuerpo.
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AutorizacionColeccionBehavior<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidacionBehavior<,>));
+
+        // Item 1.7: ingestas en curso y en espera acotadas por instancia (429 al rebasar la cola).
+        services.AddOptions<LimiteDeIngestasOptions>()
+            .Bind(config.GetSection(LimiteDeIngestasOptions.Seccion))
+            .Validate(o => o.MaximoSimultaneas >= 1 && o.MaximoEnCola >= 0 && o.SegundosParaReintentar >= 1,
+                $"{LimiteDeIngestasOptions.Seccion}: MaximoSimultaneas >= 1, MaximoEnCola >= 0 y SegundosParaReintentar >= 1.")
+            .ValidateOnStart();
+        services.AddSingleton<ILimiteDeIngestas, LimiteDeIngestas>();
 
         // Item 1.4: motor portado (Qdrant + sidecar de embeddings) detras de los puertos IMotorDe*.
         services.AddMotorVectorial(config);

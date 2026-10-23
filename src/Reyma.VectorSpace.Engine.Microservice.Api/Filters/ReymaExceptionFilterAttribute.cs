@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Reyma.Exceptions.Api;
 using Reyma.VectorSpace.Engine.Microservice.Business;
+using Reyma.VectorSpace.Engine.Microservice.Business.Commands.Colecciones;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
@@ -83,6 +84,12 @@ namespace Reyma.VectorSpace.Engine.Microservice.Api.Filters
                     // El detalle de la dependencia ya quedo en el log de quien la lanzo; el mensaje es para el cliente.
                     result.errors = new[] { ex.Message };
                     code = HttpStatusCode.ServiceUnavailable;
+                    break;
+                case IngestasSaturadasException ex:
+                    // 1.7: limite de admision de ingestas; el cliente reintenta despues de Retry-After.
+                    result.errors = new[] { ex.Message };
+                    code = HttpStatusCode.TooManyRequests;
+                    context.HttpContext.Response.Headers.RetryAfter = ex.SegundosParaReintentar.ToString(System.Globalization.CultureInfo.InvariantCulture);
                     break;
                 default:
                     _logger.LogError(context.Exception, context.Exception.Message);

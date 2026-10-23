@@ -1,0 +1,74 @@
+{
+  "solicitudes": 8,
+  "segundos_total": 14.6,
+  "status": {
+    "200": 5,
+    "429": 3
+  },
+  "detalle": [
+    {
+      "coleccion": "it-1-7-sat-0",
+      "documentos": 8,
+      "status": 200,
+      "segundos": 11.84,
+      "retry_after": null,
+      "error": null
+    },
+    {
+      "coleccion": "it-1-7-sat-1",
+      "documentos": 16,
+      "status": 429,
+      "segundos": 0.24,
+      "retry_after": "60",
+      "error": "[\"Hay demasiadas ingestas en curso o en espera; reintentar mas tarde.\"]"
+    },
+    {
+      "coleccion": "it-1-7-sat-2",
+      "documentos": 15,
+      "status": 429,
+      "segundos": 0.24,
+      "retry_after": "60",
+      "error": "[\"Hay demasiadas ingestas en curso o en espera; reintentar mas tarde.\"]"
+    },
+    {
+      "coleccion": "it-1-7-sat-3",
+      "documentos": 7,
+      "status": 200,
+      "segundos": 8.93,
+      "retry_after": null,
+      "error": null
+    },
+    {
+      "coleccion": "it-1-7-sat-4",
+      "documentos": 14,
+      "status": 200,
+      "segundos": 14.62,
+      "retry_after": null,
+      "error": null
+    },
+    {
+      "coleccion": "it-1-7-sat-5",
+      "documentos": 7,
+      "status": 429,
+      "segundos": 0.24,
+      "retry_after": "60",
+      "error": "[\"Hay demasiadas ingestas en curso o en espera; reintentar mas tarde.\"]"
+    },
+    {
+      "coleccion": "it-1-7-sat-6",
+      "documentos": 5,
+      "status": 200,
+      "segundos": 6.01,
+      "retry_after": null,
+      "error": null
+    },
+    {
+      "coleccion": "it-1-7-sat-7",
+      "documentos": 5,
+      "status": 200,
+      "segundos": 3.33,
+      "retry_after": null,
+      "error": null
+    }
+  ]
+}

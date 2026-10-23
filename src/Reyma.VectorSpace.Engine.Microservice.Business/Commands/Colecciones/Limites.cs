@@ -1,7 +1,8 @@
 namespace Reyma.VectorSpace.Engine.Microservice.Business.Commands.Colecciones;
 
 /// <summary>
-/// Limites del contrato MVP (llamadas chicas, sin automatizar). La ingesta masiva se decide en el item 1.7.
+/// Limites del contrato. Un repo entero se ingiere en varias solicitudes de hasta 100 documentos (1.7); cuantas
+/// ingestas corren y esperan a la vez lo fija <see cref="LimiteDeIngestasOptions"/>.
 /// </summary>
 public static class Limites
 {

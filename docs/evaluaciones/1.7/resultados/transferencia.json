@@ -1,0 +1,164 @@
+{
+  "coleccion": "it-1-7-micro-repo",
+  "raiz": "D:\\Git\\Reyma.TI.Tickets.Microservice",
+  "documentos": 567,
+  "solicitudes": 6,
+  "contenido_mb_utf8": 1.23,
+  "destino": {
+    "qdrant_grpc": "127.0.0.1:6334",
+    "tei": "http://127.0.0.1:8081"
+  },
+  "primera": {
+    "segundos": 111.1,
+    "indexados": 476,
+    "sin_cambios": 91,
+    "omitidos": 0,
+    "puntos": 1734,
+    "cuerpos_mb": 1.99,
+    "tunel_mb_enviados_aprox": 8.37,
+    "tunel_mb_recibidos_aprox": 5.6,
+    "working_set_max_mb": 171.8,
+    "gc_heap_mb": 29.91,
+    "lotes": [
+      {
+        "lote": 0,
+        "documentos": 100,
+        "cuerpo_mb": 0.47,
+        "corte": {
+          "segundos": 33,
+          "desenlace": "cortada por el cliente",
+          "puntos_nuevos_que_quedaron": 416
+        },
+        "segundos": 10.99,
+        "indexados": 14,
+        "sin_cambios": 86,
+        "omitidos": 0,
+        "working_set_mb": 153.55
+      },
+      {
+        "lote": 1,
+        "documentos": 100,
+        "cuerpo_mb": 0.16,
+        "segundos": 10.01,
+        "indexados": 99,
+        "sin_cambios": 1,
+        "omitidos": 0,
+        "working_set_mb": 156.73
+      },
+      {
+        "lote": 2,
+        "documentos": 100,
+        "cuerpo_mb": 0.26,
+        "segundos": 16.3,
+        "indexados": 99,
+        "sin_cambios": 1,
+        "omitidos": 0,
+        "working_set_mb": 162.45
+      },
+      {
+        "lote": 3,
+        "documentos": 100,
+        "cuerpo_mb": 0.28,
+        "segundos": 18.73,
+        "indexados": 100,
+        "sin_cambios": 0,
+        "omitidos": 0,
+        "working_set_mb": 165.32
+      },
+      {
+        "lote": 4,
+        "documentos": 100,
+        "cuerpo_mb": 0.21,
+        "segundos": 11.77,
+        "indexados": 97,
+        "sin_cambios": 3,
+        "omitidos": 0,
+        "working_set_mb": 168.68
+      },
+      {
+        "lote": 5,
+        "documentos": 67,
+        "cuerpo_mb": 0.14,
+        "segundos": 10.23,
+        "indexados": 67,
+        "sin_cambios": 0,
+        "omitidos": 0,
+        "working_set_mb": 169.12
+      }
+    ]
+  },
+  "segunda": {
+    "segundos": 0.4,
+    "indexados": 0,
+    "sin_cambios": 567,
+    "omitidos": 0,
+    "puntos": 1734,
+    "cuerpos_mb": 1.53,
+    "tunel_mb_enviados_aprox": 0.07,
+    "tunel_mb_recibidos_aprox": 0.1,
+    "working_set_max_mb": 178.86,
+    "gc_heap_mb": 36.7,
+    "lotes": [
+      {
+        "lote": 0,
+        "documentos": 100,
+        "cuerpo_mb": 0.47,
+        "segundos": 0.11,
+        "indexados": 0,
+        "sin_cambios": 100,
+        "omitidos": 0,
+        "working_set_mb": 170.62
+      },
+      {
+        "lote": 1,
+        "documentos": 100,
+        "cuerpo_mb": 0.16,
+        "segundos": 0.06,
+        "indexados": 0,
+        "sin_cambios": 100,
+        "omitidos": 0,
+        "working_set_mb": 171.19
+      },
+      {
+        "lote": 2,
+        "documentos": 100,
+        "cuerpo_mb": 0.26,
+        "segundos": 0.06,
+        "indexados": 0,
+        "sin_cambios": 100,
+        "omitidos": 0,
+        "working_set_mb": 171.3
+      },
+      {
+        "lote": 3,
+        "documentos": 100,
+        "cuerpo_mb": 0.28,
+        "segundos": 0.07,
+        "indexados": 0,
+        "sin_cambios": 100,
+        "omitidos": 0,
+        "working_set_mb": 175.44
+      },
+      {
+        "lote": 4,
+        "documentos": 100,
+        "cuerpo_mb": 0.21,
+        "segundos": 0.04,
+        "indexados": 0,
+        "sin_cambios": 100,
+        "omitidos": 0,
+        "working_set_mb": 175.94
+      },
+      {
+        "lote": 5,
+        "documentos": 67,
+        "cuerpo_mb": 0.14,
+        "segundos": 0.04,
+        "indexados": 0,
+        "sin_cambios": 67,
+        "omitidos": 0,
+        "working_set_mb": 177.87
+      }
+    ]
+  }
+}

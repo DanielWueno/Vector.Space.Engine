@@ -64,17 +64,19 @@ public sealed record IngerirCommand(string Coleccion, OrigenIngestaRequest? Orig
             yield return $"Cada Contenido admite como maximo {Limites.MaxCaracteresPorDocumento} caracteres.";
     }
 
-    public sealed class IngerirCommandHandler(IMotorDeIngesta motor)
+    public sealed class IngerirCommandHandler(IMotorDeIngesta motor, ILimiteDeIngestas limite)
         : IRequestHandler<IngerirCommand, IngestaResponse>
     {
-        public Task<IngestaResponse> Handle(IngerirCommand request, CancellationToken cancellationToken)
+        public async Task<IngestaResponse> Handle(IngerirCommand request, CancellationToken cancellationToken)
         {
             // La alternativa de 1.7 (disparar sobre una ruta accesible al servicio) queda en el contrato pero sin
             // implementar: leer rutas del servidor exige antes decidir raices permitidas por coleccion.
             if (request.Origen!.Tipo == OrigenIngestaRequest.TipoRuta)
                 throw new NoImplementadoException("El origen 'ruta' esta reservado para el modelo de consumo de ingesta (item 1.7).");
 
-            return motor.IngerirAsync(request.Coleccion, request.Origen.Documentos!, cancellationToken);
+            // 1.7: despues de autorizar y validar (behaviors), asi un 403 o un 400 no ocupan lugar en la cola.
+            using var permiso = await limite.EntrarAsync(cancellationToken);
+            return await motor.IngerirAsync(request.Coleccion, request.Origen.Documentos!, cancellationToken);
         }
     }
 }

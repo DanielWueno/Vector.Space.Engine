@@ -1,0 +1,29 @@
+{
+  "coleccion": "it-1-7-cuerpo",
+  "pruebas": [
+    {
+      "documentos": 20,
+      "cuerpo_mb": 7.63,
+      "status": 200,
+      "segundos": 0.39,
+      "working_set_max_mb": 165.9,
+      "respuesta": "{\"ingestaId\":\"ea573a8d-3d7c-400b-bc10-7d39d21f16b9\",\"coleccion\":\"it-1-7-cuerpo\",\"estado\":\"completada\",\"documentosRecibidos\":20,\"documentosIndexados\":0,\"documentosSinCambios\":0,\"documentosOmitidos\":20}"
+    },
+    {
+      "documentos": 70,
+      "cuerpo_mb": 26.71,
+      "status": 200,
+      "segundos": 0.22,
+      "working_set_max_mb": 354.32,
+      "respuesta": "{\"ingestaId\":\"202786b7-9aee-4f82-a6ae-b63ed3ccf639\",\"coleccion\":\"it-1-7-cuerpo\",\"estado\":\"completada\",\"documentosRecibidos\":70,\"documentosIndexados\":0,\"documentosSinCambios\":0,\"documentosOmitidos\":70}"
+    },
+    {
+      "documentos": 100,
+      "cuerpo_mb": 38.15,
+      "status": 500,
+      "segundos": 0.07,
+      "working_set_max_mb": 528.31,
+      "respuesta": "{\"errors\":[\"Request body too large. The max request body size is 30000000 bytes.\"],\"type\":\"https://tools.ietf.org/html/rfc9110#section-15.6.1\",\"title\":\"An error occurred while processing your request.\",\"status\":500,\"traceId\":\"0HNPH4TRV45P7:00000003\"}"
+    }
+  ]
+}

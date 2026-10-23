@@ -13,6 +13,10 @@ Proyecto `Reyma.VectorSpace.Engine.Microservice.Business`. CQRS con MediatR; el 
   sobrescribir siempre `DefaultSortPropertyName` (p. ej. `nameof(Norma.Nombre)`).
 - Los commands se validan con FluentValidation (`AbstractValidator<TCommand>`) junto al command.
 - Errores de negocio con las excepciones de Reyma; el filtro `ReymaExceptionFilterAttribute` las traduce a HTTP.
+- Admision de operaciones caras (1.7): el handler pide un permiso a un limitador antes del motor
+  (`ILimiteDeIngestas` en `IngerirCommand`) y lo libera con `using`. Asi el limite corre despues de los behaviors de
+  autorizacion y validacion. Rebasarlo lanza `IngestasSaturadasException` (429 con `Retry-After`). Los valores viven en
+  opciones validadas al arrancar (`LimiteDeIngestasOptions`), no en constantes.
 
 ## Responses
 
