@@ -136,19 +136,19 @@ public sealed class MotorDePrueba : IMotorDeEmbeddings, IMotorDeBusqueda, IMotor
 {
     public ConcurrentQueue<(string Operacion, string Coleccion, object Datos)> Llamadas { get; } = new();
 
-    public Task<EmbeddingsResponse> CalcularAsync(string coleccion, IReadOnlyList<string> textos, CancellationToken cancellationToken)
+    public Task<EmbeddingsResponse> CalcularAsync(string coleccion, IReadOnlyList<string> textos, string? perfil, CancellationToken cancellationToken)
     {
         Llamadas.Enqueue(("embeddings", coleccion, textos));
         return Task.FromResult(new EmbeddingsResponse(coleccion, "modelo-prueba", 3, textos.Select(_ => new[] { 1f, 0f, 0f }).ToArray()));
     }
 
-    public Task<BusquedaResponse> BuscarAsync(string coleccion, string consulta, int topK, CancellationToken cancellationToken)
+    public Task<BusquedaResponse> BuscarAsync(string coleccion, string consulta, int topK, string? perfil, CancellationToken cancellationToken)
     {
         Llamadas.Enqueue(("busqueda", coleccion, topK));
         return Task.FromResult(new BusquedaResponse(coleccion, [new ResultadoBusquedaResponse("id-1", 0.9f, "a.md", "texto")]));
     }
 
-    public Task<IngestaResponse> IngerirAsync(string coleccion, IReadOnlyList<DocumentoRequest> documentos, CancellationToken cancellationToken)
+    public Task<IngestaResponse> IngerirAsync(string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, CancellationToken cancellationToken)
     {
         Llamadas.Enqueue(("ingesta", coleccion, documentos.Count));
         return Task.FromResult(new IngestaResponse(Guid.NewGuid(), coleccion, "completada", documentos.Count, documentos.Count, 0));

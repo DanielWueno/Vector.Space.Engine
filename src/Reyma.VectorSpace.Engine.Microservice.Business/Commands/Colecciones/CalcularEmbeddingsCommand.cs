@@ -10,7 +10,7 @@ namespace Reyma.VectorSpace.Engine.Microservice.Business.Commands.Colecciones;
 /// Embeddings densos de textos sueltos con el perfil de modelo de la coleccion. Superficie separada de la ingesta:
 /// no escribe nada en la coleccion.
 /// </summary>
-public sealed record CalcularEmbeddingsCommand(string Coleccion, IReadOnlyList<string>? Textos)
+public sealed record CalcularEmbeddingsCommand(string Coleccion, IReadOnlyList<string>? Textos, string? Perfil)
     : IRequest<EmbeddingsResponse>, ISolicitudDeColeccion, IValidable
 {
     public OperacionColeccion Operacion => OperacionColeccion.Consultar;
@@ -25,12 +25,17 @@ public sealed record CalcularEmbeddingsCommand(string Coleccion, IReadOnlyList<s
             yield return "Ningun texto puede estar vacio.";
         else if (Textos.Any(t => t.Length > Limites.MaxCaracteresPorTexto))
             yield return $"Cada texto admite como maximo {Limites.MaxCaracteresPorTexto} caracteres.";
+
+        if (Perfil is not null && Perfil.Trim().Length == 0)
+            yield return "Perfil no puede ser una cadena vacia si se especifica.";
+        else if (Perfil is { Length: > 0 } && Perfil.Length > Limites.MaxCaracteresPerfil)
+            yield return $"Perfil admite como maximo {Limites.MaxCaracteresPerfil} caracteres.";
     }
 
     public sealed class CalcularEmbeddingsCommandHandler(IMotorDeEmbeddings motor)
         : IRequestHandler<CalcularEmbeddingsCommand, EmbeddingsResponse>
     {
         public Task<EmbeddingsResponse> Handle(CalcularEmbeddingsCommand request, CancellationToken cancellationToken) =>
-            motor.CalcularAsync(request.Coleccion, request.Textos!, cancellationToken);
+            motor.CalcularAsync(request.Coleccion, request.Textos!, request.Perfil, cancellationToken);
     }
 }

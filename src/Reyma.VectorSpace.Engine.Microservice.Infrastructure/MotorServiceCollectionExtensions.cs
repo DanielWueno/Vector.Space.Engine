@@ -4,6 +4,7 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Qdrant.Client;
 using Reyma.VectorSpace.Engine.Microservice.Business.Motor;
@@ -33,12 +34,25 @@ public static class MotorServiceCollectionExtensions
             .Validate(o => o.Embeddings.TiempoMaximoSegundos > 0, "Motor:Embeddings:TiempoMaximoSegundos debe ser positivo.")
             .Validate(o => string.IsNullOrWhiteSpace(o.Embeddings.RutaCertificadoCA) || File.Exists(o.Embeddings.RutaCertificadoCA),
                 "Motor:Embeddings:RutaCertificadoCA debe apuntar a un archivo existente si se define.")
+            // 1.7.4: perfiles adicionales de embeddings, con las mismas reglas que el perfil por defecto de arriba.
+            .Validate(o => !o.Embeddings.Perfiles.ContainsKey(MotorOptions.PerfilEmbeddingsPorDefecto),
+                $"Motor:Embeddings:Perfiles no puede redefinir el perfil por defecto ('{MotorOptions.PerfilEmbeddingsPorDefecto}').")
+            .Validate(o => o.Embeddings.Perfiles.Values.All(p => Uri.TryCreate(p.UrlBase, UriKind.Absolute, out var u) && (u.Scheme == "http" || u.Scheme == "https")),
+                "Cada perfil de Motor:Embeddings:Perfiles necesita una UrlBase http(s) absoluta.")
+            .Validate(o => o.Embeddings.Perfiles.Values.All(p => p.Dimension > 0), "Cada perfil de Motor:Embeddings:Perfiles necesita Dimension positiva.")
+            .Validate(o => o.Embeddings.Perfiles.Values.All(p => !string.IsNullOrWhiteSpace(p.Modelo)), "Cada perfil de Motor:Embeddings:Perfiles necesita Modelo.")
+            .Validate(o => o.Embeddings.Perfiles.Values.All(p => p.TextosPorLlamada is > 0 and <= 64),
+                "Cada perfil de Motor:Embeddings:Perfiles necesita TextosPorLlamada entre 1 y 64.")
+            .Validate(o => o.Embeddings.Perfiles.Values.All(p => p.TiempoMaximoSegundos > 0),
+                "Cada perfil de Motor:Embeddings:Perfiles necesita TiempoMaximoSegundos positivo.")
+            .Validate(o => o.Embeddings.Perfiles.Values.All(p => string.IsNullOrWhiteSpace(p.RutaCertificadoCA) || File.Exists(p.RutaCertificadoCA)),
+                "Cada RutaCertificadoCA de Motor:Embeddings:Perfiles debe existir si se define.")
             .Validate(o => o.Ingesta.MaxTokensPorChunk > 0 && o.Ingesta.TokensDeSolape >= 0 && o.Ingesta.TokensDeSolape < o.Ingesta.MaxTokensPorChunk,
                 "Motor:Ingesta: MaxTokensPorChunk positivo y TokensDeSolape entre 0 y MaxTokensPorChunk.")
             .Validate(o => o.Ingesta.LoteDeChunks > 0, "Motor:Ingesta:LoteDeChunks debe ser positivo.")
             .Validate(o => o.Busqueda.UmbralSimilitud is >= 0f and < 1f, "Motor:Busqueda:UmbralSimilitud debe estar en [0, 1).")
-            .Validate(o => !string.IsNullOrWhiteSpace(o.Qdrant.Host) && o.Qdrant.PuertoGrpc > 0 && o.Qdrant.TiempoMaximoSegundos > 0,
-                "Motor:Qdrant: Host, PuertoGrpc y TiempoMaximoSegundos son obligatorios.")
+            .Validate(o => !string.IsNullOrWhiteSpace(o.Qdrant.Host) && o.Qdrant.PuertoGrpc > 0 && o.Qdrant.PuertoRest > 0 && o.Qdrant.TiempoMaximoSegundos > 0,
+                "Motor:Qdrant: Host, PuertoGrpc, PuertoRest y TiempoMaximoSegundos son obligatorios.")
             .ValidateOnStart();
 
         services.AddSingleton(sp =>
@@ -72,6 +86,53 @@ public static class MotorServiceCollectionExtensions
             });
 
         services.AddSingleton<IVectorizationBrain, TeiVectorizationBrain>();
+
+        // 1.7.4: un HttpClient nombrado por cada perfil adicional declarado en Motor:Embeddings:Perfiles, con el
+        // mismo patron de clave Bearer y CA adicional que el perfil por defecto. El perfil por defecto reutiliza el
+        // HttpClient y el IVectorizationBrain ya registrados arriba (TeiVectorizationBrain.HttpClientName).
+        var nombresDePerfilesAdicionales = config.GetSection($"{MotorOptions.Seccion}:Embeddings:Perfiles").GetChildren()
+            .Select(seccion => seccion.Key)
+            .ToArray();
+        foreach (var nombrePerfil in nombresDePerfilesAdicionales)
+        {
+            services.AddHttpClient(VectorizationBrainFactory.NombreCliente(nombrePerfil), (sp, http) =>
+                {
+                    var o = ObtenerPerfilAdicional(sp, nombrePerfil);
+                    http.BaseAddress = new Uri(o.UrlBase!.TrimEnd('/') + "/");
+                    http.Timeout = TimeSpan.FromSeconds(o.TiempoMaximoSegundos);
+                    if (!string.IsNullOrWhiteSpace(o.ApiKey))
+                        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", o.ApiKey);
+                })
+                .ConfigurePrimaryHttpMessageHandler(sp =>
+                {
+                    var o = ObtenerPerfilAdicional(sp, nombrePerfil);
+                    var handler = new HttpClientHandler();
+                    if (!string.IsNullOrWhiteSpace(o.RutaCertificadoCA))
+                    {
+                        var caAdicional = X509CertificateLoader.LoadCertificateFromFile(o.RutaCertificadoCA);
+                        handler.ServerCertificateCustomValidationCallback = (_, cert, chain, errors) =>
+                            ValidaConCaAdicional(cert, chain, errors, caAdicional);
+                    }
+                    return handler;
+                });
+        }
+        services.AddSingleton<IVectorizationBrainFactory>(sp => new VectorizationBrainFactory(
+            sp.GetRequiredService<IHttpClientFactory>(),
+            sp.GetRequiredService<IOptions<MotorOptions>>(),
+            sp.GetRequiredService<ILoggerFactory>(),
+            sp.GetRequiredService<IVectorizationBrain>()));
+
+        // 1.7.4: HttpClient REST del propio Qdrant, solo para la metadata de perfil de coleccion (el cliente gRPC de
+        // Qdrant 1.19 no la expone).
+        services.AddHttpClient(QdrantVectorStore.RestHttpClientName, (sp, http) =>
+        {
+            var o = sp.GetRequiredService<IOptions<MotorOptions>>().Value.Qdrant;
+            http.BaseAddress = new Uri($"{(o.Https ? "https" : "http")}://{o.Host}:{o.PuertoRest}/");
+            http.Timeout = TimeSpan.FromSeconds(o.TiempoMaximoSegundos);
+            if (!string.IsNullOrWhiteSpace(o.ApiKey))
+                http.DefaultRequestHeaders.Add("api-key", o.ApiKey);
+        });
+
         services.AddSingleton<ISparseTokenizer, SparseTokenizer>();
 
         // Como el origen: cada estrategia con lenguaje propio se descubre en el ensamblado; el resto cae al fallback.
@@ -87,7 +148,10 @@ public static class MotorServiceCollectionExtensions
         }
         services.AddSingleton<ChunkingStrategyRouter>();
 
-        services.AddSingleton<QdrantVectorStore>();
+        services.AddSingleton(sp => new QdrantVectorStore(
+            sp.GetRequiredService<QdrantClient>(),
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient(QdrantVectorStore.RestHttpClientName),
+            sp.GetRequiredService<ILogger<QdrantVectorStore>>()));
         services.AddSingleton<QdrantSemanticRetriever>();
         services.AddSingleton<DocumentIngestionPipeline>();
 
@@ -132,4 +196,8 @@ public static class MotorServiceCollectionExtensions
 
         return chain.Build(cert);
     }
+
+    /// <summary>Configuracion de un perfil adicional ya validada por <c>ValidateOnStart</c> (1.7.4).</summary>
+    private static PerfilEmbeddingsOptions ObtenerPerfilAdicional(IServiceProvider sp, string nombrePerfil) =>
+        sp.GetRequiredService<IOptions<MotorOptions>>().Value.Embeddings.Perfiles[nombrePerfil];
 }

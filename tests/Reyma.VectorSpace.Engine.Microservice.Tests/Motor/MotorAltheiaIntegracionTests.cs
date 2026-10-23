@@ -49,6 +49,7 @@ public sealed class MotorAltheiaIntegracionTests(ApiFactory factory)
         var config = new Dictionary<string, string?>
         {
             ["Motor:Qdrant:PuertoGrpc"] = "16334",
+            ["Motor:Qdrant:PuertoRest"] = "16333",
             ["Motor:Embeddings:UrlBase"] = "https://altheia",
             ["Motor:Embeddings:Ruta"] = "v1/embeddings",
             ["Motor:Embeddings:Modelo"] = "bge-m3",

@@ -14,12 +14,15 @@ ruta base del servicio (`/reyma/vectorspace/engine` desplegado; vacia en local) 
 
 Codigos comunes: **401** sin token valido (firma, emisor, audiencia y vigencia se validan como en
 la plantilla); **403** si la tabla de acceso no otorga esa operacion sobre esa coleccion;
-**400** cuerpo invalido (solo despues de autorizar: sin acceso es 403 aunque el cuerpo sea invalido);
-**409** la coleccion ya existe con vectores de otra dimension; **413** (solo `ingestas`) el cuerpo de la
-solicitud supera el limite de la accion (1.7.1); **429** (solo `ingestas`) hay demasiadas ingestas en
-curso o en espera, reintentar despues de `Retry-After` (1.7); **501** parte del contrato aun sin
-implementar (origen `ruta`); **503** Qdrant o el sidecar de embeddings no respondieron (el mensaje no
-dice a que host ni puerto se intento conectar).
+**400** cuerpo invalido (solo despues de autorizar: sin acceso es 403 aunque el cuerpo sea invalido),
+incluido pedir un `perfil` de embeddings no registrado en el servicio o un modelo que el servidor remoto
+no tiene cargado para esa clave (1.7.4: nunca 503, siempre con los perfiles disponibles);
+**409** la coleccion ya existe con vectores de otra dimension, **o** con el mismo numero de dimensiones
+pero de otro perfil de embeddings (1.7.4: el perfil, no solo la dimension, identifica si dos vectores son
+comparables); **413** (solo `ingestas`) el cuerpo de la solicitud supera el limite de la accion (1.7.1);
+**429** (solo `ingestas`) hay demasiadas ingestas en curso o en espera, reintentar despues de
+`Retry-After` (1.7); **501** parte del contrato aun sin implementar (origen `ruta`); **503** Qdrant o el
+sidecar de embeddings no respondieron (el mensaje no dice a que host ni puerto se intento conectar).
 
 ## Motor (item 1.4)
 
@@ -74,20 +77,48 @@ El motor es el de Rag.Context.Engine portado (ver
 
 ```jsonc
 // POST .../embeddings   (1 a 64 textos, cada uno no vacio y de hasta 8192 caracteres)
-{ "textos": ["texto 1", "texto 2"] }
+{ "textos": ["texto 1", "texto 2"], "perfil": "altheia-bge-m3-256" }   // "perfil" opcional, ver abajo
 // 200: { "coleccion", "modelo", "dimension", "vectores": [[...], [...]] }
 
 // POST .../busquedas    (consulta de hasta 2048 caracteres; topK 1..100, por defecto 10)
-{ "consulta": "como se configura X", "topK": 10 }
+{ "consulta": "como se configura X", "topK": 10, "perfil": "altheia-bge-m3-256" }   // "perfil" opcional
 // 200: { "coleccion", "resultados": [{ "id", "puntuacion", "ruta", "texto" }] }
 
 // POST .../ingestas     origen 'documentos': 1 a 100 documentos, ruta unica y contenido <= 1 MiB c/u
-{ "origen": { "tipo": "documentos", "documentos": [{ "ruta": "docs/a.md", "contenido": "..." }] } }
+{ "origen": { "tipo": "documentos", "documentos": [{ "ruta": "docs/a.md", "contenido": "..." }] },
+  "perfil": "altheia-bge-m3-256" }   // "perfil" opcional, ver abajo
 // origen 'ruta': reservado para el item 1.7, hoy responde 501
 { "origen": { "tipo": "ruta", "ruta": "/ruta/accesible/al/servicio" } }
 // 200: { "ingestaId", "coleccion", "estado": "completada", "documentosRecibidos",
 //        "documentosIndexados", "documentosSinCambios", "documentosOmitidos" }
 ```
+
+## Perfiles de embeddings y metadata de coleccion (item 1.7.4)
+
+El 409 de dimension del item 1.4 solo comparaba el numero de dimensiones: 1.7.3 midio que un modelo
+distinto con la misma dimension (bge-m3 truncado a 256 contra una coleccion `arctic@256`) entraba con
+200 y dejaba sus documentos inalcanzables por busqueda. 1.7.4 cierra ese hueco con perfiles registrados:
+
+- El servicio declara perfiles de embeddings nombrados en configuracion (`Motor:Embeddings` describe el
+  perfil por defecto, **`tei-arctic-256`**: `snowflake-arctic-embed-m-v2.0` a 256d por TEI local, 1.6;
+  `Motor:Embeddings:Perfiles:<nombre>` declara perfiles adicionales, por ejemplo `altheia-bge-m3-256`
+  contra AltheIA, 1.13). Cada uno define modelo, dimension, prefijo de consulta, servidor y su clave.
+- `perfil` en el cuerpo es opcional en `embeddings`, `busquedas` e `ingestas`; ausente/vacio usa el perfil
+  por defecto o, si la coleccion ya existe, el que tenga guardado en su metadata.
+- **Al crear una coleccion** (primera ingesta que la toca), el perfil usado queda en su metadata de Qdrant
+  (`perfil_embeddings`, `modelo`, `dimension`), vista con `GET /collections/{coleccion}` en Qdrant.
+- **Perfil distinto sobre una coleccion existente**: **409**, aunque coincida la dimension numerica; no
+  escribe nada (ni metadata ni puntos). Aplica a `ingestas` (no se vectoriza) y a `busquedas`/`embeddings`
+  (no se consulta con el modelo equivocado).
+- **Coleccion creada antes de 1.7.4** (sin metadata de perfil): se asume del perfil por defecto
+  (`tei-arctic-256`); si la solicitud coincide, se le escribe la metadata en ese momento (no rompe
+  colecciones ya en uso); si pide otro perfil, 409 igual que si el perfil ya estuviera guardado.
+- **Perfil no registrado en esta instancia**, o modelo que el servidor remoto (AltheIA) no tiene cargado
+  para esta clave (`model_not_allowed`/`model_capability_mismatch`, medido en 1.7.3 contra AltheIA real):
+  **400** con la lista de perfiles disponibles, nunca 503 (un 503 sigue siendo solo para una dependencia
+  caida o que no respondio).
+- Perfil de LLM (resumen de negocio) y seleccion por proyecto completo (origen `git`/`zip`): siguen sin
+  implementar (items 1.7.5-1.7.8); ver la seccion siguiente.
 
 ## Modelo de consumo (item 1.7)
 
@@ -106,21 +137,19 @@ entero en 0,4 s; lo que cuesta es calcular los embeddings.
 - La respuesta de ingesta ya trae `ingestaId` y `estado`, para que una ingesta en cola pueda
   responder 202 con la misma forma si mas adelante se vuelve asincrona.
 
-## Proyecto completo y seleccion de modelo (item 1.7.3): decidido, no implementado
+## Proyecto completo (items 1.7.3/1.7.5-1.7.8): decidido, no implementado
 
-Decidido en `docs/evaluaciones/1.7.3/decision.md`. **Nada de esto existe todavia en la API**; los items
-1.7.4-1.7.7 lo implementan. Forma prevista:
+Decidido en `docs/evaluaciones/1.7.3/decision.md`. La seleccion de perfil de embeddings y la metadata de
+coleccion (criterio 5 de esa decision) ya estan implementadas, ver la seccion anterior. **El resto no
+existe todavia en la API**; los items 1.7.5-1.7.8 lo implementan. Forma prevista:
 
 - Un origen nuevo `proyecto`, aparte de `documentos` y de `ruta` (que sigue en 501), con dos fuentes:
   URL de un repo Git (solo hosts de una lista blanca de configuracion: la organizacion de Azure DevOps;
   el servicio clona con su propia identidad, nunca con la del usuario) o `.zip` subido (hasta 100 MiB,
   leido en memoria, con `carpetaRaiz` opcional para el envoltorio `repo-rama/`). Respeta el
   `.gitignore` y el `.ragignore` del proyecto. Es **asincrona**: 202 con `ingestaId` y consulta de estado.
-- Los modelos se eligen por **perfil registrado** en el servicio, nunca por nombre libre: perfil de
-  embeddings (modelo, dimension, prefijo de consulta) fijado al crear la coleccion y guardado en su
-  metadata (otro perfil sobre una coleccion existente: 409 aunque coincida la dimension), y perfil de
-  LLM para el resumen (por defecto de la coleccion, sustituible por solicitud). Un perfil que el servidor
-  de IA no tiene o no permite: 400 con los disponibles.
+- Perfil de LLM para el resumen de negocio (por defecto de la coleccion, sustituible por solicitud) como
+  fase reanudable con cache y tope de cuota (1.7.7).
 - Resumen de negocio, perfil de escaneo y lenguajes: atributos de la coleccion, fijados al crearla.
 
 ## Identidad

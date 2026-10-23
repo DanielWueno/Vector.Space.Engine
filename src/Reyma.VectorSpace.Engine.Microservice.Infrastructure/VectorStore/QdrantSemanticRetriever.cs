@@ -4,6 +4,7 @@ using Qdrant.Client;
 using Qdrant.Client.Grpc;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Abstractions;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Model;
+using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Vectorization;
 
 namespace Reyma.VectorSpace.Engine.Microservice.Infrastructure.VectorStore;
 
@@ -20,32 +21,42 @@ namespace Reyma.VectorSpace.Engine.Microservice.Infrastructure.VectorStore;
 public sealed class QdrantSemanticRetriever
 {
     private readonly QdrantClient _client;
-    private readonly IVectorizationBrain _brain;
+    private readonly IVectorizationBrainFactory _brainFactory;
+    private readonly QdrantVectorStore _store;
     private readonly ISparseTokenizer _sparseTokenizer;
     private readonly BusquedaOptions _options;
     private readonly ILogger<QdrantSemanticRetriever> _logger;
 
     public QdrantSemanticRetriever(
         QdrantClient client,
-        IVectorizationBrain brain,
+        IVectorizationBrainFactory brainFactory,
+        QdrantVectorStore store,
         ISparseTokenizer sparseTokenizer,
         IOptions<MotorOptions> options,
         ILogger<QdrantSemanticRetriever> logger)
     {
         _client = client;
-        _brain = brain;
+        _brainFactory = brainFactory;
+        _store = store;
         _sparseTokenizer = sparseTokenizer;
         _options = options.Value.Busqueda;
         _logger = logger;
     }
 
-    public async Task<IReadOnlyList<SearchHit>> SearchAsync(string collectionName, string query, int topK, CancellationToken ct)
+    /// <summary>
+    /// <paramref name="perfil"/> null = perfil por defecto (1.7.4). Una coleccion existente con otro perfil responde
+    /// 409 sin buscar (mismo criterio que la ingesta, ver <see cref="QdrantVectorStore.VerificarPerfilParaConsultaAsync"/>).
+    /// </summary>
+    public async Task<IReadOnlyList<SearchHit>> SearchAsync(string collectionName, string query, int topK, string? perfil, CancellationToken ct)
     {
         // Una coleccion autorizada que todavia no se ingesto no es un error: no tiene resultados.
         if (!await _client.CollectionExistsAsync(collectionName, ct))
             return [];
 
-        var queryVector = await _brain.EmbedQueryAsync(query, ct);
+        var resuelto = _brainFactory.Resolver(perfil);
+        await _store.VerificarPerfilParaConsultaAsync(collectionName, resuelto.Nombre, resuelto.Brain.ModelName, resuelto.Brain.EmbeddingDimensions, ct);
+
+        var queryVector = await resuelto.Brain.EmbedQueryAsync(query, ct);
         var payload = new WithPayloadSelector
         {
             Include = new PayloadIncludeSelector { Fields = { "content", "relative_path" } }

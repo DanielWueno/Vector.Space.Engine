@@ -1,8 +1,11 @@
+using System.Net.Http.Json;
+using System.Text.Json;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
 using Qdrant.Client;
 using Qdrant.Client.Grpc;
 using Reyma.Exceptions.Api;
+using Reyma.VectorSpace.Engine.Microservice.Business;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Abstractions;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Model;
 
@@ -29,33 +32,152 @@ public sealed class QdrantVectorStore
     /// <summary>Huella del documento con el que se generaron los puntos (ver DocumentIngestionPipeline).</summary>
     public const string DocumentFingerprintPayloadKey = "document_fingerprint";
 
+    /// <summary>HttpClient REST nombrado (1.7.4): el cliente gRPC de Qdrant 1.19 no expone el campo <c>metadata</c> de la coleccion.</summary>
+    public const string RestHttpClientName = "motor-qdrant-rest";
+
+    private const string PerfilEmbeddingsMetadataKey = "perfil_embeddings";
+    private const string ModeloMetadataKey = "modelo";
+    private const string DimensionMetadataKey = "dimension";
+
     private readonly QdrantClient _client;
+    private readonly HttpClient _rest;
     private readonly ILogger<QdrantVectorStore> _logger;
 
-    public QdrantVectorStore(QdrantClient client, ILogger<QdrantVectorStore> logger)
+    public QdrantVectorStore(QdrantClient client, HttpClient rest, ILogger<QdrantVectorStore> logger)
     {
         _client = client;
+        _rest = rest;
         _logger = logger;
     }
 
     /// <summary>
-    /// Crea la coleccion si no existe. Si existe, exige el vector denso nombrado con la dimension del modelo: mezclar
-    /// vectores de dos modelos en una coleccion corrompe la busqueda sin error visible (p. ej. una coleccion MiniLM
-    /// 384d de Rag.Context.Engine, que 1.6 manda reingestar).
+    /// Crea la coleccion si no existe (con la metadata de su perfil de embeddings) o, si ya existe, verifica que la
+    /// dimension y el perfil coincidan (1.7.4): mezclar vectores de dos modelos en una coleccion corrompe la busqueda
+    /// sin error visible (p. ej. una coleccion MiniLM 384d de Rag.Context.Engine, que 1.6 manda reingestar; o bge-m3
+    /// truncado a 256 entrando en una coleccion arctic@256, que 1.7.3 midio con 200 y documentos inalcanzables).
     /// </summary>
-    public async Task EnsureCollectionAsync(string collectionName, int dimension, CancellationToken ct)
+    public async Task EnsureCollectionAsync(string collectionName, string perfil, string modelo, int dimension, CancellationToken ct)
     {
         var existing = await GetDenseDimensionAsync(collectionName, ct);
         if (existing is null)
         {
-            await CreateCollectionAsync(collectionName, dimension, ct);
+            await CreateCollectionAsync(collectionName, perfil, modelo, dimension, ct);
+            await EscribirPerfilAsync(collectionName, perfil, modelo, dimension, ct);
             return;
         }
 
-        if (existing != (ulong)dimension)
+        await VerificarPerfilExistenteAsync(collectionName, existing.Value, perfil, modelo, dimension, ct, puedeEscribirMetadata: true);
+    }
+
+    /// <summary>
+    /// Igual que <see cref="EnsureCollectionAsync"/> pero sin crear la coleccion (busquedas y calculo de embeddings,
+    /// 1.7.4): si la coleccion no existe todavia no hay nada que verificar (no es un error, ver
+    /// <c>QdrantSemanticRetriever</c>); si existe, un perfil distinto responde 409 sin escribir.
+    /// </summary>
+    public async Task VerificarPerfilParaConsultaAsync(string collectionName, string perfil, string modelo, int dimension, CancellationToken ct)
+    {
+        var existing = await GetDenseDimensionAsync(collectionName, ct);
+        if (existing is null)
+            return;
+
+        await VerificarPerfilExistenteAsync(collectionName, existing.Value, perfil, modelo, dimension, ct, puedeEscribirMetadata: false);
+    }
+
+    private async Task VerificarPerfilExistenteAsync(
+        string collectionName, ulong existingDimension, string perfil, string modelo, int dimension, CancellationToken ct, bool puedeEscribirMetadata)
+    {
+        if (existingDimension != (ulong)dimension)
             throw new ConflictException(
-                $"La coleccion '{collectionName}' existe con vectores de dimension {existing}; el modelo del servicio usa {dimension}. " +
+                $"La coleccion '{collectionName}' existe con vectores de dimension {existingDimension}; el modelo del servicio usa {dimension}. " +
                 "Hay que reingestarla en una coleccion nueva.");
+
+        var almacenado = await LeerPerfilAsync(collectionName, ct);
+        if (almacenado is null)
+        {
+            // Coleccion creada antes de 1.7.4 (sin metadata de perfil): se asume del perfil por defecto (1.6) y, si
+            // coincide con lo que pide esta solicitud, se le escribe la metadata ahora (compatibilidad retroactiva).
+            if (!string.Equals(perfil, MotorOptions.PerfilEmbeddingsPorDefecto, StringComparison.Ordinal))
+                throw new ConflictException(
+                    $"La coleccion '{collectionName}' no tiene perfil de embeddings registrado; se asume el perfil por defecto " +
+                    $"'{MotorOptions.PerfilEmbeddingsPorDefecto}', no '{perfil}'. Hay que reingestarla en una coleccion nueva para cambiar de perfil.");
+
+            if (puedeEscribirMetadata)
+                await EscribirPerfilAsync(collectionName, perfil, modelo, dimension, ct);
+            return;
+        }
+
+        if (!string.Equals(almacenado.Perfil, perfil, StringComparison.Ordinal))
+            throw new ConflictException(
+                $"La coleccion '{collectionName}' se creo con el perfil de embeddings '{almacenado.Perfil}' ({almacenado.Modelo}); " +
+                $"la solicitud usa el perfil '{perfil}' ({modelo}). Aunque la dimension coincida ({dimension}), " +
+                "hay que reingestarla en una coleccion nueva para cambiar de perfil.");
+    }
+
+    /// <summary>Perfil de embeddings guardado en la metadata de la coleccion (REST), o null si no la tiene (1.7.4).</summary>
+    public async Task<PerfilColeccion?> LeerPerfilAsync(string collectionName, CancellationToken ct)
+    {
+        try
+        {
+            using var response = await _rest.GetAsync($"collections/{Uri.EscapeDataString(collectionName)}", ct);
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            using var cuerpo = await response.Content.ReadFromJsonAsync<JsonDocument>(cancellationToken: ct);
+            if (cuerpo is null ||
+                !cuerpo.RootElement.TryGetProperty("result", out var result) ||
+                !result.TryGetProperty("config", out var config) ||
+                !config.TryGetProperty("metadata", out var metadata) ||
+                metadata.ValueKind != JsonValueKind.Object)
+                return null;
+
+            if (!metadata.TryGetProperty(PerfilEmbeddingsMetadataKey, out var perfilValue) || perfilValue.ValueKind != JsonValueKind.String)
+                return null;
+
+            var modelo = metadata.TryGetProperty(ModeloMetadataKey, out var modeloValue) && modeloValue.ValueKind == JsonValueKind.String
+                ? modeloValue.GetString() ?? ""
+                : "";
+            var dimension = metadata.TryGetProperty(DimensionMetadataKey, out var dimensionValue) && dimensionValue.ValueKind == JsonValueKind.Number
+                ? dimensionValue.GetInt32()
+                : 0;
+
+            return new PerfilColeccion(perfilValue.GetString()!, modelo, dimension);
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "No se pudo leer la metadata de perfil de la coleccion '{Collection}'.", collectionName);
+            throw new MotorNoDisponibleException("El vector store no esta disponible o rechazo la operacion.");
+        }
+        catch (TaskCanceledException ex) when (!ct.IsCancellationRequested)
+        {
+            _logger.LogError(ex, "Leer la metadata de perfil de la coleccion '{Collection}' no respondio a tiempo.", collectionName);
+            throw new MotorNoDisponibleException("El vector store no esta disponible o rechazo la operacion.");
+        }
+    }
+
+    private async Task EscribirPerfilAsync(string collectionName, string perfil, string modelo, int dimension, CancellationToken ct)
+    {
+        try
+        {
+            var cuerpo = new { metadata = new { perfil_embeddings = perfil, modelo, dimension } };
+            using var response = await _rest.PatchAsJsonAsync($"collections/{Uri.EscapeDataString(collectionName)}", cuerpo, ct);
+            if (!response.IsSuccessStatusCode)
+            {
+                var detalle = await response.Content.ReadAsStringAsync(ct);
+                _logger.LogError("Qdrant respondio {Status} al guardar la metadata de perfil de '{Collection}': {Detalle}",
+                    (int)response.StatusCode, collectionName, detalle);
+                throw new MotorNoDisponibleException("El vector store no esta disponible o rechazo la operacion.");
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "No se pudo guardar la metadata de perfil de la coleccion '{Collection}'.", collectionName);
+            throw new MotorNoDisponibleException("El vector store no esta disponible o rechazo la operacion.");
+        }
+        catch (TaskCanceledException ex) when (!ct.IsCancellationRequested)
+        {
+            _logger.LogError(ex, "Guardar la metadata de perfil de la coleccion '{Collection}' no respondio a tiempo.", collectionName);
+            throw new MotorNoDisponibleException("El vector store no esta disponible o rechazo la operacion.");
+        }
     }
 
     /// <summary>Dimension del vector <c>dense</c>, 0 si la coleccion existe sin el, null si no existe.</summary>
@@ -72,7 +194,7 @@ public sealed class QdrantVectorStore
             : 0;
     }
 
-    private async Task CreateCollectionAsync(string collectionName, int dimension, CancellationToken ct)
+    private async Task CreateCollectionAsync(string collectionName, string perfil, string modelo, int dimension, CancellationToken ct)
     {
         var vectorsConfig = new VectorParamsMap();
         vectorsConfig.Map[DenseVectorName] = new VectorParams { Size = (ulong)dimension, Distance = Distance.Cosine };
@@ -90,8 +212,8 @@ public sealed class QdrantVectorStore
         }
         catch (RpcException ex) when (ex.StatusCode == StatusCode.AlreadyExists)
         {
-            // Otra ingesta la creo entre la comprobacion y aqui: se valida su esquema como si ya existiera.
-            await EnsureCollectionAsync(collectionName, dimension, ct);
+            // Otra ingesta la creo entre la comprobacion y aqui: se valida su esquema y su perfil como si ya existiera.
+            await EnsureCollectionAsync(collectionName, perfil, modelo, dimension, ct);
             return;
         }
 
@@ -217,3 +339,6 @@ public sealed record VectorStoreBatchItem(
     float[] DenseVector,
     IReadOnlyList<SparseEntry> SparseVector,
     string DocumentFingerprint);
+
+/// <summary>Perfil de embeddings guardado en la metadata de una coleccion de Qdrant (1.7.4).</summary>
+public sealed record PerfilColeccion(string Perfil, string Modelo, int Dimension);

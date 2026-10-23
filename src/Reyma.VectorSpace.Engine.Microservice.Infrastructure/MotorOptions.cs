@@ -9,6 +9,13 @@ public sealed class MotorOptions
 {
     public const string Seccion = "Motor";
 
+    /// <summary>
+    /// Nombre del perfil de embeddings que describen las propiedades de <see cref="EmbeddingsOptions"/> (1.6: arctic
+    /// a 256d por TEI). Es el perfil que se usa cuando una solicitud no pide ninguno (1.7.4) y el que se asume en las
+    /// colecciones creadas antes de que existiera esta nocion de perfil (sin metadata de perfil en Qdrant).
+    /// </summary>
+    public const string PerfilEmbeddingsPorDefecto = "tei-arctic-256";
+
     public QdrantConexionOptions Qdrant { get; set; } = new();
 
     public EmbeddingsOptions Embeddings { get; set; } = new();
@@ -22,19 +29,39 @@ public sealed class QdrantConexionOptions
 {
     public string Host { get; set; } = "localhost";
 
-    /// <summary>Puerto gRPC (el cliente .NET no usa el REST).</summary>
+    /// <summary>Puerto gRPC (el cliente .NET no usa el REST para los vectores).</summary>
     public int PuertoGrpc { get; set; } = 6334;
+
+    /// <summary>
+    /// Puerto REST (1.7.4): la metadata de coleccion (perfil de embeddings, modelo, dimension) se lee y escribe por
+    /// REST porque el cliente gRPC de Qdrant 1.19 no expone el campo <c>metadata</c> de la coleccion.
+    /// </summary>
+    public int PuertoRest { get; set; } = 6333;
 
     public bool Https { get; set; }
 
-    /// <summary>Plazo de cada llamada gRPC; sin el, un Qdrant colgado retiene la solicitud indefinidamente.</summary>
+    /// <summary>Plazo de cada llamada gRPC/REST; sin el, un Qdrant colgado retiene la solicitud indefinidamente.</summary>
     public int TiempoMaximoSegundos { get; set; } = 120;
 
     /// <summary>Opcional. Va por variable de entorno o user-secrets (Motor__Qdrant__ApiKey), nunca en appsettings.</summary>
     public string? ApiKey { get; set; }
 }
 
-public sealed class EmbeddingsOptions
+/// <summary>Lo que necesita un perfil de embeddings para llamar al sidecar (TEI o AltheIA) e interpretar su respuesta.</summary>
+public interface IPerfilEmbeddingsConfig
+{
+    string Ruta { get; }
+
+    string Modelo { get; }
+
+    int Dimension { get; }
+
+    string PrefijoConsulta { get; }
+
+    int TextosPorLlamada { get; }
+}
+
+public sealed class EmbeddingsOptions : IPerfilEmbeddingsConfig
 {
     /// <summary>URL base del sidecar (TEI). Obligatoria.</summary>
     public string? UrlBase { get; set; }
@@ -73,6 +100,39 @@ public sealed class EmbeddingsOptions
     /// Si se define, debe existir en disco: el servicio no arranca si no se puede cargar. Vacio = validacion
     /// TLS estandar, sin CA adicional (perfil TEI local de hoy).
     /// </summary>
+    public string? RutaCertificadoCA { get; set; }
+
+    /// <summary>
+    /// Perfiles adicionales de embeddings (1.7.4), seleccionables por nombre junto con el perfil por defecto que
+    /// describen las propiedades de esta misma clase (<see cref="MotorOptions.PerfilEmbeddingsPorDefecto"/>). Clave =
+    /// nombre del perfil (p. ej. <c>altheia-bge-m3-256</c>, ver docs/evaluaciones/1.7.3/decision.md); no puede repetir
+    /// el nombre del perfil por defecto.
+    /// </summary>
+    public Dictionary<string, PerfilEmbeddingsOptions> Perfiles { get; set; } = new();
+}
+
+/// <summary>Un perfil de embeddings adicional, registrado por nombre en <see cref="EmbeddingsOptions.Perfiles"/>.</summary>
+public sealed class PerfilEmbeddingsOptions : IPerfilEmbeddingsConfig
+{
+    /// <summary>URL base del servidor de este perfil (TEI local o AltheIA). Obligatoria.</summary>
+    public string? UrlBase { get; set; }
+
+    public string Ruta { get; set; } = "v1/embeddings";
+
+    public string Modelo { get; set; } = "";
+
+    public int Dimension { get; set; }
+
+    public string PrefijoConsulta { get; set; } = "";
+
+    public int TextosPorLlamada { get; set; } = 16;
+
+    public int TiempoMaximoSegundos { get; set; } = 600;
+
+    /// <summary>Opcional. Va por variable de entorno o user-secrets, nunca en appsettings.</summary>
+    public string? ApiKey { get; set; }
+
+    /// <summary>Opcional: igual que <see cref="EmbeddingsOptions.RutaCertificadoCA"/> pero para este perfil.</summary>
     public string? RutaCertificadoCA { get; set; }
 }
 

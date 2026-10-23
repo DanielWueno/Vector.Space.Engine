@@ -34,7 +34,7 @@ public sealed class ColeccionesController : BaseController
     [ProducesResponseType(StatusCodes.Status501NotImplemented)]
     public async Task<ActionResult<EmbeddingsResponse>> PostEmbeddings(
         string coleccion, [FromBody] CalcularEmbeddingsRequest? request, CancellationToken cancellationToken) =>
-        Ok(await Mediator.Send(new CalcularEmbeddingsCommand(coleccion, request?.Textos), cancellationToken));
+        Ok(await Mediator.Send(new CalcularEmbeddingsCommand(coleccion, request?.Textos, request?.Perfil), cancellationToken));
 
     /// <summary>Busqueda semantica en la coleccion.</summary>
     [HttpPost("{coleccion}/busquedas")]
@@ -46,7 +46,7 @@ public sealed class ColeccionesController : BaseController
     [ProducesResponseType(StatusCodes.Status501NotImplemented)]
     public async Task<ActionResult<BusquedaResponse>> PostBusqueda(
         string coleccion, [FromBody] BuscarRequest? request, CancellationToken cancellationToken) =>
-        Ok(await Mediator.Send(new BuscarEnColeccionQuery(coleccion, request?.Consulta, request?.TopK), cancellationToken));
+        Ok(await Mediator.Send(new BuscarEnColeccionQuery(coleccion, request?.Consulta, request?.TopK, request?.Perfil), cancellationToken));
 
     /// <summary>Ingesta de documentos en la coleccion (origen 'documentos'; 'ruta' reservado, 501).</summary>
     [HttpPost("{coleccion}/ingestas")]
@@ -62,5 +62,5 @@ public sealed class ColeccionesController : BaseController
     [ProducesResponseType(StatusCodes.Status501NotImplemented)]
     public async Task<ActionResult<IngestaResponse>> PostIngesta(
         string coleccion, [FromBody] IngestaRequest? request, CancellationToken cancellationToken) =>
-        Ok(await Mediator.Send(new IngerirCommand(coleccion, request?.Origen), cancellationToken));
+        Ok(await Mediator.Send(new IngerirCommand(coleccion, request?.Origen, request?.Perfil), cancellationToken));
 }

@@ -67,6 +67,7 @@ public sealed class MotorIntegracionTests(ApiFactory factory)
         var config = new Dictionary<string, string?>
         {
             ["Motor:Qdrant:PuertoGrpc"] = "16334",
+            ["Motor:Qdrant:PuertoRest"] = "16333",
             ["Motor:Embeddings:UrlBase"] = "http://127.0.0.1:18080",
         };
         for (var i = 0; i < colecciones.Length; i++)

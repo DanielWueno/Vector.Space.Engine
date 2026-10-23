@@ -9,6 +9,7 @@ using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Chunking;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Model;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Utilities;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.VectorStore;
+using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Vectorization;
 
 namespace Reyma.VectorSpace.Engine.Microservice.Infrastructure.Ingestion;
 
@@ -33,7 +34,7 @@ public sealed class DocumentIngestionPipeline
     internal const bool IndexShortTypeDeclarations = false;
 
     private readonly ChunkingStrategyRouter _chunkRouter;
-    private readonly IVectorizationBrain _brain;
+    private readonly IVectorizationBrainFactory _brainFactory;
     private readonly ISparseTokenizer _sparseTokenizer;
     private readonly QdrantVectorStore _store;
     private readonly IDateTime _clock;
@@ -47,7 +48,7 @@ public sealed class DocumentIngestionPipeline
 
     public DocumentIngestionPipeline(
         ChunkingStrategyRouter chunkRouter,
-        IVectorizationBrain brain,
+        IVectorizationBrainFactory brainFactory,
         ISparseTokenizer sparseTokenizer,
         QdrantVectorStore store,
         IDateTime clock,
@@ -55,7 +56,7 @@ public sealed class DocumentIngestionPipeline
         ILogger<DocumentIngestionPipeline> logger)
     {
         _chunkRouter = chunkRouter;
-        _brain = brain;
+        _brainFactory = brainFactory;
         _sparseTokenizer = sparseTokenizer;
         _store = store;
         _clock = clock;
@@ -90,13 +91,13 @@ public sealed class DocumentIngestionPipeline
     };
 
     public async Task<IngestionResult> IngestAsync(
-        string collectionName, IReadOnlyList<(string Path, string Content)> documents, CancellationToken ct)
+        string collectionName, string? perfil, IReadOnlyList<(string Path, string Content)> documents, CancellationToken ct)
     {
         var gate = _collectionLocks.GetOrAdd(collectionName, _ => new SemaphoreSlim(1, 1));
         await gate.WaitAsync(ct);
         try
         {
-            return await IngestLockedAsync(collectionName, documents, ct);
+            return await IngestLockedAsync(collectionName, perfil, documents, ct);
         }
         finally
         {
@@ -105,8 +106,13 @@ public sealed class DocumentIngestionPipeline
     }
 
     private async Task<IngestionResult> IngestLockedAsync(
-        string collectionName, IReadOnlyList<(string Path, string Content)> documents, CancellationToken ct)
+        string collectionName, string? perfilSolicitado, IReadOnlyList<(string Path, string Content)> documents, CancellationToken ct)
     {
+        // 1.7.4: se resuelve el perfil de embeddings antes de trocear, porque el fingerprint de cada documento
+        // incluye el modelo y la dimension (si el perfil cambia, el documento se vuelve a vectorizar).
+        var resuelto = _brainFactory.Resolver(perfilSolicitado);
+        var brain = resuelto.Brain;
+
         var options = ChunkingOptionsFor(collectionName);
         var profile = ScanProfile.DotNetEnterprise;
         var now = new DateTimeOffset(DateTime.SpecifyKind(_clock.Now, DateTimeKind.Utc));
@@ -142,7 +148,7 @@ public sealed class DocumentIngestionPipeline
 
             prepared.Add(new PreparedDocument(
                 ChunkBuilder.BuildIdentityKey(options.RepositoryName, artifact.RelativePath),
-                Fingerprint(options, path, content),
+                Fingerprint(options, path, content, brain),
                 chunks));
         }
 
@@ -152,8 +158,8 @@ public sealed class DocumentIngestionPipeline
         if (duplicate is not null)
             throw new BadRequestException($"Varias rutas de la solicitud identifican al mismo documento ('{duplicate.Key}').");
 
-        // 2. La coleccion se crea con la dimension del modelo, o se rechaza si ya tiene otra.
-        await _store.EnsureCollectionAsync(collectionName, _brain.EmbeddingDimensions, ct);
+        // 2. La coleccion se crea con el perfil y la dimension del modelo, o se rechaza si ya tiene otro (1.7.4).
+        await _store.EnsureCollectionAsync(collectionName, resuelto.Nombre, brain.ModelName, brain.EmbeddingDimensions, ct);
 
         // 3. Que tiene ya cada documento indexado.
         var existing = await _store.GetDocumentPointsAsync(collectionName, prepared.Select(d => d.FilePath).ToArray(), ct);
@@ -180,7 +186,7 @@ public sealed class DocumentIngestionPipeline
             var batch = pending.GetRange(i, Math.Min(options.BatchSize, pending.Count - i));
             var texts = batch.Select(b => b.Chunk.EnrichedContent).ToArray();
 
-            var dense = await _brain.EmbedDocumentsAsync(texts, ct);
+            var dense = await brain.EmbedDocumentsAsync(texts, ct);
             var sparse = _sparseTokenizer.TokenizeBatch(texts);
 
             await _store.UpsertBatchAsync(collectionName,
@@ -224,7 +230,7 @@ public sealed class DocumentIngestionPipeline
     /// ruta literal (va en el encabezado enriquecido), contrato y opciones de chunking, y modelo y dimension del vector.
     /// Si cambia cualquiera, el documento se vuelve a vectorizar aunque sus Ids coincidan.
     /// </summary>
-    private string Fingerprint(ChunkingOptions options, string path, string content)
+    private static string Fingerprint(ChunkingOptions options, string path, string content, IVectorizationBrain brain)
     {
         var header = string.Join('|',
             $"contrato={ChunkingContract.Version}",
@@ -234,8 +240,8 @@ public sealed class DocumentIngestionPipeline
             $"parentCtx={options.ParentContextLines}",
             $"shortTypes={IndexShortTypeDeclarations}",
             $"repo={options.RepositoryName}",
-            $"modelo={_brain.ModelName}",
-            $"dim={_brain.EmbeddingDimensions}",
+            $"modelo={brain.ModelName}",
+            $"dim={brain.EmbeddingDimensions}",
             $"ruta={path}");
         return ContentHasher.Compute(header + "\n" + SourceLines.Normalize(content));
     }

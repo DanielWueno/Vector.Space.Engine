@@ -14,8 +14,10 @@ Api -> Infrastructure -> Business
 - Un puerto nuevo se declara en Business y se implementa aqui. Los handlers de Business no referencian Infrastructure.
 - Codigo de infraestructura en ingles; configuracion y mensajes al cliente en espanol (seccion `Motor`).
 - Los errores de una dependencia salen como `MotorNoDisponibleException` (503) con un mensaje sin host, puerto ni
-  detalle de la excepcion; el detalle va al log. Conflictos de estado (p. ej. dimension distinta) como
-  `ConflictException` (409).
+  detalle de la excepcion; el detalle va al log. Conflictos de estado (dimension distinta, o perfil de embeddings
+  distinto al guardado en la metadata de la coleccion aunque la dimension coincida, item 1.7.4) como
+  `ConflictException` (409). Un perfil de embeddings no registrado en esta instancia, o un modelo que el servidor
+  remoto rechaza para la clave configurada, como `BadRequestException` (400), nunca 503.
 - Opciones validadas al arrancar (`ValidateOnStart`): una configuracion incoherente no deja arrancar el servicio.
 - Credenciales de dependencias (p. ej. `Motor__Qdrant__ApiKey`, `Motor__Embeddings__ApiKey`) solo por `.env`
   local/user-secrets en desarrollo, o el gestor de secretos del entorno de despliegue real cuando exista (ninguno
@@ -59,6 +61,44 @@ Detalles de implementacion (`MotorServiceCollectionExtensions.AddMotorVectorial`
   ingesta minima en coleccion aislada y descartable -> 200, puntos de 1024d sin truncar en Qdrant, busqueda con
   resultados, segunda pasada "sin cambios", coleccion existente de otra dimension (256) sigue en 409 sin mezclar
   modelos. Documento de prueba minimo a proposito: AltheIA cuenta contra su cuota diaria compartida (1.7).
+
+## Perfiles de embeddings por nombre y metadata de coleccion (item 1.7.4)
+
+1.13 dejaba un solo perfil activo por instancia (se cambiaba de TEI a AltheIA reconfigurando
+`Motor:Embeddings` entero). 1.7.4 agrega perfiles **adicionales, simultaneos, seleccionables por nombre**
+en una misma instancia, sin tocar el comportamiento de 1.13 cuando no se usan:
+
+- `Motor:Embeddings` sigue describiendo el perfil por defecto, con nombre fijo
+  `MotorOptions.PerfilEmbeddingsPorDefecto` (`"tei-arctic-256"`). `Motor:Embeddings:Perfiles:<nombre>`
+  (`PerfilEmbeddingsOptions`, implementa el mismo `IPerfilEmbeddingsConfig` que `EmbeddingsOptions`) declara
+  cada perfil adicional (p. ej. `altheia-bge-m3-256`): su propio `UrlBase`, `Modelo`, `Dimension`,
+  `PrefijoConsulta`, `ApiKey` y `RutaCertificadoCA`, validados igual que el perfil por defecto
+  (`ValidateOnStart`); no puede redefinir el nombre del perfil por defecto.
+- `AddMotorVectorial` registra un `HttpClient` nombrado por perfil adicional
+  (`VectorizationBrainFactory.NombreCliente`, `"motor-embeddings:<nombre>"`), con el mismo patron de
+  cabecera `Authorization: Bearer` y CA adicional que el `HttpClient` del perfil por defecto
+  (`TeiVectorizationBrain.HttpClientName`).
+- `IVectorizationBrainFactory` (`Vectorization/IVectorizationBrainFactory.cs`) resuelve un nombre de perfil
+  a un `IVectorizationBrain`: el por defecto reutiliza el `IVectorizationBrain` singleton de siempre; uno
+  adicional crea un `TeiVectorizationBrain` con su `HttpClient` propio. Un nombre no registrado lanza
+  `BadRequestException` con la lista de perfiles disponibles (400, nunca 503) -- `MotorVectorial`,
+  `DocumentIngestionPipeline` y `QdrantSemanticRetriever` reciben el `perfil` pedido (puede ser `null`) y
+  resuelven ahi, no antes.
+- `QdrantVectorStore` guarda el perfil, el modelo y la dimension en la metadata de la coleccion en Qdrant
+  (`EnsureCollectionAsync`/`VerificarPerfilParaConsultaAsync`), por **REST** (`QdrantVectorStore.RestHttpClientName`,
+  `Motor:Qdrant:PuertoRest`): el cliente gRPC de Qdrant.Client 1.19 no expone el campo `metadata` de la
+  coleccion. Una coleccion sin esa metadata (creada antes de 1.7.4) se trata como del perfil por defecto y
+  se le escribe la metadata la primera vez que coincide; si no coincide, 409 igual que si ya la tuviera.
+- `TeiVectorizationBrain` traduce los errores de AltheIA por un modelo no permitido para la clave
+  (`model_not_allowed`, 403) o de otra capacidad (`model_capability_mismatch`, 400; medido en 1.7.3 contra
+  AltheIA real) a `BadRequestException` en vez del `MotorNoDisponibleException` (503) generico de cualquier
+  otro error del sidecar.
+- Verificado contra Qdrant y TEI reales de `docker-compose.motor.yml` en
+  `tests/.../Motor/PerfilesEmbeddingsIntegracionTests.cs` (gateado por `VSE_MOTOR_LOCAL=1`): metadata
+  guardada al crear, 409 sin escribir al mezclar perfiles de la misma dimension, compatibilidad retroactiva
+  de una coleccion sin metadata, y 400 con los perfiles disponibles al pedir uno no registrado. La
+  traduccion de errores de AltheIA se verifica con un sidecar simulado en
+  `tests/.../Motor/TeiVectorizationBrainTests.cs` (sin AltheIA real).
 
 ## Codigo portado
 

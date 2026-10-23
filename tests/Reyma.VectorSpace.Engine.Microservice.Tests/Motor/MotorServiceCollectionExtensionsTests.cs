@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Reyma.Exceptions.Api;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure;
+using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Abstractions;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Vectorization;
 
 namespace Reyma.VectorSpace.Engine.Microservice.Tests.Motor;
@@ -85,5 +87,81 @@ public sealed class MotorServiceCollectionExtensionsTests
         {
             File.Delete(archivoTemporal);
         }
+    }
+
+    // 1.7.4: perfiles de embeddings adicionales (p. ej. el perfil AltheIA/bge-m3 de 1.7.3), con un HttpClient
+    // nombrado propio, registrados junto al perfil por defecto (tei-arctic-256, descrito por Motor:Embeddings).
+
+    private static ServiceProvider ConstruirConPerfilAdicional() => Construir(new()
+    {
+        ["Motor:Embeddings:Perfiles:altheia-bge-m3-256:UrlBase"] = "https://altheia.invalid",
+        ["Motor:Embeddings:Perfiles:altheia-bge-m3-256:Modelo"] = "bge-m3",
+        ["Motor:Embeddings:Perfiles:altheia-bge-m3-256:Dimension"] = "256",
+        ["Motor:Embeddings:Perfiles:altheia-bge-m3-256:PrefijoConsulta"] = "",
+        ["Motor:Embeddings:Perfiles:altheia-bge-m3-256:ApiKey"] = "clave-de-prueba",
+    });
+
+    [Fact]
+    public void ElFactoryResuelveElPerfilPorDefectoSinPedirNinguno()
+    {
+        using var sp = ConstruirConPerfilAdicional();
+        var factory = sp.GetRequiredService<IVectorizationBrainFactory>();
+
+        var resuelto = factory.Resolver(null);
+
+        Assert.Equal(MotorOptions.PerfilEmbeddingsPorDefecto, resuelto.Nombre);
+        Assert.Same(sp.GetRequiredService<IVectorizationBrain>(), resuelto.Brain);
+    }
+
+    [Fact]
+    public void ElFactoryResuelveUnPerfilAdicionalConSuPropioModeloYDimension()
+    {
+        using var sp = ConstruirConPerfilAdicional();
+        var factory = sp.GetRequiredService<IVectorizationBrainFactory>();
+
+        var resuelto = factory.Resolver("altheia-bge-m3-256");
+
+        Assert.Equal("altheia-bge-m3-256", resuelto.Nombre);
+        Assert.Equal("bge-m3", resuelto.Brain.ModelName);
+        Assert.Equal(256, resuelto.Brain.EmbeddingDimensions);
+        Assert.NotSame(sp.GetRequiredService<IVectorizationBrain>(), resuelto.Brain);
+    }
+
+    [Fact]
+    public void ElPerfilAdicionalTieneSuPropioHttpClienteConLaClaveBearer()
+    {
+        using var sp = ConstruirConPerfilAdicional();
+
+        var cliente = sp.GetRequiredService<IHttpClientFactory>().CreateClient(VectorizationBrainFactory.NombreCliente("altheia-bge-m3-256"));
+
+        Assert.Equal(new Uri("https://altheia.invalid/"), cliente.BaseAddress);
+        Assert.Equal("Bearer", cliente.DefaultRequestHeaders.Authorization!.Scheme);
+        Assert.Equal("clave-de-prueba", cliente.DefaultRequestHeaders.Authorization!.Parameter);
+    }
+
+    [Fact]
+    public void UnPerfilNoRegistradoLanzaBadRequestConLosPerfilesDisponibles()
+    {
+        using var sp = ConstruirConPerfilAdicional();
+        var factory = sp.GetRequiredService<IVectorizationBrainFactory>();
+
+        var ex = Assert.Throws<BadRequestException>(() => factory.Resolver("perfil-que-no-existe"));
+
+        Assert.Contains("perfil-que-no-existe", ex.Message);
+        Assert.Contains(MotorOptions.PerfilEmbeddingsPorDefecto, ex.Message);
+        Assert.Contains("altheia-bge-m3-256", ex.Message);
+    }
+
+    [Fact]
+    public void RedefinirElPerfilPorDefectoComoAdicionalImpideArrancar()
+    {
+        using var sp = Construir(new()
+        {
+            [$"Motor:Embeddings:Perfiles:{MotorOptions.PerfilEmbeddingsPorDefecto}:UrlBase"] = "http://otro.invalid",
+            [$"Motor:Embeddings:Perfiles:{MotorOptions.PerfilEmbeddingsPorDefecto}:Modelo"] = "otro-modelo",
+            [$"Motor:Embeddings:Perfiles:{MotorOptions.PerfilEmbeddingsPorDefecto}:Dimension"] = "256",
+        });
+
+        Assert.Throws<OptionsValidationException>(() => sp.GetRequiredService<IOptions<MotorOptions>>().Value);
     }
 }

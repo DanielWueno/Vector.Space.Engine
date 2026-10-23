@@ -6,6 +6,13 @@ namespace Reyma.VectorSpace.Engine.Microservice.Business.Models.Requests;
 public sealed class CalcularEmbeddingsRequest
 {
     public List<string>? Textos { get; set; }
+
+    /// <summary>
+    /// Perfil de embeddings a usar (1.7.4). Vacio/ausente = perfil por defecto o, si la coleccion ya existe, el que
+    /// tiene guardado en su metadata. Un perfil no registrado responde 400; uno distinto al de una coleccion
+    /// existente responde 409, aunque coincida la dimension.
+    /// </summary>
+    public string? Perfil { get; set; }
 }
 
 public sealed class BuscarRequest
@@ -14,11 +21,22 @@ public sealed class BuscarRequest
 
     /// <summary>Por defecto 10; entre 1 y 100 (ver Limites).</summary>
     public int? TopK { get; set; }
+
+    /// <summary>Ver <see cref="CalcularEmbeddingsRequest.Perfil"/>.</summary>
+    public string? Perfil { get; set; }
 }
 
 public sealed class IngestaRequest
 {
     public OrigenIngestaRequest? Origen { get; set; }
+
+    /// <summary>
+    /// Perfil de embeddings de la coleccion (1.7.4). Se fija al crearla (primera ingesta) y queda en su metadata de
+    /// Qdrant; vacio/ausente = perfil por defecto (<c>tei-arctic-256</c>). Una ingesta posterior con otro perfil
+    /// responde 409 sin escribir, aunque coincida la dimension; un perfil no registrado responde 400 con los
+    /// perfiles disponibles.
+    /// </summary>
+    public string? Perfil { get; set; }
 }
 
 /// <summary>

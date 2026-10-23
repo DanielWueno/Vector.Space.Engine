@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using Reyma.Exceptions.Api;
 using Reyma.VectorSpace.Engine.Microservice.Business;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Vectorization;
@@ -163,5 +164,50 @@ public sealed class TeiVectorizationBrainTests
         var ex = await Assert.ThrowsAsync<MotorNoDisponibleException>(() => brain.EmbedQueryAsync("x", CancellationToken.None));
         Assert.Contains("401", ex.Message);
         Assert.DoesNotContain(clave, ex.Message);
+    }
+
+    // 1.7.4: AltheIA real (docs/evaluaciones/1.7.3/resultados/modelos.json) devuelve 403 model_not_allowed para un
+    // modelo que la clave no tiene permitido, y 400 model_capability_mismatch para un modelo de otra capacidad. El
+    // servicio debe traducir ambos a un 400 propio (BadRequestException), nunca al 503 generico de MotorNoDisponibleException.
+    public static TheoryData<HttpStatusCode, string> RespuestasDeModeloNoDisponible() => new()
+    {
+        { HttpStatusCode.Forbidden, """{"error":{"message":"API key 'clave-x' is not allowed to use model 'no-existe'.","type":"invalid_request_error","code":"model_not_allowed"}}""" },
+        { HttpStatusCode.BadRequest, """{"error":{"message":"Model 'qwen3.8-27b-fast' does not support embeddings.","type":"invalid_request_error","code":"model_capability_mismatch"}}""" },
+    };
+
+    [Theory]
+    [MemberData(nameof(RespuestasDeModeloNoDisponible))]
+    public async Task UnModeloQueAltheiaNoPermiteEsBadRequestConLosPerfilesDisponibles(HttpStatusCode status, string cuerpo)
+    {
+        var brain = Brain(new Sidecar(_ => new HttpResponseMessage(status)
+        {
+            Content = new StringContent(cuerpo, Encoding.UTF8, "application/json")
+        }));
+
+        var ex = await Assert.ThrowsAsync<BadRequestException>(() => brain.EmbedQueryAsync("x", CancellationToken.None));
+        Assert.Contains("tei-arctic-256", ex.Message);
+        Assert.DoesNotContain("503", ex.Message);
+    }
+
+    [Fact]
+    public async Task UnModeloNoDisponibleListaTambienLosPerfilesAdicionalesDeclarados()
+    {
+        var brain = new TeiVectorizationBrain(
+            new Fabrica(new Sidecar(_ => new HttpResponseMessage(HttpStatusCode.Forbidden)
+            {
+                Content = new StringContent("""{"error":{"code":"model_not_allowed","message":"no permitido"}}""", Encoding.UTF8, "application/json")
+            })),
+            Options.Create(new MotorOptions
+            {
+                Embeddings = new EmbeddingsOptions
+                {
+                    UrlBase = "http://sidecar.invalid", Modelo = "modelo-x", Dimension = 2,
+                    Perfiles = { ["altheia-bge-m3-256"] = new PerfilEmbeddingsOptions { UrlBase = "https://altheia", Modelo = "bge-m3", Dimension = 256 } }
+                }
+            }), NullLogger<TeiVectorizationBrain>.Instance);
+
+        var ex = await Assert.ThrowsAsync<BadRequestException>(() => brain.EmbedQueryAsync("x", CancellationToken.None));
+        Assert.Contains("tei-arctic-256", ex.Message);
+        Assert.Contains("altheia-bge-m3-256", ex.Message);
     }
 }

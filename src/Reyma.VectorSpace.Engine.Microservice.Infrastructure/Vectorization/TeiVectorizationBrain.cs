@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Reyma.Exceptions.Api;
 using Reyma.VectorSpace.Engine.Microservice.Business;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Abstractions;
 
@@ -11,21 +12,39 @@ namespace Reyma.VectorSpace.Engine.Microservice.Infrastructure.Vectorization;
 /// Cliente de la ruta OpenAI-compatible del sidecar (1.8). No recorta el texto: TEI trunca solo por encima de la
 /// ventana del modelo con --auto-truncate (1.11). Pide <c>dimensions</c> y ademas trunca y normaliza L2 en el cliente,
 /// porque Infinity trunca sin renormalizar (1.8); con TEI la segunda normalizacion no cambia nada.
+///
+/// Una instancia sirve un solo perfil de embeddings (1.7.4): el por defecto, registrado como singleton con el
+/// constructor de tres argumentos, o uno adicional que resuelve <see cref="Vectorization.IVectorizationBrainFactory"/>
+/// con su propio <see cref="HttpClient"/> nombrado.
 /// </summary>
 public sealed class TeiVectorizationBrain : IVectorizationBrain
 {
     public const string HttpClientName = "motor-embeddings";
 
     private readonly HttpClient _http;
-    private readonly EmbeddingsOptions _options;
+    private readonly IPerfilEmbeddingsConfig _options;
+    private readonly IReadOnlyCollection<string> _perfilesDisponibles;
     private readonly ILogger<TeiVectorizationBrain> _logger;
 
+    /// <summary>Perfil por defecto (1.6/1.13): usa el HttpClient nombrado registrado por <c>AddMotorVectorial</c>.</summary>
     public TeiVectorizationBrain(IHttpClientFactory httpClientFactory, IOptions<MotorOptions> options, ILogger<TeiVectorizationBrain> logger)
+        : this(httpClientFactory.CreateClient(HttpClientName), options.Value.Embeddings, NombresDePerfiles(options.Value), logger)
     {
-        _http = httpClientFactory.CreateClient(HttpClientName);
-        _options = options.Value.Embeddings;
+    }
+
+    /// <summary>Un perfil cualquiera (por defecto o adicional) con su HttpClient y configuracion ya resueltos (1.7.4).</summary>
+    internal TeiVectorizationBrain(
+        HttpClient http, IPerfilEmbeddingsConfig options, IReadOnlyCollection<string> perfilesDisponibles, ILogger<TeiVectorizationBrain> logger)
+    {
+        _http = http;
+        _options = options;
+        _perfilesDisponibles = perfilesDisponibles;
         _logger = logger;
     }
+
+    /// <summary>Nombres de todos los perfiles de embeddings declarados en configuracion: el por defecto y los adicionales.</summary>
+    internal static IReadOnlyCollection<string> NombresDePerfiles(MotorOptions options) =>
+        new[] { MotorOptions.PerfilEmbeddingsPorDefecto }.Concat(options.Embeddings.Perfiles.Keys).ToArray();
 
     public string ModelName => _options.Modelo;
 
@@ -55,6 +74,17 @@ public sealed class TeiVectorizationBrain : IVectorizationBrain
             if (!response.IsSuccessStatusCode)
             {
                 var detail = await response.Content.ReadAsStringAsync(cancellationToken);
+                if (EsModeloNoDisponible(detail))
+                {
+                    // 1.7.3 midio esto contra AltheIA real: modelo inexistente -> 403 model_not_allowed (por clave);
+                    // modelo de otra capacidad -> 400 model_capability_mismatch. Es un perfil mal configurado o un
+                    // modelo que el servidor remoto no tiene cargado para esta clave, no una caida de dependencia.
+                    _logger.LogWarning("El sidecar de embeddings rechazo el modelo '{Modelo}' ({Status}): {Detail}",
+                        _options.Modelo, (int)response.StatusCode, Truncate(detail));
+                    throw new BadRequestException(
+                        $"El modelo '{_options.Modelo}' del perfil de embeddings no esta disponible en el servidor remoto. " +
+                        $"Perfiles disponibles: {string.Join(", ", _perfilesDisponibles)}.");
+                }
                 _logger.LogError("El sidecar de embeddings respondio {Status} a {Count} textos: {Detail}",
                     (int)response.StatusCode, input.Length, Truncate(detail));
                 throw new MotorNoDisponibleException($"El sidecar de embeddings respondio {(int)response.StatusCode}.");
@@ -113,6 +143,11 @@ public sealed class TeiVectorizationBrain : IVectorizationBrain
     }
 
     private static string Truncate(string text) => text.Length <= 500 ? text : text[..500];
+
+    /// <summary>Codigos de error de AltheIA (1.7.3, resultados/modelos.json) para un modelo no usable por esta clave.</summary>
+    private static bool EsModeloNoDisponible(string detail) =>
+        detail.Contains("model_not_allowed", StringComparison.OrdinalIgnoreCase) ||
+        detail.Contains("model_capability_mismatch", StringComparison.OrdinalIgnoreCase);
 
     internal sealed record EmbeddingsRequest(
         [property: JsonPropertyName("input")] IReadOnlyList<string> Input,

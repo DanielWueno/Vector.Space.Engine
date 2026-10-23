@@ -164,13 +164,13 @@ public sealed class LimiteDeIngestasTests(ApiFactory factory)
         public TaskCompletionSource Cancelada { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
         public int Ingestas => Volatile.Read(ref _ingestas);
 
-        public Task<EmbeddingsResponse> CalcularAsync(string coleccion, IReadOnlyList<string> textos, CancellationToken cancellationToken) =>
+        public Task<EmbeddingsResponse> CalcularAsync(string coleccion, IReadOnlyList<string> textos, string? perfil, CancellationToken cancellationToken) =>
             Task.FromResult(new EmbeddingsResponse(coleccion, "modelo-prueba", 1, textos.Select(_ => new[] { 1f }).ToArray()));
 
-        public Task<BusquedaResponse> BuscarAsync(string coleccion, string consulta, int topK, CancellationToken cancellationToken) =>
+        public Task<BusquedaResponse> BuscarAsync(string coleccion, string consulta, int topK, string? perfil, CancellationToken cancellationToken) =>
             Task.FromResult(new BusquedaResponse(coleccion, []));
 
-        public async Task<IngestaResponse> IngerirAsync(string coleccion, IReadOnlyList<DocumentoRequest> documentos, CancellationToken cancellationToken)
+        public async Task<IngestaResponse> IngerirAsync(string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, CancellationToken cancellationToken)
         {
             Interlocked.Increment(ref _ingestas);
             Entro.TrySetResult();

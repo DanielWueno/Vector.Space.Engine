@@ -17,6 +17,9 @@ public static class Limites
     public const int MaxCaracteresRuta = 1_024;
     public const int MaxCaracteresPorDocumento = 1_048_576;
 
+    /// <summary>Nombre de perfil de embeddings (1.7.4): los nombres reales son cortos (ej. "tei-arctic-256").</summary>
+    public const int MaxCaracteresPerfil = 100;
+
     /// <summary>
     /// Limite de cuerpo HTTP para <c>POST {coleccion}/ingestas</c> (1.7.1). El default de Kestrel
     /// (30 000 000 bytes) quedaba por debajo de lo que el contrato ya admite: 100 documentos de hasta
