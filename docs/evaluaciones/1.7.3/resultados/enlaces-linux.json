@@ -1,0 +1,18 @@
+{
+  "plataforma": "Ubuntu 24.04.5 LTS / .NET 10.0.12",
+  "raiz": "/tmp/enl/repo",
+  "enlaces_creados": [
+    "symlink enlace-dir -> fuera-de-la-raiz",
+    "symlink docs/enlace.md -> fuera-de-la-raiz/secreto.md"
+  ],
+  "escaner_portado": {
+    "rutas": [
+      "docs/legitimo.md"
+    ],
+    "omitidos": [
+      "enlace-dir: enlace simbolico o junction",
+      "docs/enlace.md: enlace simbolico"
+    ],
+    "leyo_fuera_de_la_raiz": false
+  }
+}

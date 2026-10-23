@@ -1,0 +1,35 @@
+{
+  "plataforma": "Microsoft Windows 10.0.26200 / .NET 10.0.12",
+  "reglas_gitignore": "bin/\n*.log\n",
+  "reglas_ragignore": "# exclusiones propias del corpus\ndocs/privado/\n!docs/privado/publico.md\n*.sql\n.env.json\nsrc/Generado/**\n",
+  "archivos": [
+    ".gitignore",
+    ".ragignore",
+    "src/App.cs",
+    "src/Generado/Cliente.g.cs",
+    "docs/guia.md",
+    "docs/privado/secreto.md",
+    "docs/privado/publico.md",
+    "db/esquema.sql",
+    ".env.json",
+    "bin/salida.json",
+    "traza.log"
+  ],
+  "esperado": [
+    "docs/guia.md",
+    "docs/privado/publico.md",
+    "src/App.cs"
+  ],
+  "checkout_escaner_portado": [
+    "docs/guia.md",
+    "docs/privado/publico.md",
+    "src/App.cs"
+  ],
+  "zip_lector": [
+    "docs/guia.md",
+    "docs/privado/publico.md",
+    "src/App.cs"
+  ],
+  "checkout_igual_a_esperado": true,
+  "zip_igual_a_esperado": true
+}

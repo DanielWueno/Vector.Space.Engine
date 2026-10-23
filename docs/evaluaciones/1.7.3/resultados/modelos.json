@@ -1,0 +1,68 @@
+{
+  "v1_models": {
+    "segundos": [
+      0.286,
+      0.003,
+      0.001,
+      0.002,
+      0.001
+    ],
+    "modelos": [
+      {
+        "id": "bge-m3",
+        "max_model_len": 7372,
+        "owned_by": "bge",
+        "claves": "id,object,owned_by,max_model_len"
+      },
+      {
+        "id": "qwen3.8-27b-deep",
+        "max_model_len": 117964,
+        "owned_by": "vllm",
+        "claves": "id,object,owned_by,max_model_len"
+      },
+      {
+        "id": "qwen3.8-27b-fast",
+        "max_model_len": 117964,
+        "owned_by": "vllm",
+        "claves": "id,object,owned_by,max_model_len"
+      }
+    ]
+  },
+  "embeddings_modelo_inexistente": {
+    "status": 403,
+    "segundos": 0.03,
+    "cuerpo": "{\"error\":{\"message\":\"API key '<alias-de-la-clave>' is not allowed to use model 'modelo-que-no-existe'.\",\"type\":\"invalid_request_error\",\"code\":\"model_not_allowed\"}}"
+  },
+  "embeddings_con_modelo_de_chat": {
+    "status": 400,
+    "segundos": 0,
+    "cuerpo": "{\"error\":{\"message\":\"Model 'qwen3.8-27b-fast' does not support embeddings.\",\"type\":\"invalid_request_error\",\"code\":\"model_capability_mismatch\"}}"
+  },
+  "chat_con_modelo_de_embeddings": {
+    "status": 400,
+    "segundos": 0.01,
+    "cuerpo": "{\"error\":{\"message\":\"Model 'bge-m3' does not support chat.\",\"type\":\"invalid_request_error\",\"code\":\"model_capability_mismatch\"}}"
+  },
+  "chat_modelo_inexistente": {
+    "status": 403,
+    "segundos": 0,
+    "cuerpo": "{\"error\":{\"message\":\"API key '<alias-de-la-clave>' is not allowed to use model 'modelo-que-no-existe'.\",\"type\":\"invalid_request_error\",\"code\":\"model_not_allowed\"}}"
+  },
+  "metadata_de_coleccion": {
+    "crear_status": 200,
+    "leida": {
+      "perfil_embeddings": "tei-arctic-256",
+      "modelo": "Snowflake/snowflake-arctic-embed-m-v2.0",
+      "dimension": 256,
+      "resumen": false
+    },
+    "patch_status": 200,
+    "tras_patch": {
+      "perfil_embeddings": "tei-arctic-256",
+      "modelo": "Snowflake/snowflake-arctic-embed-m-v2.0",
+      "dimension": 256,
+      "resumen": false,
+      "llm_resumen": "qwen3.8-27b-fast"
+    }
+  }
+}

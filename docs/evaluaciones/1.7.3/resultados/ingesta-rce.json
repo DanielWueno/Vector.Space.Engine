@@ -1,0 +1,50 @@
+{
+  "coleccion": "it-1-7-3-rce",
+  "perfil": "tei-arctic-256 (docker-compose.motor.yml)",
+  "fases": {
+    "clonar": {
+      "exito": true,
+      "segundos": 3.83,
+      "mb": 55.59
+    },
+    "escanear_y_leer": {
+      "documentos": 320,
+      "segundos": 0.571,
+      "mb": 2.78
+    },
+    "ingesta_primera": {
+      "solicitudes": 4,
+      "segundos": 2104.5,
+      "indexados": 308,
+      "sin_cambios": 12,
+      "omitidos": 0,
+      "puntos": 2368,
+      "working_set_max_mb": 178.8
+    },
+    "ingesta_segunda": {
+      "solicitudes": 4,
+      "segundos": 0.4,
+      "indexados": 0,
+      "sin_cambios": 320,
+      "omitidos": 0,
+      "puntos": 2368,
+      "working_set_max_mb": 192.25
+    },
+    "zip_leer": {
+      "bytes_zip": 18016040,
+      "documentos": 320,
+      "error": null,
+      "segundos": 0.099
+    },
+    "zip_misma_coleccion": {
+      "solicitudes": 4,
+      "segundos": 0.3,
+      "indexados": 0,
+      "sin_cambios": 320,
+      "omitidos": 0,
+      "puntos": 2368,
+      "working_set_max_mb": 219.3
+    },
+    "checkout_borrado": true
+  }
+}

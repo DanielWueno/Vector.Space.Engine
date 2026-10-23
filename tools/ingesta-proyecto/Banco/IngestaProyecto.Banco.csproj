@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- 1.7.3: banco de medicion, no producto. Servidor Git de prueba (git-http-backend real sobre loopback), la API del
+       servicio en Kestrel real con identidad de prueba y el motor real (Qdrant y TEI de docker-compose.motor.yml), el
+       escaner REAL de Rag.Context.Engine (checkout hermano, solo lectura) para compararlo con el portado, y el cliente
+       HTTP de 1.13 contra AltheIA para el resumen y la seleccion de modelo. Ver ../README.md. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>IngestaProyecto.Banco</RootNamespace>
+    <RagContextEngineRoot Condition="'$(RagContextEngineRoot)' == ''">$(MSBuildThisFileDirectory)..\..\..\..\Rag.Context.Engine</RagContextEngineRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.9" />
+    <ProjectReference Include="..\Prototipo\IngestaProyecto.Prototipo.csproj" />
+    <ProjectReference Include="..\..\..\src\Reyma.VectorSpace.Engine.Microservice.Api\Reyma.VectorSpace.Engine.Microservice.Api.csproj" />
+    <ProjectReference Include="$(RagContextEngineRoot)\src\RagEngine.Core\RagEngine.Core.csproj" />
+  </ItemGroup>
+</Project>

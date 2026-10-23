@@ -1,0 +1,17 @@
+{
+  "plataforma": "Microsoft Windows 10.0.26200 / .NET 10.0.12",
+  "raiz": "<trabajo>\\enlaces-windows\\repo",
+  "enlaces_creados": [
+    "junction enlace-dir -> fuera-de-la-raiz",
+    "symlink de archivo: IOException (en Windows pide modo desarrollador o admin)"
+  ],
+  "escaner_portado": {
+    "rutas": [
+      "docs/legitimo.md"
+    ],
+    "omitidos": [
+      "enlace-dir: enlace simbolico o junction"
+    ],
+    "leyo_fuera_de_la_raiz": false
+  }
+}

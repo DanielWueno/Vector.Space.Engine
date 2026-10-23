@@ -106,6 +106,23 @@ entero en 0,4 s; lo que cuesta es calcular los embeddings.
 - La respuesta de ingesta ya trae `ingestaId` y `estado`, para que una ingesta en cola pueda
   responder 202 con la misma forma si mas adelante se vuelve asincrona.
 
+## Proyecto completo y seleccion de modelo (item 1.7.3): decidido, no implementado
+
+Decidido en `docs/evaluaciones/1.7.3/decision.md`. **Nada de esto existe todavia en la API**; los items
+1.7.4-1.7.7 lo implementan. Forma prevista:
+
+- Un origen nuevo `proyecto`, aparte de `documentos` y de `ruta` (que sigue en 501), con dos fuentes:
+  URL de un repo Git (solo hosts de una lista blanca de configuracion: la organizacion de Azure DevOps;
+  el servicio clona con su propia identidad, nunca con la del usuario) o `.zip` subido (hasta 100 MiB,
+  leido en memoria, con `carpetaRaiz` opcional para el envoltorio `repo-rama/`). Respeta el
+  `.gitignore` y el `.ragignore` del proyecto. Es **asincrona**: 202 con `ingestaId` y consulta de estado.
+- Los modelos se eligen por **perfil registrado** en el servicio, nunca por nombre libre: perfil de
+  embeddings (modelo, dimension, prefijo de consulta) fijado al crear la coleccion y guardado en su
+  metadata (otro perfil sobre una coleccion existente: 409 aunque coincida la dimension), y perfil de
+  LLM para el resumen (por defecto de la coleccion, sustituible por solicitud). Un perfil que el servidor
+  de IA no tiene o no permite: 400 con los disponibles.
+- Resumen de negocio, perfil de escaneo y lenguajes: atributos de la coleccion, fijados al crearla.
+
 ## Identidad
 
 La de la plantilla, sin cambios de proveedor: JWT del IdentityServer corporativo, mismas

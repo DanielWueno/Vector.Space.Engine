@@ -1,0 +1,159 @@
+{
+  "vse": {
+    "escaner_real": {
+      "documentos": 208,
+      "segundos": 0.089
+    },
+    "escaner_portado": {
+      "documentos": 208,
+      "segundos": 0.08,
+      "mb": 3.92
+    },
+    "mismas_rutas_y_orden": true,
+    "arbol_de_trabajo": {
+      "documentos": 1238,
+      "solo_en_arbol": 1030,
+      "solo_en_checkout": 0,
+      "muestra_solo_en_arbol": [
+        ".cache/consumo-1.7/concurrencia-40000.json",
+        ".cache/consumo-1.7/concurrencia-400000.json",
+        ".cache/consumo-1.7/corpus.json",
+        ".cache/consumo-1.7/cuerpo.json",
+        ".cache/consumo-1.7/saturacion.json",
+        ".cache/consumo-1.7/transferencia-sin-corte.json",
+        ".cache/consumo-1.7/transferencia.json",
+        ".cache/embeddings-eval/rag-eval-bsuite-auditorias-test.json"
+      ],
+      "documentos_escaner_portado": 220,
+      "solo_en_arbol_con_portado": 12,
+      "el_original_lee_y_el_portado_no": [
+        ".cache (1018)"
+      ]
+    },
+    "por_lenguaje": {
+      "CSharp": {
+        "documentos": 103,
+        "mb": 0.47
+      },
+      "PlainText": {
+        "documentos": 81,
+        "mb": 3.32
+      },
+      "Markdown": {
+        "documentos": 24,
+        "mb": 0.13
+      }
+    }
+  },
+  "rce": {
+    "escaner_real": {
+      "documentos": 320,
+      "segundos": 0.052
+    },
+    "escaner_portado": {
+      "documentos": 320,
+      "segundos": 0.088,
+      "mb": 2.78
+    },
+    "mismas_rutas_y_orden": true,
+    "arbol_de_trabajo": {
+      "documentos": 324,
+      "solo_en_arbol": 4,
+      "solo_en_checkout": 0,
+      "muestra_solo_en_arbol": [
+        ".mcp.json",
+        ".claude/settings.local.json",
+        "docs/analisis-futuro/tareas-pendientes-wrike.md",
+        "docs/analisis-futuro/tareas-todas-wrike.md"
+      ],
+      "documentos_escaner_portado": 323,
+      "solo_en_arbol_con_portado": 3,
+      "el_original_lee_y_el_portado_no": [
+        ".claude (1)"
+      ]
+    },
+    "por_lenguaje": {
+      "CSharp": {
+        "documentos": 222,
+        "mb": 1.38
+      },
+      "Markdown": {
+        "documentos": 52,
+        "mb": 0.84
+      },
+      "PlainText": {
+        "documentos": 44,
+        "mb": 0.56
+      },
+      "Sql": {
+        "documentos": 1,
+        "mb": 0
+      },
+      "Xaml": {
+        "documentos": 1,
+        "mb": 0
+      }
+    }
+  },
+  "junction": {
+    "escaner_real": [
+      "docs/legitimo.md",
+      "enlace-dir/secreto.md"
+    ],
+    "escaner_portado": [
+      "docs/legitimo.md"
+    ]
+  },
+  "zip_vs_clone_vse": {
+    "bytes_zip": 967618,
+    "leer_zip_segundos": 0.067,
+    "documentos_zip": 208,
+    "documentos_clone": 208,
+    "solo_en_zip": [],
+    "solo_en_clone": [],
+    "contenido_identico": 0,
+    "identico_salvo_fin_de_linea": 208,
+    "distinto": 0
+  },
+  "ignore_rules_punto_inicial": [
+    {
+      "ruta": ".cache/x.json",
+      "original": false,
+      "portado": true
+    },
+    {
+      "ruta": ".mcp.json",
+      "original": false,
+      "portado": true
+    },
+    {
+      "ruta": ".claude/settings.local.json",
+      "original": false,
+      "portado": true
+    },
+    {
+      "ruta": "sub/.mcp.json",
+      "original": true,
+      "portado": true
+    },
+    {
+      "ruta": "docs/eval/a.json",
+      "original": true,
+      "portado": true
+    },
+    {
+      "ruta": "./bin/a.dll",
+      "original": true,
+      "portado": true
+    },
+    {
+      "ruta": "src/Program.cs",
+      "original": false,
+      "portado": false
+    }
+  ],
+  "cli_lang": {
+    "apariciones_de_LanguageFilter": 1,
+    "se_pasa_a_IngestionRequest": false
+  }
+}

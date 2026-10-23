@@ -1,0 +1,18 @@
+{
+  "perfil": "altheia-bge-m3-1024",
+  "modelo": "bge-m3",
+  "dimension": 1024,
+  "documento": "c.md",
+  "status": 409,
+  "segundos": 0.73,
+  "respuesta": {
+    "errors": [
+      "La coleccion 'it-1-7-3-mezcla' existe con vectores de dimension 256; el modelo del servicio usa 1024. Hay que reingestarla en una coleccion nueva."
+    ],
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
+    "title": "Conflict",
+    "status": 409,
+    "traceId": "0HNPH6CVS4GFC:00000001"
+  },
+  "puntos_en_coleccion": 2
+}

@@ -1,0 +1,15 @@
+{
+  "Markdown": {
+    "chunks": 147,
+    "caracteres_enriquecidos": 131507
+  },
+  "PlainText": {
+    "chunks": 2219,
+    "caracteres_enriquecidos": 3993326
+  },
+  "CSharp": {
+    "chunks": 542,
+    "caracteres_enriquecidos": 516108
+  },
+  "total": 2908
+}

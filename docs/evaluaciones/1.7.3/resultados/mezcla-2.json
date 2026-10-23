@@ -1,0 +1,18 @@
+{
+  "perfil": "altheia-bge-m3-256",
+  "modelo": "bge-m3",
+  "dimension": 256,
+  "documento": "b.md",
+  "status": 200,
+  "segundos": 1.25,
+  "respuesta": {
+    "ingestaId": "e9facc74-368f-4e8a-acd3-103f76252a79",
+    "coleccion": "it-1-7-3-mezcla",
+    "estado": "completada",
+    "documentosRecibidos": 1,
+    "documentosIndexados": 1,
+    "documentosSinCambios": 0,
+    "documentosOmitidos": 0
+  },
+  "puntos_en_coleccion": 2
+}

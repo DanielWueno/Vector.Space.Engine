@@ -1,0 +1,126 @@
+{
+  "plataforma": "Microsoft Windows 10.0.26200 / .NET 10.0.12",
+  "lista_blanca": [
+    "https://dev.azure.com:443/organizacion-ejemplo/",
+    "https://organizacion-ejemplo.visualstudio.com:443"
+  ],
+  "admitidas": 3,
+  "rechazadas": 20,
+  "casos": [
+    {
+      "url": "https://dev.azure.com/organizacion-ejemplo/Proyecto/_git/repo",
+      "admitida": true,
+      "motivo": null
+    },
+    {
+      "url": "https://dev.azure.com/organizacion-ejemplo/Mi%20Proyecto/_git/repo",
+      "admitida": true,
+      "motivo": null
+    },
+    {
+      "url": "https://organizacion-ejemplo.visualstudio.com/Proyecto/_git/repo",
+      "admitida": true,
+      "motivo": null
+    },
+    {
+      "url": "https://dev.azure.com/otra-organizacion/Proyecto/_git/repo",
+      "admitida": false,
+      "motivo": "El origen 'https://dev.azure.com:443/otra-organizacion/Proyecto/_git/repo' no esta en la lista de origenes Git permitidos."
+    },
+    {
+      "url": "https://dev.azure.com/organizacion-ejemplo/../otra-organizacion/_git/repo",
+      "admitida": false,
+      "motivo": "El origen 'https://dev.azure.com:443/otra-organizacion/_git/repo' no esta en la lista de origenes Git permitidos."
+    },
+    {
+      "url": "https://dev.azure.com/organizacion-ejemplo/%2e%2e/otra-organizacion/_git/repo",
+      "admitida": false,
+      "motivo": "La URL no puede llevar puntos, barras ni nulos codificados."
+    },
+    {
+      "url": "https://dev.azure.com.atacante.example/organizacion-ejemplo/_git/repo",
+      "admitida": false,
+      "motivo": "El origen 'https://dev.azure.com.atacante.example:443/organizacion-ejemplo/_git/repo' no esta en la lista de origenes Git permitidos."
+    },
+    {
+      "url": "https://dev.azure.com@atacante.example/organizacion-ejemplo/_git/repo",
+      "admitida": false,
+      "motivo": "La URL no puede llevar usuario ni contrasena: el servicio usa su propia identidad."
+    },
+    {
+      "url": "https://atacante.example#@dev.azure.com/organizacion-ejemplo/",
+      "admitida": false,
+      "motivo": "La URL no puede llevar query ni fragmento."
+    },
+    {
+      "url": "https://usuario:secreto@dev.azure.com/organizacion-ejemplo/Proyecto/_git/repo",
+      "admitida": false,
+      "motivo": "La URL no puede llevar usuario ni contrasena: el servicio usa su propia identidad."
+    },
+    {
+      "url": "http://dev.azure.com/organizacion-ejemplo/Proyecto/_git/repo",
+      "admitida": false,
+      "motivo": "El origen 'http://dev.azure.com:80/organizacion-ejemplo/Proyecto/_git/repo' no esta en la lista de origenes Git permitidos."
+    },
+    {
+      "url": "https://dev.azure.com:8443/organizacion-ejemplo/Proyecto/_git/repo",
+      "admitida": false,
+      "motivo": "El origen 'https://dev.azure.com:8443/organizacion-ejemplo/Proyecto/_git/repo' no esta en la lista de origenes Git permitidos."
+    },
+    {
+      "url": "https://github.com/DanielWueno/Rag.Context.Engine.git",
+      "admitida": false,
+      "motivo": "El origen 'https://github.com:443/DanielWueno/Rag.Context.Engine.git' no esta en la lista de origenes Git permitidos."
+    },
+    {
+      "url": "https://169.254.169.254/latest/meta-data/",
+      "admitida": false,
+      "motivo": "El origen 'https://169.254.169.254:443/latest/meta-data/' no esta en la lista de origenes Git permitidos."
+    },
+    {
+      "url": "http://127.0.0.1:6333/collections",
+      "admitida": false,
+      "motivo": "El origen 'http://127.0.0.1:6333/collections' no esta en la lista de origenes Git permitidos."
+    },
+    {
+      "url": "https://localhost/organizacion-ejemplo/",
+      "admitida": false,
+      "motivo": "El origen 'https://localhost:443/organizacion-ejemplo/' no esta en la lista de origenes Git permitidos."
+    },
+    {
+      "url": "file:///etc/passwd",
+      "admitida": false,
+      "motivo": "Esquema 'file' no admitido: solo https."
+    },
+    {
+      "url": "ssh://git@ssh.dev.azure.com/v3/organizacion-ejemplo/Proyecto/repo",
+      "admitida": false,
+      "motivo": "Esquema 'ssh' no admitido: solo https."
+    },
+    {
+      "url": "git@ssh.dev.azure.com:v3/organizacion-ejemplo/Proyecto/repo",
+      "admitida": false,
+      "motivo": "No es una URL absoluta."
+    },
+    {
+      "url": "ext::sh -c touch% /tmp/pwned",
+      "admitida": false,
+      "motivo": "La URL no puede llevar espacios ni caracteres de control."
+    },
+    {
+      "url": "--upload-pack=touch /tmp/pwned",
+      "admitida": false,
+      "motivo": "La URL no puede llevar espacios ni caracteres de control."
+    },
+    {
+      "url": "https://dev.azure.com/organizacion-ejemplo/Proyecto/_git/repo?version=GBmain",
+      "admitida": false,
+      "motivo": "La URL no puede llevar query ni fragmento."
+    },
+    {
+      "url": "https://dev.azure.com/organizacion-ejemplo/Proyecto/_git/repo\n-c core.sshCommand=x",
+      "admitida": false,
+      "motivo": "La URL no puede llevar espacios ni caracteres de control."
+    }
+  ]
+}

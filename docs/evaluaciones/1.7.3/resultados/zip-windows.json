@@ -1,0 +1,337 @@
+{
+  "plataforma": "Microsoft Windows 10.0.26200 / .NET 10.0.12",
+  "limites": {
+    "MaxBytesZip": 104857600,
+    "MaxEntradas": 20000,
+    "MaxBytesDescomprimidos": 268435456,
+    "MaxRatio": 100,
+    "MaxCaracteresRuta": 1024
+  },
+  "casos": [
+    {
+      "caso": "valido",
+      "descripcion": "git archive --format=zip --prefix=<repo>/ de un repo real, con carpetaRaiz",
+      "bytes_zip": 977634,
+      "carpeta_raiz": "Vector.Space.Engine",
+      "lector_en_memoria": {
+        "error": null,
+        "entradas": 313,
+        "documentos": 208,
+        "fuera_de_perfil": 41,
+        "bytes_leidos": 4226471,
+        "prefijo_quitado": "Vector.Space.Engine/",
+        "rechazadas": [],
+        "segundos": 0.07,
+        "mb_asignados": 49.3,
+        "rutas_muestra": [
+          ".github/copilot-instructions.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "README.md",
+          "certs/README.md"
+        ]
+      }
+    },
+    {
+      "caso": "valido-sin-carpeta-raiz",
+      "descripcion": "el mismo zip sin indicar carpetaRaiz: las rutas conservan el prefijo",
+      "bytes_zip": 977634,
+      "carpeta_raiz": null,
+      "lector_en_memoria": {
+        "error": null,
+        "entradas": 313,
+        "documentos": 208,
+        "fuera_de_perfil": 41,
+        "bytes_leidos": 4226471,
+        "prefijo_quitado": null,
+        "rechazadas": [],
+        "segundos": 0.017,
+        "mb_asignados": 48.2,
+        "rutas_muestra": [
+          "Vector.Space.Engine/.github/copilot-instructions.md",
+          "Vector.Space.Engine/AGENTS.md",
+          "Vector.Space.Engine/CLAUDE.md",
+          "Vector.Space.Engine/README.md",
+          "Vector.Space.Engine/certs/README.md"
+        ]
+      }
+    },
+    {
+      "caso": "slip",
+      "descripcion": "Zip Slip: ../, ..\\, absolutas, unidad, flujo alterno",
+      "bytes_zip": 1371,
+      "carpeta_raiz": null,
+      "lector_en_memoria": {
+        "error": null,
+        "entradas": 7,
+        "documentos": 1,
+        "fuera_de_perfil": 0,
+        "bytes_leidos": 95,
+        "prefijo_quitado": null,
+        "rechazadas": [
+          {
+            "entrada": "../../escape-slip-1.md",
+            "motivo": "ruta fuera de la raiz o con segmentos vacios"
+          },
+          {
+            "entrada": "docs/../../../escape-slip-2.md",
+            "motivo": "ruta fuera de la raiz o con segmentos vacios"
+          },
+          {
+            "entrada": "..\\..\\escape-slip-3.md",
+            "motivo": "ruta fuera de la raiz o con segmentos vacios"
+          },
+          {
+            "entrada": "/tmp/escape-slip-4.md",
+            "motivo": "ruta absoluta"
+          },
+          {
+            "entrada": "C:/escape-slip-5.md",
+            "motivo": "':' en el nombre (unidad o flujo alterno)"
+          },
+          {
+            "entrada": "docs/archivo.md:flujo-alterno",
+            "motivo": "':' en el nombre (unidad o flujo alterno)"
+          }
+        ],
+        "segundos": 0.001,
+        "mb_asignados": 0.1,
+        "rutas_muestra": [
+          "docs/legitimo.md"
+        ]
+      },
+      "extraccion_ingenua": [
+        {
+          "entrada": "../../escape-slip-1.md",
+          "destino": "a\\b\\escape-slip-1.md",
+          "escrito": true
+        },
+        {
+          "entrada": "docs/../../../escape-slip-2.md",
+          "destino": "a\\b\\escape-slip-2.md",
+          "escrito": true
+        },
+        {
+          "entrada": "..\\..\\escape-slip-3.md",
+          "destino": "a\\b\\escape-slip-3.md",
+          "escrito": true
+        },
+        {
+          "entrada": "/tmp/escape-slip-4.md",
+          "destino": "..\\..\\..\\..\\..\\..\\tmp\\escape-slip-4.md",
+          "escrito": false
+        },
+        {
+          "entrada": "C:/escape-slip-5.md",
+          "destino": "C:\\escape-slip-5.md",
+          "escrito": false
+        }
+      ],
+      "extract_to_directory": {
+        "error": "IOException: Extracting Zip entry would have resulted in a file outside the specified destination directory.",
+        "escritos_bajo_bcl": [
+          {
+            "archivo": "docs\\legitimo.md",
+            "enlace_a": null
+          }
+        ]
+      }
+    },
+    {
+      "caso": "bomba",
+      "descripcion": "1 GiB de ceros en una entrada .cs",
+      "bytes_zip": 1043933,
+      "carpeta_raiz": null,
+      "lector_en_memoria": {
+        "error": null,
+        "entradas": 2,
+        "documentos": 1,
+        "fuera_de_perfil": 1,
+        "bytes_leidos": 93,
+        "prefijo_quitado": null,
+        "rechazadas": [],
+        "segundos": 0,
+        "mb_asignados": 0.1,
+        "rutas_muestra": [
+          "README.md"
+        ]
+      }
+    },
+    {
+      "caso": "bomba-chica",
+      "descripcion": "una entrada .md de 500 000 ceros (bajo el tope por archivo)",
+      "bytes_zip": 628,
+      "carpeta_raiz": null,
+      "lector_en_memoria": {
+        "error": null,
+        "entradas": 1,
+        "documentos": 0,
+        "fuera_de_perfil": 0,
+        "bytes_leidos": 0,
+        "prefijo_quitado": null,
+        "rechazadas": [
+          {
+            "entrada": "docs/ceros-0.md",
+            "motivo": "ratio de compresion declarado 1000:1"
+          }
+        ],
+        "segundos": 0,
+        "mb_asignados": 0,
+        "rutas_muestra": []
+      }
+    },
+    {
+      "caso": "bomba-entradas",
+      "descripcion": "1000 entradas .md de 500 000 ceros (~477 MiB)",
+      "bytes_zip": 609802,
+      "carpeta_raiz": null,
+      "lector_en_memoria": {
+        "error": null,
+        "entradas": 1000,
+        "documentos": 0,
+        "fuera_de_perfil": 0,
+        "bytes_leidos": 0,
+        "prefijo_quitado": null,
+        "rechazadas": [
+          {
+            "entrada": "docs/ceros-0.md",
+            "motivo": "ratio de compresion declarado 1000:1"
+          },
+          {
+            "entrada": "docs/ceros-1.md",
+            "motivo": "ratio de compresion declarado 1000:1"
+          },
+          {
+            "entrada": "docs/ceros-2.md",
+            "motivo": "ratio de compresion declarado 1000:1"
+          },
+          {
+            "entrada": "docs/ceros-3.md",
+            "motivo": "ratio de compresion declarado 1000:1"
+          },
+          {
+            "entrada": "docs/ceros-4.md",
+            "motivo": "ratio de compresion declarado 1000:1"
+          }
+        ],
+        "segundos": 0.001,
+        "mb_asignados": 1.6,
+        "rutas_muestra": [],
+        "rechazadas_total": 1000
+      }
+    },
+    {
+      "caso": "bomba-entradas-sin-ratio",
+      "descripcion": "la misma, con el chequeo de ratio desactivado: tiene que pararla el tope total",
+      "bytes_zip": 609802,
+      "carpeta_raiz": null,
+      "lector_en_memoria": {
+        "error": "El contenido descomprimido supera el maximo de 268435456 bytes.",
+        "entradas": 1000,
+        "documentos": 0,
+        "fuera_de_perfil": 0,
+        "bytes_leidos": 0,
+        "prefijo_quitado": null,
+        "rechazadas": [],
+        "segundos": 0.491,
+        "mb_asignados": 1959.5,
+        "rutas_muestra": []
+      }
+    },
+    {
+      "caso": "miente",
+      "descripcion": "50 MiB reales con cabeceras que declaran 100 bytes",
+      "bytes_zip": 178178,
+      "carpeta_raiz": null,
+      "lector_en_memoria": {
+        "error": null,
+        "entradas": 1,
+        "documentos": 1,
+        "fuera_de_perfil": 0,
+        "bytes_leidos": 100,
+        "prefijo_quitado": null,
+        "rechazadas": [],
+        "segundos": 0,
+        "mb_asignados": 0.1,
+        "rutas_muestra": [
+          "src/miente.cs"
+        ]
+      }
+    },
+    {
+      "caso": "muchas",
+      "descripcion": "30 000 entradas vacias",
+      "bytes_zip": 3091802,
+      "carpeta_raiz": null,
+      "lector_en_memoria": {
+        "error": "El .zip tiene 30000 entradas; el maximo es 20000.",
+        "entradas": 30000,
+        "documentos": 0,
+        "fuera_de_perfil": 0,
+        "bytes_leidos": 0,
+        "prefijo_quitado": null,
+        "rechazadas": [],
+        "segundos": 0.02,
+        "mb_asignados": 18.2,
+        "rutas_muestra": []
+      }
+    },
+    {
+      "caso": "enlace",
+      "descripcion": "entrada S_IFLNK que apunta fuera",
+      "bytes_zip": 332,
+      "carpeta_raiz": null,
+      "lector_en_memoria": {
+        "error": null,
+        "entradas": 2,
+        "documentos": 1,
+        "fuera_de_perfil": 0,
+        "bytes_leidos": 95,
+        "prefijo_quitado": null,
+        "rechazadas": [
+          {
+            "entrada": "docs/enlace.md",
+            "motivo": "enlace simbolico"
+          }
+        ],
+        "segundos": 0,
+        "mb_asignados": 0.1,
+        "rutas_muestra": [
+          "docs/legitimo.md"
+        ]
+      },
+      "extraccion_ingenua": [],
+      "extract_to_directory": {
+        "error": null,
+        "escritos_bajo_bcl": [
+          {
+            "archivo": "docs\\enlace.md",
+            "enlace_a": null
+          },
+          {
+            "archivo": "docs\\legitimo.md",
+            "enlace_a": null
+          }
+        ]
+      }
+    },
+    {
+      "caso": "grande",
+      "descripcion": "un archivo de MaxBytesZip + 1 bytes",
+      "bytes_zip": 104857601,
+      "carpeta_raiz": null,
+      "lector_en_memoria": {
+        "error": "El .zip supera el maximo de 104857600 bytes.",
+        "entradas": 0,
+        "documentos": 0,
+        "fuera_de_perfil": 0,
+        "bytes_leidos": 0,
+        "prefijo_quitado": null,
+        "rechazadas": [],
+        "segundos": 0,
+        "mb_asignados": 0,
+        "rutas_muestra": []
+      }
+    }
+  ]
+}

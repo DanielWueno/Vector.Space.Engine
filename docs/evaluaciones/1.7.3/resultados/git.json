@@ -1,0 +1,181 @@
+{
+  "git": "git version 2.53.0.windows.1",
+  "repos_bare_mb": {
+    "vse.git": 1.6,
+    "rce.git": 24.69
+  },
+  "casos": [
+    {
+      "caso": "vse",
+      "url": "http://127.0.0.1:<puerto>/git/vse.git",
+      "lista_blanca": "admitida",
+      "exito": true,
+      "motivo": null,
+      "codigo_salida": 0,
+      "segundos": 2.12,
+      "mb_en_disco": 4.71,
+      "stderr": "Cloning into '<trabajo>\\clones\\vse'...",
+      "peticiones_al_interno": 0,
+      "commit": "bf6b5afc8274aa435015a0808babdaa4c7abf275",
+      "superficial": "true",
+      "commits_locales": "1",
+      "archivos_en_checkout": 249
+    },
+    {
+      "caso": "rce",
+      "url": "http://127.0.0.1:<puerto>/git/rce.git",
+      "lista_blanca": "admitida",
+      "exito": true,
+      "motivo": null,
+      "codigo_salida": 0,
+      "segundos": 3.35,
+      "mb_en_disco": 55.59,
+      "stderr": "Cloning into '<trabajo>\\clones\\rce'... | Updating files:  87% (647/737) | Updating files:  88% (649/737) | Updating files:  89% (656/737)",
+      "peticiones_al_interno": 0,
+      "commit": "aae1de8d2afde69bfab88248cdd31768bded2443",
+      "superficial": "true",
+      "commits_locales": "1",
+      "archivos_en_checkout": 737
+    },
+    {
+      "caso": "rce-historial-completo",
+      "url": "http://127.0.0.1:<puerto>/git/rce.git",
+      "lista_blanca": "admitida",
+      "exito": true,
+      "motivo": null,
+      "codigo_salida": 0,
+      "segundos": 3.66,
+      "mb_en_disco": 56.34,
+      "stderr": "Cloning into '<trabajo>\\clones\\rce-historial-completo'... | Updating files:  71% (527/737) | Updating files:  72% (531/737) | Updating files:  73% (539/737)",
+      "peticiones_al_interno": 0,
+      "commit": "aae1de8d2afde69bfab88248cdd31768bded2443",
+      "superficial": "false",
+      "commits_locales": "246",
+      "archivos_en_checkout": 737
+    },
+    {
+      "caso": "rechazado-github",
+      "url": "https://github.com/DanielWueno/Rag.Context.Engine.git",
+      "lista_blanca": "El origen 'https://github.com:443/DanielWueno/Rag.Context.Engine.git' no esta en la lista de origenes Git permitidos.",
+      "peticiones_al_interno": 0
+    },
+    {
+      "caso": "rechazado-puerto-interno",
+      "url": "http://127.0.0.1:<puerto-interno>/git/vse.git",
+      "lista_blanca": "El origen 'http://127.0.0.1:62500/git/vse.git' no esta en la lista de origenes Git permitidos.",
+      "peticiones_al_interno": 0
+    },
+    {
+      "caso": "rechazado-qdrant-rest",
+      "url": "http://127.0.0.1:16333/collections",
+      "lista_blanca": "El origen 'http://127.0.0.1:16333/collections' no esta en la lista de origenes Git permitidos.",
+      "peticiones_al_interno": 0
+    },
+    {
+      "caso": "rechazado-alias-localhost",
+      "url": "http://localhost:<puerto>/git/vse.git",
+      "lista_blanca": "El origen 'http://localhost:62501/git/vse.git' no esta en la lista de origenes Git permitidos.",
+      "peticiones_al_interno": 0
+    },
+    {
+      "caso": "rechazado-ruta-fuera-de-prefijo",
+      "url": "http://127.0.0.1:<puerto>/otro/vse.git",
+      "lista_blanca": "El origen 'http://127.0.0.1:62501/otro/vse.git' no esta en la lista de origenes Git permitidos.",
+      "peticiones_al_interno": 0
+    },
+    {
+      "caso": "rechazado-credenciales-en-url",
+      "url": "http://usuario:clave@127.0.0.1:<puerto>/git/vse.git",
+      "lista_blanca": "La URL no puede llevar usuario ni contrasena: el servicio usa su propia identidad.",
+      "peticiones_al_interno": 0
+    },
+    {
+      "caso": "redireccion-endurecido",
+      "url": "http://127.0.0.1:<puerto>/redirige/vse.git",
+      "lista_blanca": "admitida",
+      "exito": false,
+      "motivo": "git termino con error.",
+      "codigo_salida": 128,
+      "segundos": 0.27,
+      "mb_en_disco": 0,
+      "stderr": "Cloning into '<trabajo>\\clones\\redireccion-endurecido'... | fatal: unable to access 'http://127.0.0.1:<puerto>/redirige/vse.git/': The requested URL returned error: 302",
+      "peticiones_al_interno": 0
+    },
+    {
+      "caso": "redireccion-git-por-defecto",
+      "url": "http://127.0.0.1:<puerto>/redirige/vse.git",
+      "lista_blanca": "admitida",
+      "exito": true,
+      "motivo": null,
+      "codigo_salida": 0,
+      "segundos": 1.81,
+      "mb_en_disco": 4.71,
+      "stderr": "Cloning into '<trabajo>\\clones\\redireccion-git-por-defecto'... | warning: redirecting to http://127.0.0.1:<puerto-interno>/git/vse.git/",
+      "peticiones_al_interno": 3,
+      "commit": "bf6b5afc8274aa435015a0808babdaa4c7abf275",
+      "superficial": "true",
+      "commits_locales": "1",
+      "archivos_en_checkout": 249
+    },
+    {
+      "caso": "privado-sin-identidad",
+      "url": "http://127.0.0.1:<puerto>/privado/vse.git",
+      "lista_blanca": "admitida",
+      "exito": false,
+      "motivo": "git termino con error.",
+      "codigo_salida": 128,
+      "segundos": 0.26,
+      "mb_en_disco": 0,
+      "stderr": "Cloning into '<trabajo>\\clones\\privado-sin-identidad'... | fatal: could not read Username for 'http://127.0.0.1:<puerto>': terminal prompts disabled",
+      "peticiones_al_interno": 0
+    },
+    {
+      "caso": "privado-identidad-del-servicio",
+      "url": "http://127.0.0.1:<puerto>/privado/vse.git",
+      "lista_blanca": "admitida",
+      "exito": true,
+      "motivo": null,
+      "codigo_salida": 0,
+      "segundos": 1.75,
+      "mb_en_disco": 4.71,
+      "stderr": "Cloning into '<trabajo>\\clones\\privado-identidad-del-servicio'...",
+      "peticiones_al_interno": 0,
+      "commit": "bf6b5afc8274aa435015a0808babdaa4c7abf275",
+      "superficial": "true",
+      "commits_locales": "1",
+      "archivos_en_checkout": 249,
+      "clave_en_git_config": false,
+      "clave_en_algun_archivo_de_.git": false,
+      "clave_en_argumentos": false
+    },
+    {
+      "caso": "credential-helper",
+      "por_defecto": "manager",
+      "aislado": ""
+    },
+    {
+      "caso": "tope-de-tamano",
+      "url": "http://127.0.0.1:<puerto>/git/rce.git",
+      "lista_blanca": "admitida",
+      "exito": false,
+      "motivo": "El repositorio supera el maximo de 2097152 bytes.",
+      "codigo_salida": -1,
+      "segundos": 2.49,
+      "mb_en_disco": 21.35,
+      "stderr": "Cloning into '<trabajo>\\clones\\tope-de-tamano'...",
+      "peticiones_al_interno": 0
+    },
+    {
+      "caso": "tope-de-plazo",
+      "url": "http://127.0.0.1:<puerto>/lento/vse.git",
+      "lista_blanca": "admitida",
+      "exito": false,
+      "motivo": "El clonado supero el plazo de 5 s.",
+      "codigo_salida": -1,
+      "segundos": 5.24,
+      "mb_en_disco": 0.03,
+      "stderr": "Cloning into '<trabajo>\\clones\\tope-de-plazo'...",
+      "peticiones_al_interno": 0
+    }
+  ]
+}
