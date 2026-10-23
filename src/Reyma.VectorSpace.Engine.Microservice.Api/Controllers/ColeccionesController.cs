@@ -51,10 +51,14 @@ public sealed class ColeccionesController : BaseController
     /// <summary>Ingesta de documentos en la coleccion (origen 'documentos'; 'ruta' reservado, 501).</summary>
     [HttpPost("{coleccion}/ingestas")]
     [Authorize]
+    // 1.7.1: el default de Kestrel (30 000 000 bytes) queda por debajo de lo que el contrato admite
+    // (100 documentos de hasta 1 MiB). Limites.MaxBytesPorIngesta cubre ese maximo con margen para JSON.
+    [RequestSizeLimit(Limites.MaxBytesPorIngesta)]
     [ProducesResponseType(typeof(IngestaResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     [ProducesResponseType(StatusCodes.Status501NotImplemented)]
     public async Task<ActionResult<IngestaResponse>> PostIngesta(
         string coleccion, [FromBody] IngestaRequest? request, CancellationToken cancellationToken) =>

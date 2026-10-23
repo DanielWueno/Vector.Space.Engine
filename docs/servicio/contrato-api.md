@@ -15,9 +15,10 @@ ruta base del servicio (`/reyma/vectorspace/engine` desplegado; vacia en local) 
 Codigos comunes: **401** sin token valido (firma, emisor, audiencia y vigencia se validan como en
 la plantilla); **403** si la tabla de acceso no otorga esa operacion sobre esa coleccion;
 **400** cuerpo invalido (solo despues de autorizar: sin acceso es 403 aunque el cuerpo sea invalido);
-**409** la coleccion ya existe con vectores de otra dimension; **429** (solo `ingestas`) hay demasiadas
-ingestas en curso o en espera, reintentar despues de `Retry-After` (1.7); **501** parte del contrato aun
-sin implementar (origen `ruta`); **503** Qdrant o el sidecar de embeddings no respondieron (el mensaje no
+**409** la coleccion ya existe con vectores de otra dimension; **413** (solo `ingestas`) el cuerpo de la
+solicitud supera el limite de la accion (1.7.1); **429** (solo `ingestas`) hay demasiadas ingestas en
+curso o en espera, reintentar despues de `Retry-After` (1.7); **501** parte del contrato aun sin
+implementar (origen `ruta`); **503** Qdrant o el sidecar de embeddings no respondieron (el mensaje no
 dice a que host ni puerto se intento conectar).
 
 ## Motor (item 1.4)
@@ -57,8 +58,12 @@ El motor es el de Rag.Context.Engine portado (ver
   validar: un 403 o un 400 no ocupan lugar. `embeddings` y `busquedas` no pasan por el limite. Es por
   instancia: varias replicas no comparten cola. Medido en `docs/evaluaciones/1.7/decision.md`: dos ingestas
   a la vez no terminan antes que una tras otra con TEI en CPU.
-- **Cuerpo**: el limite efectivo hoy es el de Kestrel, 30 000 000 bytes (~28,6 MiB) por solicitud, por
-  debajo de 100 documentos de 1 MiB. Al rebasarlo responde 500 en vez de 413 (item 1.7.1).
+- **Cuerpo (1.7.1)**: el limite de cuerpo de `ingestas` es 125 000 000 bytes (~119,2 MiB), fijado con
+  `[RequestSizeLimit]` solo en esa accion (el resto del servicio sigue en el default de Kestrel, 30 000 000
+  bytes). El numero sale de 100 documentos x 1 MiB (`Limites.MaxDocumentosPorIngesta` x
+  `Limites.MaxCaracteresPorDocumento` = 104 857 600 bytes de contenido) mas ~20% de margen para la
+  estructura JSON alrededor (claves, comillas, escapes de ruta y contenido). Al rebasarlo responde **413**
+  con un mensaje claro (antes respondia 500 con el mensaje interno de Kestrel).
 - **Borrar un documento**: enviarlo con contenido vacio; sus puntos se borran.
 - **Clientes**: una solicitud puede esperar en cola y luego correr (~7 min en el peor caso con lotes de 100
   documentos). Usar un timeout de al menos 10 min (el de `HttpClient` por defecto, 100 s, no alcanza),

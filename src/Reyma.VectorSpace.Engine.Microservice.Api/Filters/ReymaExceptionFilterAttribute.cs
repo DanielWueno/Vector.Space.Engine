@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.WebUtilities;
@@ -90,6 +91,11 @@ namespace Reyma.VectorSpace.Engine.Microservice.Api.Filters
                     result.errors = new[] { ex.Message };
                     code = HttpStatusCode.TooManyRequests;
                     context.HttpContext.Response.Headers.RetryAfter = ex.SegundosParaReintentar.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    break;
+                case BadHttpRequestException ex when ex.StatusCode == StatusCodes.Status413PayloadTooLarge:
+                    // 1.7.1: Kestrel corta la lectura del cuerpo al superar el limite de la accion (RequestSizeLimit).
+                    result.errors = new[] { "El cuerpo de la solicitud supera el limite permitido." };
+                    code = HttpStatusCode.RequestEntityTooLarge;
                     break;
                 default:
                     _logger.LogError(context.Exception, context.Exception.Message);

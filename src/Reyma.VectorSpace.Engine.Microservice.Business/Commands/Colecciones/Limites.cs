@@ -16,4 +16,12 @@ public static class Limites
     public const int MaxDocumentosPorIngesta = 100;
     public const int MaxCaracteresRuta = 1_024;
     public const int MaxCaracteresPorDocumento = 1_048_576;
+
+    /// <summary>
+    /// Limite de cuerpo HTTP para <c>POST {coleccion}/ingestas</c> (1.7.1). El default de Kestrel
+    /// (30 000 000 bytes) quedaba por debajo de lo que el contrato ya admite: 100 documentos de hasta
+    /// 1 MiB cada uno son 104 857 600 bytes de contenido. Se suma ~20% de margen para la estructura JSON
+    /// (claves, comillas, escapes de la ruta y del contenido) en vez de medir el peor caso exacto.
+    /// </summary>
+    public const long MaxBytesPorIngesta = 125_000_000;
 }
