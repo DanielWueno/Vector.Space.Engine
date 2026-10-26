@@ -23,6 +23,64 @@ public sealed class MotorOptions
     public IngestaOptions Ingesta { get; set; } = new();
 
     public BusquedaOptions Busqueda { get; set; } = new();
+
+    /// <summary>Origen 'proyecto' desde URL Git (1.7.6): lista blanca y limites del clonado.</summary>
+    public GitOptions Git { get; set; } = new();
+}
+
+/// <summary>
+/// Un origen Git admitido: esquema, host y puerto exactos, y opcionalmente un prefijo de ruta (p. ej. la organizacion
+/// de Azure DevOps, <c>/GR-PlasticosAdministrativo/</c>). Sin comodines ni sufijos de dominio (1.7.3): un comodin es
+/// lo que deja pasar <c>dev.azure.com.atacante.example</c>.
+/// </summary>
+public sealed class OrigenGitPermitidoOptions
+{
+    public string Esquema { get; set; } = "https";
+
+    public string Host { get; set; } = "";
+
+    public int Puerto { get; set; } = 443;
+
+    public string? PrefijoRuta { get; set; }
+}
+
+/// <summary>
+/// Seccion <c>Motor:Git</c> (1.7.6): lista blanca de origenes Git permitidos (validada SIN tocar la red, antes de
+/// cualquier conexion) y limites del clonado superficial endurecido (<c>ClonadorGit</c>). Sin ningun origen permitido,
+/// toda URL se rechaza (el origen 'proyecto' por URL Git queda deshabilitado de facto, no es un error de arranque).
+/// </summary>
+public sealed class GitOptions
+{
+    public List<OrigenGitPermitidoOptions> OrigenesPermitidos { get; set; } = [];
+
+    /// <summary>Ejecutable de git del sistema (en la imagen de produccion, el que agrega el Dockerfile).</summary>
+    public string Git { get; set; } = "git";
+
+    /// <summary>Profundidad del <c>--depth</c> del clonado superficial.</summary>
+    public int Profundidad { get; set; } = 1;
+
+    /// <summary>
+    /// Tope duro de tamano del checkout en disco (medido mientras clona, no solo al terminar): git se mata al
+    /// rebasarlo. Limite logico por ahora (1.7.3 midio que el proceso se mata igual, con bytes ya escritos en disco);
+    /// un volumen con cuota real de filesystem es la mitigacion completa, ver docs/despliegue/runbook.md.
+    /// </summary>
+    public long MaxBytesCheckout { get; set; } = 200L * 1024 * 1024;
+
+    /// <summary>Plazo del clonado completo; git se mata al rebasarlo (1.7.3: ~5 s de margen sobre el plazo medido).</summary>
+    public int PlazoSegundos { get; set; } = 120;
+
+    /// <summary>Directorio base para los checkouts temporales; cada clonado usa una subcarpeta propia por Guid.</summary>
+    public string DirectorioTemporal { get; set; } = Path.Combine(Path.GetTempPath(), "vse-git-checkout");
+
+    /// <summary>
+    /// Nombre de la variable de entorno que trae el PAT de la identidad NO personal del servicio frente a Azure
+    /// DevOps (cuenta de servicio; ver docs/evaluaciones/1.7.3/decision.md y el runbook). Vacio/no configurada: el
+    /// clonado no agrega ninguna cabecera de autorizacion propia y deja que el <c>credential.helper</c> ya
+    /// configurado en el host resuelva la autenticacion -- valido SOLO para la verificacion puntual de 1.7.6 con la
+    /// credencial personal cacheada del usuario (Windows Git Credential Manager), corriendo en el host, nunca en el
+    /// contenedor de produccion (ahi no existe ese credential manager y no hay identidad personal que usar).
+    /// </summary>
+    public string NombreVariableIdentidad { get; set; } = "VSE_GIT_PAT";
 }
 
 public sealed class QdrantConexionOptions

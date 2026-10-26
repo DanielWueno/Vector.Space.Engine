@@ -53,6 +53,17 @@ public static class MotorServiceCollectionExtensions
             .Validate(o => o.Busqueda.UmbralSimilitud is >= 0f and < 1f, "Motor:Busqueda:UmbralSimilitud debe estar en [0, 1).")
             .Validate(o => !string.IsNullOrWhiteSpace(o.Qdrant.Host) && o.Qdrant.PuertoGrpc > 0 && o.Qdrant.PuertoRest > 0 && o.Qdrant.TiempoMaximoSegundos > 0,
                 "Motor:Qdrant: Host, PuertoGrpc, PuertoRest y TiempoMaximoSegundos son obligatorios.")
+            // 1.7.6: origen 'proyecto' por URL Git. Sin ningun origen permitido, el servicio igual arranca (toda URL
+            // se rechaza en ListaBlancaGit, no es un error de configuracion); lo que si falla rapido es un origen
+            // permitido mal declarado o limites de clonado incoherentes.
+            .Validate(o => o.Git.OrigenesPermitidos.All(p => p.Esquema is "https" or "http" && !string.IsNullOrWhiteSpace(p.Host) && p.Puerto > 0),
+                "Cada Motor:Git:OrigenesPermitidos necesita Esquema ('https' o 'http'), Host y Puerto positivo.")
+            .Validate(o => !string.IsNullOrWhiteSpace(o.Git.Git), "Motor:Git:Git (ejecutable) es obligatorio.")
+            .Validate(o => o.Git.Profundidad >= 1, "Motor:Git:Profundidad debe ser al menos 1.")
+            .Validate(o => o.Git.MaxBytesCheckout > 0, "Motor:Git:MaxBytesCheckout debe ser positivo.")
+            .Validate(o => o.Git.PlazoSegundos > 0, "Motor:Git:PlazoSegundos debe ser positivo.")
+            .Validate(o => !string.IsNullOrWhiteSpace(o.Git.DirectorioTemporal), "Motor:Git:DirectorioTemporal es obligatorio.")
+            .Validate(o => !string.IsNullOrWhiteSpace(o.Git.NombreVariableIdentidad), "Motor:Git:NombreVariableIdentidad es obligatorio.")
             .ValidateOnStart();
 
         services.AddSingleton(sp =>
@@ -160,6 +171,7 @@ public static class MotorServiceCollectionExtensions
         services.AddSingleton<IMotorDeBusqueda>(sp => sp.GetRequiredService<MotorVectorial>());
         services.AddSingleton<IMotorDeIngesta>(sp => sp.GetRequiredService<MotorVectorial>());
         services.AddSingleton<IMotorDeIngestaProyecto>(sp => sp.GetRequiredService<MotorVectorial>());
+        services.AddSingleton<IMotorDeIngestaProyectoGit>(sp => sp.GetRequiredService<MotorVectorial>());
 
         return services;
     }

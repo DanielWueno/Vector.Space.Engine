@@ -63,3 +63,19 @@ public sealed class DocumentoRequest
 
     public string? Contenido { get; set; }
 }
+
+/// <summary>
+/// Cuerpo de <c>POST {coleccion}/ingestas/git</c> (origen 'proyecto' desde URL Git, item 1.7.6). La URL debe estar en
+/// la lista blanca de origenes Git permitidos (<c>Motor:Git:OrigenesPermitidos</c>); nunca lleva usuario, contrasena
+/// ni query/fragmento (el servicio usa su propia identidad, nunca la de quien llama).
+/// </summary>
+public sealed class IngerirProyectoGitRequest
+{
+    public string? Url { get; set; }
+
+    /// <summary>Igual que el origen .zip: quita el envoltorio "repo-rama/" si aplica.</summary>
+    public string? CarpetaRaiz { get; set; }
+
+    /// <summary>Ver <see cref="CalcularEmbeddingsRequest.Perfil"/>.</summary>
+    public string? Perfil { get; set; }
+}

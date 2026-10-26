@@ -28,6 +28,13 @@ Proyecto `Reyma.VectorSpace.Engine.Microservice.Business`. CQRS con MediatR; el 
   Business que necesita este patron van en `Business/Motor/IMotor.cs` junto a los demas `IMotorDe*`: el comando
   orquesta la asincronia, pero la lectura/validacion del contenido (p. ej. el .zip) y el trabajo pesado viven en
   Infrastructure, igual que el resto del motor.
+- Mismo patron, segundo origen (1.7.6, `IngerirProyectoGitCommand`): origen `proyecto` desde una URL Git en vez de
+  un `.zip`. Unica diferencia con 1.7.5: lo que el handler hace de forma SINCRONA antes de admitir (para que un 400
+  no dependa de trabajo de mas) es solo validar la URL contra la lista blanca (`IMotorDeIngestaProyectoGit.ValidarUrlGit`,
+  instantaneo, sin red) — no hay equivalente a "leer el .zip" porque el contenido todavia no existe del lado del
+  servicio. Clonar, escanear el checkout y vectorizar (incluido el caso "el repo no trae documentos admitidos") pasa
+  a ser parte del trabajo en segundo plano, con el mismo `IRegistroDeIngestasProyecto` y el mismo
+  `GetEstadoIngestaQuery` que el `.zip`.
 
 ## Responses
 

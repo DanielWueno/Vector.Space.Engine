@@ -95,6 +95,27 @@ public sealed class ColeccionesController : BaseController
         return Accepted($"/api/colecciones/{coleccion}/ingestas/{respuesta.IngestaId}", respuesta);
     }
 
+    /// <summary>
+    /// Ingesta de un proyecto completo desde una URL de repositorio Git (origen 'proyecto', item 1.7.6); asincrona,
+    /// mismo contrato que el .zip (202 + el mismo <see cref="GetEstadoIngesta"/>). <paramref name="request"/>.Url debe
+    /// estar en la lista blanca de origenes Git permitidos (<c>Motor:Git:OrigenesPermitidos</c>); una URL fuera de la
+    /// lista responde 400 sin conexion al destino.
+    /// </summary>
+    [HttpPost("{coleccion}/ingestas/git")]
+    [Authorize]
+    [ProducesResponseType(typeof(IngestaResponse), StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
+    public async Task<ActionResult<IngestaResponse>> PostIngestaProyectoGit(
+        string coleccion, [FromBody] IngerirProyectoGitRequest? request, CancellationToken cancellationToken)
+    {
+        var respuesta = await Mediator.Send(
+            new IngerirProyectoGitCommand(coleccion, request?.Url, request?.CarpetaRaiz, request?.Perfil), cancellationToken);
+        return Accepted($"/api/colecciones/{coleccion}/ingestas/{respuesta.IngestaId}", respuesta);
+    }
+
     /// <summary>Estado de una ingesta de proyecto (item 1.7.5); 404 si no existe o no es de esta coleccion.</summary>
     [HttpGet("{coleccion}/ingestas/{ingestaId:guid}")]
     [Authorize]

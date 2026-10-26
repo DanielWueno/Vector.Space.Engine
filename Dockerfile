@@ -47,7 +47,7 @@ ENV TZ=America/Mexico_City \
     ASPNETCORE_BASEPATH=/reyma/vectorspace/engine
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends tzdata \
+    && apt-get install -y --no-install-recommends tzdata git \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

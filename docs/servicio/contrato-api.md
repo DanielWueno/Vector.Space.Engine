@@ -12,7 +12,8 @@ ruta base del servicio (`/reyma/vectorspace/engine` desplegado; vacia en local) 
 | POST | `api/colecciones/{coleccion}/busquedas` | `Consultar` | Resultados de busqueda en la coleccion |
 | POST | `api/colecciones/{coleccion}/ingestas` | `Ingestar` | Resultado de la ingesta (origen `documentos`, sincrona) |
 | POST | `api/colecciones/{coleccion}/ingestas/proyecto` | `Ingestar` | **202**: ingesta admitida (origen `proyecto` desde `.zip`, asincrona, item 1.7.5) |
-| GET | `api/colecciones/{coleccion}/ingestas/{ingestaId}` | `Consultar` | Estado de una ingesta de proyecto (item 1.7.5) |
+| POST | `api/colecciones/{coleccion}/ingestas/git` | `Ingestar` | **202**: ingesta admitida (origen `proyecto` desde URL Git, asincrona, item 1.7.6) |
+| GET | `api/colecciones/{coleccion}/ingestas/{ingestaId}` | `Consultar` | Estado de una ingesta de proyecto (items 1.7.5/1.7.6) |
 
 Codigos comunes: **401** sin token valido (firma, emisor, audiencia y vigencia se validan como en
 la plantilla); **403** si la tabla de acceso no otorga esa operacion sobre esa coleccion;
@@ -25,10 +26,11 @@ simbolicos o sin documentos admitidos por el perfil de escaneo);
 **409** la coleccion ya existe con vectores de otra dimension, **o** con el mismo numero de dimensiones
 pero de otro perfil de embeddings (1.7.4: el perfil, no solo la dimension, identifica si dos vectores son
 comparables); **413** (`ingestas` e `ingestas/proyecto`) el cuerpo de la solicitud supera el limite de la
-accion (1.7.1/1.7.5); **429** (`ingestas` e `ingestas/proyecto`) hay demasiadas ingestas en curso o en
-espera, reintentar despues de `Retry-After` (1.7); **501** parte del contrato aun sin implementar (origen
-`ruta`); **503** Qdrant o el sidecar de embeddings no respondieron (el mensaje no dice a que host ni
-puerto se intento conectar).
+accion (1.7.1/1.7.5); **429** (`ingestas`, `ingestas/proyecto` e `ingestas/git`) hay demasiadas ingestas en
+curso o en espera, reintentar despues de `Retry-After` (1.7); **501** parte del contrato aun sin
+implementar (origen `ruta`); **503** Qdrant o el sidecar de embeddings no respondieron (el mensaje no dice
+a que host ni puerto se intento conectar). `ingestas/git` responde **400** si la URL no esta en la lista
+blanca de origenes Git permitidos, sin conexion al destino (item 1.7.6).
 
 ## Motor (item 1.4)
 
@@ -104,7 +106,14 @@ El motor es el de Rag.Context.Engine portado (ver
 //   perfil       opcional, igual que en los demas endpoints
 // 202: { "ingestaId", "coleccion", "estado": "pendiente", "documentosRecibidos", ... } (conteos en 0)
 
-// GET .../ingestas/{ingestaId}   estado de una ingesta de proyecto (item 1.7.5)
+// POST .../ingestas/git   origen 'proyecto' desde URL Git (item 1.7.6); JSON, no multipart:
+{ "url": "https://dev.azure.com/<organizacion-en-lista-blanca>/<proyecto>/_git/<repo>",
+  "carpetaRaiz": null, "perfil": null }   // ambos opcionales, igual que en el .zip
+// 202: { "ingestaId", "coleccion", "estado": "pendiente", "documentosRecibidos", ... } (conteos en 0)
+// 400 si la URL no esta en Motor:Git:OrigenesPermitidos (esquema, host, puerto y prefijo de ruta exactos),
+//     sin que el servicio abra ninguna conexion hacia ella
+
+// GET .../ingestas/{ingestaId}   estado de una ingesta de proyecto (items 1.7.5/1.7.6)
 // 200: mismo cuerpo que el 202 de arriba; "estado" en "pendiente" | "procesando" | "completada" | "error";
 //      los conteos (documentosIndexados/SinCambios/Omitidos/Eliminados) solo son definitivos en "completada"
 ```
@@ -133,8 +142,7 @@ distinto con la misma dimension (bge-m3 truncado a 256 contra una coleccion `arc
   para esta clave (`model_not_allowed`/`model_capability_mismatch`, medido en 1.7.3 contra AltheIA real):
   **400** con la lista de perfiles disponibles, nunca 503 (un 503 sigue siendo solo para una dependencia
   caida o que no respondio).
-- Perfil de LLM (resumen de negocio) y seleccion por proyecto completo (origen `git`/`zip`): siguen sin
-  implementar (items 1.7.5-1.7.8); ver la seccion siguiente.
+- Perfil de LLM (resumen de negocio): sigue sin implementar (item 1.7.7); ver la seccion siguiente.
 
 ## Modelo de consumo (item 1.7)
 
@@ -192,10 +200,55 @@ lo aborta). El cliente consulta `GET .../ingestas/{ingestaId}` hasta ver `"estad
 - **Estado en memoria, por instancia**: igual filosofia que `LimiteDeIngestas` — no persiste entre
   reinicios ni se comparte entre replicas; una ingesta en curso cuando el proceso se reinicia pierde su
   `ingestaId` consultable (el trabajo ya escrito en Qdrant no se deshace).
-- **Pendiente** (items 1.7.6-1.7.8, no implementados): origen `proyecto` desde URL de un repo Git (bloqueado
-  por la identidad del servicio en Azure DevOps); resumen de negocio via LLM como fase reanudable con cache
-  y tope de cuota; perfil de escaneo y lenguajes como atributos de la coleccion (hoy siempre
+- **Pendiente** (items 1.7.7/1.7.8, no implementados): resumen de negocio via LLM como fase reanudable con
+  cache y tope de cuota; perfil de escaneo y lenguajes como atributos de la coleccion (hoy siempre
   `DotNetEnterprise`); el bug de `IgnoreRules` en Rag.Context.Engine (item 1.7.8, otro repo).
+
+## Proyecto completo desde URL Git (item 1.7.6)
+
+Decidido en `docs/evaluaciones/1.7.3/decision.md`, criterio 1; implementado en 1.7.6, reusando el mismo
+patron asincrono que el `.zip` de 1.7.5 (mismo `IRegistroDeIngestasProyecto`, mismo `LimiteDeIngestas`,
+mismo `GET .../ingestas/{ingestaId}`, mismo barrido de documentos ausentes). Lo que cambia es el origen del
+arbol de documentos: en vez de leer un `.zip` subido, el servicio clona el repositorio por su cuenta.
+
+- **Lista blanca (`Motor:Git:OrigenesPermitidos`)**: una URL se valida contra una lista EXACTA de
+  esquema+host+puerto (y opcionalmente un prefijo de ruta, p. ej. la organizacion de Azure DevOps) **antes
+  de tocar la red**: sin ningun origen configurado, toda URL se rechaza. Rechaza tambien, sin conexion:
+  esquemas distintos de `https`/`http` (`file://`, `ssh://`, `scp://`, `ext::`), `localhost`, IPs internas o
+  el endpoint de metadata de nube (`169.254.169.254`), usuario/contrasena embebidos en la URL (el servicio
+  usa su propia identidad, nunca la de quien llama), query/fragmento, puntos/barras/nulos codificados
+  (`%2e`/`%2f`/`%5c`/`%00`), saltos de linea o espacios, y un puerto que no sea el configurado. Mismo
+  criterio que el banco de 1.7.3 (`docs/evaluaciones/1.7.3/resultados/urls-*.json`).
+- **Clonado endurecido (`ClonadorGit`)**: `git clone --depth` superficial, una sola rama, sin tags ni
+  submodulos, sin hooks, sin seguir enlaces simbolicos, y **sin seguir redirecciones**
+  (`http.followRedirects=false`): 1.7.3 midio que el valor por defecto de git (`initial`) sigue una
+  redireccion del host permitido hacia un host interno y clona desde ahi (SSRF); por eso nunca se sigue
+  ninguna. Tope de tamano del checkout (`Motor:Git:MaxBytesCheckout`, vigilado mientras clona, el proceso se
+  mata al rebasarlo) y plazo (`Motor:Git:PlazoSegundos`, el proceso se mata al rebasarlo). El tope de tamano
+  es un limite logico de proceso, no una cuota real de filesystem (ver limitacion abajo).
+- **Identidad del servicio**: PAT de una cuenta de servicio (nunca la del usuario final) leido de la
+  variable de entorno `Motor:Git:NombreVariableIdentidad` (por defecto `VSE_GIT_PAT`; nunca en
+  `appsettings*.json`), convertido en la cabecera `Authorization: Basic ...` que Azure DevOps acepta para
+  autenticacion basica con PAT. Viaja por `GIT_CONFIG_KEY/VALUE` en el entorno del proceso de `git`, nunca
+  en la linea de comandos ni en `.git/config` del checkout. Sin esa variable configurada, el clonado **no**
+  aisla la configuracion/credenciales del host y deja que su `credential.helper` ya configurado resuelva la
+  autenticacion: esto es valido solo para la verificacion puntual de 1.7.6 (credencial personal del usuario
+  ya cacheada en el host, sin PAT de cuenta de servicio todavia) y exige correr el proceso en un host con ese
+  credential helper (nunca en el contenedor Linux de produccion). Produccion siempre configura la variable.
+- **Escaneo del checkout (`EscanerDeCheckout`)**: mismo perfil de escaneo (`ScanProfile.DotNetEnterprise`) y
+  mismas reglas `.gitignore`/`.ragignore` (`IgnoreRules`) que el origen `.zip`; a diferencia del origen
+  `.zip` (que lee en memoria sin tocar disco), aqui el documento ya esta en disco (el checkout), asi que no
+  se siguen enlaces simbolicos ni junctions al recorrerlo (un enlace dentro de un repo ajeno podria apuntar
+  fuera de la raiz del checkout).
+- **`carpetaRaiz`** (opcional): mismo proposito que en el `.zip` (quitar un envoltorio), validada contra
+  recorrido de directorio (`..`, rutas absolutas, `:` de unidad) antes de resolverla dentro del checkout.
+- El checkout temporal se borra siempre al terminar (exito o error), fuera de cualquier volumen persistente.
+- **Limitacion conocida (documentada, no resuelta en 1.7.6)**: `Motor:Git:MaxBytesCheckout` es un limite
+  logico de proceso (el proceso de `git` se mata al medir mas bytes de los permitidos), no una cuota real de
+  filesystem: en un entorno sin volumen con cuota dedicado, un clonado matado a tiempo puede dejar varios
+  MiB ya escritos en disco (medido en 1.7.3: ~21 MB con un tope de 2 MiB). La mitigacion completa es un
+  volumen temporal con cuota real de filesystem para `Motor:Git:DirectorioTemporal`, pendiente de
+  infraestructura (ver `docs/despliegue/runbook.md`).
 
 ## Identidad
 

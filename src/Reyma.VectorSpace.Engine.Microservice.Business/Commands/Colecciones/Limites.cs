@@ -34,4 +34,10 @@ public static class Limites
     /// perfil).
     /// </summary>
     public const long MaxBytesZipProyecto = 110_000_000;
+
+    /// <summary>
+    /// Longitud maxima de la URL Git del origen 'proyecto' (1.7.6), igual que <c>ListaBlancaGit.MaxCaracteresUrl</c>
+    /// del prototipo de 1.7.3: una URL mas larga ya es sospechosa antes de validarla contra la lista blanca.
+    /// </summary>
+    public const int MaxCaracteresUrlGit = 2_048;
 }

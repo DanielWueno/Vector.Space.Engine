@@ -43,3 +43,27 @@ public interface IMotorDeIngestaProyecto
 
 /// <summary>Conteos de una ingesta de proyecto ya terminada (1.7.5).</summary>
 public sealed record ResultadoIngestaProyecto(int Indexados, int SinCambios, int Omitidos, int DocumentosEliminados);
+
+/// <summary>
+/// Origen 'proyecto' desde una URL Git (1.7.6, decidido en 1.7.3). Mismo patron de dos pasos que
+/// <see cref="IMotorDeIngestaProyecto"/>: validar la URL contra la lista blanca es sincrono e instantaneo (no toca la
+/// red; una URL fuera de la lista responde 400 antes de crear ningun registro de estado ni tocar el limite de
+/// admision); clonar (superficial y endurecido), escanear el checkout y ejecutar el mismo pipeline de ingesta de
+/// proyecto (con barrido de ausentes) tarda segundos a minutos y corre en segundo plano, igual que el .zip.
+/// </summary>
+public interface IMotorDeIngestaProyectoGit
+{
+    /// <summary>
+    /// Valida la URL contra la lista blanca de origenes Git permitidos (esquema, host, puerto y prefijo de ruta
+    /// exactos) sin resolver DNS ni abrir ninguna conexion. 400 si la URL no es admisible.
+    /// </summary>
+    Uri ValidarUrlGit(string? url);
+
+    /// <summary>
+    /// Clona superficialmente la URL ya validada en un checkout temporal (con tope de tamano y plazo), lo escanea con
+    /// el mismo perfil de escaneo del motor y ejecuta el mismo pipeline de ingesta de proyecto que el .zip (con
+    /// barrido de documentos ausentes). El checkout temporal se borra al terminar, con exito o con error.
+    /// </summary>
+    Task<ResultadoIngestaProyecto> ProcesarGitAsync(
+        string coleccion, Uri url, string? carpetaRaiz, string? perfil, CancellationToken cancellationToken);
+}

@@ -100,6 +100,21 @@ en una misma instancia, sin tocar el comportamiento de 1.13 cuando no se usan:
   traduccion de errores de AltheIA se verifica con un sidecar simulado en
   `tests/.../Motor/TeiVectorizationBrainTests.cs` (sin AltheIA real).
 
+## Origen 'proyecto' desde URL Git (item 1.7.6)
+
+`Git/ListaBlancaGit.cs` y `Git/ClonadorGit.cs` vienen de `tools/ingesta-proyecto/Prototipo/` (1.7.3), con una
+diferencia deliberada en `ClonadorGit`: el prototipo siempre aislaba la configuracion/credenciales del host; esta
+version solo lo hace cuando hay una identidad explicita que inyectar (`Motor:Git:NombreVariableIdentidad`), y si no
+la hay, deja que el `credential.helper` ya configurado en el host resuelva la autenticacion (decision puntual del
+usuario para la verificacion de 1.7.6, no el diseno de produccion). `Scanning/EscanerDeCheckout.cs` reusa
+`ScanProfile` e `IgnoreRules` ya portados para el `.zip` (1.7.5), leyendo el contenido del checkout en disco en vez
+de rutas en memoria; a diferencia de `LectorZip` (que lee sin tocar disco), aqui no se siguen enlaces simbolicos ni
+junctions al recorrer el checkout. `MotorVectorial` implementa `IMotorDeIngestaProyectoGit` igual que
+`IMotorDeIngestaProyecto`: clona a un directorio temporal propio (`Motor:Git:DirectorioTemporal`), escanea,
+ejecuta el mismo `DocumentIngestionPipeline.IngestAsync(..., barrerDocumentosAusentes: true)` que el `.zip`, y borra
+el checkout siempre al terminar (exito o error). Los limites del clonado (`Motor:Git:MaxBytesCheckout`,
+`Motor:Git:PlazoSegundos`) y la lista blanca (`Motor:Git:OrigenesPermitidos`) se validan al arrancar.
+
 ## Codigo portado
 
 `Chunking/`, `Utilities/`, `Model/` y `Vectorization/SparseTokenizer.cs` vienen de Rag.Context.Engine y deben producir

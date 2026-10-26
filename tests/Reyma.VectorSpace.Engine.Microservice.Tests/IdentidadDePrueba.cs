@@ -91,7 +91,8 @@ internal static class IdentidadDePrueba
         string audiencia = ServicioInfo.NombreApi,
         string emisor = Emisor,
         SecurityKey? clave = null,
-        DateTime? expira = null)
+        DateTime? expira = null,
+        DateTime? emitido = null)
     {
         var claims = new Dictionary<string, object>();
         if (sub is not null)
@@ -104,13 +105,17 @@ internal static class IdentidadDePrueba
             claims[ClaimCliente] = cliente.Value.ToString();
 
         var fin = expira ?? DateTime.UtcNow.AddMinutes(10);
+        // Por defecto el token "nace" 20 min antes de expirar (comportamiento previo, sin cambios para quien no pase
+        // 'emitido'). Un caller que necesite vigencia larga y valida desde ya (p. ej. una prueba de red real que
+        // puede tardar mas de 20 min) pasa 'emitido' explicito en vez de depender de ese offset fijo.
+        var inicio = emitido ?? fin.AddMinutes(-20);
         return new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor
         {
             Issuer = emisor,
             Audience = audiencia,
             Claims = claims,
-            NotBefore = fin.AddMinutes(-20),
-            IssuedAt = fin.AddMinutes(-20),
+            NotBefore = inicio,
+            IssuedAt = inicio,
             Expires = fin,
             SigningCredentials = new SigningCredentials(clave ?? Clave, SecurityAlgorithms.HmacSha256)
         });
