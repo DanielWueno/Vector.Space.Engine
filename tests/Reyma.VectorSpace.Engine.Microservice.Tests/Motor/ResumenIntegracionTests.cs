@@ -58,13 +58,6 @@ public sealed class ResumenIntegracionTests(ApiFactory factory)
             ["Motor:Resumen:TopeTokensPorCorrida"] = topeTokens.ToString(),
             ["Motor:Resumen:TamanoPaginaPendientes"] = "64",
         };
-        for (var i = 0; i < colecciones.Length; i++)
-        {
-            config[$"ControlDeAcceso:Concesiones:{i}:Coleccion"] = colecciones[i];
-            config[$"ControlDeAcceso:Concesiones:{i}:Operaciones:0"] = "Consultar";
-            config[$"ControlDeAcceso:Concesiones:{i}:Operaciones:1"] = "Ingestar";
-            config[$"ControlDeAcceso:Concesiones:{i}:Usuarios:0"] = "ana";
-        }
         return factory.ConIdentidad(config, servicios: s => s.AddSingleton<ILlmResumenBrain>(llm));
     }
 

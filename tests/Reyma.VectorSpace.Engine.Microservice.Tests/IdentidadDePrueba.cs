@@ -35,43 +35,13 @@ internal static class IdentidadDePrueba
     public static readonly Guid SubCarla = Guid.Parse("c0000000-0000-0000-0000-00000000000c");
     public static readonly Guid ClienteOrg = Guid.Parse("e0000000-0000-0000-0000-00000000000e");
 
-    /// <summary>Tabla de acceso de las pruebas: dos tenants por usuario y concesiones por id, rol y cliente.</summary>
-    public static Dictionary<string, string?> Concesiones() => new()
-    {
-        ["ControlDeAcceso:Concesiones:0:Coleccion"] = "propia",
-        ["ControlDeAcceso:Concesiones:0:Operaciones:0"] = "Consultar",
-        ["ControlDeAcceso:Concesiones:0:Operaciones:1"] = "Ingestar",
-        ["ControlDeAcceso:Concesiones:0:Usuarios:0"] = "ana",
-
-        ["ControlDeAcceso:Concesiones:1:Coleccion"] = "ajena",
-        ["ControlDeAcceso:Concesiones:1:Operaciones:0"] = "Consultar",
-        ["ControlDeAcceso:Concesiones:1:Operaciones:1"] = "Ingestar",
-        ["ControlDeAcceso:Concesiones:1:Usuarios:0"] = "beto",
-
-        ["ControlDeAcceso:Concesiones:2:Coleccion"] = "solo-lectura",
-        ["ControlDeAcceso:Concesiones:2:Operaciones:0"] = "Consultar",
-        ["ControlDeAcceso:Concesiones:2:Usuarios:0"] = "ana",
-
-        ["ControlDeAcceso:Concesiones:3:Coleccion"] = "por-rol",
-        ["ControlDeAcceso:Concesiones:3:Operaciones:0"] = "Consultar",
-        ["ControlDeAcceso:Concesiones:3:Roles:0"] = "analista",
-
-        ["ControlDeAcceso:Concesiones:4:Coleccion"] = "por-cliente",
-        ["ControlDeAcceso:Concesiones:4:Operaciones:0"] = "Consultar",
-        ["ControlDeAcceso:Concesiones:4:Clientes:0"] = ClienteOrg.ToString(),
-
-        ["ControlDeAcceso:Concesiones:5:Coleccion"] = "por-id",
-        ["ControlDeAcceso:Concesiones:5:Operaciones:0"] = "Consultar",
-        ["ControlDeAcceso:Concesiones:5:Usuarios:0"] = SubCarla.ToString(),
-    };
-
     public static WebApplicationFactory<Program> ConIdentidad(
         this WebApplicationFactory<Program> factory,
         IDictionary<string, string?>? configuracion = null,
         Action<IServiceCollection>? servicios = null) =>
         factory.WithWebHostBuilder(builder =>
         {
-            builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(configuracion ?? Concesiones()));
+            builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(configuracion ?? new Dictionary<string, string?>()));
             builder.ConfigureTestServices(services =>
             {
                 services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, opts =>

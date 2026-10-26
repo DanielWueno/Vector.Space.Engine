@@ -105,7 +105,6 @@ este runbook:
 | `Motor__Embeddings__RutaCertificadoCA` | Item 1.13: ruta local al certificado CA corporativo (p. ej. Netskope) si AltheIA queda detras de un proxy TLS, igual patron que `CORP_CA_CERT_PATH` de la seccion 2. Si se define y el archivo no existe, el servicio no arranca. | Solo si AltheIA esta detras de un CA corporativo. |
 | `IdentityServerAuthenticationOptions__Authority` | Autoridad OAuth/OIDC del entorno destino (ya existe para otros servicios Reyma; no se inventa aqui). | Si, para validar JWT. |
 | `PermissionsValidatorOptions__ApiUri` / `IntegrityServiceOptions__ApiUri` | Servicios compartidos del entorno destino. | Si. |
-| `ControlDeAcceso__Concesiones` | Tabla de acceso por coleccion del servicio (usuarios/colecciones reales del entorno). **No se define aqui**: la decide quien opere el servicio para ese entorno. | Si hay colecciones que proteger. |
 | `Motor__Git__OrigenesPermitidos` | Item 1.7.6: lista EXACTA de organizaciones/proyectos de Azure DevOps permitidos para el origen `proyecto` por URL Git (esquema+host+puerto+prefijo de ruta). Vacia por defecto: el origen queda deshabilitado de facto (toda URL se rechaza) hasta que se configure. **No se define aqui**: la decide quien opere el servicio para ese entorno. | Solo si se habilita el origen `proyecto` por URL Git. |
 | `VSE_GIT_PAT` (nombre configurable por `Motor__Git__NombreVariableIdentidad`) | Item 1.7.6: PAT de una cuenta de servicio (no personal) de Azure DevOps para el clonado. Por variable de entorno o gestor de secretos, nunca en `appsettings`. Sin ella, el clonado deja la autenticacion al `credential.helper` del host, valido solo en la verificacion puntual de este item (ver `docs/evaluaciones/1.7.3/decision.md` y el ledger, item 1.7.6), nunca en el contenedor de produccion. | Si, antes de habilitar el origen Git en produccion. |
 | `Motor__Git__MaxBytesCheckout` / `Motor__Git__PlazoSegundos` / `Motor__Git__DirectorioTemporal` | Limites del clonado superficial endurecido (`ClonadorGit`). `DirectorioTemporal` deberia apuntar a un volumen con cuota real de filesystem en el entorno destino (1.7.6 lo deja como limite logico de proceso, no cuota de filesystem: ver `docs/servicio/contrato-api.md`, seccion "Proyecto completo desde URL Git"). | Recomendado antes de habilitar el origen Git en produccion. |
@@ -203,8 +202,6 @@ up -d --build` con esas credenciales y confirmar los mismos healthchecks en
 - El grupo de variables (`reyma-vectorspace-engine[-dev]`) y el Secret
   `reyma-vectorspace-engine[-dev]-env` en el pipeline, mas las conexiones de servicio de
   registry/cluster (ver `docs/servicio/README.md`, "Pipeline y despliegue").
-- Decision y aprobacion de quien opera el entorno sobre `ControlDeAcceso:Concesiones` real
-  (usuarios y colecciones de negocio), no la coleccion de prueba usada aqui.
 - Decision de infraestructura (fuera de este servicio, afecta a todos los proyectos): como
   autenticar builds Docker locales/fuera del pipeline contra feeds NuGet de Azure DevOps
   Services, dado que Basic Auth con usuario/contrasena de dominio no es un metodo soportado por

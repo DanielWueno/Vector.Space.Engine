@@ -1,5 +1,4 @@
 using MediatR;
-using Reyma.VectorSpace.Engine.Microservice.Business.Colecciones;
 using Reyma.VectorSpace.Engine.Microservice.Business.Models.Requests;
 using Reyma.VectorSpace.Engine.Microservice.Business.Models.Responses;
 using Reyma.VectorSpace.Engine.Microservice.Business.Motor;
@@ -8,10 +7,8 @@ using Reyma.VectorSpace.Engine.Microservice.Business.Validacion;
 namespace Reyma.VectorSpace.Engine.Microservice.Business.Commands.Colecciones;
 
 public sealed record IngerirCommand(string Coleccion, OrigenIngestaRequest? Origen, string? Perfil, bool? Resumen = null)
-    : IRequest<IngestaResponse>, ISolicitudDeColeccion, IValidable
+    : IRequest<IngestaResponse>, IValidable
 {
-    public OperacionColeccion Operacion => OperacionColeccion.Ingestar;
-
     public IEnumerable<string> Errores()
     {
         if (Perfil is not null && Perfil.Trim().Length == 0)

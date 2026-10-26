@@ -57,10 +57,6 @@ public sealed class MotorAltheiaIntegracionTests(ApiFactory factory)
             ["Motor:Embeddings:PrefijoConsulta"] = "",
             ["Motor:Embeddings:ApiKey"] = Environment.GetEnvironmentVariable("ALTHEIA_KEY"),
             ["Motor:Embeddings:RutaCertificadoCA"] = Environment.GetEnvironmentVariable("ALTHEIA_CERT"),
-            ["ControlDeAcceso:Concesiones:0:Coleccion"] = coleccion,
-            ["ControlDeAcceso:Concesiones:0:Operaciones:0"] = "Consultar",
-            ["ControlDeAcceso:Concesiones:0:Operaciones:1"] = "Ingestar",
-            ["ControlDeAcceso:Concesiones:0:Usuarios:0"] = "ana",
         };
         return factory.ConIdentidad(config);
     }

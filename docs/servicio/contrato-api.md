@@ -7,7 +7,6 @@ ruta base del servicio (`/reyma/vectorspace/engine` desplegado; vacia en local) 
 | Metodo | Ruta | Operacion | Respuesta 200 |
 |---|---|---|---|
 | GET | `api/sesion` | — (solo login) | Usuario en sesion desde los claims |
-| GET | `api/colecciones` | — (solo login) | Colecciones que alcanza el usuario y sus operaciones |
 | POST | `api/colecciones/{coleccion}/embeddings` | `Consultar` | Vectores densos de textos sueltos |
 | POST | `api/colecciones/{coleccion}/busquedas` | `Consultar` | Resultados de busqueda en la coleccion |
 | POST | `api/colecciones/{coleccion}/ingestas` | `Ingestar` | Resultado de la ingesta (origen `documentos`, sincrona) |
@@ -16,9 +15,7 @@ ruta base del servicio (`/reyma/vectorspace/engine` desplegado; vacia en local) 
 | GET | `api/colecciones/{coleccion}/ingestas/{ingestaId}` | `Consultar` | Estado de una ingesta de proyecto (items 1.7.5/1.7.6) |
 
 Codigos comunes: **401** sin token valido (firma, emisor, audiencia y vigencia se validan como en
-la plantilla); **403** si la tabla de acceso no otorga esa operacion sobre esa coleccion;
-**400** cuerpo invalido (solo despues de autorizar: sin acceso es 403 aunque el cuerpo sea invalido),
-incluido pedir un `perfil` de embeddings no registrado en el servicio o un modelo que el servidor remoto
+la plantilla); **400** cuerpo invalido, incluido pedir un `perfil` de embeddings no registrado en el servicio o un modelo que el servidor remoto
 no tiene cargado para esa clave (1.7.4: nunca 503, siempre con los perfiles disponibles), o un `.zip`
 invalido o malicioso en `ingestas/proyecto` (1.7.5: limites de tamano/entradas/ratio, Zip Slip, enlaces
 simbolicos o sin documentos admitidos por el perfil de escaneo);
@@ -69,8 +66,8 @@ El motor es el de Rag.Context.Engine portado (ver
   real del hardware, no un limite del contrato.
 - **Limite de admision (1.7)**: una ingesta en curso por instancia, entre todas las colecciones, y hasta
   cuatro en espera (`LimiteDeIngestas:MaximoSimultaneas` 1, `MaximoEnCola` 4). La siguiente responde
-  **429** con `Retry-After: 60` (`SegundosParaReintentar`) sin llegar al motor. Va despues de autorizar y
-  validar: un 403 o un 400 no ocupan lugar. `embeddings` y `busquedas` no pasan por el limite. Es por
+  **429** con `Retry-After: 60` (`SegundosParaReintentar`) sin llegar al motor. Va despues de validar el
+  cuerpo: un 400 no ocupa lugar en la cola. `embeddings` y `busquedas` no pasan por el limite. Es por
   instancia: varias replicas no comparten cola. Medido en `docs/evaluaciones/1.7/decision.md`: dos ingestas
   a la vez no terminan antes que una tras otra con TEI en CPU.
 - **Cuerpo (1.7.1)**: el limite de cuerpo de `ingestas` es 125 000 000 bytes (~119,2 MiB), fijado con
@@ -312,55 +309,22 @@ crudos `sub` y `role`; con el mapeo por defecto de JwtBearer se renombran y devu
 con tokens firmados que pasan por el pipeline real, `SesionTests`). La plantilla de origen tiene el
 mismo comportamiento en su ejemplo `usuario`.
 
-## Control de acceso por coleccion (multi-tenencia)
+## Control de acceso por coleccion (retirado en 1.14)
 
-Tabla en configuracion, seccion `ControlDeAcceso`. **Sin concesiones no se alcanza ninguna
-coleccion.** Cada concesion otorga operaciones sobre una coleccion a quien coincida con al menos
-uno de sus sujetos:
-
-```json
-"ControlDeAcceso": {
-  "Concesiones": [
-    {
-      "Coleccion": "rag-engine",
-      "Operaciones": [ "Consultar", "Ingestar" ],
-      "Usuarios": [ "nombre.usuario", "a0000000-0000-0000-0000-00000000000a" ],
-      "Clientes": [ ],
-      "Roles": [ "rol-exacto" ]
-    }
-  ]
-}
-```
-
-| Sujeto | Claim (via `Reyma.IdentityService.Extensions`) | Comparacion |
-|---|---|---|
-| `Usuarios` | `sub` (GUID) o `preferred_username` | GUID exacto; nombre sin distinguir mayusculas |
-| `Clientes` | `cli_id` organizacional Reyma (no el `client_id` OAuth) | GUID exacto |
-| `Roles` | `role` | exacta |
-
-- Nombres de coleccion: `^[a-z0-9][a-z0-9_-]{0,62}\z`. No se normalizan: `PROPIA`, `propia ` o
-  `propia%2F..%2Fajena` no coinciden con `propia` y responden 403.
-- El servicio no arranca con una tabla que otorgaria mas de lo escrito: nombre invalido, concesion
-  sin operaciones o sin sujetos, sujetos vacios o GUID vacio (coincidiria con tokens sin ese claim).
-  Tampoco arranca con concesiones escritas como texto (`"Concesiones": ["coleccion"]`): el binder
-  las descartaria en silencio y todo responderia 403 sin explicacion.
-- `appsettings.Development.json` trae dos concesiones de prueba local (`prueba-propia`, `prueba-ajena`).
-- El control vive en un behavior de MediatR (`AutorizacionColeccionBehavior`) sobre toda solicitud
-  que implemente `ISolicitudDeColeccion`, antes de la validacion y del handler; un test falla si una
-  solicitud con propiedad `Coleccion` no implementa la interfaz.
-- `GET api/sesion` devuelve los valores con los que el token coincidira en la tabla.
-
-En variables de entorno (por ejemplo, para una prueba local):
-
-```powershell
-$env:ControlDeAcceso__Concesiones__0__Coleccion = "prueba-propia"
-$env:ControlDeAcceso__Concesiones__0__Operaciones__0 = "Consultar"
-$env:ControlDeAcceso__Concesiones__0__Usuarios__0 = "<tu preferred_username>"
-```
+El item `1.14-retirar-control-de-acceso-por-coleccion` del ledger retiro por completo la tabla
+`ControlDeAcceso` y el behavior que la aplicaba (`AutorizacionColeccionBehavior`). Hoy **no hay
+autorizacion por coleccion**: `[Authorize]` basta (cualquier usuario autenticado alcanza cualquier
+coleccion). Motivo: la tabla vivia en `appsettings` (sin base de datos desde el item `1.9`, que
+retiro Postgres) y cada alta de coleccion o usuario exigia redeploy, lo cual no escala para el uso
+real del equipo. La multi-tenencia por coleccion queda diferida: una alternativa evaluada y no
+adoptada todavia es expresarla como permiso del IdP corporativo por recurso (ver mas abajo), que
+requiere resolver primero que ese validador sea de grano fino (por coleccion, no solo por
+operacion) y registrar los permisos en un sistema externo al servicio.
 
 ### Permisos corporativos: previstos, no aplicados
 
 `ApiSecurityConstants` declara `VECTORSPACE.ENGINE.API.COLECCIONES.CONSULTAR` e `...INGESTAR`, pero
 las acciones no los exigen todavia. El validador corporativo consulta al servicio de permisos en
 cada llamada y, mientras esos permisos no esten registrados ahi, toda llamada real responderia 403.
-Cuando existan, se pueden exigir ademas de la tabla (la tabla sigue decidiendo la coleccion).
+Son de grano grueso (la operacion, no la coleccion): no resuelven por si solos la multi-tenencia por
+coleccion que tenia `ControlDeAcceso` sin una decision adicional sobre como expresar el recurso.

@@ -10,27 +10,18 @@ using Reyma.VectorSpace.Engine.Microservice.Business.Queries.Colecciones;
 namespace Reyma.VectorSpace.Engine.Microservice.Api.Controllers;
 
 /// <summary>
-/// Contrato de embeddings/ingesta. Todas las acciones exigen token valido; el acceso por coleccion lo decide la
-/// tabla ControlDeAcceso en Business (403 si no la otorga). Ver docs/servicio/contrato-api.md.
+/// Contrato de embeddings/ingesta. Todas las acciones exigen token valido (item 1.14 retiro la autorizacion por
+/// coleccion: ya no hay 403 por tenencia). Ver docs/servicio/contrato-api.md.
 /// </summary>
 [Route("[controller]")]
 public sealed class ColeccionesController : BaseController
 {
-    /// <summary>Colecciones que alcanza el usuario en sesion.</summary>
-    [HttpGet]
-    [Authorize]
-    [ProducesResponseType(typeof(ColeccionesAccesiblesResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<ColeccionesAccesiblesResponse>> Get(CancellationToken cancellationToken) =>
-        Ok(await Mediator.Send(new GetColeccionesAccesiblesQuery(), cancellationToken));
-
     /// <summary>Embeddings densos de textos sueltos con el perfil de la coleccion; no escribe en ella.</summary>
     [HttpPost("{coleccion}/embeddings")]
     [Authorize]
     [ProducesResponseType(typeof(EmbeddingsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status501NotImplemented)]
     public async Task<ActionResult<EmbeddingsResponse>> PostEmbeddings(
         string coleccion, [FromBody] CalcularEmbeddingsRequest? request, CancellationToken cancellationToken) =>
@@ -42,7 +33,6 @@ public sealed class ColeccionesController : BaseController
     [ProducesResponseType(typeof(BusquedaResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status501NotImplemented)]
     public async Task<ActionResult<BusquedaResponse>> PostBusqueda(
         string coleccion, [FromBody] BuscarRequest? request, CancellationToken cancellationToken) =>
@@ -57,7 +47,6 @@ public sealed class ColeccionesController : BaseController
     [ProducesResponseType(typeof(IngestaResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     [ProducesResponseType(StatusCodes.Status501NotImplemented)]
     public async Task<ActionResult<IngestaResponse>> PostIngesta(
@@ -78,7 +67,6 @@ public sealed class ColeccionesController : BaseController
     [ProducesResponseType(typeof(IngestaResponse), StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<ActionResult<IngestaResponse>> PostIngestaProyectoZip(
@@ -108,7 +96,6 @@ public sealed class ColeccionesController : BaseController
     [ProducesResponseType(typeof(IngestaResponse), StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<ActionResult<IngestaResponse>> PostIngestaProyectoGit(
         string coleccion, [FromBody] IngerirProyectoGitRequest? request, CancellationToken cancellationToken)
@@ -123,7 +110,6 @@ public sealed class ColeccionesController : BaseController
     [Authorize]
     [ProducesResponseType(typeof(IngestaResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IngestaResponse>> GetEstadoIngesta(
         string coleccion, Guid ingestaId, CancellationToken cancellationToken) =>

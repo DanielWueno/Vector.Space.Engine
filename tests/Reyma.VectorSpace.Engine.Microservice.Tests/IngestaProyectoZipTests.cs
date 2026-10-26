@@ -5,8 +5,8 @@ using static Reyma.VectorSpace.Engine.Microservice.Tests.IdentidadDePrueba;
 namespace Reyma.VectorSpace.Engine.Microservice.Tests;
 
 /// <summary>
-/// Item 1.7.5: validacion y autorizacion del origen 'proyecto' (.zip) sin necesitar Qdrant/TEI reales, porque un .zip
-/// invalido o una coleccion ajena se rechazan antes de tocar el motor (igual que el resto del contrato). Los
+/// Item 1.7.5: validacion del origen 'proyecto' (.zip) sin necesitar Qdrant/TEI reales, porque un .zip
+/// invalido se rechaza antes de tocar el motor (igual que el resto del contrato). Los
 /// escenarios que si necesitan el motor real (202 -> completada con los mismos puntos, zips maliciosos, barrido de
 /// ausentes) estan en Motor/IngestaProyectoZipIntegracionTests.cs, gateados por VSE_MOTOR_LOCAL.
 /// </summary>
@@ -46,15 +46,6 @@ public sealed class IngestaProyectoZipTests(ApiFactory factory)
         using var response = await client.PostAsync("/api/colecciones/propia/ingestas/proyecto", Multipart(ZipValidoConUnMarkdown()));
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task ColeccionAjenaDevuelve403AunqueElZipSeaValido()
-    {
-        using var client = factory.ConIdentidad().Cliente(TokenAna);
-        using var response = await client.PostAsync("/api/colecciones/ajena/ingestas/proyecto", Multipart(ZipValidoConUnMarkdown()));
-
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     [Fact]

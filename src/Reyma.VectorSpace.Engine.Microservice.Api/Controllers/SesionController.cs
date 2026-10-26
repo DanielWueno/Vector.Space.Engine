@@ -8,7 +8,7 @@ namespace Reyma.VectorSpace.Engine.Microservice.Api.Controllers;
 
 /// <summary>
 /// Datos del login del usuario en sesion, desde los claims (heredado del ejemplo 'usuario' de la plantilla).
-/// Sirve para comprobar la identidad y para saber que valores escribir en ControlDeAcceso.
+/// Sirve para comprobar la identidad resuelta por el servicio.
 /// </summary>
 [Route("[controller]")]
 public sealed class SesionController : BaseController

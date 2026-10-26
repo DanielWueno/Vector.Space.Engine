@@ -1,6 +1,5 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Reyma.VectorSpace.Engine.Microservice.Business.Colecciones;
 using Reyma.VectorSpace.Engine.Microservice.Business.Models.Requests;
 using Reyma.VectorSpace.Engine.Microservice.Business.Models.Responses;
 using Reyma.VectorSpace.Engine.Microservice.Business.Motor;
@@ -16,10 +15,8 @@ namespace Reyma.VectorSpace.Engine.Microservice.Business.Commands.Colecciones;
 /// segundo plano y actualiza <see cref="IRegistroDeIngestasProyecto"/>, consultable por <c>GetEstadoIngestaQuery</c>.
 /// </summary>
 public sealed record IngerirProyectoZipCommand(string Coleccion, byte[]? Zip, string? CarpetaRaiz, string? Perfil, bool? Resumen = null)
-    : IRequest<IngestaResponse>, ISolicitudDeColeccion, IValidable
+    : IRequest<IngestaResponse>, IValidable
 {
-    public OperacionColeccion Operacion => OperacionColeccion.Ingestar;
-
     public IEnumerable<string> Errores()
     {
         if (Zip is null || Zip.Length == 0)

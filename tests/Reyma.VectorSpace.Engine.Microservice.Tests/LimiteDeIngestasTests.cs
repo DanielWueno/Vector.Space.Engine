@@ -76,7 +76,7 @@ public sealed class LimiteDeIngestasTests(ApiFactory factory)
     public async Task IngestaQueRebasaLaColaDevuelve429ConRetryAfterYNoBloqueaConsultas()
     {
         var motor = new MotorQueEspera();
-        var configuracion = Concesiones();
+        var configuracion = new Dictionary<string, string?>();
         configuracion["LimiteDeIngestas:MaximoSimultaneas"] = "1";
         configuracion["LimiteDeIngestas:MaximoEnCola"] = "0";
         configuracion["LimiteDeIngestas:SegundosParaReintentar"] = "45";
@@ -95,9 +95,7 @@ public sealed class LimiteDeIngestasTests(ApiFactory factory)
             Assert.Contains("ingestas", await rechazada.Content.ReadAsStringAsync());
         }
 
-        // Autorizacion y validacion van antes: sin acceso sigue siendo 403 y un cuerpo invalido 400, no 429.
-        using (var sinAcceso = await beto.PostJson("/api/colecciones/propia/ingestas", CuerpoIngesta))
-            Assert.Equal(HttpStatusCode.Forbidden, sinAcceso.StatusCode);
+        // La validacion sigue yendo antes que el limite de admision: un cuerpo invalido responde 400, no 429.
         using (var invalida = await ana.PostJson("/api/colecciones/propia/ingestas", new { origen = new { tipo = "otro" } }))
             Assert.Equal(HttpStatusCode.BadRequest, invalida.StatusCode);
 
@@ -122,7 +120,7 @@ public sealed class LimiteDeIngestasTests(ApiFactory factory)
     public async Task IngestaCanceladaPorElClienteLiberaElCupo()
     {
         var motor = new MotorQueEspera();
-        var configuracion = Concesiones();
+        var configuracion = new Dictionary<string, string?>();
         configuracion["LimiteDeIngestas:MaximoSimultaneas"] = "1";
         configuracion["LimiteDeIngestas:MaximoEnCola"] = "0";
         var api = factory.ConIdentidad(configuracion, MotorQueEspera.Registrar(motor));
@@ -147,7 +145,7 @@ public sealed class LimiteDeIngestasTests(ApiFactory factory)
     [InlineData("LimiteDeIngestas:SegundosParaReintentar", "0")]
     public void ConfiguracionIncoherenteImpideArrancar(string clave, string valor)
     {
-        var configuracion = Concesiones();
+        var configuracion = new Dictionary<string, string?>();
         configuracion[clave] = valor;
         var api = factory.ConIdentidad(configuracion);
         var error = Assert.ThrowsAny<Exception>(() => api.CreateClient());

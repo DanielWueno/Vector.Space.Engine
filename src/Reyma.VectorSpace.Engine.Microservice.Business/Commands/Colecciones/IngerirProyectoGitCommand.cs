@@ -1,6 +1,5 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Reyma.VectorSpace.Engine.Microservice.Business.Colecciones;
 using Reyma.VectorSpace.Engine.Microservice.Business.Models.Requests;
 using Reyma.VectorSpace.Engine.Microservice.Business.Models.Responses;
 using Reyma.VectorSpace.Engine.Microservice.Business.Motor;
@@ -15,10 +14,8 @@ namespace Reyma.VectorSpace.Engine.Microservice.Business.Commands.Colecciones;
 /// clonar, escanear y vectorizar corre en segundo plano porque un repo real tarda segundos a minutos (1.7.3).
 /// </summary>
 public sealed record IngerirProyectoGitCommand(string Coleccion, string? Url, string? CarpetaRaiz, string? Perfil, bool? Resumen = null)
-    : IRequest<IngestaResponse>, ISolicitudDeColeccion, IValidable
+    : IRequest<IngestaResponse>, IValidable
 {
-    public OperacionColeccion Operacion => OperacionColeccion.Ingestar;
-
     public IEnumerable<string> Errores()
     {
         if (string.IsNullOrWhiteSpace(Url))

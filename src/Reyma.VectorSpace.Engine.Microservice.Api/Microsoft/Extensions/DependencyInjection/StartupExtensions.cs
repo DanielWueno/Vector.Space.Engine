@@ -33,9 +33,8 @@ internal static class StartupExtensions
         services.AddDomainManager();
 
         services.AddReymaFluentValidations(typeof(BusinessAssembly).Assembly);
-        // Item 1.9: este servicio guarda vectores en Qdrant, no en Postgres; la tabla de control de
-        // acceso de 1.3 vive en configuracion (ControlDeAcceso), no en una base relacional. Se retiro
-        // AddReymaPersistence/AddNpgSql y la exigencia de CONNECTION_STRING; ver docs/servicio/README.md.
+        // Item 1.9: este servicio guarda vectores en Qdrant, no en Postgres ni en ninguna base relacional.
+        // Se retiro AddReymaPersistence/AddNpgSql y la exigencia de CONNECTION_STRING; ver docs/servicio/README.md.
         services.AddReymaPermissionsValidator(config);
         services.AddHttpContextAccessor();
         services.AddReymaIdentityServiceTools();

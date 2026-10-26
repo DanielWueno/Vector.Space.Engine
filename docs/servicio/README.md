@@ -15,10 +15,8 @@ de versiones y dependencias por capa. La solucion separa Domain, Business,
 Infrastructure (motor de embeddings/ingesta, item 1.4) y Api, con un proyecto
 Tests de xUnit.
 
-Este servicio no usa PostgreSQL/EF Core: guarda vectores en Qdrant, calcula el
-vector denso con un sidecar de embeddings (TEI) y su tabla de control de acceso
-por coleccion vive en configuracion (`ControlDeAcceso` en `appsettings`), no en
-una base relacional. El item 1.9 del ledger retiro
+Este servicio no usa PostgreSQL/EF Core: guarda vectores en Qdrant y calcula el
+vector denso con un sidecar de embeddings (TEI). El item 1.9 del ledger retiro
 el proyecto `Persistence` que traia la plantilla (`ApplicationDbContext` no
 llego a declarar ningun `DbSet`), junto con `AddReymaPersistence`/`AddNpgSql`,
 el chequeo de Postgres en `/health/ready` y la exigencia de `CONNECTION_STRING`.

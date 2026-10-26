@@ -35,13 +35,6 @@ public sealed class PerfilesEmbeddingsIntegracionTests(ApiFactory factory)
             [$"Motor:Embeddings:Perfiles:{PerfilAlterno}:Modelo"] = "modelo-alterno-de-prueba",
             [$"Motor:Embeddings:Perfiles:{PerfilAlterno}:Dimension"] = "256",
         };
-        for (var i = 0; i < colecciones.Length; i++)
-        {
-            config[$"ControlDeAcceso:Concesiones:{i}:Coleccion"] = colecciones[i];
-            config[$"ControlDeAcceso:Concesiones:{i}:Operaciones:0"] = "Consultar";
-            config[$"ControlDeAcceso:Concesiones:{i}:Operaciones:1"] = "Ingestar";
-            config[$"ControlDeAcceso:Concesiones:{i}:Usuarios:0"] = "ana";
-        }
         return factory.ConIdentidad(config);
     }
 

@@ -63,13 +63,6 @@ public sealed class IngestaProyectoGitIntegracionTests(ApiFactory factory)
             ["Motor:Git:OrigenesPermitidos:0:PrefijoRuta"] = PrefijoOrganizacion,
             ["Motor:Git:PlazoSegundos"] = "60",
         };
-        for (var i = 0; i < colecciones.Length; i++)
-        {
-            config[$"ControlDeAcceso:Concesiones:{i}:Coleccion"] = colecciones[i];
-            config[$"ControlDeAcceso:Concesiones:{i}:Operaciones:0"] = "Consultar";
-            config[$"ControlDeAcceso:Concesiones:{i}:Operaciones:1"] = "Ingestar";
-            config[$"ControlDeAcceso:Concesiones:{i}:Usuarios:0"] = "ana";
-        }
         return factory.ConIdentidad(config);
     }
 
@@ -176,19 +169,13 @@ public sealed class IngestaProyectoGitIntegracionTests(ApiFactory factory)
     [RequiereGitRealFact]
     public async Task UnaUrlFueraDeLaListaBlancaSeRechazaSinConexionAlDestino()
     {
-        using var client = Api().Cliente(TokenAna);
-        using var response = await client.PostJson("/api/colecciones/sin-grant/ingestas/git",
+        // Rechazo por lista blanca (mecanismo distinto al control de acceso, ya retirado en 1.14), confirmado aqui
+        // con la lista blanca REAL de este host (solo GR-PlasticosAdministrativo); el caso sin red ya esta probado
+        // en ListaBlancaGitTests e IngestaProyectoGitTests.
+        using var cliente = Api().Cliente(TokenAna);
+        using var response = await cliente.PostJson("/api/colecciones/propia-git-rechazo/ingestas/git",
             new { url = "https://dev.azure.com/otra-organizacion-no-permitida/Proyecto/_git/repo" });
-
-        // 403: ni siquiera llega a la coleccion (sin-grant no tiene acceso); lo relevante de este caso ya esta
-        // probado sin red en ListaBlancaGitTests e IngestaProyectoGitTests (lista blanca vacia). Esta prueba
-        // confirma el mismo criterio con la lista blanca REAL de este host (solo GR-PlasticosAdministrativo).
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
-
-        using var clienteConAcceso = Api("propia-git-rechazo").Cliente(TokenAna);
-        using var response2 = await clienteConAcceso.PostJson("/api/colecciones/propia-git-rechazo/ingestas/git",
-            new { url = "https://dev.azure.com/otra-organizacion-no-permitida/Proyecto/_git/repo" });
-        Assert.Equal(HttpStatusCode.BadRequest, response2.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [RequiereGitRealFact]

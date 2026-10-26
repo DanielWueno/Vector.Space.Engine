@@ -1,5 +1,4 @@
 using MediatR;
-using Reyma.VectorSpace.Engine.Microservice.Business.Colecciones;
 using Reyma.VectorSpace.Engine.Microservice.Business.Commands.Colecciones;
 using Reyma.VectorSpace.Engine.Microservice.Business.Models.Responses;
 using Reyma.VectorSpace.Engine.Microservice.Business.Motor;
@@ -8,10 +7,8 @@ using Reyma.VectorSpace.Engine.Microservice.Business.Validacion;
 namespace Reyma.VectorSpace.Engine.Microservice.Business.Queries.Colecciones;
 
 public sealed record BuscarEnColeccionQuery(string Coleccion, string? Consulta, int? TopK, string? Perfil)
-    : IRequest<BusquedaResponse>, ISolicitudDeColeccion, IValidable
+    : IRequest<BusquedaResponse>, IValidable
 {
-    public OperacionColeccion Operacion => OperacionColeccion.Consultar;
-
     public IEnumerable<string> Errores()
     {
         if (string.IsNullOrWhiteSpace(Consulta))

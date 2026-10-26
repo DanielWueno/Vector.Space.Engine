@@ -81,13 +81,6 @@ public sealed class MotorIntegracionTests(ApiFactory factory)
             ["Motor:Qdrant:PuertoRest"] = "16333",
             ["Motor:Embeddings:UrlBase"] = "http://127.0.0.1:18080",
         };
-        for (var i = 0; i < colecciones.Length; i++)
-        {
-            config[$"ControlDeAcceso:Concesiones:{i}:Coleccion"] = colecciones[i];
-            config[$"ControlDeAcceso:Concesiones:{i}:Operaciones:0"] = "Consultar";
-            config[$"ControlDeAcceso:Concesiones:{i}:Operaciones:1"] = "Ingestar";
-            config[$"ControlDeAcceso:Concesiones:{i}:Usuarios:0"] = "ana";
-        }
         return factory.ConIdentidad(config);
     }
 

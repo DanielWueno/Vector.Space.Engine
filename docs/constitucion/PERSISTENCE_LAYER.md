@@ -4,10 +4,9 @@
 > (`docs/plan/ejecucion-plan.estado.json`, 2026-10-20). El proyecto
 > `Reyma.VectorSpace.Engine.Microservice.Persistence` y su `ApplicationDbContext` **no existen hoy**
 > en el codigo: se eliminaron por completo (csproj, entrada en la `.sln`, referencias desde Api y
-> Business, tests de wiring). Este servicio guarda vectores en Qdrant, no en PostgreSQL, y su tabla
-> de control de acceso vive en configuracion (`ControlDeAcceso:Concesiones`), sin uso real de base
-> relacional. Esta guia queda como referencia de ampliacion futura, no como descripcion del estado
-> actual.
+> Business, tests de wiring). Este servicio guarda vectores en Qdrant, no en PostgreSQL ni en ninguna
+> base relacional. Esta guia queda como referencia de ampliacion futura, no como descripcion del
+> estado actual.
 >
 > **Condicion para recrearla:** si el servicio llega a necesitar persistencia relacional real -por
 > ejemplo el registro de ingestas de `1.7-definir-modelo-de-consumo-de-ingesta`, hoy bloqueado y

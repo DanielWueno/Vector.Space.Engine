@@ -1,5 +1,4 @@
 using MediatR;
-using Reyma.VectorSpace.Engine.Microservice.Business.Colecciones;
 using Reyma.VectorSpace.Engine.Microservice.Business.Models.Responses;
 using Reyma.VectorSpace.Engine.Microservice.Business.Motor;
 using Reyma.VectorSpace.Engine.Microservice.Business.Validacion;
@@ -11,10 +10,8 @@ namespace Reyma.VectorSpace.Engine.Microservice.Business.Commands.Colecciones;
 /// no escribe nada en la coleccion.
 /// </summary>
 public sealed record CalcularEmbeddingsCommand(string Coleccion, IReadOnlyList<string>? Textos, string? Perfil)
-    : IRequest<EmbeddingsResponse>, ISolicitudDeColeccion, IValidable
+    : IRequest<EmbeddingsResponse>, IValidable
 {
-    public OperacionColeccion Operacion => OperacionColeccion.Consultar;
-
     public IEnumerable<string> Errores()
     {
         if (Textos is null || Textos.Count == 0)

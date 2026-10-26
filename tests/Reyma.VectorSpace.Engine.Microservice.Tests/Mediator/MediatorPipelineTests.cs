@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Reyma.Mediator.Behaviors.Base.Postgres;
-using Reyma.VectorSpace.Engine.Microservice.Business.Colecciones;
 using Reyma.VectorSpace.Engine.Microservice.Business.Validacion;
 
 namespace Reyma.VectorSpace.Engine.Microservice.Tests.Mediator;
@@ -40,12 +39,8 @@ public sealed class MediatorPipelineTests(ApiFactory factory)
 
         Assert.DoesNotContain(typeof(TransactionPipelineBehavior<,>), implementaciones);
 
-        var indiceAutorizacion = implementaciones.IndexOf(typeof(AutorizacionColeccionBehavior<,>));
         var indiceValidacion = implementaciones.IndexOf(typeof(ValidacionBehavior<,>));
 
-        Assert.True(indiceAutorizacion >= 0, "AutorizacionColeccionBehavior debe seguir registrado en el pipeline.");
         Assert.True(indiceValidacion >= 0, "ValidacionBehavior debe seguir registrado en el pipeline.");
-        Assert.True(indiceAutorizacion < indiceValidacion,
-            "El orden relativo debe conservarse: AutorizacionColeccionBehavior antes que ValidacionBehavior.");
     }
 }

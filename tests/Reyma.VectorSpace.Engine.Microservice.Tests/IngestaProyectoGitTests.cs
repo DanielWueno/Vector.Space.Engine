@@ -4,9 +4,9 @@ using static Reyma.VectorSpace.Engine.Microservice.Tests.IdentidadDePrueba;
 namespace Reyma.VectorSpace.Engine.Microservice.Tests;
 
 /// <summary>
-/// Item 1.7.6: validacion y autorizacion del origen 'proyecto' por URL Git sin necesitar red ni Qdrant/TEI reales,
-/// igual filosofia que <see cref="IngestaProyectoZipTests"/>: una URL invalida, fuera de la lista blanca o una
-/// coleccion ajena se rechazan antes de clonar nada. El escenario que si clona de verdad (contra un repo real de
+/// Item 1.7.6: validacion del origen 'proyecto' por URL Git sin necesitar red ni Qdrant/TEI reales,
+/// igual filosofia que <see cref="IngestaProyectoZipTests"/>: una URL invalida o fuera de la lista blanca se
+/// rechaza antes de clonar nada. El escenario que si clona de verdad (contra un repo real de
 /// Azure DevOps en la lista blanca, con los mismos puntos que el .zip del mismo commit) se verifica aparte, fuera de
 /// la suite automatica (no depende de una identidad de Azure DevOps real ni de red en CI).
 /// </summary>
@@ -27,15 +27,6 @@ public sealed class IngestaProyectoGitTests(ApiFactory factory)
         using var response = await client.PostJson("/api/colecciones/propia/ingestas/git", Cuerpo(UrlDeEjemplo));
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task ColeccionAjenaDevuelve403AunqueLaUrlSeaValida()
-    {
-        using var client = factory.ConIdentidad().Cliente(TokenAna);
-        using var response = await client.PostJson("/api/colecciones/ajena/ingestas/git", Cuerpo(UrlDeEjemplo));
-
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     [Fact]
@@ -79,7 +70,7 @@ public sealed class IngestaProyectoGitTests(ApiFactory factory)
         // Lista blanca de este host apunta a un puerto local cerrado: el clonado en segundo plano fallara rapido
         // (conexion rechazada), pero eso no afecta la respuesta 202 inmediata ni la consulta de estado, que es lo
         // que prueba este caso (sin esperar a que el clonado termine).
-        var config = Concesiones();
+        var config = new Dictionary<string, string?>();
         config["Motor:Git:OrigenesPermitidos:0:Esquema"] = "http";
         config["Motor:Git:OrigenesPermitidos:0:Host"] = "127.0.0.1";
         config["Motor:Git:OrigenesPermitidos:0:Puerto"] = "1";

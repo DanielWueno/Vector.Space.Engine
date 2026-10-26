@@ -1,11 +1,4 @@
-using Reyma.VectorSpace.Engine.Microservice.Business.Colecciones;
-
 namespace Reyma.VectorSpace.Engine.Microservice.Business.Models.Responses;
-
-/// <summary>Colecciones que alcanza el usuario en sesion y con que operaciones.</summary>
-public sealed record ColeccionesAccesiblesResponse(IReadOnlyList<ColeccionAccesibleResponse> Colecciones);
-
-public sealed record ColeccionAccesibleResponse(string Nombre, IReadOnlyList<OperacionColeccion> Operaciones);
 
 /// <summary>
 /// Vectores densos en el orden de los textos recibidos. <see cref="Modelo"/> y <see cref="Dimension"/> los fija el
