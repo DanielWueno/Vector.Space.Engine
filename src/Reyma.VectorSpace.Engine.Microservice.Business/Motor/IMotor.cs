@@ -21,7 +21,9 @@ public interface IMotorDeBusqueda
 
 public interface IMotorDeIngesta
 {
-    Task<IngestaResponse> IngerirAsync(string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, CancellationToken cancellationToken);
+    /// <summary>resumen: opt-in del resumen de negocio (1.7.7); solo tiene efecto al crear la coleccion.</summary>
+    Task<IngestaResponse> IngerirAsync(
+        string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken);
 }
 
 /// <summary>
@@ -37,12 +39,18 @@ public interface IMotorDeIngestaProyecto
     IReadOnlyList<DocumentoRequest> LeerProyectoZip(byte[] zip, string? carpetaRaiz);
 
     /// <summary>Ingesta normal mas el barrido de documentos ausentes, acotado a lo que el .zip trajo esta vez.</summary>
+    /// <param name="resumen">Ver <see cref="IMotorDeIngesta.IngerirAsync"/> (1.7.7).</param>
     Task<ResultadoIngestaProyecto> ProcesarAsync(
-        string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, CancellationToken cancellationToken);
+        string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken);
 }
 
-/// <summary>Conteos de una ingesta de proyecto ya terminada (1.7.5).</summary>
-public sealed record ResultadoIngestaProyecto(int Indexados, int SinCambios, int Omitidos, int DocumentosEliminados);
+/// <summary>
+/// Conteos de una ingesta de proyecto ya terminada (1.7.5). <see cref="ResumenesGenerados"/>/<see cref="ResumenesPendientes"/>/
+/// <see cref="ResumenTokensConsumidos"/> (1.7.7): siempre 0 en una coleccion sin resumen habilitado.
+/// </summary>
+public sealed record ResultadoIngestaProyecto(
+    int Indexados, int SinCambios, int Omitidos, int DocumentosEliminados,
+    int ResumenesGenerados = 0, int ResumenesPendientes = 0, int ResumenTokensConsumidos = 0);
 
 /// <summary>
 /// Origen 'proyecto' desde una URL Git (1.7.6, decidido en 1.7.3). Mismo patron de dos pasos que
@@ -64,6 +72,7 @@ public interface IMotorDeIngestaProyectoGit
     /// el mismo perfil de escaneo del motor y ejecuta el mismo pipeline de ingesta de proyecto que el .zip (con
     /// barrido de documentos ausentes). El checkout temporal se borra al terminar, con exito o con error.
     /// </summary>
+    /// <param name="resumen">Ver <see cref="IMotorDeIngesta.IngerirAsync"/> (1.7.7).</param>
     Task<ResultadoIngestaProyecto> ProcesarGitAsync(
-        string coleccion, Uri url, string? carpetaRaiz, string? perfil, CancellationToken cancellationToken);
+        string coleccion, Uri url, string? carpetaRaiz, string? perfil, bool resumen, CancellationToken cancellationToken);
 }

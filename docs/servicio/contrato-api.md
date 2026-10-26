@@ -25,12 +25,16 @@ simbolicos o sin documentos admitidos por el perfil de escaneo);
 **404** (solo `ingestas/proyecto/{ingestaId}`) ese identificador no existe o no es de esta coleccion;
 **409** la coleccion ya existe con vectores de otra dimension, **o** con el mismo numero de dimensiones
 pero de otro perfil de embeddings (1.7.4: el perfil, no solo la dimension, identifica si dos vectores son
-comparables); **413** (`ingestas` e `ingestas/proyecto`) el cuerpo de la solicitud supera el limite de la
-accion (1.7.1/1.7.5); **429** (`ingestas`, `ingestas/proyecto` e `ingestas/git`) hay demasiadas ingestas en
-curso o en espera, reintentar despues de `Retry-After` (1.7); **501** parte del contrato aun sin
-implementar (origen `ruta`); **503** Qdrant o el sidecar de embeddings no respondieron (el mensaje no dice
-a que host ni puerto se intento conectar). `ingestas/git` responde **400** si la URL no esta en la lista
-blanca de origenes Git permitidos, sin conexion al destino (item 1.7.6).
+comparables), **o** se pide `resumen: true` sobre una coleccion existente que no tiene el vector
+`dense-resumen` (1.7.7: el tercer vector no se puede agregar despues de crear la coleccion); **413**
+(`ingestas` e `ingestas/proyecto`) el cuerpo de la solicitud supera el limite de la accion (1.7.1/1.7.5);
+**429** (`ingestas`, `ingestas/proyecto` e `ingestas/git`) hay demasiadas ingestas en curso o en espera,
+reintentar despues de `Retry-After` (1.7); **501** parte del contrato aun sin implementado (origen
+`ruta`); **503** Qdrant, el sidecar de embeddings o el perfil de LLM del resumen no respondieron (el
+mensaje no dice a que host ni puerto se intento conectar). `ingestas/git` responde **400** si la URL no
+esta en la lista blanca de origenes Git permitidos, sin conexion al destino (item 1.7.6); tambien **400**
+si se pide `resumen: true` y esta instancia no tiene el resumen de negocio configurado
+(`Motor:Resumen:PerfilEmbeddings` vacio, item 1.7.7).
 
 ## Motor (item 1.4)
 
@@ -94,28 +98,31 @@ El motor es el de Rag.Context.Engine portado (ver
 
 // POST .../ingestas     origen 'documentos': 1 a 100 documentos, ruta unica y contenido <= 1 MiB c/u
 { "origen": { "tipo": "documentos", "documentos": [{ "ruta": "docs/a.md", "contenido": "..." }] },
-  "perfil": "altheia-bge-m3-256" }   // "perfil" opcional, ver abajo
+  "perfil": "altheia-bge-m3-256",   // "perfil" opcional, ver abajo
+  "resumen": false }                // "resumen" opcional, item 1.7.7, ver seccion "Resumen de negocio" abajo
 // origen 'ruta': reservado para el item 1.7, hoy responde 501
 { "origen": { "tipo": "ruta", "ruta": "/ruta/accesible/al/servicio" } }
 // 200: { "ingestaId", "coleccion", "estado": "completada", "documentosRecibidos",
-//        "documentosIndexados", "documentosSinCambios", "documentosOmitidos", "documentosEliminados" }
+//        "documentosIndexados", "documentosSinCambios", "documentosOmitidos", "documentosEliminados",
+//        "resumenesGenerados", "resumenesPendientes", "resumenTokensConsumidos" }   // 1.7.7, siempre 0 sin resumen
 
 // POST .../ingestas/proyecto   origen 'proyecto' desde .zip (item 1.7.5); multipart/form-data, no JSON:
 //   zip          archivo .zip (campo de archivo), hasta 100 MiB, leido en memoria
 //   carpetaRaiz  opcional: quita el envoltorio "repo-rama/" de un "descargar como zip"
 //   perfil       opcional, igual que en los demas endpoints
+//   resumen      opcional (1.7.7), igual semantica que en 'documentos'
 // 202: { "ingestaId", "coleccion", "estado": "pendiente", "documentosRecibidos", ... } (conteos en 0)
 
 // POST .../ingestas/git   origen 'proyecto' desde URL Git (item 1.7.6); JSON, no multipart:
 { "url": "https://dev.azure.com/<organizacion-en-lista-blanca>/<proyecto>/_git/<repo>",
-  "carpetaRaiz": null, "perfil": null }   // ambos opcionales, igual que en el .zip
+  "carpetaRaiz": null, "perfil": null, "resumen": false }   // opcionales, igual que en el .zip ("resumen": 1.7.7)
 // 202: { "ingestaId", "coleccion", "estado": "pendiente", "documentosRecibidos", ... } (conteos en 0)
 // 400 si la URL no esta en Motor:Git:OrigenesPermitidos (esquema, host, puerto y prefijo de ruta exactos),
 //     sin que el servicio abra ninguna conexion hacia ella
 
-// GET .../ingestas/{ingestaId}   estado de una ingesta de proyecto (items 1.7.5/1.7.6)
+// GET .../ingestas/{ingestaId}   estado de una ingesta de proyecto (items 1.7.5/1.7.6/1.7.7)
 // 200: mismo cuerpo que el 202 de arriba; "estado" en "pendiente" | "procesando" | "completada" | "error";
-//      los conteos (documentosIndexados/SinCambios/Omitidos/Eliminados) solo son definitivos en "completada"
+//      los conteos (documentosIndexados/SinCambios/Omitidos/Eliminados/Resumenes*) solo son definitivos en "completada"
 ```
 
 ## Perfiles de embeddings y metadata de coleccion (item 1.7.4)
@@ -142,7 +149,7 @@ distinto con la misma dimension (bge-m3 truncado a 256 contra una coleccion `arc
   para esta clave (`model_not_allowed`/`model_capability_mismatch`, medido en 1.7.3 contra AltheIA real):
   **400** con la lista de perfiles disponibles, nunca 503 (un 503 sigue siendo solo para una dependencia
   caida o que no respondio).
-- Perfil de LLM (resumen de negocio): sigue sin implementar (item 1.7.7); ver la seccion siguiente.
+- Perfil de LLM (resumen de negocio): implementado en 1.7.7, ver la seccion "Resumen de negocio reanudable" abajo.
 
 ## Modelo de consumo (item 1.7)
 
@@ -200,9 +207,9 @@ lo aborta). El cliente consulta `GET .../ingestas/{ingestaId}` hasta ver `"estad
 - **Estado en memoria, por instancia**: igual filosofia que `LimiteDeIngestas` — no persiste entre
   reinicios ni se comparte entre replicas; una ingesta en curso cuando el proceso se reinicia pierde su
   `ingestaId` consultable (el trabajo ya escrito en Qdrant no se deshace).
-- **Pendiente** (items 1.7.7/1.7.8, no implementados): resumen de negocio via LLM como fase reanudable con
-  cache y tope de cuota; perfil de escaneo y lenguajes como atributos de la coleccion (hoy siempre
-  `DotNetEnterprise`); el bug de `IgnoreRules` en Rag.Context.Engine (item 1.7.8, otro repo).
+- **Resumen de negocio**: implementado en 1.7.7, ver la seccion dedicada abajo.
+- **Pendiente** (item 1.7.8, no implementado, otro repo): perfil de escaneo y lenguajes como atributos de la
+  coleccion (hoy siempre `DotNetEnterprise`); el bug de `IgnoreRules` en Rag.Context.Engine.
 
 ## Proyecto completo desde URL Git (item 1.7.6)
 
@@ -249,6 +256,48 @@ arbol de documentos: en vez de leer un `.zip` subido, el servicio clona el repos
   MiB ya escritos en disco (medido en 1.7.3: ~21 MB con un tope de 2 MiB). La mitigacion completa es un
   volumen temporal con cuota real de filesystem para `Motor:Git:DirectorioTemporal`, pendiente de
   infraestructura (ver `docs/despliegue/runbook.md`).
+
+## Resumen de negocio reanudable (item 1.7.7)
+
+Decidido en `docs/evaluaciones/1.7.3/decision.md`, criterio 4; implementado en 1.7.7. Revive el resumen de negocio
+de Rag.Context.Engine (`OllamaBusinessSummaryGenerator`) como un tercer vector opcional, `dense-resumen`, generado
+por un LLM a partir del contenido de cada chunk, en una fase 2 que corre DESPUES de la ingesta normal (fase 1:
+chunking + `dense` + `sparse-code`, sin cambios).
+
+- **Opt-in solo al crear la coleccion**: `resumen: true` en el cuerpo de la primera ingesta que crea la coleccion
+  agrega el vector `dense-resumen` (ademas de `dense`); una ingesta posterior no necesita repetirlo (es un
+  atributo de la coleccion, igual que el perfil de embeddings). Pedir `resumen: true` sobre una coleccion
+  EXISTENTE que no tiene ese vector responde **409** con un mensaje claro ("no se puede activar el resumen sobre
+  una coleccion existente"), nunca 500: Qdrant en si respondia 400 "Not existing vector name" al intentar
+  agregarlo (medido en 1.7.3), y el servicio lo anticipa antes de llegar a Qdrant.
+- **Perfil de LLM** (`Motor:Llm`): modelo, `max_tokens` (160, igual que el origen), temperatura/top_p y, si el
+  modelo razona por defecto, `chat_template_kwargs.enable_thinking=false`. 1.7.3 midio contra AltheIA real:
+  `qwen3.8-27b-fast` responde 30/30 sin razonar; `qwen3.8-27b-deep` (el perfil de LLM de 1.13) gasta los 160
+  tokens razonando y responde VACIO en 0/30 si no se fuerza `enable_thinking=false` (con el, igual que `fast`).
+  El perfil por defecto de este servicio es `qwen3.8-27b-fast`.
+- **Perfil de embeddings del resumen** (`Motor:Resumen:PerfilEmbeddings`): un nombre de perfil YA declarado en
+  `Motor:Embeddings` (el por defecto o uno de `Motor:Embeddings:Perfiles`, 1.7.4). 1.7.3: bge-m3 1024d via
+  AltheIA, **sin truncar** (bge-m3 no es Matryoshka, a diferencia del perfil por defecto arctic@256). Vacio
+  (por defecto) = el resumen de negocio no esta disponible en esta instancia; pedirlo responde **400** con un
+  mensaje claro ("Motor:Resumen:PerfilEmbeddings"), nunca 500.
+- **Cache por `content_hash` + version de prompt + modelo**: antes de llamar al LLM, se busca en una cache en
+  memoria (por instancia, no persiste entre reinicios, igual filosofia que `LimiteDeIngestas`) por esa clave
+  compuesta; un acierto reutiliza el resumen sin gastar tokens. Ademas, y es la garantia principal de "reingerir
+  sin cambios gasta 0 tokens": un documento sin cambios ni siquiera entra a la fase de resumen (la fase 1 ya lo
+  trata como "sin cambios" y no lo reencola).
+- **Tope de tokens por corrida** (`Motor:Resumen:TopeTokensPorCorrida`, configuracion, nunca fijo en codigo): la
+  fase 2 corre despues de cada ingesta (sincrona en el origen `documentos`, en segundo plano en `proyecto`) y
+  gasta como maximo este tope de tokens de LLM (`usage.total_tokens` de la respuesta); lo que no alcanza a
+  procesar queda marcado `resumen_pending=true` en Qdrant, reanudable por la siguiente ingesta sobre la misma
+  coleccion (no repite los chunks ya resumidos). `resumenesPendientes` en la respuesta indica cuanto falta.
+- **Sentinel `SIN_CONTENIDO_DE_NEGOCIO`**: un chunk puramente tecnico (imports, boilerplate) no lleva vector de
+  resumen (como el origen); su `resumen_pending` igual se apaga (ya se proceso, no vuelve a intentarse).
+- **Nombres literales en Qdrant** (fijados en el ledger): vector `dense-resumen`; payload `resumen_pending`
+  (bool), `resumen_modelo` (string) y `resumen_prompt_version` (string, hash de prompt+modelo).
+- **Aislamiento de fallos**: una respuesta vacia del LLM para UN chunk se salta (aislado, recuperable en la
+  siguiente corrida, igual que el origen); un perfil de LLM mal configurado (modelo no permitido o de otra
+  capacidad) responde 400 sin tocar el tope de tokens; cualquier otro fallo (conexion) corta la corrida completa
+  dejando el resto pendiente, en vez de insistir contra una dependencia caida chunk a chunk.
 
 ## Identidad
 

@@ -115,6 +115,61 @@ ejecuta el mismo `DocumentIngestionPipeline.IngestAsync(..., barrerDocumentosAus
 el checkout siempre al terminar (exito o error). Los limites del clonado (`Motor:Git:MaxBytesCheckout`,
 `Motor:Git:PlazoSegundos`) y la lista blanca (`Motor:Git:OrigenesPermitidos`) se validan al arrancar.
 
+## Resumen de negocio reanudable (item 1.7.7)
+
+Revive `OllamaBusinessSummaryGenerator`/`IBusinessSummaryGenerator` de Rag.Context.Engine como una fase 2 que corre
+DESPUES de `DocumentIngestionPipeline` (fase 1, sin cambios): prompt, sentinel `SIN_CONTENIDO_DE_NEGOCIO` y
+parametros de muestreo (`temperatura 0.15`, `max_tokens 160`, `top_p 0.95`) portados literal. El transporte NO es
+Semantic Kernel (como en el origen): es un `HttpClient` nombrado contra la ruta `chat/completions` OpenAI-compatible
+de AltheIA, mismo patron que `TeiVectorizationBrain`.
+
+- `Resumen/LlmResumenBrain.cs` (`ILlmResumenBrain`): un chunk por llamada (`ResumirAsync`), devuelve
+  `ResumenLlmResultado?` (null si el modelo respondio vacio, aislado a ese chunk). Traduce `model_not_allowed`/
+  `model_capability_mismatch` a `BadRequestException` (400), igual que `TeiVectorizationBrain`; cualquier otro
+  error a `MotorNoDisponibleException` (503). **Resolucion perezosa del `HttpClient`** (campo `Http =>
+  _http ??= _httpClientFactory.CreateClient(...)`, nunca en el constructor): `Motor:Llm:UrlBase` puede estar vacio
+  cuando el resumen no esta configurado (opt-in), y `MotorVectorial` (que inyecta `ResumenPipeline` -> `ILlmResumenBrain`)
+  se construye en TODA solicitud de ingesta/busqueda/embeddings, use o no resumen. Si el `HttpClient` se creara en
+  el constructor, una instancia sin resumen configurado fallaria al resolver el motor en cualquier operacion.
+- `Resumen/CacheDeResumenes.cs` (`ICacheDeResumenes`): cache en memoria por `(content_hash, prompt_version,
+  modelo)`, misma filosofia que `LimiteDeIngestas` (por instancia, sin persistencia). Cubre contenido identico que
+  aparece en mas de un punto; la garantia principal de "reingerir sin cambios gasta 0 tokens" la da
+  `DocumentIngestionPipeline` al no reencolar un documento sin cambios para resumen (ver abajo), no esta cache.
+- `Resumen/ResumenPipeline.cs`: procesa los puntos `resumen_pending=true` de una coleccion hasta agotar
+  `Motor:Resumen:TopeTokensPorCorrida` (tokens de LLM, `usage.total_tokens`) o los pendientes. Una respuesta vacia
+  del LLM para un chunk se salta (aislado); un `BadRequestException` (perfil mal configurado) se propaga; cualquier
+  otro fallo corta la corrida ENTERA dejando el resto pendiente (no insiste contra una dependencia caida chunk a
+  chunk). El vector de resumen usa un perfil de embeddings YA declarado (`Motor:Resumen:PerfilEmbeddings`,
+  resuelto via `IVectorizationBrainFactory`, 1.7.4): 1.7.3 midio bge-m3 1024d via AltheIA sin truncar.
+- `QdrantVectorStore`: `EnsureCollectionAsync` ahora decide ademas si la coleccion tiene (o debe crear) el vector
+  `ResumenDenseVectorName` ("dense-resumen"). La verdad de si una coleccion tiene resumen es el ESQUEMA real de
+  Qdrant (`GetEsquemaAsync`, si el vector existe), no la metadata (que es solo informativa): pedir `resumen` sobre
+  una coleccion sin ese vector es `ConflictException` (409) antes de tocar nada. Puntos nuevos/cambiados de una
+  coleccion con resumen habilitado se escriben con `ResumenPendingPayloadKey` ("resumen_pending") = true;
+  `ListarPendientesDeResumenAsync`/`ContarPendientesDeResumenAsync` filtran por ese campo (scroll/count con
+  `Conditions.Match(..., bool)`); `ActualizarResumenAsync` escribe el vector (`UpdateVectorsAsync`, solo si el
+  chunk tiene contenido de negocio) y apaga `resumen_pending` (`SetPayloadAsync`) en un solo punto a la vez.
+- `DocumentIngestionPipeline.IngestAsync` gana el parametro `resumenSolicitado`: resuelve el perfil de embeddings
+  del resumen ANTES de `EnsureCollectionAsync` (para saber la dimension si hay que crear el vector), y marca
+  `resumen_pending=true` en el upsert solo si la coleccion termina con el resumen habilitado de verdad (devuelto
+  por `EnsureCollectionAsync`, no por lo que pidio esta solicitud: es un atributo de la coleccion). Un documento
+  "sin cambios" (fingerprint igual) ni siquiera entra a esta fase: no se reencola para resumen, que es como se
+  logra "reingerir sin cambios gasta 0 tokens" sin depender solo de la cache.
+- `MotorVectorial` dispara `ResumenPipeline.ProcesarPendientesAsync` despues de cada ingesta (`IngerirAsync`,
+  `ProcesarAsync` del .zip, `ProcesarGitAsync`) solo si la coleccion quedo con el resumen habilitado; en el origen
+  `documentos` (sincrono) esto corre inline antes de responder, respetando el tope de tokens por invocacion; en
+  `proyecto` (asincrono) corre dentro de la misma tarea en segundo plano. `IngestaResponse`/`ResultadoIngestaProyecto`
+  ganan `resumenesGenerados`/`resumenesPendientes`/`resumenTokensConsumidos` (siempre 0 sin resumen habilitado).
+- Verificado contra Qdrant y TEI reales de `docker-compose.motor.yml` en `tests/.../Motor/ResumenIntegracionTests.cs`
+  (gateado por `VSE_MOTOR_LOCAL=1`, con un `ILlmResumenBrain` de prueba sustituido por DI: no hay ninguna llamada
+  real a AltheIA en esas pruebas): vector `dense-resumen` al crear, 409 al activarlo sobre una coleccion existente
+  sin el, chunk sin contenido de negocio sin vector, cache por content_hash (dos chunks identicos = una sola
+  llamada), corte por tope de tokens y reanudacion sin repetir resumenes, reingesta sin cambios en 0 tokens. La
+  traduccion de errores y el formato del prompt se verifican con un sidecar simulado en
+  `tests/.../Motor/LlmResumenBrainTests.cs` (sin AltheIA real). Evidencia contra AltheIA real (modelo, coste,
+  `enable_thinking`) en `tests/.../Motor/ResumenAltheiaIntegracionTests.cs`, gateada por `RequiereAltheiaFact`
+  igual que `MotorAltheiaIntegracionTests`.
+
 ## Codigo portado
 
 `Chunking/`, `Utilities/`, `Model/` y `Vectorization/SparseTokenizer.cs` vienen de Rag.Context.Engine y deben producir

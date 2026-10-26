@@ -62,12 +62,13 @@ public sealed class ColeccionesController : BaseController
     [ProducesResponseType(StatusCodes.Status501NotImplemented)]
     public async Task<ActionResult<IngestaResponse>> PostIngesta(
         string coleccion, [FromBody] IngestaRequest? request, CancellationToken cancellationToken) =>
-        Ok(await Mediator.Send(new IngerirCommand(coleccion, request?.Origen, request?.Perfil), cancellationToken));
+        Ok(await Mediator.Send(new IngerirCommand(coleccion, request?.Origen, request?.Perfil, request?.Resumen), cancellationToken));
 
     /// <summary>
     /// Ingesta de un proyecto completo subido como .zip (origen 'proyecto', item 1.7.5); asincrona: responde 202 con
     /// el mismo identificador que se consulta en <see cref="GetEstadoIngesta"/>. <paramref name="carpetaRaiz"/> quita
-    /// el envoltorio "repo-rama/" de un "descargar como zip"; <paramref name="perfil"/> es el perfil de embeddings (1.7.4).
+    /// el envoltorio "repo-rama/" de un "descargar como zip"; <paramref name="perfil"/> es el perfil de embeddings
+    /// (1.7.4); <paramref name="resumen"/> es el opt-in del resumen de negocio (1.7.7, ver <see cref="IngestaRequest.Resumen"/>).
     /// </summary>
     [HttpPost("{coleccion}/ingestas/proyecto")]
     [Authorize]
@@ -81,7 +82,8 @@ public sealed class ColeccionesController : BaseController
     [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<ActionResult<IngestaResponse>> PostIngestaProyectoZip(
-        string coleccion, IFormFile? zip, [FromForm] string? carpetaRaiz, [FromForm] string? perfil, CancellationToken cancellationToken)
+        string coleccion, IFormFile? zip, [FromForm] string? carpetaRaiz, [FromForm] string? perfil, [FromForm] bool? resumen,
+        CancellationToken cancellationToken)
     {
         byte[]? contenido = null;
         if (zip is not null)
@@ -91,7 +93,7 @@ public sealed class ColeccionesController : BaseController
             contenido = memoria.ToArray();
         }
 
-        var respuesta = await Mediator.Send(new IngerirProyectoZipCommand(coleccion, contenido, carpetaRaiz, perfil), cancellationToken);
+        var respuesta = await Mediator.Send(new IngerirProyectoZipCommand(coleccion, contenido, carpetaRaiz, perfil, resumen), cancellationToken);
         return Accepted($"/api/colecciones/{coleccion}/ingestas/{respuesta.IngestaId}", respuesta);
     }
 
@@ -112,7 +114,7 @@ public sealed class ColeccionesController : BaseController
         string coleccion, [FromBody] IngerirProyectoGitRequest? request, CancellationToken cancellationToken)
     {
         var respuesta = await Mediator.Send(
-            new IngerirProyectoGitCommand(coleccion, request?.Url, request?.CarpetaRaiz, request?.Perfil), cancellationToken);
+            new IngerirProyectoGitCommand(coleccion, request?.Url, request?.CarpetaRaiz, request?.Perfil, request?.Resumen), cancellationToken);
         return Accepted($"/api/colecciones/{coleccion}/ingestas/{respuesta.IngestaId}", respuesta);
     }
 

@@ -14,7 +14,7 @@ namespace Reyma.VectorSpace.Engine.Microservice.Business.Commands.Colecciones;
 /// <c>GetEstadoIngestaQuery</c>): validar la URL contra la lista blanca es sincrono e instantaneo (no toca la red);
 /// clonar, escanear y vectorizar corre en segundo plano porque un repo real tarda segundos a minutos (1.7.3).
 /// </summary>
-public sealed record IngerirProyectoGitCommand(string Coleccion, string? Url, string? CarpetaRaiz, string? Perfil)
+public sealed record IngerirProyectoGitCommand(string Coleccion, string? Url, string? CarpetaRaiz, string? Perfil, bool? Resumen = null)
     : IRequest<IngestaResponse>, ISolicitudDeColeccion, IValidable
 {
     public OperacionColeccion Operacion => OperacionColeccion.Ingestar;
@@ -56,19 +56,19 @@ public sealed record IngerirProyectoGitCommand(string Coleccion, string? Url, st
 
             // 3. Clonar + escanear + vectorizar corre en segundo plano, fuera del ciclo de vida de esta solicitud HTTP
             // (CancellationToken.None): cerrar la conexion del cliente no debe abortar una ingesta ya admitida.
-            _ = ProcesarEnSegundoPlanoAsync(request.Coleccion, uri, request.CarpetaRaiz, request.Perfil, ingestaId, permiso);
+            _ = ProcesarEnSegundoPlanoAsync(request.Coleccion, uri, request.CarpetaRaiz, request.Perfil, request.Resumen == true, ingestaId, permiso);
 
             return new IngestaResponse(ingestaId, request.Coleccion, EstadosIngestaProyecto.Pendiente,
                 DocumentosRecibidos: 0, DocumentosIndexados: 0, DocumentosSinCambios: 0);
         }
 
         private async Task ProcesarEnSegundoPlanoAsync(
-            string coleccion, Uri uri, string? carpetaRaiz, string? perfil, Guid ingestaId, IDisposable permiso)
+            string coleccion, Uri uri, string? carpetaRaiz, string? perfil, bool resumen, Guid ingestaId, IDisposable permiso)
         {
             try
             {
                 registro.MarcarProcesando(ingestaId);
-                var resultado = await motor.ProcesarGitAsync(coleccion, uri, carpetaRaiz, perfil, CancellationToken.None);
+                var resultado = await motor.ProcesarGitAsync(coleccion, uri, carpetaRaiz, perfil, resumen, CancellationToken.None);
                 registro.MarcarCompletada(ingestaId, resultado);
             }
             catch (Exception ex)

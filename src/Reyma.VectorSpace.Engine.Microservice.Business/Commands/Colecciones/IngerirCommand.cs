@@ -7,7 +7,7 @@ using Reyma.VectorSpace.Engine.Microservice.Business.Validacion;
 
 namespace Reyma.VectorSpace.Engine.Microservice.Business.Commands.Colecciones;
 
-public sealed record IngerirCommand(string Coleccion, OrigenIngestaRequest? Origen, string? Perfil)
+public sealed record IngerirCommand(string Coleccion, OrigenIngestaRequest? Origen, string? Perfil, bool? Resumen = null)
     : IRequest<IngestaResponse>, ISolicitudDeColeccion, IValidable
 {
     public OperacionColeccion Operacion => OperacionColeccion.Ingestar;
@@ -81,7 +81,7 @@ public sealed record IngerirCommand(string Coleccion, OrigenIngestaRequest? Orig
 
             // 1.7: despues de autorizar y validar (behaviors), asi un 403 o un 400 no ocupan lugar en la cola.
             using var permiso = await limite.EntrarAsync(cancellationToken);
-            return await motor.IngerirAsync(request.Coleccion, request.Origen.Documentos!, request.Perfil, cancellationToken);
+            return await motor.IngerirAsync(request.Coleccion, request.Origen.Documentos!, request.Perfil, request.Resumen == true, cancellationToken);
         }
     }
 }

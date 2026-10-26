@@ -9,6 +9,7 @@ using Reyma.VectorSpace.Engine.Microservice.Business.Motor;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Git;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Ingestion;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Model;
+using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Resumen;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Scanning;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.VectorStore;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Vectorization;
@@ -28,6 +29,7 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
     private readonly QdrantVectorStore _store;
     private readonly QdrantSemanticRetriever _retriever;
     private readonly DocumentIngestionPipeline _pipeline;
+    private readonly ResumenPipeline _resumenPipeline;
     private readonly GitOptions _git;
     private readonly ILogger<MotorVectorial> _logger;
 
@@ -36,6 +38,7 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
         QdrantVectorStore store,
         QdrantSemanticRetriever retriever,
         DocumentIngestionPipeline pipeline,
+        ResumenPipeline resumenPipeline,
         IOptions<MotorOptions> options,
         ILogger<MotorVectorial> logger)
     {
@@ -43,9 +46,18 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
         _store = store;
         _retriever = retriever;
         _pipeline = pipeline;
+        _resumenPipeline = resumenPipeline;
         _git = options.Value.Git;
         _logger = logger;
     }
+
+    /// <summary>
+    /// 1.7.7: si la ingesta dejo la coleccion con el resumen de negocio habilitado, corre la fase 2 (reanudable) a
+    /// continuacion, respetando el tope de tokens de <c>Motor:Resumen:TopeTokensPorCorrida</c> por invocacion. Si no
+    /// esta habilitada, no toca el LLM ni gasta tokens.
+    /// </summary>
+    private async Task<ResumenResultado> ResumirSiCorrespondeAsync(string coleccion, bool resumenHabilitado, CancellationToken ct) =>
+        resumenHabilitado ? await _resumenPipeline.ProcesarPendientesAsync(coleccion, ct) : ResumenResultado.Vacio;
 
     /// <summary>Vectores de documento (sin prefijo de consulta): los mismos que se guardarian al ingestar esos textos.</summary>
     public Task<EmbeddingsResponse> CalcularAsync(string coleccion, IReadOnlyList<string> textos, string? perfil, CancellationToken cancellationToken) =>
@@ -65,13 +77,17 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
                 hits.Select(h => new ResultadoBusquedaResponse(h.ChunkId, h.Score, h.RelativePath, h.Content)).ToArray());
         });
 
-    public Task<IngestaResponse> IngerirAsync(string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, CancellationToken cancellationToken) =>
+    public Task<IngestaResponse> IngerirAsync(
+        string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken) =>
         ConQdrantAsync(async () =>
         {
             var resultado = await _pipeline.IngestAsync(coleccion, perfil,
-                documentos.Select(d => (d.Ruta!, d.Contenido!)).ToArray(), cancellationToken);
+                documentos.Select(d => (d.Ruta!, d.Contenido!)).ToArray(), cancellationToken, resumenSolicitado: resumen);
+            var resumenResultado = await ResumirSiCorrespondeAsync(coleccion, resultado.ResumenHabilitado, cancellationToken);
             return new IngestaResponse(Guid.NewGuid(), coleccion, "completada",
-                resultado.Received, resultado.Indexed, resultado.Unchanged, resultado.Omitted);
+                resultado.Received, resultado.Indexed, resultado.Unchanged, resultado.Omitted,
+                ResumenesGenerados: resumenResultado.Resumidos, ResumenesPendientes: resumenResultado.Pendientes,
+                ResumenTokensConsumidos: resumenResultado.TokensConsumidos);
         });
 
     /// <summary>
@@ -93,12 +109,15 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
 
     /// <summary>Mismo pipeline que <see cref="IngerirAsync"/>, mas el barrido de documentos ausentes del proyecto (1.7.5).</summary>
     public Task<ResultadoIngestaProyecto> ProcesarAsync(
-        string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, CancellationToken cancellationToken) =>
+        string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken) =>
         ConQdrantAsync(async () =>
         {
             var resultado = await _pipeline.IngestAsync(coleccion, perfil,
-                documentos.Select(d => (d.Ruta!, d.Contenido!)).ToArray(), cancellationToken, barrerDocumentosAusentes: true);
-            return new ResultadoIngestaProyecto(resultado.Indexed, resultado.Unchanged, resultado.Omitted, resultado.DocumentsSweptAway);
+                documentos.Select(d => (d.Ruta!, d.Contenido!)).ToArray(), cancellationToken,
+                barrerDocumentosAusentes: true, resumenSolicitado: resumen);
+            var resumenResultado = await ResumirSiCorrespondeAsync(coleccion, resultado.ResumenHabilitado, cancellationToken);
+            return new ResultadoIngestaProyecto(resultado.Indexed, resultado.Unchanged, resultado.Omitted, resultado.DocumentsSweptAway,
+                resumenResultado.Resumidos, resumenResultado.Pendientes, resumenResultado.TokensConsumidos);
         });
 
     /// <summary>
@@ -118,7 +137,7 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
     /// al terminar, con exito o con error.
     /// </summary>
     public async Task<ResultadoIngestaProyecto> ProcesarGitAsync(
-        string coleccion, Uri url, string? carpetaRaiz, string? perfil, CancellationToken cancellationToken)
+        string coleccion, Uri url, string? carpetaRaiz, string? perfil, bool resumen, CancellationToken cancellationToken)
     {
         Directory.CreateDirectory(_git.DirectorioTemporal);
         var destino = Path.Combine(_git.DirectorioTemporal, Guid.NewGuid().ToString("N"));
@@ -151,8 +170,11 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
             var documentos = escaneo.Documentos.Select(d => (d.Ruta, d.Contenido)).ToArray();
             return await ConQdrantAsync(async () =>
             {
-                var resultado = await _pipeline.IngestAsync(coleccion, perfil, documentos, cancellationToken, barrerDocumentosAusentes: true);
-                return new ResultadoIngestaProyecto(resultado.Indexed, resultado.Unchanged, resultado.Omitted, resultado.DocumentsSweptAway);
+                var resultado = await _pipeline.IngestAsync(coleccion, perfil, documentos, cancellationToken,
+                    barrerDocumentosAusentes: true, resumenSolicitado: resumen);
+                var resumenResultado = await ResumirSiCorrespondeAsync(coleccion, resultado.ResumenHabilitado, cancellationToken);
+                return new ResultadoIngestaProyecto(resultado.Indexed, resultado.Unchanged, resultado.Omitted, resultado.DocumentsSweptAway,
+                    resumenResultado.Resumidos, resumenResultado.Pendientes, resumenResultado.TokensConsumidos);
             });
         }
         finally

@@ -15,7 +15,7 @@ namespace Reyma.VectorSpace.Engine.Microservice.Business.Commands.Colecciones;
 /// (el controller la convierte en 202); el trabajo pesado (chunking, vectorizacion, barrido de ausentes) corre en
 /// segundo plano y actualiza <see cref="IRegistroDeIngestasProyecto"/>, consultable por <c>GetEstadoIngestaQuery</c>.
 /// </summary>
-public sealed record IngerirProyectoZipCommand(string Coleccion, byte[]? Zip, string? CarpetaRaiz, string? Perfil)
+public sealed record IngerirProyectoZipCommand(string Coleccion, byte[]? Zip, string? CarpetaRaiz, string? Perfil, bool? Resumen = null)
     : IRequest<IngestaResponse>, ISolicitudDeColeccion, IValidable
 {
     public OperacionColeccion Operacion => OperacionColeccion.Ingestar;
@@ -58,19 +58,19 @@ public sealed record IngerirProyectoZipCommand(string Coleccion, byte[]? Zip, st
 
             // 3. El trabajo pesado corre en segundo plano, fuera del ciclo de vida de esta solicitud HTTP (CancellationToken.None):
             // cerrar la conexion del cliente no debe abortar una ingesta que ya se admitio.
-            _ = ProcesarEnSegundoPlanoAsync(request.Coleccion, documentos, request.Perfil, ingestaId, permiso);
+            _ = ProcesarEnSegundoPlanoAsync(request.Coleccion, documentos, request.Perfil, request.Resumen == true, ingestaId, permiso);
 
             return new IngestaResponse(ingestaId, request.Coleccion, EstadosIngestaProyecto.Pendiente,
                 documentos.Count, DocumentosIndexados: 0, DocumentosSinCambios: 0);
         }
 
         private async Task ProcesarEnSegundoPlanoAsync(
-            string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, Guid ingestaId, IDisposable permiso)
+            string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, Guid ingestaId, IDisposable permiso)
         {
             try
             {
                 registro.MarcarProcesando(ingestaId);
-                var resultado = await motor.ProcesarAsync(coleccion, documentos, perfil, CancellationToken.None);
+                var resultado = await motor.ProcesarAsync(coleccion, documentos, perfil, resumen, CancellationToken.None);
                 registro.MarcarCompletada(ingestaId, resultado);
             }
             catch (Exception ex)

@@ -39,7 +39,8 @@ public interface IRegistroDeIngestasProyecto
 public sealed class RegistroDeIngestasProyecto : IRegistroDeIngestasProyecto
 {
     private sealed record Entrada(
-        string Coleccion, int Recibidos, string Estado, int Indexados, int SinCambios, int Omitidos, int Eliminados);
+        string Coleccion, int Recibidos, string Estado, int Indexados, int SinCambios, int Omitidos, int Eliminados,
+        int ResumenesGenerados = 0, int ResumenesPendientes = 0, int ResumenTokensConsumidos = 0);
 
     private readonly ConcurrentDictionary<Guid, Entrada> _entradas = new();
 
@@ -64,7 +65,10 @@ public sealed class RegistroDeIngestasProyecto : IRegistroDeIngestasProyecto
                 Indexados = resultado.Indexados,
                 SinCambios = resultado.SinCambios,
                 Omitidos = resultado.Omitidos,
-                Eliminados = resultado.DocumentosEliminados
+                Eliminados = resultado.DocumentosEliminados,
+                ResumenesGenerados = resultado.ResumenesGenerados,
+                ResumenesPendientes = resultado.ResumenesPendientes,
+                ResumenTokensConsumidos = resultado.ResumenTokensConsumidos
             });
 
     public void MarcarError(Guid ingestaId, string mensaje) =>
@@ -76,7 +80,8 @@ public sealed class RegistroDeIngestasProyecto : IRegistroDeIngestasProyecto
     {
         if (!_entradas.TryGetValue(ingestaId, out var e) || !string.Equals(e.Coleccion, coleccion, StringComparison.Ordinal))
             return null;
-        return new IngestaResponse(ingestaId, coleccion, e.Estado, e.Recibidos, e.Indexados, e.SinCambios, e.Omitidos, e.Eliminados);
+        return new IngestaResponse(ingestaId, coleccion, e.Estado, e.Recibidos, e.Indexados, e.SinCambios, e.Omitidos, e.Eliminados,
+            e.ResumenesGenerados, e.ResumenesPendientes, e.ResumenTokensConsumidos);
     }
 
     private static InvalidOperationException IngestaDesconocida(Guid ingestaId) =>

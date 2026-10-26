@@ -11,6 +11,7 @@ using Reyma.VectorSpace.Engine.Microservice.Business.Motor;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Abstractions;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Chunking;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Ingestion;
+using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Resumen;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Vectorization;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.VectorStore;
 
@@ -64,6 +65,23 @@ public static class MotorServiceCollectionExtensions
             .Validate(o => o.Git.PlazoSegundos > 0, "Motor:Git:PlazoSegundos debe ser positivo.")
             .Validate(o => !string.IsNullOrWhiteSpace(o.Git.DirectorioTemporal), "Motor:Git:DirectorioTemporal es obligatorio.")
             .Validate(o => !string.IsNullOrWhiteSpace(o.Git.NombreVariableIdentidad), "Motor:Git:NombreVariableIdentidad es obligatorio.")
+            // 1.7.7: resumen de negocio, opt-in. Vacio Motor:Resumen:PerfilEmbeddings = la fase 2 no esta disponible
+            // en esta instancia (activarla responde 400); el resto solo se valida cuando si esta configurado.
+            .Validate(o => string.IsNullOrWhiteSpace(o.Resumen.PerfilEmbeddings) ||
+                           o.Resumen.PerfilEmbeddings == MotorOptions.PerfilEmbeddingsPorDefecto ||
+                           o.Embeddings.Perfiles.ContainsKey(o.Resumen.PerfilEmbeddings),
+                "Motor:Resumen:PerfilEmbeddings debe ser el perfil de embeddings por defecto o uno declarado en Motor:Embeddings:Perfiles.")
+            .Validate(o => string.IsNullOrWhiteSpace(o.Resumen.PerfilEmbeddings) ||
+                           (Uri.TryCreate(o.Llm.UrlBase, UriKind.Absolute, out var u) && (u.Scheme == "http" || u.Scheme == "https")),
+                "Motor:Llm:UrlBase debe ser una URL http(s) absoluta cuando Motor:Resumen:PerfilEmbeddings esta configurado.")
+            .Validate(o => string.IsNullOrWhiteSpace(o.Resumen.PerfilEmbeddings) || !string.IsNullOrWhiteSpace(o.Llm.Modelo),
+                "Motor:Llm:Modelo es obligatorio cuando Motor:Resumen:PerfilEmbeddings esta configurado.")
+            .Validate(o => o.Llm.MaxTokens > 0, "Motor:Llm:MaxTokens debe ser positivo.")
+            .Validate(o => o.Llm.TiempoMaximoSegundos > 0, "Motor:Llm:TiempoMaximoSegundos debe ser positivo.")
+            .Validate(o => string.IsNullOrWhiteSpace(o.Llm.RutaCertificadoCA) || File.Exists(o.Llm.RutaCertificadoCA),
+                "Motor:Llm:RutaCertificadoCA debe apuntar a un archivo existente si se define.")
+            .Validate(o => o.Resumen.TopeTokensPorCorrida > 0, "Motor:Resumen:TopeTokensPorCorrida debe ser positivo.")
+            .Validate(o => o.Resumen.TamanoPaginaPendientes > 0, "Motor:Resumen:TamanoPaginaPendientes debe ser positivo.")
             .ValidateOnStart();
 
         services.AddSingleton(sp =>
@@ -143,6 +161,35 @@ public static class MotorServiceCollectionExtensions
             if (!string.IsNullOrWhiteSpace(o.ApiKey))
                 http.DefaultRequestHeaders.Add("api-key", o.ApiKey);
         });
+
+        // 1.7.7: HttpClient del perfil de LLM (chat-completions), mismo patron Bearer+CA que embeddings. El
+        // delegado de configuracion (y por tanto Motor:Llm:UrlBase) solo se evalua la primera vez que algo pide
+        // CreateClient(HttpClientName) -- LlmResumenBrain lo hace de forma perezosa (ver su comentario), nunca en
+        // su constructor, para que una instancia sin resumen configurado (UrlBase vacio) no falle al construir
+        // MotorVectorial en cada solicitud.
+        services.AddHttpClient(LlmResumenBrain.HttpClientName, (sp, http) =>
+            {
+                var o = sp.GetRequiredService<IOptions<MotorOptions>>().Value.Llm;
+                http.BaseAddress = new Uri(o.UrlBase!.TrimEnd('/') + "/");
+                http.Timeout = TimeSpan.FromSeconds(o.TiempoMaximoSegundos);
+                if (!string.IsNullOrWhiteSpace(o.ApiKey))
+                    http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", o.ApiKey);
+            })
+            .ConfigurePrimaryHttpMessageHandler(sp =>
+            {
+                var o = sp.GetRequiredService<IOptions<MotorOptions>>().Value.Llm;
+                var handler = new HttpClientHandler();
+                if (!string.IsNullOrWhiteSpace(o.RutaCertificadoCA))
+                {
+                    var caAdicional = X509CertificateLoader.LoadCertificateFromFile(o.RutaCertificadoCA);
+                    handler.ServerCertificateCustomValidationCallback = (_, cert, chain, errors) =>
+                        ValidaConCaAdicional(cert, chain, errors, caAdicional);
+                }
+                return handler;
+            });
+        services.AddSingleton<ILlmResumenBrain, LlmResumenBrain>();
+        services.AddSingleton<ICacheDeResumenes, CacheDeResumenes>();
+        services.AddSingleton<ResumenPipeline>();
 
         services.AddSingleton<ISparseTokenizer, SparseTokenizer>();
 

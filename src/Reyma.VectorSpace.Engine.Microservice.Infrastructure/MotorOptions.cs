@@ -26,6 +26,12 @@ public sealed class MotorOptions
 
     /// <summary>Origen 'proyecto' desde URL Git (1.7.6): lista blanca y limites del clonado.</summary>
     public GitOptions Git { get; set; } = new();
+
+    /// <summary>Perfil de LLM para el resumen de negocio (1.7.7). Vacio/sin <see cref="LlmOptions.UrlBase"/> = resumen no disponible en esta instancia.</summary>
+    public LlmOptions Llm { get; set; } = new();
+
+    /// <summary>Fase 2 reanudable de resumen de negocio (1.7.7): perfil de embeddings del vector <c>dense-resumen</c> y tope de tokens por corrida.</summary>
+    public ResumenOptions Resumen { get; set; } = new();
 }
 
 /// <summary>
@@ -220,4 +226,72 @@ public sealed class BusquedaOptions
 
     /// <summary>Coseno minimo de la rama densa; el mismo 0,10 del retriever y del banco de 1.6/1.10/1.11.</summary>
     public float UmbralSimilitud { get; set; } = 0.10f;
+}
+
+/// <summary>
+/// Seccion <c>Motor:Llm</c> (1.7.7): perfil de LLM para el resumen de negocio de un chunk, por la misma ruta
+/// OpenAI-compatible de AltheIA que <see cref="EmbeddingsOptions"/>, pero para <c>chat/completions</c>. 1.7.3 midio
+/// contra AltheIA real: <c>qwen3.8-27b-fast</c> con <c>max_tokens</c> 160 responde 30/30; <c>qwen3.8-27b-deep</c> (el
+/// perfil de LLM por defecto de 1.13) razona por defecto y gasta los 160 tokens sin escribir el resumen (0/30) salvo
+/// que se envie <c>chat_template_kwargs.enable_thinking=false</c> (entonces 30/30, igual que <c>fast</c>).
+/// </summary>
+public sealed class LlmOptions
+{
+    /// <summary>URL base del servidor de chat-completions (AltheIA). Vacio = resumen de negocio no disponible en esta instancia.</summary>
+    public string? UrlBase { get; set; }
+
+    /// <summary>Ruta OpenAI-compatible de chat-completions.</summary>
+    public string Ruta { get; set; } = "v1/chat/completions";
+
+    /// <summary>1.7.3: modelo que responde sin razonar con el limite de tokens del prompt de resumen.</summary>
+    public string Modelo { get; set; } = "qwen3.8-27b-fast";
+
+    /// <summary>Igual que el origen (OllamaBusinessSummaryGenerator): debe caber holgadamente el resumen (1 a 3 oraciones).</summary>
+    public int MaxTokens { get; set; } = 160;
+
+    public double Temperatura { get; set; } = 0.15;
+
+    public double TopP { get; set; } = 0.95;
+
+    /// <summary>
+    /// Null (por defecto, perfil <c>fast</c>): no se envia el campo <c>chat_template_kwargs.enable_thinking</c>.
+    /// <c>false</c> (obligatorio con un modelo <c>deep</c>, 1.7.3): fuerza respuesta directa sin razonar; sin esto
+    /// <c>deep</c> gasta los <c>MaxTokens</c> razonando y devuelve una respuesta vacia (medido, 0/30).
+    /// </summary>
+    public bool? EnableThinking { get; set; }
+
+    public int TiempoMaximoSegundos { get; set; } = 120;
+
+    /// <summary>Opcional. Va por variable de entorno o user-secrets (Motor__Llm__ApiKey), nunca en appsettings.</summary>
+    public string? ApiKey { get; set; }
+
+    /// <summary>Opcional: igual que <see cref="EmbeddingsOptions.RutaCertificadoCA"/> pero para el perfil de LLM.</summary>
+    public string? RutaCertificadoCA { get; set; }
+}
+
+/// <summary>
+/// Seccion <c>Motor:Resumen</c> (1.7.7): fase 2 reanudable de resumen de negocio, opt-in al crear la coleccion (el
+/// vector <c>dense-resumen</c> no se puede agregar despues, 1.7.3). Vacio <see cref="PerfilEmbeddings"/> = el
+/// resumen no esta disponible en esta instancia (pedirlo responde 400, nunca 500).
+/// </summary>
+public sealed class ResumenOptions
+{
+    /// <summary>
+    /// Nombre de un perfil de embeddings YA declarado (<see cref="MotorOptions.PerfilEmbeddingsPorDefecto"/> o una
+    /// clave de <see cref="EmbeddingsOptions.Perfiles"/>) que sirve el vector <c>dense-resumen</c>. 1.7.3: bge-m3
+    /// 1024d via AltheIA, SIN truncar (no es Matryoshka). Vacio = resumen no disponible en esta instancia.
+    /// </summary>
+    public string? PerfilEmbeddings { get; set; }
+
+    /// <summary>
+    /// Tope de tokens de LLM (prompt + respuesta, segun <c>usage.total_tokens</c> de AltheIA) que esta instancia
+    /// gasta en UNA corrida de la fase de resumen antes de cortar, dejando el resto marcado <c>resumen_pending</c>
+    /// para una corrida posterior (1.7.7, criterio 4). Configuracion, nunca un valor fijo en codigo: frente a la
+    /// cuota real de AltheIA (1 000 000 tokens/dia, no verificado si los embeddings cuentan, 1.7.3), cada despliegue
+    /// decide cuanto de esa cuota dedica a resumir por invocacion.
+    /// </summary>
+    public int TopeTokensPorCorrida { get; set; } = 100_000;
+
+    /// <summary>Chunks pendientes de resumen leidos por pagina de Qdrant (scroll) en cada corrida.</summary>
+    public int TamanoPaginaPendientes { get; set; } = 64;
 }

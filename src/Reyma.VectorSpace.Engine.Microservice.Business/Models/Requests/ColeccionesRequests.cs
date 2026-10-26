@@ -37,6 +37,14 @@ public sealed class IngestaRequest
     /// perfiles disponibles.
     /// </summary>
     public string? Perfil { get; set; }
+
+    /// <summary>
+    /// Opt-in del resumen de negocio (1.7.7): solo tiene efecto en la primera ingesta, la que crea la coleccion (el
+    /// vector <c>dense-resumen</c> no se puede agregar despues). Ausente/false en una coleccion nueva = sin resumen.
+    /// true sobre una coleccion existente que no lo tiene: 409 con un mensaje claro. Sobre una coleccion que ya lo
+    /// tiene, da igual el valor: el resumen sigue automaticamente (es un atributo de la coleccion).
+    /// </summary>
+    public bool? Resumen { get; set; }
 }
 
 /// <summary>
@@ -78,4 +86,7 @@ public sealed class IngerirProyectoGitRequest
 
     /// <summary>Ver <see cref="CalcularEmbeddingsRequest.Perfil"/>.</summary>
     public string? Perfil { get; set; }
+
+    /// <summary>Ver <see cref="IngestaRequest.Resumen"/> (1.7.7).</summary>
+    public bool? Resumen { get; set; }
 }

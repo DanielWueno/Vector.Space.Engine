@@ -153,7 +153,7 @@ public sealed class MotorDePrueba : IMotorDeEmbeddings, IMotorDeBusqueda, IMotor
         return Task.FromResult(new BusquedaResponse(coleccion, [new ResultadoBusquedaResponse("id-1", 0.9f, "a.md", "texto")]));
     }
 
-    public Task<IngestaResponse> IngerirAsync(string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, CancellationToken cancellationToken)
+    public Task<IngestaResponse> IngerirAsync(string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken)
     {
         Llamadas.Enqueue(("ingesta", coleccion, documentos.Count));
         return Task.FromResult(new IngestaResponse(Guid.NewGuid(), coleccion, "completada", documentos.Count, documentos.Count, 0));

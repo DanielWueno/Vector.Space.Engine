@@ -35,6 +35,13 @@ Proyecto `Reyma.VectorSpace.Engine.Microservice.Business`. CQRS con MediatR; el 
   servicio. Clonar, escanear el checkout y vectorizar (incluido el caso "el repo no trae documentos admitidos") pasa
   a ser parte del trabajo en segundo plano, con el mismo `IRegistroDeIngestasProyecto` y el mismo
   `GetEstadoIngestaQuery` que el `.zip`.
+- Opt-in de una fase 2 opcional (1.7.7, resumen de negocio): un `bool? Resumen` en el command (`IngerirCommand`,
+  `IngerirProyectoZipCommand`, `IngerirProyectoGitCommand`) viaja tal cual hasta el puerto de Infrastructure
+  (`resumen: bool`, nunca `bool?`: el handler resuelve `request.Resumen == true` antes de llamar al motor). El
+  motor decide que hacer con el (crear un vector opcional, rechazar activarlo sobre una coleccion existente); el
+  command no valida nada especifico de ese campo mas alla de los limites ya existentes del comando. Mismo patron
+  para cualquier fase 2 opcional futura: el command solo transporta el opt-in, Infrastructure resuelve el permiso
+  de habilitarlo y Business no conoce Qdrant ni el LLM.
 
 ## Responses
 

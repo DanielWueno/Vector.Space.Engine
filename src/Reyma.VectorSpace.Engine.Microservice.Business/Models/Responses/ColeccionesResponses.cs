@@ -25,6 +25,10 @@ public sealed record ResultadoBusquedaResponse(string Id, float Puntuacion, stri
 /// limite, los mismos filtros por archivo que el escaner de Rag.Context.Engine (item 1.4).
 /// <see cref="DocumentosEliminados"/> (1.7.5): documentos que ya no estan en el proyecto, cuyos puntos se barrieron
 /// tras la ingesta; siempre 0 en el origen 'documentos' (no barre nada por su cuenta, ver item 1.7.2).
+/// <see cref="ResumenesGenerados"/>/<see cref="ResumenesPendientes"/>/<see cref="ResumenTokensConsumidos"/> (1.7.7):
+/// solo tienen sentido en una coleccion con el resumen de negocio habilitado; siempre 0 en una sin el. Una corrida
+/// que corta por el tope de tokens deja <see cref="ResumenesPendientes"/> mayor que 0, reanudable en la siguiente
+/// ingesta sobre la misma coleccion (no repite los ya resumidos).
 /// </summary>
 public sealed record IngestaResponse(
     Guid IngestaId,
@@ -34,4 +38,7 @@ public sealed record IngestaResponse(
     int DocumentosIndexados,
     int DocumentosSinCambios,
     int DocumentosOmitidos = 0,
-    int DocumentosEliminados = 0);
+    int DocumentosEliminados = 0,
+    int ResumenesGenerados = 0,
+    int ResumenesPendientes = 0,
+    int ResumenTokensConsumidos = 0);

@@ -39,6 +39,7 @@ public sealed class DocumentIngestionPipeline
     private readonly QdrantVectorStore _store;
     private readonly IDateTime _clock;
     private readonly IngestaOptions _options;
+    private readonly ResumenOptions _resumenOptions;
     private readonly ILogger<DocumentIngestionPipeline> _logger;
 
     // Dos ingestas sobre la misma coleccion se serializan: el barrido de obsoletos de una no debe ver a medias los
@@ -61,6 +62,7 @@ public sealed class DocumentIngestionPipeline
         _store = store;
         _clock = clock;
         _options = options.Value.Ingesta;
+        _resumenOptions = options.Value.Resumen;
         _logger = logger;
     }
 
@@ -97,15 +99,22 @@ public sealed class DocumentIngestionPipeline
     /// puede enviar un subconjunto sin que eso signifique que el resto se borro. Corre dentro del mismo
     /// <see cref="SemaphoreSlim"/> por coleccion que el resto del metodo, para no pisarse con otra ingesta concurrente.
     /// </param>
+    /// <param name="resumenSolicitado">
+    /// 1.7.7: opt-in del resumen de negocio. Solo tiene efecto real al CREAR la coleccion (agrega el vector
+    /// <c>dense-resumen</c>); pedirlo sobre una coleccion existente que no lo tiene es un 409 claro (ver
+    /// <c>QdrantVectorStore.EnsureCollectionAsync</c>). Sobre una coleccion que YA lo tiene, da igual el valor: el
+    /// resumen sigue automaticamente para los documentos nuevos o cambiados (es un atributo de la coleccion, igual
+    /// que el perfil de embeddings).
+    /// </param>
     public async Task<IngestionResult> IngestAsync(
         string collectionName, string? perfil, IReadOnlyList<(string Path, string Content)> documents, CancellationToken ct,
-        bool barrerDocumentosAusentes = false)
+        bool barrerDocumentosAusentes = false, bool resumenSolicitado = false)
     {
         var gate = _collectionLocks.GetOrAdd(collectionName, _ => new SemaphoreSlim(1, 1));
         await gate.WaitAsync(ct);
         try
         {
-            var resultado = await IngestLockedAsync(collectionName, perfil, documents, ct);
+            var resultado = await IngestLockedAsync(collectionName, perfil, documents, resumenSolicitado, ct);
             if (!barrerDocumentosAusentes)
                 return resultado;
 
@@ -138,12 +147,20 @@ public sealed class DocumentIngestionPipeline
     }
 
     private async Task<IngestionResult> IngestLockedAsync(
-        string collectionName, string? perfilSolicitado, IReadOnlyList<(string Path, string Content)> documents, CancellationToken ct)
+        string collectionName, string? perfilSolicitado, IReadOnlyList<(string Path, string Content)> documents,
+        bool resumenSolicitado, CancellationToken ct)
     {
         // 1.7.4: se resuelve el perfil de embeddings antes de trocear, porque el fingerprint de cada documento
         // incluye el modelo y la dimension (si el perfil cambia, el documento se vuelve a vectorizar).
         var resuelto = _brainFactory.Resolver(perfilSolicitado);
         var brain = resuelto.Brain;
+
+        // 1.7.7: si se pide resumen pero esta instancia no tiene perfil de embeddings de resumen configurado, es un
+        // 400 claro (motor sin configurar), nunca una resolucion silenciosa al perfil de embeddings por defecto ni
+        // un 500. Se resuelve ANTES de EnsureCollectionAsync porque crear la coleccion necesita su dimension.
+        if (resumenSolicitado && string.IsNullOrWhiteSpace(_resumenOptions.PerfilEmbeddings))
+            throw new BadRequestException("El resumen de negocio no esta configurado en este servicio (falta Motor:Resumen:PerfilEmbeddings).");
+        var resumenEmbeddings = resumenSolicitado ? _brainFactory.Resolver(_resumenOptions.PerfilEmbeddings) : null;
 
         var options = ChunkingOptionsFor(collectionName);
         var profile = ScanProfile.DotNetEnterprise;
@@ -190,8 +207,13 @@ public sealed class DocumentIngestionPipeline
         if (duplicate is not null)
             throw new BadRequestException($"Varias rutas de la solicitud identifican al mismo documento ('{duplicate.Key}').");
 
-        // 2. La coleccion se crea con el perfil y la dimension del modelo, o se rechaza si ya tiene otro (1.7.4).
-        await _store.EnsureCollectionAsync(collectionName, resuelto.Nombre, brain.ModelName, brain.EmbeddingDimensions, ct);
+        // 2. La coleccion se crea con el perfil y la dimension del modelo, o se rechaza si ya tiene otro (1.7.4); con
+        //    resumen opt-in (1.7.7), tambien agrega/verifica el vector dense-resumen. resumenHabilitado es el estado
+        //    REAL de la coleccion (puede ser true aunque esta solicitud no haya pedido resumen: es un atributo de la
+        //    coleccion, no de la solicitud).
+        var resumenHabilitado = await _store.EnsureCollectionAsync(
+            collectionName, resuelto.Nombre, brain.ModelName, brain.EmbeddingDimensions,
+            resumenSolicitado, resumenEmbeddings?.Brain.ModelName, resumenEmbeddings?.Brain.EmbeddingDimensions ?? 0, ct);
 
         // 3. Que tiene ya cada documento indexado.
         var existing = await _store.GetDocumentPointsAsync(collectionName, prepared.Select(d => d.FilePath).ToArray(), ct);
@@ -222,7 +244,7 @@ public sealed class DocumentIngestionPipeline
             var sparse = _sparseTokenizer.TokenizeBatch(texts);
 
             await _store.UpsertBatchAsync(collectionName,
-                batch.Select((b, j) => new VectorStoreBatchItem(b.Chunk, dense[j], sparse[j], b.Fingerprint)).ToList(), ct);
+                batch.Select((b, j) => new VectorStoreBatchItem(b.Chunk, dense[j], sparse[j], b.Fingerprint, ResumenPendiente: resumenHabilitado)).ToList(), ct);
         }
 
         // 5. Barrer los puntos que los documentos procesados ya no generan (DeleteSupersededPointsAsync del origen,
@@ -242,7 +264,7 @@ public sealed class DocumentIngestionPipeline
             "{Omitted} omitidos, {Deleted} puntos obsoletos borrados.",
             collectionName, documents.Count, changed.Count, pending.Count, unchanged, omitted, superseded.Count);
 
-        return new IngestionResult(documents.Count, changed.Count, unchanged, omitted, pending.Count, superseded.Count);
+        return new IngestionResult(documents.Count, changed.Count, unchanged, omitted, pending.Count, superseded.Count, ResumenHabilitado: resumenHabilitado);
     }
 
     /// <summary>
@@ -285,6 +307,9 @@ public sealed class DocumentIngestionPipeline
 /// Conteos de una ingesta: documentos por desenlace, chunks indexados y puntos obsoletos borrados.
 /// <see cref="DocumentsSweptAway"/> (1.7.5): documentos barridos por completo por no reaparecer en el proyecto; 0
 /// salvo que <see cref="DocumentIngestionPipeline.IngestAsync"/> se haya llamado con <c>barrerDocumentosAusentes: true</c>.
+/// <see cref="ResumenHabilitado"/> (1.7.7): si la coleccion (ya existente o recien creada por esta ingesta) tiene de
+/// verdad el resumen de negocio habilitado; el llamador (MotorVectorial) solo dispara la fase 2 cuando es true.
 /// </summary>
 public sealed record IngestionResult(
-    int Received, int Indexed, int Unchanged, int Omitted, int ChunksIndexed, int PointsDeleted, int DocumentsSweptAway = 0);
+    int Received, int Indexed, int Unchanged, int Omitted, int ChunksIndexed, int PointsDeleted,
+    int DocumentsSweptAway = 0, bool ResumenHabilitado = false);
