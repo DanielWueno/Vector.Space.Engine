@@ -1,0 +1,20 @@
+// Plantilla versionada, sin valores reales (ver .gitignore: appsettings.*.local.json).
+// Copia este archivo a "appsettings.Development.local.json" (en esta misma carpeta) y
+// llena los dos secretos con tu ALTHEIA_KEY / ALTHEIA_CERT. Nunca se commitea: Program.cs
+// lo carga como overlay opcional despues de appsettings.Development.json.
+{
+  "Motor": {
+    "Llm": {
+      "ApiKey": "",
+      "RutaCertificadoCA": ""
+    },
+    "Embeddings": {
+      "Perfiles": {
+        "altheia-bge-m3-1024": {
+          "ApiKey": "",
+          "RutaCertificadoCA": ""
+        }
+      }
+    }
+  }
+}

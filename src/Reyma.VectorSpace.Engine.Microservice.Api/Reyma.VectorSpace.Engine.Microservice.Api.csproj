@@ -35,6 +35,9 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Item 1.13/1.7.7: User Secrets para ApiKey/RutaCertificadoCA de Motor:Llm y Motor:Embeddings:Perfiles en
+         desarrollo local (ver .env.example); vive fuera del repo en %APPDATA%\Microsoft\UserSecrets\<id>\. -->
+    <UserSecretsId>65d95ecc-aa78-4b13-851c-8d4da486e00b</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
