@@ -16,27 +16,33 @@ namespace Reyma.VectorSpace.Engine.Microservice.Api.Controllers;
 [Route("[controller]")]
 public sealed class ColeccionesController : BaseController
 {
-    /// <summary>Embeddings densos de textos sueltos con el perfil de la coleccion; no escribe en ella.</summary>
-    [HttpPost("{coleccion}/embeddings")]
+    /// <summary>
+    /// Lista las colecciones existentes en el vector store, con su perfil de embeddings si lo tiene guardado (item
+    /// 1.16): resuelve el caso de no saber que colecciones hay sin acceso directo a Qdrant. Nunca 404: sin
+    /// colecciones responde 200 con una lista vacia.
+    /// </summary>
+    [HttpGet]
     [Authorize]
-    [ProducesResponseType(typeof(EmbeddingsResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(IReadOnlyList<ColeccionInfoResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status501NotImplemented)]
-    public async Task<ActionResult<EmbeddingsResponse>> PostEmbeddings(
-        string coleccion, [FromBody] CalcularEmbeddingsRequest? request, CancellationToken cancellationToken) =>
-        Ok(await Mediator.Send(new CalcularEmbeddingsCommand(coleccion, request?.Textos, request?.Perfil), cancellationToken));
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<IReadOnlyList<ColeccionInfoResponse>>> GetColecciones(CancellationToken cancellationToken) =>
+        Ok(await Mediator.Send(new GetColeccionesQuery(), cancellationToken));
 
-    /// <summary>Busqueda semantica en la coleccion.</summary>
-    [HttpPost("{coleccion}/busquedas")]
+    /// <summary>
+    /// Lista las ingestas de proyecto registradas, en cualquier estado (item 1.15): util cuando se perdio el
+    /// <c>ingestaId</c> que devolvieron <see cref="PostIngestaProyectoZip"/>/<see cref="PostIngestaProyectoGit"/> (por
+    /// ejemplo, otra persona del equipo ingesto a la misma coleccion). Sin <paramref name="coleccion"/>, trae las de
+    /// cualquier coleccion (item 1.16); con ella, solo las de esa. Nunca 404: sin resultados responde 200 con una
+    /// lista vacia.
+    /// </summary>
+    [HttpGet("ingestas")]
     [Authorize]
-    [ProducesResponseType(typeof(BusquedaResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(IReadOnlyList<IngestaResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status501NotImplemented)]
-    public async Task<ActionResult<BusquedaResponse>> PostBusqueda(
-        string coleccion, [FromBody] BuscarRequest? request, CancellationToken cancellationToken) =>
-        Ok(await Mediator.Send(new BuscarEnColeccionQuery(coleccion, request?.Consulta, request?.TopK, request?.Perfil), cancellationToken));
+    public async Task<ActionResult<IReadOnlyList<IngestaResponse>>> GetIngestas(
+        [FromQuery] string? coleccion, CancellationToken cancellationToken) =>
+        Ok(await Mediator.Send(new GetIngestasQuery(coleccion), cancellationToken));
 
     /// <summary>Ingesta de documentos en la coleccion (origen 'documentos'; 'ruta' reservado, 501).</summary>
     [HttpPost("{coleccion}/ingestas")]
@@ -105,21 +111,6 @@ public sealed class ColeccionesController : BaseController
         return Accepted($"/api/colecciones/{coleccion}/ingestas/{respuesta.IngestaId}", respuesta);
     }
 
-    /// <summary>
-    /// Lista las ingestas de proyecto registradas, en cualquier estado (item 1.15): util cuando se perdio el
-    /// <c>ingestaId</c> que devolvieron <see cref="PostIngestaProyectoZip"/>/<see cref="PostIngestaProyectoGit"/> (por
-    /// ejemplo, otra persona del equipo ingesto a la misma coleccion). Sin <paramref name="coleccion"/>, trae las de
-    /// cualquier coleccion (item 1.16); con ella, solo las de esa. Nunca 404: sin resultados responde 200 con una
-    /// lista vacia.
-    /// </summary>
-    [HttpGet("ingestas")]
-    [Authorize]
-    [ProducesResponseType(typeof(IReadOnlyList<IngestaResponse>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<IReadOnlyList<IngestaResponse>>> GetIngestas(
-        [FromQuery] string? coleccion, CancellationToken cancellationToken) =>
-        Ok(await Mediator.Send(new GetIngestasQuery(coleccion), cancellationToken));
-
     /// <summary>Estado de una ingesta de proyecto (item 1.7.5); 404 si no existe o no es de esta coleccion.</summary>
     [HttpGet("{coleccion}/ingestas/{ingestaId:guid}")]
     [Authorize]
@@ -130,16 +121,25 @@ public sealed class ColeccionesController : BaseController
         string coleccion, Guid ingestaId, CancellationToken cancellationToken) =>
         Ok(await Mediator.Send(new GetEstadoIngestaQuery(coleccion, ingestaId), cancellationToken));
 
-    /// <summary>
-    /// Lista las colecciones existentes en el vector store, con su perfil de embeddings si lo tiene guardado (item
-    /// 1.16): resuelve el caso de no saber que colecciones hay sin acceso directo a Qdrant. Nunca 404: sin
-    /// colecciones responde 200 con una lista vacia.
-    /// </summary>
-    [HttpGet]
+    /// <summary>Embeddings densos de textos sueltos con el perfil de la coleccion; no escribe en ella.</summary>
+    [HttpPost("{coleccion}/embeddings")]
     [Authorize]
-    [ProducesResponseType(typeof(IReadOnlyList<ColeccionInfoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(EmbeddingsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
-    public async Task<ActionResult<IReadOnlyList<ColeccionInfoResponse>>> GetColecciones(CancellationToken cancellationToken) =>
-        Ok(await Mediator.Send(new GetColeccionesQuery(), cancellationToken));
+    [ProducesResponseType(StatusCodes.Status501NotImplemented)]
+    public async Task<ActionResult<EmbeddingsResponse>> PostEmbeddings(
+        string coleccion, [FromBody] CalcularEmbeddingsRequest? request, CancellationToken cancellationToken) =>
+        Ok(await Mediator.Send(new CalcularEmbeddingsCommand(coleccion, request?.Textos, request?.Perfil), cancellationToken));
+
+    /// <summary>Busqueda semantica en la coleccion.</summary>
+    [HttpPost("{coleccion}/busquedas")]
+    [Authorize]
+    [ProducesResponseType(typeof(BusquedaResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status501NotImplemented)]
+    public async Task<ActionResult<BusquedaResponse>> PostBusqueda(
+        string coleccion, [FromBody] BuscarRequest? request, CancellationToken cancellationToken) =>
+        Ok(await Mediator.Send(new BuscarEnColeccionQuery(coleccion, request?.Consulta, request?.TopK, request?.Perfil), cancellationToken));
 }
