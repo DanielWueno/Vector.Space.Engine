@@ -116,7 +116,7 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
                 documentos.Select(d => (d.Ruta!, d.Contenido!)).ToArray(), cancellationToken,
                 barrerDocumentosAusentes: true, resumenSolicitado: resumen);
             var resumenResultado = await ResumirSiCorrespondeAsync(coleccion, resultado.ResumenHabilitado, cancellationToken);
-            return new ResultadoIngestaProyecto(resultado.Indexed, resultado.Unchanged, resultado.Omitted, resultado.DocumentsSweptAway,
+            return new ResultadoIngestaProyecto(resultado.Received, resultado.Indexed, resultado.Unchanged, resultado.Omitted, resultado.DocumentsSweptAway,
                 resumenResultado.Resumidos, resumenResultado.Pendientes, resumenResultado.TokensConsumidos);
         });
 
@@ -173,7 +173,7 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
                 var resultado = await _pipeline.IngestAsync(coleccion, perfil, documentos, cancellationToken,
                     barrerDocumentosAusentes: true, resumenSolicitado: resumen);
                 var resumenResultado = await ResumirSiCorrespondeAsync(coleccion, resultado.ResumenHabilitado, cancellationToken);
-                return new ResultadoIngestaProyecto(resultado.Indexed, resultado.Unchanged, resultado.Omitted, resultado.DocumentsSweptAway,
+                return new ResultadoIngestaProyecto(resultado.Received, resultado.Indexed, resultado.Unchanged, resultado.Omitted, resultado.DocumentsSweptAway,
                     resumenResultado.Resumidos, resumenResultado.Pendientes, resumenResultado.TokensConsumidos);
             });
         }

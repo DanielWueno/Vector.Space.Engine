@@ -45,11 +45,15 @@ public interface IMotorDeIngestaProyecto
 }
 
 /// <summary>
-/// Conteos de una ingesta de proyecto ya terminada (1.7.5). <see cref="ResumenesGenerados"/>/<see cref="ResumenesPendientes"/>/
-/// <see cref="ResumenTokensConsumidos"/> (1.7.7): siempre 0 en una coleccion sin resumen habilitado.
+/// Conteos de una ingesta de proyecto ya terminada (1.7.5). <see cref="Recibidos"/> (item 1.17): el origen Git no lo
+/// conoce de forma sincrona (a diferencia del .zip, que lo lee antes de admitir), asi que <c>IngerirProyectoGitCommand</c>
+/// crea el registro de estado con 0 y dependia de este campo para corregirlo al terminar; sin el, quedaba en 0 para
+/// siempre, rompiendo la invariante "Recibidos = Indexados + SinCambios + Omitidos". <see cref="ResumenesGenerados"/>/
+/// <see cref="ResumenesPendientes"/>/<see cref="ResumenTokensConsumidos"/> (1.7.7): siempre 0 en una coleccion sin
+/// resumen habilitado.
 /// </summary>
 public sealed record ResultadoIngestaProyecto(
-    int Indexados, int SinCambios, int Omitidos, int DocumentosEliminados,
+    int Recibidos, int Indexados, int SinCambios, int Omitidos, int DocumentosEliminados,
     int ResumenesGenerados = 0, int ResumenesPendientes = 0, int ResumenTokensConsumidos = 0);
 
 /// <summary>

@@ -70,6 +70,7 @@ public sealed class RegistroDeIngestasProyecto : IRegistroDeIngestasProyecto
             (_, e) => e with
             {
                 Estado = EstadosIngestaProyecto.Completada,
+                Recibidos = resultado.Recibidos,
                 Indexados = resultado.Indexados,
                 SinCambios = resultado.SinCambios,
                 Omitidos = resultado.Omitidos,

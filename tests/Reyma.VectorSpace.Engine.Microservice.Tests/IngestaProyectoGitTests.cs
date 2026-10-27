@@ -1,4 +1,6 @@
 using System.Net;
+using Microsoft.Extensions.DependencyInjection;
+using Reyma.VectorSpace.Engine.Microservice.Business.Motor;
 using static Reyma.VectorSpace.Engine.Microservice.Tests.IdentidadDePrueba;
 
 namespace Reyma.VectorSpace.Engine.Microservice.Tests;
@@ -88,5 +90,47 @@ public sealed class IngestaProyectoGitTests(ApiFactory factory)
         Assert.Equal(HttpStatusCode.OK, estado.StatusCode);
         var cuerpoEstado = await estado.Leer<Newtonsoft.Json.Linq.JObject>();
         Assert.Equal(ingestaId, (string)cuerpoEstado["ingestaId"]!);
+    }
+
+    /// <summary>
+    /// Item 1.17 (regresion): a diferencia del .zip (que lee el archivo de forma sincrona y conoce el total antes de
+    /// admitir), el origen Git solo sabe cuantos documentos trajo DESPUES de clonar y escanear en segundo plano.
+    /// Antes de este item, ese total nunca llegaba a <see cref="IRegistroDeIngestasProyecto"/>: <c>documentosRecibidos</c>
+    /// se quedaba en el 0 del placeholder de admision para siempre, incluso con <c>estado: "completada"</c>, rompiendo
+    /// la invariante "Recibidos = Indexados + SinCambios + Omitidos" documentada en <c>IngestaResponse</c>. Usa un
+    /// <see cref="MotorGitControlable"/> (sin red ni whitelist real) para fijar un resultado conocido.
+    /// </summary>
+    [Fact]
+    public async Task TrasCompletarDocumentosRecibidosReflejaElTotalRealNoElPlaceholderDeAdmision()
+    {
+        var motor = new MotorGitControlable(recibidos: 7, indexados: 5, sinCambios: 2);
+        using var client = factory.ConIdentidad(servicios: MotorGitControlable.Registrar(motor)).Cliente(TokenAna);
+
+        using var creada = await client.PostJson("/api/colecciones/propia/ingestas/git", Cuerpo(UrlDeEjemplo));
+        var ingestaId = (string)(await creada.Leer<Newtonsoft.Json.Linq.JObject>())["ingestaId"]!;
+        // Barrera de sincronizacion (mismo truco que ListadoDeIngestasTests): con LimiteDeIngestas:MaximoSimultaneas
+        // en su valor por defecto (1), esta segunda solicitud no se admite hasta que el permiso de la primera se
+        // libere, lo que solo pasa despues de que su MarcarCompletada ya corrio.
+        using var barrera = await client.PostJson("/api/colecciones/otra/ingestas/git", Cuerpo(UrlDeEjemplo));
+
+        using var estado = await client.GetAsync($"/api/colecciones/propia/ingestas/{ingestaId}");
+        var cuerpo = await estado.Leer<Newtonsoft.Json.Linq.JObject>();
+        Assert.Equal("completada", (string)cuerpo["estado"]!);
+        Assert.Equal(7, (int)cuerpo["documentosRecibidos"]!);
+        Assert.Equal(5, (int)cuerpo["documentosIndexados"]!);
+        Assert.Equal(2, (int)cuerpo["documentosSinCambios"]!);
+    }
+
+    /// <summary>Motor Git controlable: sin red ni whitelist real, resultado fijo conocido para la prueba de arriba.</summary>
+    private sealed class MotorGitControlable(int recibidos, int indexados, int sinCambios) : IMotorDeIngestaProyectoGit
+    {
+        public Uri ValidarUrlGit(string? url) => new(url!);
+
+        public Task<ResultadoIngestaProyecto> ProcesarGitAsync(
+            string coleccion, Uri url, string? carpetaRaiz, string? perfil, bool resumen, CancellationToken cancellationToken) =>
+            Task.FromResult(new ResultadoIngestaProyecto(recibidos, indexados, sinCambios, Omitidos: 0, DocumentosEliminados: 0));
+
+        public static Action<IServiceCollection> Registrar(MotorGitControlable motor) => services =>
+            services.AddSingleton<IMotorDeIngestaProyectoGit>(motor);
     }
 }

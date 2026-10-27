@@ -140,7 +140,7 @@ public sealed class ListadoDeIngestasTests(ApiFactory factory)
             string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken) =>
             falla
                 ? throw new InvalidOperationException(MensajeDeFallo)
-                : Task.FromResult(new ResultadoIngestaProyecto(documentos.Count, 0, 0, 0));
+                : Task.FromResult(new ResultadoIngestaProyecto(documentos.Count, documentos.Count, 0, 0, 0));
 
         public static Action<IServiceCollection> Registrar(MotorDeProyectoControlable motor) => services =>
             services.AddSingleton<IMotorDeIngestaProyecto>(motor);
