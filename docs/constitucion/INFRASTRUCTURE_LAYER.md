@@ -160,6 +160,22 @@ de AltheIA, mismo patron que `TeiVectorizationBrain`.
   `documentos` (sincrono) esto corre inline antes de responder, respetando el tope de tokens por invocacion; en
   `proyecto` (asincrono) corre dentro de la misma tarea en segundo plano. `IngestaResponse`/`ResultadoIngestaProyecto`
   ganan `resumenesGenerados`/`resumenesPendientes`/`resumenTokensConsumidos` (siempre 0 sin resumen habilitado).
+
+## Catalogo de colecciones (item 1.16)
+
+Nuevo puerto `IMotorDeColecciones` (`Business/Motor/IMotor.cs`), junto a los demas `IMotorDe*`: resuelve el hallazgo
+de que ninguna superficie anterior permitia saber que colecciones existen sin acceso directo a Qdrant.
+
+- `QdrantVectorStore.ListarColeccionesAsync`: nombres de `_client.ListCollectionsAsync` (gRPC, igual que
+  `GetEsquemaAsync`: las excepciones las traduce `MotorVectorial.ConQdrantAsync` del llamador, no un try/catch local),
+  mas una llamada a `LeerPerfilAsync` (REST) por coleccion para su metadata de perfil (1.7.4). Devuelve tuplas
+  `(Nombre, PerfilColeccion?)`, no un response de Business: la composicion a `ColeccionInfoResponse` vive en
+  `MotorVectorial.ListarAsync` (`IMotorDeColecciones`), igual separacion que el resto del motor (`QdrantVectorStore`
+  no conoce los tipos de `Business.Models.Responses`).
+- Una llamada REST por coleccion es aceptable para un catalogo de descubrimiento (no es una ruta caliente); no se
+  optimizo a una sola llamada porque el cliente gRPC 1.19 no expone `metadata` en `ListCollectionsAsync`.
+- Registro DI igual que los demas puertos: `services.AddSingleton<IMotorDeColecciones>(sp =>
+  sp.GetRequiredService<MotorVectorial>())` en `MotorServiceCollectionExtensions.AddMotorVectorial`.
 - Verificado contra Qdrant y TEI reales de `docker-compose.motor.yml` en `tests/.../Motor/ResumenIntegracionTests.cs`
   (gateado por `VSE_MOTOR_LOCAL=1`, con un `ILlmResumenBrain` de prueba sustituido por DI: no hay ninguna llamada
   real a AltheIA en esas pruebas): vector `dense-resumen` al crear, 409 al activarlo sobre una coleccion existente

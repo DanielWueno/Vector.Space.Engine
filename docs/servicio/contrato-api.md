@@ -13,6 +13,8 @@ ruta base del servicio (`/reyma/vectorspace/engine` desplegado; vacia en local) 
 | POST | `api/colecciones/{coleccion}/ingestas/proyecto` | `Ingestar` | **202**: ingesta admitida (origen `proyecto` desde `.zip`, asincrona, item 1.7.5) |
 | POST | `api/colecciones/{coleccion}/ingestas/git` | `Ingestar` | **202**: ingesta admitida (origen `proyecto` desde URL Git, asincrona, item 1.7.6) |
 | GET | `api/colecciones/{coleccion}/ingestas/{ingestaId}` | `Consultar` | Estado de una ingesta de proyecto (items 1.7.5/1.7.6) |
+| GET | `api/colecciones/ingestas` | `Consultar` | Lista las ingestas de proyecto, en cualquier estado; `?coleccion=` opcional filtra por una (items 1.15/1.16) |
+| GET | `api/colecciones` | `Consultar` | Lista las colecciones existentes en el vector store, con su perfil de embeddings si lo tiene (item 1.16) |
 
 Codigos comunes: **401** sin token valido (firma, emisor, audiencia y vigencia se validan como en
 la plantilla); **400** cuerpo invalido, incluido pedir un `perfil` de embeddings no registrado en el servicio o un modelo que el servidor remoto
@@ -119,7 +121,21 @@ El motor es el de Rag.Context.Engine portado (ver
 
 // GET .../ingestas/{ingestaId}   estado de una ingesta de proyecto (items 1.7.5/1.7.6/1.7.7)
 // 200: mismo cuerpo que el 202 de arriba; "estado" en "pendiente" | "procesando" | "completada" | "error";
-//      los conteos (documentosIndexados/SinCambios/Omitidos/Eliminados/Resumenes*) solo son definitivos en "completada"
+//      los conteos (documentosIndexados/SinCambios/Omitidos/Eliminados/Resumenes*) solo son definitivos en "completada";
+//      "mensajeError" (item 1.15) solo tiene valor cuando "estado" es "error" (el mensaje de la excepcion que corto
+//      el procesamiento en segundo plano), null en los demas casos
+
+// GET api/colecciones/ingestas?coleccion=X   lista las ingestas de proyecto, en cualquier estado (items 1.15/1.16)
+// 200: [ { "ingestaId", "coleccion", "estado", "documentosRecibidos", ..., "mensajeError" }, ... ]
+//      mismo cuerpo por elemento que GET .../ingestas/{ingestaId}; "coleccion" en la query string es opcional:
+//      ausente trae las ingestas de cualquier coleccion, presente filtra a esa; lista vacia sin coincidencias
+//      (nunca 404); sin orden garantizado
+
+// GET api/colecciones   lista las colecciones existentes en el vector store (item 1.16)
+// 200: [ { "coleccion", "perfilEmbeddings", "modelo", "dimension" }, ... ]
+//      perfilEmbeddings/modelo/dimension salen de la metadata de la coleccion (item 1.7.4); los tres null si la
+//      coleccion no la tiene (creada antes de 1.7.4 y nunca tocada desde entonces); lista vacia si no hay ninguna
+//      coleccion (nunca 404)
 ```
 
 ## Perfiles de embeddings y metadata de coleccion (item 1.7.4)
@@ -203,8 +219,12 @@ lo aborta). El cliente consulta `GET .../ingestas/{ingestaId}` hasta ver `"estad
   registro de estado.
 - **Estado en memoria, por instancia**: igual filosofia que `LimiteDeIngestas` — no persiste entre
   reinicios ni se comparte entre replicas; una ingesta en curso cuando el proceso se reinicia pierde su
-  `ingestaId` consultable (el trabajo ya escrito en Qdrant no se deshace).
+  `ingestaId` consultable (el trabajo ya escrito en Qdrant no se deshace). El listado de
+  `GET api/colecciones/ingestas` (items 1.15/1.16) tiene el mismo limite: solo muestra lo que paso desde el
+  ultimo arranque de esta instancia.
 - **Resumen de negocio**: implementado en 1.7.7, ver la seccion dedicada abajo.
+- **Listado de ingestas, mensaje de error y catalogo de colecciones**: implementados en 1.15/1.16, ver las
+  secciones dedicadas abajo.
 - **Pendiente** (item 1.7.8, no implementado, otro repo): perfil de escaneo y lenguajes como atributos de la
   coleccion (hoy siempre `DotNetEnterprise`); el bug de `IgnoreRules` en Rag.Context.Engine.
 
@@ -253,6 +273,43 @@ arbol de documentos: en vez de leer un `.zip` subido, el servicio clona el repos
   MiB ya escritos en disco (medido en 1.7.3: ~21 MB con un tope de 2 MiB). La mitigacion completa es un
   volumen temporal con cuota real de filesystem para `Motor:Git:DirectorioTemporal`, pendiente de
   infraestructura (ver `docs/despliegue/runbook.md`).
+
+## Listado de ingestas y mensaje de error (item 1.15, filtro opcional desde 1.16)
+
+Hallazgo: el `ingestaId` de `POST .../ingestas/proyecto`/`.../ingestas/git` solo era visible en el momento de esa
+respuesta 202; sin ningun endpoint para recuperarlo despues, si varias personas del equipo ingestan a la misma
+coleccion, cada una solo podia consultar la suya propia. `GET api/colecciones/ingestas` cierra ese hueco.
+
+- **`GET api/colecciones/ingestas?coleccion=X`**: mismo cuerpo por elemento que `GET .../ingestas/{ingestaId}`.
+  `coleccion` es un filtro opcional por query string (item 1.16, el endpoint original de 1.15 lo exigia en la ruta):
+  ausente trae las ingestas de cualquier coleccion registradas en esta instancia; presente, solo las de esa
+  coleccion. Nunca 404: sin coincidencias responde **200** con una lista vacia. Sin orden garantizado. No reemplaza
+  la consulta puntual (`GET .../ingestas/{ingestaId}`), que sigue disponible.
+- **`mensajeError`**: hasta 1.15, `MarcarError` guardaba el mensaje de la excepcion solo en el log del servicio y lo
+  descartaba para el estado expuesto al cliente. Ahora queda en `IngestaResponse.MensajeError`: null salvo que
+  `estado` sea `"error"`, donde trae el mensaje de la excepcion que corto el procesamiento en segundo plano. Aplica
+  a los dos origenes asincronos (`.zip` y Git) y se ve tanto en la consulta puntual como en el listado.
+- **Limitacion conocida (no resuelta, a proposito fuera de alcance)**: el registro sigue en memoria, por instancia
+  (igual filosofia que `LimiteDeIngestas`, ver arriba): el listado solo muestra lo que paso desde el ultimo arranque
+  de esta instancia, y no se comparte entre replicas. Resolverlo implicaria persistencia real, lo que recrearia la
+  capa `Persistence` retirada en el item 1.9; esa decision queda fuera de alcance aqui.
+
+## Catalogo de colecciones existentes (item 1.16)
+
+Hallazgo del usuario al revisar 1.15: ni el listado de ingestas (en memoria, por instancia) ni ninguna otra
+superficie del contrato permitian saber que colecciones existen en el vector store sin acceso directo a Qdrant --
+hacia falta conocer el nombre de la coleccion de antemano para cualquier operacion. El endpoint historico
+`GET api/colecciones` (retirado en el item 1.14 junto con `ControlDeAcceso`) resolvia un problema distinto: listaba
+la tabla de tenencia por usuario, no las colecciones reales de Qdrant, asi que no es lo mismo que se reintroduce aqui.
+
+- **`GET api/colecciones`**: `{ "coleccion", "perfilEmbeddings", "modelo", "dimension" }` por cada coleccion
+  existente, leido directo de Qdrant (`ListCollectionsAsync` del cliente gRPC, mas una lectura REST de metadata por
+  coleccion, item 1.7.4). Nunca 404: sin colecciones responde **200** con una lista vacia. **503** si Qdrant no
+  responde (mismo criterio que el resto del contrato, sin exponer host ni puerto).
+  `perfilEmbeddings`/`modelo`/`dimension` son null si la coleccion no tiene esa metadata guardada (creada antes de
+  1.7.4 y nunca tocada desde entonces).
+- No esta protegido por tenencia (item 1.14 retiro el control de acceso por coleccion): `[Authorize]` basta, igual
+  que el resto del contrato.
 
 ## Resumen de negocio reanudable (item 1.7.7)
 

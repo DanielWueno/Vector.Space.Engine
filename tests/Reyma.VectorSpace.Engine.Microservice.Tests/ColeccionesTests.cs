@@ -1,6 +1,9 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
 using Reyma.VectorSpace.Engine.Microservice.Api;
+using Reyma.VectorSpace.Engine.Microservice.Business.Models.Responses;
+using Reyma.VectorSpace.Engine.Microservice.Business.Motor;
 using static Reyma.VectorSpace.Engine.Microservice.Tests.IdentidadDePrueba;
 
 namespace Reyma.VectorSpace.Engine.Microservice.Tests;
@@ -171,5 +174,65 @@ public sealed class ColeccionesTests(ApiFactory factory)
         var cuerpo = await propia.Content.ReadAsStringAsync();
         Assert.DoesNotContain("127.0.0.1", cuerpo);
         Assert.DoesNotContain($":{ApiFactory.SinServicio}", cuerpo);
+    }
+
+    // --- GET api/colecciones: catalogo de colecciones existentes en el vector store (item 1.16) ---
+
+    [Fact]
+    public async Task GetColeccionesSinCredencialValidaDevuelve401()
+    {
+        using var client = factory.ConIdentidad().Cliente(token: null);
+        using var response = await client.GetAsync("/api/colecciones");
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetColeccionesDevuelveNombreYPerfilDeCadaUna()
+    {
+        var colecciones = new[]
+        {
+            new ColeccionInfoResponse("propia", "tei-arctic-256", "snowflake-arctic-embed-m-v2.0", 256),
+            new ColeccionInfoResponse("sin-metadata", null, null, null)
+        };
+        using var client = factory.ConIdentidad(servicios: MotorDeColeccionesDePrueba.Registrar(colecciones)).Cliente(TokenAna);
+        using var response = await client.GetAsync("/api/colecciones");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var lista = await response.Leer<Newtonsoft.Json.Linq.JArray>();
+
+        Assert.Equal(2, lista.Count);
+        Assert.Equal("propia", (string)lista[0]["coleccion"]!);
+        Assert.Equal("tei-arctic-256", (string)lista[0]["perfilEmbeddings"]!);
+        Assert.Equal("snowflake-arctic-embed-m-v2.0", (string)lista[0]["modelo"]!);
+        Assert.Equal(256, (int)lista[0]["dimension"]!);
+        Assert.Equal("sin-metadata", (string)lista[1]["coleccion"]!);
+        Assert.Null(lista[1]["perfilEmbeddings"]);
+        Assert.Null(lista[1]["modelo"]);
+        Assert.Null(lista[1]["dimension"]);
+    }
+
+    [Fact]
+    public async Task GetColeccionesConElRegistroRealYDependenciasCaidasResponde503SinExponerLaConexion()
+    {
+        // Mismo motivo que ConElRegistroRealYDependenciasCaidasResponde503SinExponerLaConexion de arriba: ApiFactory
+        // apunta Qdrant a un puerto sin servicio, asi que ListarColeccionesAsync (gRPC) falla y ConQdrantAsync lo
+        // traduce a 503 sin exponer host ni puerto.
+        using var client = factory.ConIdentidad().Cliente(TokenAna);
+        using var response = await client.GetAsync("/api/colecciones");
+
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+        var cuerpo = await response.Content.ReadAsStringAsync();
+        Assert.DoesNotContain("127.0.0.1", cuerpo);
+        Assert.DoesNotContain($":{ApiFactory.SinServicio}", cuerpo);
+    }
+
+    private sealed class MotorDeColeccionesDePrueba(IReadOnlyList<ColeccionInfoResponse> colecciones) : IMotorDeColecciones
+    {
+        public Task<IReadOnlyList<ColeccionInfoResponse>> ListarAsync(CancellationToken cancellationToken) =>
+            Task.FromResult(colecciones);
+
+        public static Action<IServiceCollection> Registrar(IReadOnlyList<ColeccionInfoResponse> colecciones) => services =>
+            services.AddSingleton<IMotorDeColecciones>(new MotorDeColeccionesDePrueba(colecciones));
     }
 }

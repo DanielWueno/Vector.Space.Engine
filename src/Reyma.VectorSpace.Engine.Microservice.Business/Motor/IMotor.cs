@@ -76,3 +76,18 @@ public interface IMotorDeIngestaProyectoGit
     Task<ResultadoIngestaProyecto> ProcesarGitAsync(
         string coleccion, Uri url, string? carpetaRaiz, string? perfil, bool resumen, CancellationToken cancellationToken);
 }
+
+/// <summary>
+/// Catalogo de colecciones existentes en el vector store (item 1.16): hallazgo del usuario al revisar el listado de
+/// ingestas por coleccion (1.15) -- sin este puerto, no hay forma de saber que colecciones existen sin acceso directo
+/// a Qdrant (ni <see cref="IMotorDeIngestaProyecto"/> ni el registro en memoria de ingestas lo saben: una coleccion
+/// pudo crearse en una instancia anterior, o nunca haber pasado por el origen 'proyecto').
+/// </summary>
+public interface IMotorDeColecciones
+{
+    /// <summary>
+    /// Nombre de cada coleccion existente, con su perfil de embeddings si lo tiene guardado en su metadata (1.7.4);
+    /// null en los campos de perfil si la coleccion no la tiene (creada antes de 1.7.4 y nunca tocada desde entonces).
+    /// </summary>
+    Task<IReadOnlyList<ColeccionInfoResponse>> ListarAsync(CancellationToken cancellationToken);
+}

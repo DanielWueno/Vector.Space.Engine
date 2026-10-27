@@ -146,6 +146,21 @@ public sealed class QdrantVectorStore
                 "hay que reingestarla en una coleccion nueva para cambiar de perfil.");
     }
 
+    /// <summary>
+    /// Nombre de cada coleccion existente en Qdrant, con su metadata de perfil si la tiene (item 1.16). El listado en
+    /// si es gRPC (<c>ListCollectionsAsync</c>, lo cubre <c>ConQdrantAsync</c> del llamador); leer el perfil de cada
+    /// una es REST, una llamada por coleccion (mismo costo que <see cref="LeerPerfilAsync"/> en cualquier otro lado),
+    /// aceptable para un catalogo de descubrimiento, no para una ruta caliente.
+    /// </summary>
+    public async Task<IReadOnlyList<(string Nombre, PerfilColeccion? Perfil)>> ListarColeccionesAsync(CancellationToken ct)
+    {
+        var nombres = await _client.ListCollectionsAsync(ct);
+        var resultado = new List<(string, PerfilColeccion?)>(nombres.Count);
+        foreach (var nombre in nombres)
+            resultado.Add((nombre, await LeerPerfilAsync(nombre, ct)));
+        return resultado;
+    }
+
     /// <summary>Perfil de embeddings guardado en la metadata de la coleccion (REST), o null si no la tiene (1.7.4).</summary>
     public async Task<PerfilColeccion?> LeerPerfilAsync(string collectionName, CancellationToken ct)
     {

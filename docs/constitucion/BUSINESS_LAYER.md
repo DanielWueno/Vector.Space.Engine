@@ -23,8 +23,10 @@ Proyecto `Reyma.VectorSpace.Engine.Microservice.Business`. CQRS con MediatR; el 
   usando `CancellationToken.None` dentro de esa tarea: cerrar la conexion HTTP no debe abortar un trabajo ya admitido.
   El permiso del limitador (`ILimiteDeIngestas`) se libera en el `finally` de la tarea, no en el handler. El progreso
   se expone con un registro de estado en memoria (`IRegistroDeIngestasProyecto`, singleton, un diccionario
-  concurrente por `ingestaId`) que una query de solo lectura consulta (`GetEstadoIngestaQuery`, Operacion
-  `Consultar`); como el limitador, no persiste entre reinicios ni se comparte entre replicas. Los puertos de
+  concurrente por `ingestaId`) que dos queries de solo lectura consultan (`GetEstadoIngestaQuery` por `ingestaId`,
+  `GetIngestasQuery` desde el item 1.15 con un filtro `Coleccion` opcional desde el 1.16 -- null trae las de
+  cualquier coleccion --, Operacion `Consultar` ambas); como el limitador, no persiste entre reinicios ni se
+  comparte entre replicas. Los puertos de
   Business que necesita este patron van en `Business/Motor/IMotor.cs` junto a los demas `IMotorDe*`: el comando
   orquesta la asincronia, pero la lectura/validacion del contenido (p. ej. el .zip) y el trabajo pesado viven en
   Infrastructure, igual que el resto del motor.

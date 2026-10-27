@@ -219,6 +219,7 @@ public static class MotorServiceCollectionExtensions
         services.AddSingleton<IMotorDeIngesta>(sp => sp.GetRequiredService<MotorVectorial>());
         services.AddSingleton<IMotorDeIngestaProyecto>(sp => sp.GetRequiredService<MotorVectorial>());
         services.AddSingleton<IMotorDeIngestaProyectoGit>(sp => sp.GetRequiredService<MotorVectorial>());
+        services.AddSingleton<IMotorDeColecciones>(sp => sp.GetRequiredService<MotorVectorial>());
 
         return services;
     }

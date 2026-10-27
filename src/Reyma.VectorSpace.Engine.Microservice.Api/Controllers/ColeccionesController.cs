@@ -105,6 +105,21 @@ public sealed class ColeccionesController : BaseController
         return Accepted($"/api/colecciones/{coleccion}/ingestas/{respuesta.IngestaId}", respuesta);
     }
 
+    /// <summary>
+    /// Lista las ingestas de proyecto registradas, en cualquier estado (item 1.15): util cuando se perdio el
+    /// <c>ingestaId</c> que devolvieron <see cref="PostIngestaProyectoZip"/>/<see cref="PostIngestaProyectoGit"/> (por
+    /// ejemplo, otra persona del equipo ingesto a la misma coleccion). Sin <paramref name="coleccion"/>, trae las de
+    /// cualquier coleccion (item 1.16); con ella, solo las de esa. Nunca 404: sin resultados responde 200 con una
+    /// lista vacia.
+    /// </summary>
+    [HttpGet("ingestas")]
+    [Authorize]
+    [ProducesResponseType(typeof(IReadOnlyList<IngestaResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<IReadOnlyList<IngestaResponse>>> GetIngestas(
+        [FromQuery] string? coleccion, CancellationToken cancellationToken) =>
+        Ok(await Mediator.Send(new GetIngestasQuery(coleccion), cancellationToken));
+
     /// <summary>Estado de una ingesta de proyecto (item 1.7.5); 404 si no existe o no es de esta coleccion.</summary>
     [HttpGet("{coleccion}/ingestas/{ingestaId:guid}")]
     [Authorize]
@@ -114,4 +129,17 @@ public sealed class ColeccionesController : BaseController
     public async Task<ActionResult<IngestaResponse>> GetEstadoIngesta(
         string coleccion, Guid ingestaId, CancellationToken cancellationToken) =>
         Ok(await Mediator.Send(new GetEstadoIngestaQuery(coleccion, ingestaId), cancellationToken));
+
+    /// <summary>
+    /// Lista las colecciones existentes en el vector store, con su perfil de embeddings si lo tiene guardado (item
+    /// 1.16): resuelve el caso de no saber que colecciones hay sin acceso directo a Qdrant. Nunca 404: sin
+    /// colecciones responde 200 con una lista vacia.
+    /// </summary>
+    [HttpGet]
+    [Authorize]
+    [ProducesResponseType(typeof(IReadOnlyList<ColeccionInfoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<IReadOnlyList<ColeccionInfoResponse>>> GetColecciones(CancellationToken cancellationToken) =>
+        Ok(await Mediator.Send(new GetColeccionesQuery(), cancellationToken));
 }

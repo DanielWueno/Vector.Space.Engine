@@ -8,6 +8,14 @@ public sealed record EmbeddingsResponse(string Coleccion, string Modelo, int Dim
 
 public sealed record BusquedaResponse(string Coleccion, IReadOnlyList<ResultadoBusquedaResponse> Resultados);
 
+/// <summary>
+/// Una coleccion existente en el vector store (item 1.16), para saber que colecciones hay sin necesitar acceso
+/// directo a Qdrant. <see cref="PerfilEmbeddings"/>/<see cref="Modelo"/>/<see cref="Dimension"/> salen de la
+/// metadata guardada en la coleccion (item 1.7.4); los tres null si la coleccion no la tiene (creada antes de
+/// 1.7.4 y nunca tocada desde entonces).
+/// </summary>
+public sealed record ColeccionInfoResponse(string Coleccion, string? PerfilEmbeddings, string? Modelo, int? Dimension);
+
 public sealed record ResultadoBusquedaResponse(string Id, float Puntuacion, string Ruta, string Texto);
 
 /// <summary>
@@ -22,6 +30,8 @@ public sealed record ResultadoBusquedaResponse(string Id, float Puntuacion, stri
 /// solo tienen sentido en una coleccion con el resumen de negocio habilitado; siempre 0 en una sin el. Una corrida
 /// que corta por el tope de tokens deja <see cref="ResumenesPendientes"/> mayor que 0, reanudable en la siguiente
 /// ingesta sobre la misma coleccion (no repite los ya resumidos).
+/// <see cref="MensajeError"/> (item 1.15): solo tiene valor cuando <see cref="Estado"/> es "error" (el mensaje de la
+/// excepcion que corto el procesamiento en segundo plano); null en cualquier otro estado.
 /// </summary>
 public sealed record IngestaResponse(
     Guid IngestaId,
@@ -34,4 +44,5 @@ public sealed record IngestaResponse(
     int DocumentosEliminados = 0,
     int ResumenesGenerados = 0,
     int ResumenesPendientes = 0,
-    int ResumenTokensConsumidos = 0);
+    int ResumenTokensConsumidos = 0,
+    string? MensajeError = null);

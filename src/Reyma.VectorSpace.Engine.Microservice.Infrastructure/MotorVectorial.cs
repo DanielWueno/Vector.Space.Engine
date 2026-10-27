@@ -23,7 +23,7 @@ namespace Reyma.VectorSpace.Engine.Microservice.Infrastructure;
 /// cliente el detalle de la conexion; un perfil de embeddings no registrado o que choca con el de la coleccion
 /// (1.7.4) se traduce a 400/409 respectivamente, nunca a 503.
 /// </summary>
-public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMotorDeIngesta, IMotorDeIngestaProyecto, IMotorDeIngestaProyectoGit
+public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMotorDeIngesta, IMotorDeIngestaProyecto, IMotorDeIngestaProyectoGit, IMotorDeColecciones
 {
     private readonly IVectorizationBrainFactory _brainFactory;
     private readonly QdrantVectorStore _store;
@@ -218,6 +218,16 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
             return null;
         return "Basic " + Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes(":" + pat));
     }
+
+    /// <summary>1.16: nombre y perfil de embeddings de cada coleccion existente, directo de Qdrant.</summary>
+    public Task<IReadOnlyList<ColeccionInfoResponse>> ListarAsync(CancellationToken cancellationToken) =>
+        ConQdrantAsync(async () =>
+        {
+            var colecciones = await _store.ListarColeccionesAsync(cancellationToken);
+            return (IReadOnlyList<ColeccionInfoResponse>)colecciones
+                .Select(c => new ColeccionInfoResponse(c.Nombre, c.Perfil?.Perfil, c.Perfil?.Modelo, c.Perfil?.Dimension))
+                .ToList();
+        });
 
     private async Task<T> ConQdrantAsync<T>(Func<Task<T>> operacion)
     {
