@@ -1,0 +1,3 @@
+# Bitacora de ejecucion: fechas, horas-maquina, modelo usado, rollback. El "por que" de las decisiones que
+# importa para este servicio ya esta en docs/constitucion/ y docs/servicio/contrato-api.md.
+docs/plan/ejecucion-plan.estado.json
