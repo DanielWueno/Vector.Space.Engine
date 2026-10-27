@@ -1,3 +1,10 @@
 # Bitacora de ejecucion: fechas, horas-maquina, modelo usado, rollback. El "por que" de las decisiones que
 # importa para este servicio ya esta en docs/constitucion/ y docs/servicio/contrato-api.md.
 docs/plan/ejecucion-plan.estado.json
+
+# Evaluaciones: solo decision.md (el "por que") aporta a busqueda/resumen. El resto son volcados
+# crudos de medicion (resultados/*.json, harness-resultado*.json, fuentes-primarias.json, etc.):
+# numeros/IDs que tokenizan casi 1 token por caracter, sin valor semantico (medido en 1.7.3: 2219
+# de 2908 chunks de una autoingesta parcial de este repo eran justamente estos volcados).
+docs/evaluaciones/**
+!docs/evaluaciones/**/decision.md
