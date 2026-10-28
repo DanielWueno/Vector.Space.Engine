@@ -17,6 +17,16 @@ public sealed record BusquedaResponse(string Coleccion, IReadOnlyList<ResultadoB
 public sealed record ColeccionInfoResponse(string Coleccion, string? PerfilEmbeddings, string? Modelo, int? Dimension);
 
 /// <summary>
+/// Un documento indexado en una coleccion (item 1.19), agrupado por su clave de identidad (<c>file_path</c>, sin
+/// el prefijo <c>"{coleccion}/"</c>). <see cref="Huella"/> es el <c>document_fingerprint</c> con que se escribieron
+/// sus puntos; null si los puntos de ese documento no comparten una sola huella (mismo criterio de "cambiado" que
+/// el barrido de la ingesta -- no deberia pasar en una coleccion sana, se expone como null en vez de un valor
+/// arbitrario). <see cref="Puntos"/> es cuantos chunks quedaron indexados para ese documento. Catalogo de
+/// descubrimiento, no ruta caliente: sin paginar (el offset del scroll de Qdrant es por punto, no por documento).
+/// </summary>
+public sealed record DocumentoIndexadoResponse(string Ruta, string? Huella, int Puntos);
+
+/// <summary>
 /// Un resultado de busqueda (item 1.18 amplia los campos). <see cref="LineaInicio"/>/<see cref="LineaFin"/>/
 /// <see cref="Lenguaje"/>/<see cref="TipoChunk"/>/<see cref="ContentHash"/>: metadatos de chunk que la ingesta
 /// escribe en todo punto; null solo si el punto viene de antes de este item y no los tiene. <see cref="Namespace"/>/

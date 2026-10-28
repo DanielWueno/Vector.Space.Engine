@@ -377,6 +377,36 @@ public sealed class QdrantVectorStore
     }
 
     /// <summary>
+    /// Recorre toda la coleccion sin filtro (scroll paginado por Id de punto, 1024 por pagina), trayendo solo los
+    /// campos de payload pedidos. Privado: comparte la mecanica de paginacion entre <see cref="ListarRutasDocumentadasAsync"/>
+    /// (1.7.5) y <see cref="ListarDocumentosConHuellaAsync"/> (1.19) sin que ninguno de los dos cambie su firma ni su
+    /// semantica (en particular, no toca el barrido de documentos ausentes del origen 'proyecto', que depende del
+    /// primero). No valida si la coleccion existe: eso lo decide cada llamador.
+    /// </summary>
+    private async Task<List<RetrievedPoint>> ScrollAllAsync(string collectionName, IReadOnlyList<string> payloadFields, CancellationToken ct)
+    {
+        var include = new PayloadIncludeSelector();
+        include.Fields.AddRange(payloadFields);
+
+        var points = new List<RetrievedPoint>();
+        PointId? offset = null;
+        while (true)
+        {
+            var response = await _client.ScrollAsync(collectionName, limit: 1024, offset: offset,
+                payloadSelector: new WithPayloadSelector { Include = include },
+                vectorsSelector: new WithVectorsSelector { Enable = false },
+                cancellationToken: ct);
+
+            points.AddRange(response.Result);
+
+            var next = response.NextPageOffset;
+            if (next is null || next.PointIdOptionsCase == PointId.PointIdOptionsOneofCase.None) break;
+            offset = next;
+        }
+        return points;
+    }
+
+    /// <summary>
     /// Todas las rutas ya indexadas en la coleccion, con los Ids de sus puntos (1.7.5): sin filtro, para el barrido de
     /// documentos ausentes del origen 'proyecto' (el .zip conoce el arbol completo, a diferencia del origen
     /// 'documentos', que solo ve lo que el cliente decide enviar). Coleccion inexistente: diccionario vacio.
@@ -387,28 +417,37 @@ public sealed class QdrantVectorStore
         if (!await _client.CollectionExistsAsync(collectionName, ct))
             return result;
 
-        PointId? offset = null;
-        while (true)
+        foreach (var point in await ScrollAllAsync(collectionName, [FilePathPayloadKey], ct))
         {
-            var response = await _client.ScrollAsync(collectionName, limit: 1024, offset: offset,
-                payloadSelector: new WithPayloadSelector
-                {
-                    Include = new PayloadIncludeSelector { Fields = { FilePathPayloadKey } }
-                },
-                vectorsSelector: new WithVectorsSelector { Enable = false },
-                cancellationToken: ct);
+            var filePath = point.Payload[FilePathPayloadKey].StringValue;
+            if (!result.TryGetValue(filePath, out var list))
+                result[filePath] = list = [];
+            list.Add(Guid.Parse(point.Id.Uuid));
+        }
+        return result;
+    }
 
-            foreach (var point in response.Result)
-            {
-                var filePath = point.Payload[FilePathPayloadKey].StringValue;
-                if (!result.TryGetValue(filePath, out var list))
-                    result[filePath] = list = [];
-                list.Add(Guid.Parse(point.Id.Uuid));
-            }
+    /// <summary>
+    /// Cada documento indexado en la coleccion (clave = <c>file_path</c>), con la huella y el Id de cada uno de sus
+    /// puntos (item 1.19): base del listado de solo lectura de documentos por coleccion (ruta, huella, cantidad de
+    /// puntos), sin acceso directo a Qdrant. Mismo scroll sin filtro que <see cref="ListarRutasDocumentadasAsync"/>
+    /// (comparten <see cref="ScrollAllAsync"/>), con <see cref="DocumentFingerprintPayloadKey"/> ademas de
+    /// <see cref="FilePathPayloadKey"/>. Coleccion inexistente: diccionario vacio.
+    /// </summary>
+    public async Task<IReadOnlyDictionary<string, List<(Guid Id, string? Fingerprint)>>> ListarDocumentosConHuellaAsync(
+        string collectionName, CancellationToken ct)
+    {
+        var result = new Dictionary<string, List<(Guid, string?)>>(StringComparer.Ordinal);
+        if (!await _client.CollectionExistsAsync(collectionName, ct))
+            return result;
 
-            var next = response.NextPageOffset;
-            if (next is null || next.PointIdOptionsCase == PointId.PointIdOptionsOneofCase.None) break;
-            offset = next;
+        foreach (var point in await ScrollAllAsync(collectionName, [FilePathPayloadKey, DocumentFingerprintPayloadKey], ct))
+        {
+            var filePath = point.Payload[FilePathPayloadKey].StringValue;
+            var fingerprint = point.Payload.TryGetValue(DocumentFingerprintPayloadKey, out var f) ? f.StringValue : null;
+            if (!result.TryGetValue(filePath, out var list))
+                result[filePath] = list = [];
+            list.Add((Guid.Parse(point.Id.Uuid), fingerprint));
         }
         return result;
     }

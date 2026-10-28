@@ -132,6 +132,20 @@ public sealed class ColeccionesController : BaseController
         string coleccion, [FromBody] CalcularEmbeddingsRequest? request, CancellationToken cancellationToken) =>
         Ok(await Mediator.Send(new CalcularEmbeddingsCommand(coleccion, request?.Textos, request?.Perfil), cancellationToken));
 
+    /// <summary>
+    /// Documentos indexados en la coleccion (item 1.19): ruta, huella (<c>document_fingerprint</c>) y cantidad de
+    /// puntos (chunks) de cada uno, sin acceso directo a Qdrant. Catalogo de descubrimiento, no ruta caliente (sin
+    /// paginar). Nunca 404: coleccion inexistente responde 200 con una lista vacia.
+    /// </summary>
+    [HttpGet("{coleccion}/documentos")]
+    [Authorize]
+    [ProducesResponseType(typeof(IReadOnlyList<DocumentoIndexadoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+    public async Task<ActionResult<IReadOnlyList<DocumentoIndexadoResponse>>> GetDocumentos(
+        string coleccion, CancellationToken cancellationToken) =>
+        Ok(await Mediator.Send(new GetDocumentosQuery(coleccion), cancellationToken));
+
     /// <summary>Busqueda semantica en la coleccion.</summary>
     [HttpPost("{coleccion}/busquedas")]
     [Authorize]

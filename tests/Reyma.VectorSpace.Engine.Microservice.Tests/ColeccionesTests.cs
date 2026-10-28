@@ -227,12 +227,65 @@ public sealed class ColeccionesTests(ApiFactory factory)
         Assert.DoesNotContain($":{ApiFactory.SinServicio}", cuerpo);
     }
 
-    private sealed class MotorDeColeccionesDePrueba(IReadOnlyList<ColeccionInfoResponse> colecciones) : IMotorDeColecciones
+    private sealed class MotorDeColeccionesDePrueba(
+        IReadOnlyList<ColeccionInfoResponse> colecciones, IReadOnlyList<DocumentoIndexadoResponse>? documentos = null) : IMotorDeColecciones
     {
         public Task<IReadOnlyList<ColeccionInfoResponse>> ListarAsync(CancellationToken cancellationToken) =>
             Task.FromResult(colecciones);
 
+        public Task<IReadOnlyList<DocumentoIndexadoResponse>> ListarDocumentosAsync(string coleccion, CancellationToken cancellationToken) =>
+            Task.FromResult(documentos ?? (IReadOnlyList<DocumentoIndexadoResponse>)Array.Empty<DocumentoIndexadoResponse>());
+
         public static Action<IServiceCollection> Registrar(IReadOnlyList<ColeccionInfoResponse> colecciones) => services =>
             services.AddSingleton<IMotorDeColecciones>(new MotorDeColeccionesDePrueba(colecciones));
+
+        public static Action<IServiceCollection> RegistrarDocumentos(IReadOnlyList<DocumentoIndexadoResponse> documentos) => services =>
+            services.AddSingleton<IMotorDeColecciones>(new MotorDeColeccionesDePrueba(Array.Empty<ColeccionInfoResponse>(), documentos));
+    }
+
+    // --- GET api/colecciones/{coleccion}/documentos: documentos indexados en una coleccion (item 1.19) ---
+
+    [Fact]
+    public async Task GetDocumentosSinCredencialValidaDevuelve401()
+    {
+        using var client = factory.ConIdentidad().Cliente(token: null);
+        using var response = await client.GetAsync("/api/colecciones/propia/documentos");
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetDocumentosDevuelveRutaHuellaYPuntosDeCadaDocumento()
+    {
+        var documentos = new[]
+        {
+            new DocumentoIndexadoResponse("src/a.cs", "huella-1", 3),
+            new DocumentoIndexadoResponse("docs/b.md", null, 2),
+        };
+        using var client = factory.ConIdentidad(servicios: MotorDeColeccionesDePrueba.RegistrarDocumentos(documentos)).Cliente(TokenAna);
+        using var response = await client.GetAsync("/api/colecciones/propia/documentos");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var lista = await response.Leer<Newtonsoft.Json.Linq.JArray>();
+
+        Assert.Equal(2, lista.Count);
+        Assert.Equal("src/a.cs", (string)lista[0]["ruta"]!);
+        Assert.Equal("huella-1", (string)lista[0]["huella"]!);
+        Assert.Equal(3, (int)lista[0]["puntos"]!);
+        Assert.Equal("docs/b.md", (string)lista[1]["ruta"]!);
+        Assert.Null(lista[1]["huella"]);
+        Assert.Equal(2, (int)lista[1]["puntos"]!);
+    }
+
+    [Fact]
+    public async Task GetDocumentosConElRegistroRealYDependenciasCaidasResponde503SinExponerLaConexion()
+    {
+        using var client = factory.ConIdentidad().Cliente(TokenAna);
+        using var response = await client.GetAsync("/api/colecciones/propia/documentos");
+
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+        var cuerpo = await response.Content.ReadAsStringAsync();
+        Assert.DoesNotContain("127.0.0.1", cuerpo);
+        Assert.DoesNotContain($":{ApiFactory.SinServicio}", cuerpo);
     }
 }

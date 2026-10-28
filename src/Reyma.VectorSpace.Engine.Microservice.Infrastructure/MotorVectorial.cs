@@ -234,6 +234,30 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
                 .ToList();
         });
 
+    /// <summary>
+    /// 1.19: ruta (file_path sin el prefijo "{coleccion}/"), huella y cantidad de puntos de cada documento indexado,
+    /// directo de Qdrant. La coleccion es siempre el <c>repositoryName</c> con el que se construyo el file_path
+    /// (ChunkBuilder.BuildIdentityKey / DocumentIngestionPipeline), asi que el prefijo a quitar es exacto. Huella
+    /// null si los puntos del documento no comparten un solo valor (mismo criterio que IsUnchanged del pipeline de
+    /// ingesta: cualquier discrepancia, incluida la de un punto sin huella guardada, se trata como "no coincide").
+    /// </summary>
+    public Task<IReadOnlyList<DocumentoIndexadoResponse>> ListarDocumentosAsync(string coleccion, CancellationToken cancellationToken) =>
+        ConQdrantAsync(async () =>
+        {
+            var documentos = await _store.ListarDocumentosConHuellaAsync(coleccion, cancellationToken);
+            var prefijo = coleccion + "/";
+            return (IReadOnlyList<DocumentoIndexadoResponse>)documentos
+                .Select(kv =>
+                {
+                    var ruta = kv.Key.StartsWith(prefijo, StringComparison.Ordinal) ? kv.Key[prefijo.Length..] : kv.Key;
+                    var huellas = kv.Value.Select(p => p.Fingerprint).Distinct(StringComparer.Ordinal).ToList();
+                    var huella = huellas.Count == 1 ? huellas[0] : null;
+                    return new DocumentoIndexadoResponse(ruta, huella, kv.Value.Count);
+                })
+                .OrderBy(d => d.Ruta, StringComparer.Ordinal)
+                .ToList();
+        });
+
     private async Task<T> ConQdrantAsync<T>(Func<Task<T>> operacion)
     {
         try

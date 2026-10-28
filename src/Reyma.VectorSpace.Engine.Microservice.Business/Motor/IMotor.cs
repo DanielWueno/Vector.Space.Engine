@@ -99,4 +99,17 @@ public interface IMotorDeColecciones
     /// null en los campos de perfil si la coleccion no la tiene (creada antes de 1.7.4 y nunca tocada desde entonces).
     /// </summary>
     Task<IReadOnlyList<ColeccionInfoResponse>> ListarAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Documentos indexados en una coleccion (item 1.19): ruta, huella (<c>document_fingerprint</c>) y cantidad de
+    /// puntos (chunks) de cada uno, agrupados por su clave de identidad (<c>file_path</c>). Hallazgo al revisar
+    /// <see cref="ListarRutasDocumentadasAsync"/> (ese metodo solo trae rutas e ids, para el barrido de ausentes del
+    /// origen 'proyecto') y <see cref="GetDocumentPointsAsync"/> (trae la huella, pero solo de rutas pedidas
+    /// explicitamente): ninguno de los dos expone un listado legible por coleccion. No es el "manifiesto" que el
+    /// item 1.4 declaro no portado; es un listado de solo lectura, mas simple, sin paginar (catalogo de
+    /// descubrimiento, no ruta caliente, igual criterio que <see cref="ListarAsync"/>). La huella de un documento es
+    /// null si sus puntos no comparten una sola huella (mismo criterio de "cambiado" que
+    /// <c>DocumentIngestionPipeline.IsUnchanged</c>). Coleccion inexistente: lista vacia, nunca 404.
+    /// </summary>
+    Task<IReadOnlyList<DocumentoIndexadoResponse>> ListarDocumentosAsync(string coleccion, CancellationToken cancellationToken);
 }

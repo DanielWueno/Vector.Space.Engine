@@ -186,6 +186,43 @@ de que ninguna superficie anterior permitia saber que colecciones existen sin ac
   `enable_thinking`) en `tests/.../Motor/ResumenAltheiaIntegracionTests.cs`, gateada por `RequiereAltheiaFact`
   igual que `MotorAltheiaIntegracionTests`.
 
+## Documentos indexados por coleccion (item 1.19)
+
+Hallazgo al revisar `QdrantVectorStore`: `ListarRutasDocumentadasAsync` (barrido de ausentes del origen 'proyecto',
+1.7.5) recorre toda la coleccion sin filtro pero solo trae `file_path` e ids; `GetDocumentPointsAsync` trae la
+huella, pero solo de rutas pedidas explicitamente (lo usa la ingesta para decidir si un documento cambio). Ninguno
+de los dos expone un listado legible por coleccion sin acceso directo a Qdrant. No es el "manifiesto" que el item
+1.4 declaro no portado (ese era un registro propio de Rag.Context.Engine con otro proposito); es una capacidad
+nueva, deliberadamente mas simple.
+
+- **`QdrantVectorStore.ScrollAllAsync`** (privado, nuevo): extrae la mecanica de paginacion por scroll (1024 puntos
+  por pagina, por offset de Id de punto) que antes estaba solo dentro de `ListarRutasDocumentadasAsync`, parametrizada
+  por los campos de payload a traer. La comparten `ListarRutasDocumentadasAsync` (ahora reducido a recorrer y
+  agrupar por `file_path`) y la nueva `ListarDocumentosConHuellaAsync` (agrupa por `file_path`, con
+  `document_fingerprint` ademas). Ninguno de los dos cambio su firma ni su semantica externa: mismo filtro (ninguno),
+  mismo criterio de "coleccion inexistente -> vacio", mismo contrato para el barrido de ausentes de 1.7.5.
+- **`IMotorDeColecciones.ListarDocumentosAsync`** (nuevo metodo en el puerto existente de 1.16, no un puerto nuevo):
+  implementado en `MotorVectorial.ListarDocumentosAsync`. Compone `ColeccionInfoResponse`-style: pide
+  `ListarDocumentosConHuellaAsync` al store, quita el prefijo `"{coleccion}/"` de cada `file_path` (la coleccion es
+  siempre el `repositoryName` con que `ChunkBuilder.BuildIdentityKey` arma esa clave, asi que el prefijo a quitar es
+  exacto), y calcula la huella comun: si los `Fingerprint` de los puntos de un documento no son todos iguales
+  (`Distinct` sobre esa columna da mas de un valor), la huella expuesta es `null` en vez de un valor arbitrario --
+  mismo criterio que `DocumentIngestionPipeline.IsUnchanged` usa para decidir si un documento "cambio".
+- **Respuesta**: `DocumentoIndexadoResponse(Ruta, Huella, Puntos)` en `Business/Models/Responses/ColeccionesResponses.cs`;
+  `GetDocumentosQuery` en `Business/Queries/Colecciones/`; `GET {coleccion}/documentos` en `ColeccionesController`,
+  `[Authorize]` sin politica especifica (igual que el resto del contrato desde 1.14).
+- **Catalogo de descubrimiento, no ruta caliente**, igual criterio que `ListarAsync` (1.16): sin paginar la
+  respuesta (el offset del scroll de Qdrant es por punto, no por documento); aceptable para inspeccionar una
+  coleccion, no para servir en el camino caliente de una aplicacion.
+- **Fuera de alcance, a proposito**: hash de contenido puro por documento (distinto de `document_fingerprint`, que
+  tambien depende de la configuracion de chunking y el modelo); paginar por documento; cambiar `ListarRutasDocumentadasAsync`
+  (lo usa el barrido de ausentes de 1.7.5, verificado sin cambios en `tests/.../Motor/IngestaProyectoZipIntegracionTests.cs`).
+- Verificado contra Qdrant y TEI reales de `docker-compose.motor.yml` en
+  `tests/.../Motor/DocumentosIndexadosIntegracionTests.cs` (gateado por `VSE_MOTOR_LOCAL=1`): N documentos listados
+  con el mismo conteo de puntos que un scroll directo, la huella cambia (y solo ella) al editar y reingerir un
+  documento, y un documento "borrado" (contenido vacio, mismo patron que el resto del contrato) desaparece del
+  listado sin afectar a los demas.
+
 ## Codigo portado
 
 `Chunking/`, `Utilities/`, `Model/` y `Vectorization/SparseTokenizer.cs` vienen de Rag.Context.Engine y deben producir

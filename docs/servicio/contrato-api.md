@@ -15,6 +15,7 @@ ruta base del servicio (`/reyma/vectorspace/engine` desplegado; vacia en local) 
 | GET | `api/colecciones/{coleccion}/ingestas/{ingestaId}` | `Consultar` | Estado de una ingesta de proyecto (items 1.7.5/1.7.6) |
 | GET | `api/colecciones/ingestas` | `Consultar` | Lista las ingestas de proyecto, en cualquier estado; `?coleccion=` opcional filtra por una (items 1.15/1.16) |
 | GET | `api/colecciones` | `Consultar` | Lista las colecciones existentes en el vector store, con su perfil de embeddings si lo tiene (item 1.16) |
+| GET | `api/colecciones/{coleccion}/documentos` | `Consultar` | Lista los documentos indexados en la coleccion: ruta, huella y cantidad de puntos (item 1.19) |
 
 Codigos comunes: **401** sin token valido (firma, emisor, audiencia y vigencia se validan como en
 la plantilla); **400** cuerpo invalido, incluido pedir un `perfil` de embeddings no registrado en el servicio o un modelo que el servidor remoto
@@ -143,6 +144,13 @@ El motor es el de Rag.Context.Engine portado (ver
 //      perfilEmbeddings/modelo/dimension salen de la metadata de la coleccion (item 1.7.4); los tres null si la
 //      coleccion no la tiene (creada antes de 1.7.4 y nunca tocada desde entonces); lista vacia si no hay ninguna
 //      coleccion (nunca 404)
+
+// GET api/colecciones/{coleccion}/documentos   documentos indexados en la coleccion (item 1.19)
+// 200: [ { "ruta", "huella", "puntos" }, ... ]
+//      agrupados por su clave de identidad (file_path, sin el prefijo "{coleccion}/"); "huella" es el
+//      document_fingerprint compartido por todos los puntos de ese documento, null si no coinciden (mismo criterio
+//      de "cambiado" que la ingesta); "puntos" es cuantos chunks quedaron indexados para ese documento; coleccion
+//      inexistente responde con una lista vacia (nunca 404)
 ```
 
 ## Perfiles de embeddings y metadata de coleccion (item 1.7.4)
@@ -340,6 +348,30 @@ la tabla de tenencia por usuario, no las colecciones reales de Qdrant, asi que n
   1.7.4 y nunca tocada desde entonces).
 - No esta protegido por tenencia (item 1.14 retiro el control de acceso por coleccion): `[Authorize]` basta, igual
   que el resto del contrato.
+
+## Documentos indexados en una coleccion (item 1.19)
+
+Hallazgo al revisar el motor existente: `ListarRutasDocumentadasAsync` (barrido de ausentes del origen 'proyecto',
+1.7.5) recorre toda la coleccion pero solo trae `file_path` e ids, y solo lo usa ese barrido; la busqueda de puntos
+existentes de la ingesta (`GetDocumentPointsAsync`) trae la huella, pero solo de rutas pedidas explicitamente.
+Ninguna de las dos superficies expone un listado legible por coleccion sin acceso directo a Qdrant. Esto **no** es
+el "manifiesto" que el item 1.4 declaro no portado (ese era un registro propio de Rag.Context.Engine con otro
+proposito); es una capacidad nueva, mas simple: un listado de solo lectura.
+
+- **`GET api/colecciones/{coleccion}/documentos`**: `{ "ruta", "huella", "puntos" }` por cada documento indexado,
+  agrupado por su clave de identidad (`file_path`, ver `ChunkBuilder.BuildIdentityKey`): `"ruta"` es ese valor sin
+  el prefijo `"{coleccion}/"` (la ruta normalizada con separadores `/`, no la ruta literal de `relative_path`).
+  `"huella"` es el `document_fingerprint` con que se escribieron sus puntos; **null** si los puntos de ese
+  documento no comparten una sola huella (mismo criterio de "cambiado" que usa la ingesta para decidir si
+  revectoriza un documento, `DocumentIngestionPipeline.IsUnchanged`). `"puntos"` es cuantos chunks quedaron
+  indexados para ese documento. Nunca 404: coleccion inexistente responde **200** con una lista vacia (mismo
+  criterio que `GET api/colecciones`). **503** si Qdrant no responde, sin exponer host ni puerto.
+- **Catalogo de descubrimiento, no ruta caliente**: un solo scroll sin filtro sobre toda la coleccion (comparte la
+  mecanica de paginacion con `ListarRutasDocumentadasAsync`, sin cambiar su firma ni su semantica), sin paginar la
+  respuesta: el offset del scroll de Qdrant es por punto, no por documento, igual limitacion que el catalogo de
+  colecciones (1.16).
+- **Fuera de alcance, a proposito**: hash de contenido puro por documento (eso es un dato distinto del
+  `document_fingerprint`, que tambien incluye la configuracion de chunking y el modelo); paginar por documento.
 
 ## Resumen de negocio reanudable (item 1.7.7)
 
