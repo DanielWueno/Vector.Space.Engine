@@ -304,7 +304,7 @@
           "modelo": "sonnet",
           "esfuerzo": "low",
           "multiagente": false,
-          "estado": "bloqueado",
+          "estado": "descartado",
           "fecha": "2026-10-28",
           "horas_maquina": 0.1,
           "por_que_este_modelo": "Correccion de una linea con prueba unitaria; el unico criterio es no cambiar las rutas que ya se excluian.",
@@ -312,8 +312,8 @@
           "archivos": "Rag.Context.Engine (otro repo): src/RagEngine.Core/Infrastructure/Scanning/IgnoreRules.cs y sus tests; registrar alli en su ledger.",
           "verificacion": "En Rag.Context.Engine, '.cache/x.json', '.mcp.json' y '.claude/settings.local.json' quedan ignorados con esas reglas, './bin/a.dll' y 'sub/.mcp.json' siguen igual, y sus tests pasan. Las colecciones ya ingeridas desde arboles de trabajo se revisan por si contienen esos archivos.",
           "_condicion_de_reentrada": "Responsable: usuario. Toca otro repositorio; decidir si se corrige alli (y se registra en su ledger) antes de tocarlo.",
-          "resultado": "Bloqueado a proposito en /plan-siguiente del 2026-10-28: consultado el usuario (AskUserQuestion) sobre si corregir ahora en Rag.Context.Engine o dejarlo bloqueado, eligio dejarlo bloqueado en este ledger por ahora. No se toco codigo de ningun repositorio.",
-          "rollback": "Revertir el commit en Rag.Context.Engine."
+          "resultado": "No aplica a este repositorio: descartado el 2026-10-28. El bug es real en Rag.Context.Engine (src/RagEngine.Core/Infrastructure/Scanning/IgnoreRules.cs), pero Vector.Space.Engine no depende de ese codigo -- porto su propia copia en src/Reyma.VectorSpace.Engine.Microservice.Infrastructure/Scanning/IgnoreRules.cs (via tools/ingesta-proyecto/Prototipo/IgnoreRules.cs) ya con la correccion aplicada: IsIgnored (lineas 84-88) solo quita el prefijo './', sin TrimStart('.', '/'), con comentario explicito senalando el bug de origen y la correccion. Verificado leyendo el archivo: no hay TrimStart('.', '/') en este repo. La correccion en Rag.Context.Engine (otro repositorio, con su propio ledger) sigue pendiente alli si se decide hacerla, pero no es trabajo de este ledger: no hay nada que este repo necesite corregir en si mismo.",
+          "rollback": "No aplica; ningun codigo de este repositorio cambio."
         },
         {
           "id": "1.8-evaluar-adopcion-de-motor-de-embeddings-existente",
