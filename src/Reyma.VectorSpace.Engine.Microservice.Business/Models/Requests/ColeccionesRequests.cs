@@ -24,6 +24,15 @@ public sealed class BuscarRequest
 
     /// <summary>Ver <see cref="CalcularEmbeddingsRequest.Perfil"/>.</summary>
     public string? Perfil { get; set; }
+
+    /// <summary>
+    /// Filtro exacto opcional por simbolos definidos (item 1.18): 1 a 50 cadenas no vacias; fuera de ese rango, 400.
+    /// Acota la busqueda a puntos cuyo <c>defined_symbols</c> contenga alguno de estos nombres, con el mismo umbral y
+    /// desempate deterministas que ya usa la busqueda. Ausente: la busqueda no cambia respecto a antes de este item.
+    /// No implementa salto de simbolo ni reranking: filtra por igualdad sobre un indice keyword ya existente, el
+    /// resto (que simbolos sembrar, con que peso) es responsabilidad del consumidor.
+    /// </summary>
+    public List<string>? SimbolosDefinidos { get; set; }
 }
 
 public sealed class IngestaRequest

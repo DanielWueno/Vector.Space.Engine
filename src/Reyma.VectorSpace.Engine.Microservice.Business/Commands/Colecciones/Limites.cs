@@ -13,6 +13,9 @@ public static class Limites
     public const int TopKPorDefecto = 10;
     public const int MaxTopK = 100;
 
+    /// <summary>Filtro opcional por simbolos definidos en una busqueda (item 1.18): 1 a 50 cadenas no vacias.</summary>
+    public const int MaxSimbolosDefinidosPorConsulta = 50;
+
     public const int MaxDocumentosPorIngesta = 100;
     public const int MaxCaracteresRuta = 1_024;
     public const int MaxCaracteresPorDocumento = 1_048_576;

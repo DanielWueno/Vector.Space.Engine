@@ -16,7 +16,12 @@ public interface IMotorDeEmbeddings
 
 public interface IMotorDeBusqueda
 {
-    Task<BusquedaResponse> BuscarAsync(string coleccion, string consulta, int topK, string? perfil, CancellationToken cancellationToken);
+    /// <summary>
+    /// simbolosDefinidos (item 1.18): filtro exacto opcional, null/vacio = sin filtro (mismos resultados que antes
+    /// de este item). No vacio = solo puntos cuyo defined_symbols contenga alguno de esos nombres.
+    /// </summary>
+    Task<BusquedaResponse> BuscarAsync(
+        string coleccion, string consulta, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos, CancellationToken cancellationToken);
 }
 
 public interface IMotorDeIngesta

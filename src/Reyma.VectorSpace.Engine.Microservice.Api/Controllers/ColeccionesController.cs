@@ -141,5 +141,7 @@ public sealed class ColeccionesController : BaseController
     [ProducesResponseType(StatusCodes.Status501NotImplemented)]
     public async Task<ActionResult<BusquedaResponse>> PostBusqueda(
         string coleccion, [FromBody] BuscarRequest? request, CancellationToken cancellationToken) =>
-        Ok(await Mediator.Send(new BuscarEnColeccionQuery(coleccion, request?.Consulta, request?.TopK, request?.Perfil), cancellationToken));
+        Ok(await Mediator.Send(
+            new BuscarEnColeccionQuery(coleccion, request?.Consulta, request?.TopK, request?.Perfil, request?.SimbolosDefinidos),
+            cancellationToken));
 }

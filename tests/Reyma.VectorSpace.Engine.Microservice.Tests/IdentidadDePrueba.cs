@@ -117,7 +117,8 @@ public sealed class MotorDePrueba : IMotorDeEmbeddings, IMotorDeBusqueda, IMotor
         return Task.FromResult(new EmbeddingsResponse(coleccion, "modelo-prueba", 3, textos.Select(_ => new[] { 1f, 0f, 0f }).ToArray()));
     }
 
-    public Task<BusquedaResponse> BuscarAsync(string coleccion, string consulta, int topK, string? perfil, CancellationToken cancellationToken)
+    public Task<BusquedaResponse> BuscarAsync(
+        string coleccion, string consulta, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos, CancellationToken cancellationToken)
     {
         Llamadas.Enqueue(("busqueda", coleccion, topK));
         return Task.FromResult(new BusquedaResponse(coleccion, [new ResultadoBusquedaResponse("id-1", 0.9f, "a.md", "texto")]));

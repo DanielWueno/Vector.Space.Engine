@@ -45,8 +45,11 @@ El motor es el de Rag.Context.Engine portado (ver
 
 - **embeddings**: vectores de *documento* (sin el prefijo `query: `), los mismos que guardaria una ingesta
   de esos textos. No escribe nada.
-- **busquedas**: rama densa exacta (coseno >= 0,10, desempate por id), sin fusion con el sparse (1.10).
-  `puntuacion` es el coseno. Una coleccion autorizada que aun no tiene ingestas responde 200 sin resultados.
+- **busquedas**: rama densa exacta (coseno >= 0,10, desempate por id), sin fusion con el sparse (1.10) salvo que
+  `Motor:Busqueda:Modo` este en `FusionNativa` (RRF nativa denso + sparse-code). `puntuacion` es el coseno en modo
+  denso, el score RRF en fusion. Una coleccion autorizada que aun no tiene ingestas responde 200 sin resultados.
+  Cada resultado trae ademas los metadatos de chunk ya guardados en el payload y admite un filtro exacto opcional
+  por simbolos definidos (item 1.18, ver seccion dedicada abajo); igual en ambos modos de busqueda.
 - **ingestas**: cada documento se trocea por su extension con el perfil del CLI de Rag.Context.Engine
   (`.cs .ts .tsx .js .jsx .xaml .sql .md .txt .json .xml .csproj`, hasta 512 KB en UTF-8), con
   `MaxTokensPerChunk` 1024 (1.11). La coleccion hace de repositorio: el Id de un chunk sale de
@@ -92,8 +95,12 @@ El motor es el de Rag.Context.Engine portado (ver
 // 200: { "coleccion", "modelo", "dimension", "vectores": [[...], [...]] }
 
 // POST .../busquedas    (consulta de hasta 2048 caracteres; topK 1..100, por defecto 10)
-{ "consulta": "como se configura X", "topK": 10, "perfil": "altheia-bge-m3-256" }   // "perfil" opcional
-// 200: { "coleccion", "resultados": [{ "id", "puntuacion", "ruta", "texto" }] }
+{ "consulta": "como se configura X", "topK": 10, "perfil": "altheia-bge-m3-256",
+  "simbolosDefinidos": ["MiMetodo"] }   // "perfil" y "simbolosDefinidos" opcionales, ver seccion "Metadatos de chunk..." abajo
+// 200: { "coleccion", "resultados": [{ "id", "puntuacion", "ruta", "texto",
+//        "lineaInicio", "lineaFin", "lenguaje", "tipoChunk", "contentHash",      // item 1.18
+//        "namespace", "clase", "metodo",                                        // item 1.18, null si el chunk no aplica
+//        "simbolosDefinidos", "simbolosConsumidos" }] }                         // item 1.18, lista vacia, nunca null
 
 // POST .../ingestas     origen 'documentos': 1 a 100 documentos, ruta unica y contenido <= 1 MiB c/u
 { "origen": { "tipo": "documentos", "documentos": [{ "ruta": "docs/a.md", "contenido": "..." }] },
@@ -163,6 +170,29 @@ distinto con la misma dimension (bge-m3 truncado a 256 contra una coleccion `arc
   **400** con la lista de perfiles disponibles, nunca 503 (un 503 sigue siendo solo para una dependencia
   caida o que no respondio).
 - Perfil de LLM (resumen de negocio): implementado en 1.7.7, ver la seccion "Resumen de negocio reanudable" abajo.
+
+## Metadatos de chunk en busquedas y filtro por simbolos definidos (item 1.18)
+
+`POST .../busquedas` solo devolvia `id`, `puntuacion`, `ruta` y `texto`; el payload de cada punto en Qdrant ya
+guardaba el resto desde la ingesta (`QdrantVectorStore.UpsertBatchAsync`). 1.18 expone esos campos y agrega un
+filtro exacto opcional por `defined_symbols`, sin ningun salto de simbolo ni fusion/reranking (eso sigue siendo
+responsabilidad del consumidor, no de este servicio).
+
+- **Campos nuevos por resultado**: `lineaInicio`, `lineaFin`, `lenguaje`, `tipoChunk`, `contentHash` (la ingesta los
+  escribe en todo punto; null solo en un punto de una ingesta anterior a este item que no los tenga);
+  `namespace`/`clase`/`metodo` (null cuando el chunk no aplica, p. ej. un chunk de Markdown); `simbolosDefinidos`/
+  `simbolosConsumidos` (lista vacia, **nunca** null, cuando el chunk no define o no consume ningun simbolo, o la
+  estrategia de chunking no los extrae). Mismos campos y mismo comportamiento en modo denso y en modo `FusionNativa`
+  (1.10): la construccion del resultado es un unico paso posterior a elegir la rama de busqueda.
+- **`simbolosDefinidos` en el cuerpo de la peticion** (opcional): 1 a 50 cadenas no vacias; fuera de ese rango,
+  **400**. Acota la busqueda a puntos cuyo `defined_symbols` contenga alguno de esos nombres (coincidencia exacta
+  sobre el indice keyword ya existente, `Conditions.Match` por lista = coincide con cualquiera), con el mismo
+  umbral de similitud y el mismo desempate deterministico por id que ya usaba la busqueda. Ausente (el caso de
+  siempre): la busqueda no cambia respecto a antes de este item (mismos ids, orden y puntuaciones).
+- **Fuera de alcance, a proposito**: filtrar por `class_name`/`method_name` (ese campo no tiene indice y crear uno
+  nuevo sobre colecciones servidas es otra decision); cualquier salto de simbolo, tope de semillas, peso de
+  refusion o reranking (responsabilidad del consumidor); el texto resumido por hit (decision futura, item 1.20 —
+  `contentHash` no lo sustituye).
 
 ## Modelo de consumo (item 1.7)
 

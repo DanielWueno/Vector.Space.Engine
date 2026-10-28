@@ -165,7 +165,8 @@ public sealed class LimiteDeIngestasTests(ApiFactory factory)
         public Task<EmbeddingsResponse> CalcularAsync(string coleccion, IReadOnlyList<string> textos, string? perfil, CancellationToken cancellationToken) =>
             Task.FromResult(new EmbeddingsResponse(coleccion, "modelo-prueba", 1, textos.Select(_ => new[] { 1f }).ToArray()));
 
-        public Task<BusquedaResponse> BuscarAsync(string coleccion, string consulta, int topK, string? perfil, CancellationToken cancellationToken) =>
+        public Task<BusquedaResponse> BuscarAsync(
+            string coleccion, string consulta, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos, CancellationToken cancellationToken) =>
             Task.FromResult(new BusquedaResponse(coleccion, []));
 
         public async Task<IngestaResponse> IngerirAsync(string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken)

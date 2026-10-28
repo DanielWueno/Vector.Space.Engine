@@ -1,3 +1,4 @@
+using Google.Protobuf.Collections;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Qdrant.Client;
@@ -46,8 +47,12 @@ public sealed class QdrantSemanticRetriever
     /// <summary>
     /// <paramref name="perfil"/> null = perfil por defecto (1.7.4). Una coleccion existente con otro perfil responde
     /// 409 sin buscar (mismo criterio que la ingesta, ver <see cref="QdrantVectorStore.VerificarPerfilParaConsultaAsync"/>).
+    /// <paramref name="simbolosDefinidos"/> (item 1.18): filtro exacto opcional, no vacio = acota a puntos cuyo
+    /// <c>defined_symbols</c> contenga alguno de esos nombres (indice keyword ya existente), igual en ambos modos de
+    /// busqueda. Dato, no logica: ningun salto de simbolo ni reranking vive aqui (ver nota de clase).
     /// </summary>
-    public async Task<IReadOnlyList<SearchHit>> SearchAsync(string collectionName, string query, int topK, string? perfil, CancellationToken ct)
+    public async Task<IReadOnlyList<SearchHit>> SearchAsync(
+        string collectionName, string query, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos, CancellationToken ct)
     {
         // Una coleccion autorizada que todavia no se ingesto no es un error: no tiene resultados.
         if (!await _client.CollectionExistsAsync(collectionName, ct))
@@ -59,15 +64,26 @@ public sealed class QdrantSemanticRetriever
         var queryVector = await resuelto.Brain.EmbedQueryAsync(query, ct);
         var payload = new WithPayloadSelector
         {
-            Include = new PayloadIncludeSelector { Fields = { "content", "relative_path" } }
+            Include = new PayloadIncludeSelector
+            {
+                Fields =
+                {
+                    "content", "relative_path", "start_line", "end_line", "language", "chunk_type", "content_hash",
+                    "namespace", "class_name", "method_name",
+                    QdrantVectorStore.DefinedSymbolsPayloadKey, QdrantVectorStore.ConsumedSymbolsPayloadKey
+                }
+            }
         };
         float? threshold = _options.UmbralSimilitud > 0f ? _options.UmbralSimilitud : null;
+        Filter? filtroSimbolos = simbolosDefinidos is { Count: > 0 }
+            ? new Filter { Must = { Conditions.Match(QdrantVectorStore.DefinedSymbolsPayloadKey, simbolosDefinidos) } }
+            : null;
 
         IReadOnlyList<ScoredPoint> ranked;
         if (_options.Modo == ModoBusqueda.Denso)
         {
             ranked = await QueryOrderedAsync(collectionName, queryVector, QdrantVectorStore.DenseVectorName,
-                (ulong)topK, payload, ct, threshold);
+                (ulong)topK, payload, filtroSimbolos, ct, threshold);
         }
         else
         {
@@ -85,9 +101,9 @@ public sealed class QdrantSemanticRetriever
             }
 
             var dense = QueryOrderedAsync(collectionName, queryVector, QdrantVectorStore.DenseVectorName,
-                prefetchLimit, payload, ct, threshold);
+                prefetchLimit, payload, filtroSimbolos, ct, threshold);
             var sparse = QueryOrderedAsync(collectionName, (sparseValues, sparseIndices), QdrantVectorStore.SparseVectorName,
-                prefetchLimit, payload, ct);
+                prefetchLimit, payload, filtroSimbolos, ct);
             await Task.WhenAll(dense, sparse);
             ranked = FuseNativeRanks(await dense, await sparse, finalLimit);
         }
@@ -96,14 +112,30 @@ public sealed class QdrantSemanticRetriever
                 DeterministicVectorQuery.ChunkId(p),
                 p.Score,
                 p.Payload.GetValueOrDefault("relative_path")?.StringValue ?? string.Empty,
-                p.Payload.GetValueOrDefault("content")?.StringValue ?? string.Empty))
+                p.Payload.GetValueOrDefault("content")?.StringValue ?? string.Empty,
+                p.Payload.TryGetValue("start_line", out var inicio) ? (int)inicio.IntegerValue : null,
+                p.Payload.TryGetValue("end_line", out var fin) ? (int)fin.IntegerValue : null,
+                p.Payload.GetValueOrDefault("language")?.StringValue,
+                p.Payload.GetValueOrDefault("chunk_type")?.StringValue,
+                p.Payload.GetValueOrDefault("content_hash")?.StringValue,
+                p.Payload.GetValueOrDefault("namespace")?.StringValue,
+                p.Payload.GetValueOrDefault("class_name")?.StringValue,
+                p.Payload.GetValueOrDefault("method_name")?.StringValue,
+                ExtraerSimbolos(p.Payload, QdrantVectorStore.DefinedSymbolsPayloadKey),
+                ExtraerSimbolos(p.Payload, QdrantVectorStore.ConsumedSymbolsPayloadKey)))
             .ToArray();
     }
 
+    /// <summary>Lista de keywords del payload (defined/consumed_symbols); vacia (nunca null) si el punto no la tiene.</summary>
+    private static IReadOnlyList<string> ExtraerSimbolos(MapField<string, Value> payload, string clave) =>
+        payload.TryGetValue(clave, out var valor) && valor.KindCase == Value.KindOneofCase.ListValue
+            ? valor.ListValue.Values.Select(v => v.StringValue).ToArray()
+            : Array.Empty<string>();
+
     private Task<IReadOnlyList<ScoredPoint>> QueryOrderedAsync(
-        string collection, Query query, string vector, ulong limit, WithPayloadSelector payload, CancellationToken ct,
+        string collection, Query query, string vector, ulong limit, WithPayloadSelector payload, Filter? filter, CancellationToken ct,
         float? threshold = null) =>
-        DeterministicVectorQuery.SearchAsync(_client, collection, query, vector, filter: null, limit, payload, _logger, ct, threshold);
+        DeterministicVectorQuery.SearchAsync(_client, collection, query, vector, filter, limit, payload, _logger, ct, threshold);
 
     // Copia de QdrantSemanticRetriever.FuseNativeRanks del origen.
     private static IReadOnlyList<ScoredPoint> FuseNativeRanks(
@@ -132,5 +164,17 @@ public sealed class QdrantSemanticRetriever
     }
 }
 
-/// <summary>Un resultado de busqueda: id del chunk, puntuacion (coseno en modo denso, RRF en fusion), ruta y texto.</summary>
-public sealed record SearchHit(string ChunkId, float Score, string RelativePath, string Content);
+/// <summary>
+/// Un resultado de busqueda: id del chunk, puntuacion (coseno en modo denso, RRF en fusion), ruta, texto y los
+/// metadatos de chunk ya guardados en el payload (item 1.18). <see cref="LineaInicio"/>/<see cref="LineaFin"/>/
+/// <see cref="Lenguaje"/>/<see cref="TipoChunk"/>/<see cref="ContentHash"/> los escribe la ingesta en todo punto
+/// (<see cref="QdrantVectorStore.UpsertBatchAsync"/>); null solo en un punto de una ingesta anterior sin esos campos.
+/// <see cref="Namespace"/>/<see cref="Clase"/>/<see cref="Metodo"/> son null cuando el chunk no los tiene (p. ej.
+/// Markdown). <see cref="SimbolosDefinidos"/>/<see cref="SimbolosConsumidos"/> son listas vacias, nunca null, cuando
+/// el payload las omite (listas vacias no se escriben, ver <see cref="QdrantVectorStore.UpsertBatchAsync"/>).
+/// </summary>
+public sealed record SearchHit(
+    string ChunkId, float Score, string RelativePath, string Content,
+    int? LineaInicio, int? LineaFin, string? Lenguaje, string? TipoChunk, string? ContentHash,
+    string? Namespace, string? Clase, string? Metodo,
+    IReadOnlyList<string> SimbolosDefinidos, IReadOnlyList<string> SimbolosConsumidos);

@@ -16,7 +16,24 @@ public sealed record BusquedaResponse(string Coleccion, IReadOnlyList<ResultadoB
 /// </summary>
 public sealed record ColeccionInfoResponse(string Coleccion, string? PerfilEmbeddings, string? Modelo, int? Dimension);
 
-public sealed record ResultadoBusquedaResponse(string Id, float Puntuacion, string Ruta, string Texto);
+/// <summary>
+/// Un resultado de busqueda (item 1.18 amplia los campos). <see cref="LineaInicio"/>/<see cref="LineaFin"/>/
+/// <see cref="Lenguaje"/>/<see cref="TipoChunk"/>/<see cref="ContentHash"/>: metadatos de chunk que la ingesta
+/// escribe en todo punto; null solo si el punto viene de antes de este item y no los tiene. <see cref="Namespace"/>/
+/// <see cref="Clase"/>/<see cref="Metodo"/>: null cuando el chunk no aplica (p. ej. Markdown). Dato, no resumen: el
+/// texto resumido por hit es una decision futura (1.20), <see cref="ContentHash"/> no lo reemplaza.
+/// <see cref="SimbolosDefinidos"/>/<see cref="SimbolosConsumidos"/>: lista vacia, nunca null, cuando el payload no
+/// los tiene (el chunk no define/consume ningun simbolo, o la estrategia de chunking no los extrae).
+/// </summary>
+public sealed record ResultadoBusquedaResponse(
+    string Id, float Puntuacion, string Ruta, string Texto,
+    int? LineaInicio = null, int? LineaFin = null, string? Lenguaje = null, string? TipoChunk = null, string? ContentHash = null,
+    string? Namespace = null, string? Clase = null, string? Metodo = null,
+    IReadOnlyList<string>? SimbolosDefinidos = null, IReadOnlyList<string>? SimbolosConsumidos = null)
+{
+    public IReadOnlyList<string> SimbolosDefinidos { get; init; } = SimbolosDefinidos ?? Array.Empty<string>();
+    public IReadOnlyList<string> SimbolosConsumidos { get; init; } = SimbolosConsumidos ?? Array.Empty<string>();
+}
 
 /// <summary>
 /// Resultado de una ingesta. El origen 'documentos' (MVP) es sincrono y vuelve con <see cref="Estado"/> "completada";
