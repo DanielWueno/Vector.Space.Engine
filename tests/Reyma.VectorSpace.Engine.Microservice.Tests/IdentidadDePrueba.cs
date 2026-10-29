@@ -111,6 +111,9 @@ public sealed class MotorDePrueba : IMotorDeEmbeddings, IMotorDeBusqueda, IMotor
 {
     public ConcurrentQueue<(string Operacion, string Coleccion, object Datos)> Llamadas { get; } = new();
 
+    /// <summary>Espacio de la ultima busqueda recibida (item 1.20).</summary>
+    public EspacioDeBusqueda? UltimoEspacio { get; private set; }
+
     public Task<EmbeddingsResponse> CalcularAsync(string coleccion, IReadOnlyList<string> textos, string? perfil, CancellationToken cancellationToken)
     {
         Llamadas.Enqueue(("embeddings", coleccion, textos));
@@ -118,8 +121,10 @@ public sealed class MotorDePrueba : IMotorDeEmbeddings, IMotorDeBusqueda, IMotor
     }
 
     public Task<BusquedaResponse> BuscarAsync(
-        string coleccion, string consulta, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos, CancellationToken cancellationToken)
+        string coleccion, string consulta, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos,
+        EspacioDeBusqueda espacio, CancellationToken cancellationToken)
     {
+        UltimoEspacio = espacio;
         Llamadas.Enqueue(("busqueda", coleccion, topK));
         return Task.FromResult(new BusquedaResponse(coleccion, [new ResultadoBusquedaResponse("id-1", 0.9f, "a.md", "texto")]));
     }

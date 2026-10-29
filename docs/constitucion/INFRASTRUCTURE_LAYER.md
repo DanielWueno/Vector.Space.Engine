@@ -223,6 +223,32 @@ nueva, deliberadamente mas simple.
   documento, y un documento "borrado" (contenido vacio, mismo patron que el resto del contrato) desaparece del
   listado sin afectar a los demas.
 
+## Busqueda en el espacio resumen (item 1.20)
+
+Dato, no logica: el servicio consulta el vector guardado que el cliente pide (`EspacioDeBusqueda`, en el puerto
+`IMotorDeBusqueda`); no fusiona, no pondera ni decide cuando usar cada espacio. Contrato en `docs/servicio/contrato-api.md`.
+
+- **`QdrantSemanticRetriever.SearchAsync`** recibe el espacio. `Codigo` es el camino de siempre, sin cambios (medido
+  pareado contra el codigo anterior). `Resumen` (`BuscarEnResumenAsync`): 400 si no hay `Motor:Resumen:PerfilEmbeddings`
+  ANTES de tocar Qdrant; luego la misma regla "coleccion inexistente -> sin resultados"; luego verifica el esquema y
+  solo despues vectoriza la consulta con el perfil de resumen (`EmbedQueryAsync`, con su prefijo) y consulta
+  `dense-resumen` por la rama densa exacta de `DeterministicVectorQuery`, en cualquier `ModoBusqueda`. Umbral propio,
+  `Motor:Busqueda:UmbralSimilitudResumen` (0 = sin umbral, por defecto).
+- **`QdrantVectorStore.VerificarEsquemaResumenParaConsultaAsync`**: 409 si el esquema REAL de Qdrant no tiene
+  `dense-resumen` (mismo criterio que `EnsureCollectionAsync`, nunca la metadata), si su dimension no es la del perfil
+  de resumen, o si la metadata guarda otro `perfil_resumen`. `GetEsquemaAsync` (privado) devuelve ademas la dimension
+  de `dense-resumen`. `EnsureCollectionAsync` recibe el NOMBRE del perfil de resumen (antes un modelo que no se
+  usaba) y lo escribe como `perfil_resumen` solo al crear una coleccion con resumen.
+- **Texto del resumen**: `ActualizarResumenAsync` recibe el texto y lo guarda en `resumen_texto` solo junto con el
+  vector (un chunk "sin contenido de negocio" no lleva ni uno ni otro). El retriever lo lee en ambos espacios y
+  `SearchHit.Resumen` lo lleva hasta `ResultadoBusquedaResponse.Resumen`. Los chunks resumidos antes de 1.20 no lo
+  tienen y nada los rellena (eso costaria tokens de LLM y requiere decision aparte).
+- **Fuera de alcance, a proposito**: que la fase 2 (`ResumenPipeline`) rechace escribir `dense-resumen` con otro
+  perfil que el guardado; un espacio solo-sparse para que el consumidor reproduzca la fusion de tres ramas del origen.
+- Verificado contra Qdrant y TEI reales en `tests/.../Motor/BusquedaEnResumenIntegracionTests.cs` (gateado por
+  `VSE_MOTOR_LOCAL=1`, LLM inyectado, 0 tokens) con un perfil de resumen propio de 128d distinto del perfil del codigo;
+  validacion del cuerpo y el 400 sin configuracion en `tests/.../EspacioDeBusquedaTests.cs`, sin Docker.
+
 ## Codigo portado
 
 `Chunking/`, `Utilities/`, `Model/` y `Vectorization/SparseTokenizer.cs` vienen de Rag.Context.Engine y deben producir

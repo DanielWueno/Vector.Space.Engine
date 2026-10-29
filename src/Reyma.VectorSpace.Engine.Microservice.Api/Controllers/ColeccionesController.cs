@@ -146,16 +146,22 @@ public sealed class ColeccionesController : BaseController
         string coleccion, CancellationToken cancellationToken) =>
         Ok(await Mediator.Send(new GetDocumentosQuery(coleccion), cancellationToken));
 
-    /// <summary>Busqueda semantica en la coleccion.</summary>
+    /// <summary>
+    /// Busqueda semantica en la coleccion. <c>espacio</c> (item 1.20) elige el vector consultado: <c>codigo</c> (por
+    /// defecto) o <c>resumen</c> (<c>dense-resumen</c>, solo en colecciones creadas con resumen de negocio; 409 si no
+    /// lo tienen o si su perfil de resumen no coincide con el de la instancia).
+    /// </summary>
     [HttpPost("{coleccion}/busquedas")]
     [Authorize]
     [ProducesResponseType(typeof(BusquedaResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status501NotImplemented)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     public async Task<ActionResult<BusquedaResponse>> PostBusqueda(
         string coleccion, [FromBody] BuscarRequest? request, CancellationToken cancellationToken) =>
         Ok(await Mediator.Send(
-            new BuscarEnColeccionQuery(coleccion, request?.Consulta, request?.TopK, request?.Perfil, request?.SimbolosDefinidos),
+            new BuscarEnColeccionQuery(coleccion, request?.Consulta, request?.TopK, request?.Perfil, request?.SimbolosDefinidos, request?.Espacio),
             cancellationToken));
 }

@@ -52,6 +52,7 @@ public static class MotorServiceCollectionExtensions
                 "Motor:Ingesta: MaxTokensPorChunk positivo y TokensDeSolape entre 0 y MaxTokensPorChunk.")
             .Validate(o => o.Ingesta.LoteDeChunks > 0, "Motor:Ingesta:LoteDeChunks debe ser positivo.")
             .Validate(o => o.Busqueda.UmbralSimilitud is >= 0f and < 1f, "Motor:Busqueda:UmbralSimilitud debe estar en [0, 1).")
+            .Validate(o => o.Busqueda.UmbralSimilitudResumen is >= 0f and < 1f, "Motor:Busqueda:UmbralSimilitudResumen debe estar en [0, 1).")
             .Validate(o => !string.IsNullOrWhiteSpace(o.Qdrant.Host) && o.Qdrant.PuertoGrpc > 0 && o.Qdrant.PuertoRest > 0 && o.Qdrant.TiempoMaximoSegundos > 0,
                 "Motor:Qdrant: Host, PuertoGrpc, PuertoRest y TiempoMaximoSegundos son obligatorios.")
             // 1.7.6: origen 'proyecto' por URL Git. Sin ningun origen permitido, el servicio igual arranca (toda URL

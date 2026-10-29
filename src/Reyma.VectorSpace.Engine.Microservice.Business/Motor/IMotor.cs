@@ -14,14 +14,28 @@ public interface IMotorDeEmbeddings
     Task<EmbeddingsResponse> CalcularAsync(string coleccion, IReadOnlyList<string> textos, string? perfil, CancellationToken cancellationToken);
 }
 
+/// <summary>
+/// Que vector guardado consulta una busqueda (item 1.20). <see cref="Codigo"/>: el de siempre (<c>dense</c>, y
+/// <c>sparse-code</c> en fusion). <see cref="Resumen"/>: <c>dense-resumen</c> (1.7.7), vectorizando la consulta con el
+/// perfil de embeddings del resumen de la instancia. El servicio no fusiona ni pondera espacios: los elige el cliente.
+/// </summary>
+public enum EspacioDeBusqueda
+{
+    Codigo,
+    Resumen
+}
+
 public interface IMotorDeBusqueda
 {
     /// <summary>
     /// simbolosDefinidos (item 1.18): filtro exacto opcional, null/vacio = sin filtro (mismos resultados que antes
     /// de este item). No vacio = solo puntos cuyo defined_symbols contenga alguno de esos nombres.
+    /// espacio (item 1.20): ver <see cref="EspacioDeBusqueda"/>; con <see cref="EspacioDeBusqueda.Resumen"/>,
+    /// perfil llega siempre null (lo fija la instancia, no el cliente).
     /// </summary>
     Task<BusquedaResponse> BuscarAsync(
-        string coleccion, string consulta, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos, CancellationToken cancellationToken);
+        string coleccion, string consulta, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos,
+        EspacioDeBusqueda espacio, CancellationToken cancellationToken);
 }
 
 public interface IMotorDeIngesta

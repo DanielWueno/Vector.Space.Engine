@@ -44,6 +44,12 @@ public sealed class QdrantVectorStore
     /// <summary>Version del prompt de resumen (hash de prompt+modelo) con la que se genero este punto.</summary>
     public const string ResumenPromptVersionPayloadKey = "resumen_prompt_version";
 
+    /// <summary>
+    /// Texto del resumen de negocio de este punto (item 1.20): solo en puntos con <c>dense-resumen</c> resumidos desde
+    /// 1.20; los resumidos antes no lo tienen (el texto solo vivia en la cache en memoria) hasta volver a resumirse.
+    /// </summary>
+    public const string ResumenTextoPayloadKey = "resumen_texto";
+
     /// <summary>HttpClient REST nombrado (1.7.4): el cliente gRPC de Qdrant 1.19 no expone el campo <c>metadata</c> de la coleccion.</summary>
     public const string RestHttpClientName = "motor-qdrant-rest";
 
@@ -51,6 +57,9 @@ public sealed class QdrantVectorStore
     private const string ModeloMetadataKey = "modelo";
     private const string DimensionMetadataKey = "dimension";
     private const string ResumenHabilitadoMetadataKey = "resumen_habilitado";
+
+    /// <summary>Perfil de embeddings con el que se crea <c>dense-resumen</c> (item 1.20); ausente en colecciones anteriores.</summary>
+    private const string PerfilResumenMetadataKey = "perfil_resumen";
 
     private readonly QdrantClient _client;
     private readonly HttpClient _rest;
@@ -75,18 +84,21 @@ public sealed class QdrantVectorStore
     /// <see cref="ConflictException"/> (409): el tercer vector no se puede agregar despues de crear la coleccion
     /// (1.7.3). Sobre una coleccion nueva, la crea con <c>dense-resumen</c> ademas de <c>dense</c>.
     /// </param>
-    /// <param name="resumenModelo">Modelo del perfil de embeddings del resumen; solo se usa al crear la coleccion.</param>
+    /// <param name="resumenPerfil">
+    /// Nombre del perfil de embeddings del resumen; solo se usa al crear la coleccion, para guardarlo en su metadata
+    /// (<c>perfil_resumen</c>, item 1.20) y que una busqueda en el espacio resumen detecte un cambio de modelo.
+    /// </param>
     /// <param name="resumenDimension">Dimension del vector de resumen; solo se usa al crear la coleccion.</param>
     /// <returns>Si la coleccion (ya existente o recien creada) tiene el resumen habilitado de verdad (vector presente).</returns>
     public async Task<bool> EnsureCollectionAsync(
         string collectionName, string perfil, string modelo, int dimension,
-        bool resumenSolicitado, string? resumenModelo, int resumenDimension, CancellationToken ct)
+        bool resumenSolicitado, string? resumenPerfil, int resumenDimension, CancellationToken ct)
     {
         var esquema = await GetEsquemaAsync(collectionName, ct);
         if (esquema is null)
         {
-            await CreateCollectionAsync(collectionName, perfil, modelo, dimension, resumenSolicitado, resumenDimension, ct);
-            await EscribirPerfilAsync(collectionName, perfil, modelo, dimension, resumenSolicitado, ct);
+            await CreateCollectionAsync(collectionName, perfil, modelo, dimension, resumenSolicitado, resumenPerfil, resumenDimension, ct);
+            await EscribirPerfilAsync(collectionName, perfil, modelo, dimension, resumenSolicitado, ct, resumenSolicitado ? resumenPerfil : null);
             return resumenSolicitado;
         }
 
@@ -113,6 +125,41 @@ public sealed class QdrantVectorStore
             return;
 
         await VerificarPerfilExistenteAsync(collectionName, esquema.Value.Dense, perfil, modelo, dimension, esquema.Value.TieneResumen, ct, puedeEscribirMetadata: false);
+    }
+
+    /// <summary>
+    /// Busqueda en el espacio resumen (item 1.20), sin escribir nada: false si la coleccion no existe (no es un error,
+    /// no tiene resultados). Si existe, 409 (<see cref="ConflictException"/>) cuando su esquema real en Qdrant no
+    /// tiene <c>dense-resumen</c> (no la metadata, igual criterio que <see cref="EnsureCollectionAsync"/>), cuando la
+    /// dimension de ese vector no es la del perfil de resumen de la instancia, o cuando la coleccion guardo otro
+    /// <c>perfil_resumen</c> al crearse (misma dimension, otro modelo: el hueco que 1.7.4 cerro para <c>dense</c>).
+    /// Una coleccion creada antes de 1.20 no tiene <c>perfil_resumen</c>: solo se comprueba la dimension.
+    /// </summary>
+    public async Task<bool> VerificarEsquemaResumenParaConsultaAsync(
+        string collectionName, string perfilResumen, string modeloResumen, int dimensionResumen, CancellationToken ct)
+    {
+        var esquema = await GetEsquemaAsync(collectionName, ct);
+        if (esquema is null)
+            return false;
+
+        if (!esquema.Value.TieneResumen)
+            throw new ConflictException(
+                $"La coleccion '{collectionName}' no tiene el vector de resumen de negocio ('{ResumenDenseVectorName}'); " +
+                "no se puede buscar en el espacio 'resumen'. Solo las colecciones creadas con resumen habilitado lo tienen.");
+
+        if (esquema.Value.ResumenDimension != (ulong)dimensionResumen)
+            throw new ConflictException(
+                $"La coleccion '{collectionName}' tiene el vector '{ResumenDenseVectorName}' de dimension {esquema.Value.ResumenDimension}; " +
+                $"el perfil de resumen del servicio ('{perfilResumen}', {modeloResumen}) usa {dimensionResumen}.");
+
+        var almacenado = await LeerPerfilAsync(collectionName, ct);
+        if (almacenado?.PerfilResumen is { } guardado && !string.Equals(guardado, perfilResumen, StringComparison.Ordinal))
+            throw new ConflictException(
+                $"La coleccion '{collectionName}' genero '{ResumenDenseVectorName}' con el perfil de embeddings '{guardado}'; " +
+                $"el perfil de resumen del servicio es '{perfilResumen}' ({modeloResumen}). Aunque la dimension coincida ({dimensionResumen}), " +
+                "los vectores no son comparables.");
+
+        return true;
     }
 
     private async Task VerificarPerfilExistenteAsync(
@@ -189,8 +236,12 @@ public sealed class QdrantVectorStore
                 : 0;
             var resumenHabilitado = metadata.TryGetProperty(ResumenHabilitadoMetadataKey, out var resumenValue) &&
                                      resumenValue.ValueKind == JsonValueKind.True;
+            var perfilResumen = metadata.TryGetProperty(PerfilResumenMetadataKey, out var perfilResumenValue) &&
+                                perfilResumenValue.ValueKind == JsonValueKind.String
+                ? perfilResumenValue.GetString()
+                : null;
 
-            return new PerfilColeccion(perfilValue.GetString()!, modelo, dimension, resumenHabilitado);
+            return new PerfilColeccion(perfilValue.GetString()!, modelo, dimension, resumenHabilitado, perfilResumen);
         }
         catch (HttpRequestException ex)
         {
@@ -204,11 +255,23 @@ public sealed class QdrantVectorStore
         }
     }
 
-    private async Task EscribirPerfilAsync(string collectionName, string perfil, string modelo, int dimension, bool resumenHabilitado, CancellationToken ct)
+    private async Task EscribirPerfilAsync(
+        string collectionName, string perfil, string modelo, int dimension, bool resumenHabilitado, CancellationToken ct,
+        string? perfilResumen = null)
     {
         try
         {
-            var cuerpo = new { metadata = new { perfil_embeddings = perfil, modelo, dimension, resumen_habilitado = resumenHabilitado } };
+            var metadata = new Dictionary<string, object>
+            {
+                [PerfilEmbeddingsMetadataKey] = perfil,
+                [ModeloMetadataKey] = modelo,
+                [DimensionMetadataKey] = dimension,
+                [ResumenHabilitadoMetadataKey] = resumenHabilitado,
+            };
+            // 1.20: solo al crear una coleccion con resumen; sin resumen el campo no se escribe (mismo esquema de antes).
+            if (perfilResumen is not null)
+                metadata[PerfilResumenMetadataKey] = perfilResumen;
+            var cuerpo = new { metadata };
             using var response = await _rest.PatchAsJsonAsync($"collections/{Uri.EscapeDataString(collectionName)}", cuerpo, ct);
             if (!response.IsSuccessStatusCode)
             {
@@ -230,8 +293,11 @@ public sealed class QdrantVectorStore
         }
     }
 
-    /// <summary>Dimension del vector <c>dense</c> (0 si la coleccion existe sin el) y si ya tiene <c>dense-resumen</c>; null si la coleccion no existe.</summary>
-    private async Task<(ulong Dense, bool TieneResumen)?> GetEsquemaAsync(string collectionName, CancellationToken ct)
+    /// <summary>
+    /// Dimension del vector <c>dense</c> (0 si la coleccion existe sin el), si ya tiene <c>dense-resumen</c> y su
+    /// dimension (0 si no lo tiene, item 1.20); null si la coleccion no existe.
+    /// </summary>
+    private async Task<(ulong Dense, bool TieneResumen, ulong ResumenDimension)?> GetEsquemaAsync(string collectionName, CancellationToken ct)
     {
         if (!await _client.CollectionExistsAsync(collectionName, ct))
             return null;
@@ -239,15 +305,16 @@ public sealed class QdrantVectorStore
         var info = await _client.GetCollectionInfoAsync(collectionName, ct);
         var vectors = info.Config?.Params?.VectorsConfig;
         if (vectors?.ConfigCase != VectorsConfig.ConfigOneofCase.ParamsMap)
-            return (0, false);
+            return (0, false, 0);
 
         var dense = vectors.ParamsMap.Map.TryGetValue(DenseVectorName, out var d) ? d.Size : 0;
-        var tieneResumen = vectors.ParamsMap.Map.ContainsKey(ResumenDenseVectorName);
-        return (dense, tieneResumen);
+        var tieneResumen = vectors.ParamsMap.Map.TryGetValue(ResumenDenseVectorName, out var r);
+        return (dense, tieneResumen, tieneResumen ? r!.Size : 0);
     }
 
     private async Task CreateCollectionAsync(
-        string collectionName, string perfil, string modelo, int dimension, bool resumenHabilitado, int resumenDimension, CancellationToken ct)
+        string collectionName, string perfil, string modelo, int dimension, bool resumenHabilitado, string? resumenPerfil, int resumenDimension,
+        CancellationToken ct)
     {
         var vectorsConfig = new VectorParamsMap();
         vectorsConfig.Map[DenseVectorName] = new VectorParams { Size = (ulong)dimension, Distance = Distance.Cosine };
@@ -268,7 +335,7 @@ public sealed class QdrantVectorStore
         catch (RpcException ex) when (ex.StatusCode == StatusCode.AlreadyExists)
         {
             // Otra ingesta la creo entre la comprobacion y aqui: se valida su esquema y su perfil como si ya existiera.
-            await EnsureCollectionAsync(collectionName, perfil, modelo, dimension, resumenHabilitado, modelo, resumenDimension, ct);
+            await EnsureCollectionAsync(collectionName, perfil, modelo, dimension, resumenHabilitado, resumenPerfil, resumenDimension, ct);
             return;
         }
 
@@ -507,10 +574,12 @@ public sealed class QdrantVectorStore
     /// Guarda el resumen generado para un punto (1.7.7): escribe <c>dense-resumen</c> solo si
     /// <paramref name="vectorResumen"/> no es null (un chunk "sin contenido de negocio" no lleva vector, igual que el
     /// origen), y siempre apaga <c>resumen_pending</c> y deja constancia del modelo y la version de prompt usados
-    /// (para que la cache distinga resumenes de perfiles/prompts distintos).
+    /// (para que la cache distinga resumenes de perfiles/prompts distintos). <paramref name="textoResumen"/> (item
+    /// 1.20) se guarda en <c>resumen_texto</c> solo junto con el vector: un chunk sin contenido de negocio no lleva
+    /// ni vector ni texto (el sentinel no es un resumen).
     /// </summary>
     public async Task ActualizarResumenAsync(
-        string collectionName, Guid id, float[]? vectorResumen, string modeloLlm, string promptVersion, CancellationToken ct)
+        string collectionName, Guid id, float[]? vectorResumen, string? textoResumen, string modeloLlm, string promptVersion, CancellationToken ct)
     {
         var pointId = new PointId { Uuid = id.ToString() };
 
@@ -529,6 +598,8 @@ public sealed class QdrantVectorStore
             [ResumenModeloPayloadKey] = new Value { StringValue = modeloLlm },
             [ResumenPromptVersionPayloadKey] = new Value { StringValue = promptVersion },
         };
+        if (vectorResumen is not null && textoResumen is not null)
+            payload[ResumenTextoPayloadKey] = new Value { StringValue = textoResumen };
         await _client.SetPayloadAsync(collectionName, payload, new List<Guid> { id }, wait: true, cancellationToken: ct);
     }
 
@@ -548,8 +619,11 @@ public sealed record VectorStoreBatchItem(
     string DocumentFingerprint,
     bool ResumenPendiente = false);
 
-/// <summary>Perfil de embeddings guardado en la metadata de una coleccion de Qdrant (1.7.4; <see cref="ResumenHabilitado"/> desde 1.7.7).</summary>
-public sealed record PerfilColeccion(string Perfil, string Modelo, int Dimension, bool ResumenHabilitado = false);
+/// <summary>
+/// Perfil de embeddings guardado en la metadata de una coleccion de Qdrant (1.7.4; <see cref="ResumenHabilitado"/>
+/// desde 1.7.7; <see cref="PerfilResumen"/> desde 1.20, null en colecciones creadas antes o sin resumen).
+/// </summary>
+public sealed record PerfilColeccion(string Perfil, string Modelo, int Dimension, bool ResumenHabilitado = false, string? PerfilResumen = null);
 
 /// <summary>Una pagina de <see cref="QdrantVectorStore.ListarPendientesDeResumenAsync"/> (1.7.7).</summary>
 public sealed record PaginaPendientesDeResumen(IReadOnlyList<PendienteDeResumen> Puntos, PointId? SiguienteOffset);

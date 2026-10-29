@@ -118,7 +118,7 @@ public sealed class ResumenPipeline
                 else
                     sinNegocio++;
 
-                await _store.ActualizarResumenAsync(coleccion, punto.Id, vector, modelo, promptVersion, ct);
+                await _store.ActualizarResumenAsync(coleccion, punto.Id, vector, esContenidoDeNegocio ? texto : null, modelo, promptVersion, ct);
                 resumidos++;
             }
 

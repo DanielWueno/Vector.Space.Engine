@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Qdrant.Client;
 using Qdrant.Client.Grpc;
+using Reyma.Exceptions.Api;
+using Reyma.VectorSpace.Engine.Microservice.Business.Motor;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Abstractions;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Model;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Vectorization;
@@ -16,8 +18,10 @@ namespace Reyma.VectorSpace.Engine.Microservice.Infrastructure.VectorStore;
 /// Por defecto solo la rama densa (1.10: ninguna fusion gano preguntas al denso sin perder otras con arctic). La RRF
 /// nativa denso + sparse-code se conserva tal cual detras de <see cref="ModoBusqueda.FusionNativa"/>.
 ///
-/// No se portan: reranking cross-encoder, salto por simbolo (6.a), perfiles por coleccion (7.a), banda resumen y
-/// filtros de modulo/tenant/lenguaje; el contrato de 1.3 no los expone y la coleccion ya es el tenant.
+/// No se portan: reranking cross-encoder, salto por simbolo (6.a), perfiles por coleccion (7.a) y filtros de
+/// modulo/tenant/lenguaje; el contrato de 1.3 no los expone y la coleccion ya es el tenant. La banda resumen del origen
+/// era una rama de una RRF ponderada de tres ramas; aqui (item 1.20) es un espacio de busqueda aparte que el cliente
+/// elige explicitamente (<see cref="EspacioDeBusqueda.Resumen"/>), siempre solo densa y sin fusion con ninguna otra.
 /// </summary>
 public sealed class QdrantSemanticRetriever
 {
@@ -26,6 +30,7 @@ public sealed class QdrantSemanticRetriever
     private readonly QdrantVectorStore _store;
     private readonly ISparseTokenizer _sparseTokenizer;
     private readonly BusquedaOptions _options;
+    private readonly string? _perfilResumen;
     private readonly ILogger<QdrantSemanticRetriever> _logger;
 
     public QdrantSemanticRetriever(
@@ -41,6 +46,7 @@ public sealed class QdrantSemanticRetriever
         _store = store;
         _sparseTokenizer = sparseTokenizer;
         _options = options.Value.Busqueda;
+        _perfilResumen = options.Value.Resumen.PerfilEmbeddings;
         _logger = logger;
     }
 
@@ -50,18 +56,23 @@ public sealed class QdrantSemanticRetriever
     /// <paramref name="simbolosDefinidos"/> (item 1.18): filtro exacto opcional, no vacio = acota a puntos cuyo
     /// <c>defined_symbols</c> contenga alguno de esos nombres (indice keyword ya existente), igual en ambos modos de
     /// busqueda. Dato, no logica: ningun salto de simbolo ni reranking vive aqui (ver nota de clase).
+    /// <paramref name="espacio"/> (item 1.20): con <see cref="EspacioDeBusqueda.Resumen"/>, <paramref name="perfil"/>
+    /// se ignora (Business ya rechaza que venga) y la consulta va con el perfil de <c>Motor:Resumen:PerfilEmbeddings</c>.
     /// </summary>
     public async Task<IReadOnlyList<SearchHit>> SearchAsync(
-        string collectionName, string query, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos, CancellationToken ct)
+        string collectionName, string query, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos,
+        EspacioDeBusqueda espacio, CancellationToken ct)
     {
+        // 1.20: sin perfil de resumen configurado es un 400 claro, antes de tocar Qdrant o el sidecar (mismo mensaje
+        // y mismo criterio que pedir resumen en la ingesta, DocumentIngestionPipeline.IngestLockedAsync).
+        if (espacio == EspacioDeBusqueda.Resumen && string.IsNullOrWhiteSpace(_perfilResumen))
+            throw new BadRequestException(
+                "La busqueda en el espacio 'resumen' no esta disponible: el resumen de negocio no esta configurado en este servicio (falta Motor:Resumen:PerfilEmbeddings).");
+
         // Una coleccion autorizada que todavia no se ingesto no es un error: no tiene resultados.
         if (!await _client.CollectionExistsAsync(collectionName, ct))
             return [];
 
-        var resuelto = _brainFactory.Resolver(perfil);
-        await _store.VerificarPerfilParaConsultaAsync(collectionName, resuelto.Nombre, resuelto.Brain.ModelName, resuelto.Brain.EmbeddingDimensions, ct);
-
-        var queryVector = await resuelto.Brain.EmbedQueryAsync(query, ct);
         var payload = new WithPayloadSelector
         {
             Include = new PayloadIncludeSelector
@@ -70,14 +81,23 @@ public sealed class QdrantSemanticRetriever
                 {
                     "content", "relative_path", "start_line", "end_line", "language", "chunk_type", "content_hash",
                     "namespace", "class_name", "method_name",
-                    QdrantVectorStore.DefinedSymbolsPayloadKey, QdrantVectorStore.ConsumedSymbolsPayloadKey
+                    QdrantVectorStore.DefinedSymbolsPayloadKey, QdrantVectorStore.ConsumedSymbolsPayloadKey,
+                    QdrantVectorStore.ResumenTextoPayloadKey
                 }
             }
         };
-        float? threshold = _options.UmbralSimilitud > 0f ? _options.UmbralSimilitud : null;
         Filter? filtroSimbolos = simbolosDefinidos is { Count: > 0 }
             ? new Filter { Must = { Conditions.Match(QdrantVectorStore.DefinedSymbolsPayloadKey, simbolosDefinidos) } }
             : null;
+
+        if (espacio == EspacioDeBusqueda.Resumen)
+            return Mapear(await BuscarEnResumenAsync(collectionName, query, (ulong)topK, payload, filtroSimbolos, ct));
+
+        var resuelto = _brainFactory.Resolver(perfil);
+        await _store.VerificarPerfilParaConsultaAsync(collectionName, resuelto.Nombre, resuelto.Brain.ModelName, resuelto.Brain.EmbeddingDimensions, ct);
+
+        var queryVector = await resuelto.Brain.EmbedQueryAsync(query, ct);
+        float? threshold = _options.UmbralSimilitud > 0f ? _options.UmbralSimilitud : null;
 
         IReadOnlyList<ScoredPoint> ranked;
         if (_options.Modo == ModoBusqueda.Denso)
@@ -108,7 +128,32 @@ public sealed class QdrantSemanticRetriever
             ranked = FuseNativeRanks(await dense, await sparse, finalLimit);
         }
 
-        return ranked.Select(p => new SearchHit(
+        return Mapear(ranked);
+    }
+
+    /// <summary>
+    /// Espacio resumen (item 1.20): solo la rama densa sobre <c>dense-resumen</c>, en cualquier
+    /// <see cref="ModoBusqueda"/> (no hay sparse del resumen con que fusionar). El esquema se verifica antes de
+    /// llamar al sidecar, asi que un 409 no gasta una vectorizacion. Solo devuelve puntos que tienen ese vector: los
+    /// "sin contenido de negocio" y los que siguen pendientes de resumen no lo tienen y nunca aparecen aqui.
+    /// Umbral: <see cref="BusquedaOptions.UmbralSimilitudResumen"/>, 0 por defecto (sin umbral).
+    /// </summary>
+    private async Task<IReadOnlyList<ScoredPoint>> BuscarEnResumenAsync(
+        string collectionName, string query, ulong topK, WithPayloadSelector payload, Filter? filter, CancellationToken ct)
+    {
+        var resuelto = _brainFactory.Resolver(_perfilResumen);
+        if (!await _store.VerificarEsquemaResumenParaConsultaAsync(
+                collectionName, resuelto.Nombre, resuelto.Brain.ModelName, resuelto.Brain.EmbeddingDimensions, ct))
+            return []; // la coleccion se borro entre la comprobacion de arriba y esta
+
+        var queryVector = await resuelto.Brain.EmbedQueryAsync(query, ct);
+        float? threshold = _options.UmbralSimilitudResumen > 0f ? _options.UmbralSimilitudResumen : null;
+        return await QueryOrderedAsync(collectionName, queryVector, QdrantVectorStore.ResumenDenseVectorName,
+            topK, payload, filter, ct, threshold);
+    }
+
+    private static IReadOnlyList<SearchHit> Mapear(IReadOnlyList<ScoredPoint> ranked) =>
+        ranked.Select(p => new SearchHit(
                 DeterministicVectorQuery.ChunkId(p),
                 p.Score,
                 p.Payload.GetValueOrDefault("relative_path")?.StringValue ?? string.Empty,
@@ -122,9 +167,9 @@ public sealed class QdrantSemanticRetriever
                 p.Payload.GetValueOrDefault("class_name")?.StringValue,
                 p.Payload.GetValueOrDefault("method_name")?.StringValue,
                 ExtraerSimbolos(p.Payload, QdrantVectorStore.DefinedSymbolsPayloadKey),
-                ExtraerSimbolos(p.Payload, QdrantVectorStore.ConsumedSymbolsPayloadKey)))
+                ExtraerSimbolos(p.Payload, QdrantVectorStore.ConsumedSymbolsPayloadKey),
+                p.Payload.GetValueOrDefault(QdrantVectorStore.ResumenTextoPayloadKey)?.StringValue))
             .ToArray();
-    }
 
     /// <summary>Lista de keywords del payload (defined/consumed_symbols); vacia (nunca null) si el punto no la tiene.</summary>
     private static IReadOnlyList<string> ExtraerSimbolos(MapField<string, Value> payload, string clave) =>
@@ -172,9 +217,11 @@ public sealed class QdrantSemanticRetriever
 /// <see cref="Namespace"/>/<see cref="Clase"/>/<see cref="Metodo"/> son null cuando el chunk no los tiene (p. ej.
 /// Markdown). <see cref="SimbolosDefinidos"/>/<see cref="SimbolosConsumidos"/> son listas vacias, nunca null, cuando
 /// el payload las omite (listas vacias no se escriben, ver <see cref="QdrantVectorStore.UpsertBatchAsync"/>).
+/// <see cref="Resumen"/> (item 1.20): <c>resumen_texto</c> del punto, null si no lo tiene.
 /// </summary>
 public sealed record SearchHit(
     string ChunkId, float Score, string RelativePath, string Content,
     int? LineaInicio, int? LineaFin, string? Lenguaje, string? TipoChunk, string? ContentHash,
     string? Namespace, string? Clase, string? Metodo,
-    IReadOnlyList<string> SimbolosDefinidos, IReadOnlyList<string> SimbolosConsumidos);
+    IReadOnlyList<string> SimbolosDefinidos, IReadOnlyList<string> SimbolosConsumidos,
+    string? Resumen = null);

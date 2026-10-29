@@ -226,6 +226,14 @@ public sealed class BusquedaOptions
 
     /// <summary>Coseno minimo de la rama densa; el mismo 0,10 del retriever y del banco de 1.6/1.10/1.11.</summary>
     public float UmbralSimilitud { get; set; } = 0.10f;
+
+    /// <summary>
+    /// Coseno minimo de la busqueda en el espacio <c>resumen</c> (item 1.20, <c>dense-resumen</c>). 0 (por defecto) =
+    /// sin umbral: <see cref="UmbralSimilitud"/> se calibro para el vector del codigo (1.10) y no se traslada a otro
+    /// espacio y otro modelo; un valor sin medir no debe recortar resultados en silencio. Cada despliegue lo fija si
+    /// lo calibra.
+    /// </summary>
+    public float UmbralSimilitudResumen { get; set; }
 }
 
 /// <summary>

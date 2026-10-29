@@ -26,15 +26,17 @@ simbolicos o sin documentos admitidos por el perfil de escaneo);
 **409** la coleccion ya existe con vectores de otra dimension, **o** con el mismo numero de dimensiones
 pero de otro perfil de embeddings (1.7.4: el perfil, no solo la dimension, identifica si dos vectores son
 comparables), **o** se pide `resumen: true` sobre una coleccion existente que no tiene el vector
-`dense-resumen` (1.7.7: el tercer vector no se puede agregar despues de crear la coleccion); **413**
+`dense-resumen` (1.7.7: el tercer vector no se puede agregar despues de crear la coleccion), **o** se busca con
+`espacio: "resumen"` en una coleccion sin `dense-resumen` o cuyo resumen se genero con otro perfil o dimension
+(1.20); **413**
 (`ingestas` e `ingestas/proyecto`) el cuerpo de la solicitud supera el limite de la accion (1.7.1/1.7.5);
 **429** (`ingestas`, `ingestas/proyecto` e `ingestas/git`) hay demasiadas ingestas en curso o en espera,
 reintentar despues de `Retry-After` (1.7); **501** parte del contrato aun sin implementado (origen
 `ruta`); **503** Qdrant, el sidecar de embeddings o el perfil de LLM del resumen no respondieron (el
 mensaje no dice a que host ni puerto se intento conectar). `ingestas/git` responde **400** si la URL no
 esta en la lista blanca de origenes Git permitidos, sin conexion al destino (item 1.7.6); tambien **400**
-si se pide `resumen: true` y esta instancia no tiene el resumen de negocio configurado
-(`Motor:Resumen:PerfilEmbeddings` vacio, item 1.7.7).
+si se pide `resumen: true` (ingestas) o `espacio: "resumen"` (busquedas, 1.20) y esta instancia no tiene el
+resumen de negocio configurado (`Motor:Resumen:PerfilEmbeddings` vacio, item 1.7.7).
 
 ## Motor (item 1.4)
 
@@ -50,7 +52,8 @@ El motor es el de Rag.Context.Engine portado (ver
   `Motor:Busqueda:Modo` este en `FusionNativa` (RRF nativa denso + sparse-code). `puntuacion` es el coseno en modo
   denso, el score RRF en fusion. Una coleccion autorizada que aun no tiene ingestas responde 200 sin resultados.
   Cada resultado trae ademas los metadatos de chunk ya guardados en el payload y admite un filtro exacto opcional
-  por simbolos definidos (item 1.18, ver seccion dedicada abajo); igual en ambos modos de busqueda.
+  por simbolos definidos (item 1.18, ver seccion dedicada abajo); igual en ambos modos de busqueda. Con
+  `espacio: "resumen"` consulta el vector `dense-resumen` en vez del del codigo (item 1.20, ver seccion dedicada).
 - **ingestas**: cada documento se trocea por su extension con el perfil del CLI de Rag.Context.Engine
   (`.cs .ts .tsx .js .jsx .xaml .sql .md .txt .json .xml .csproj`, hasta 512 KB en UTF-8), con
   `MaxTokensPerChunk` 1024 (1.11). La coleccion hace de repositorio: el Id de un chunk sale de
@@ -97,11 +100,13 @@ El motor es el de Rag.Context.Engine portado (ver
 
 // POST .../busquedas    (consulta de hasta 2048 caracteres; topK 1..100, por defecto 10)
 { "consulta": "como se configura X", "topK": 10, "perfil": "altheia-bge-m3-256",
-  "simbolosDefinidos": ["MiMetodo"] }   // "perfil" y "simbolosDefinidos" opcionales, ver seccion "Metadatos de chunk..." abajo
+  "simbolosDefinidos": ["MiMetodo"],    // "perfil" y "simbolosDefinidos" opcionales, ver seccion "Metadatos de chunk..." abajo
+  "espacio": "codigo" }                 // opcional, "codigo" (por defecto) | "resumen"; con "resumen", sin "perfil" (item 1.20)
 // 200: { "coleccion", "resultados": [{ "id", "puntuacion", "ruta", "texto",
 //        "lineaInicio", "lineaFin", "lenguaje", "tipoChunk", "contentHash",      // item 1.18
 //        "namespace", "clase", "metodo",                                        // item 1.18, null si el chunk no aplica
-//        "simbolosDefinidos", "simbolosConsumidos" }] }                         // item 1.18, lista vacia, nunca null
+//        "simbolosDefinidos", "simbolosConsumidos",                             // item 1.18, lista vacia, nunca null
+//        "resumen" }] }                                                         // item 1.20, null si el chunk no lo tiene
 
 // POST .../ingestas     origen 'documentos': 1 a 100 documentos, ruta unica y contenido <= 1 MiB c/u
 { "origen": { "tipo": "documentos", "documentos": [{ "ruta": "docs/a.md", "contenido": "..." }] },
@@ -199,8 +204,48 @@ responsabilidad del consumidor, no de este servicio).
   siempre): la busqueda no cambia respecto a antes de este item (mismos ids, orden y puntuaciones).
 - **Fuera de alcance, a proposito**: filtrar por `class_name`/`method_name` (ese campo no tiene indice y crear uno
   nuevo sobre colecciones servidas es otra decision); cualquier salto de simbolo, tope de semillas, peso de
-  refusion o reranking (responsabilidad del consumidor); el texto resumido por hit (decision futura, item 1.20 —
-  `contentHash` no lo sustituye).
+  refusion o reranking (responsabilidad del consumidor). El texto resumido por hit lo agrego despues el item 1.20
+  (campo `resumen`, ver "Busqueda en el espacio resumen" abajo); `contentHash` no lo sustituye.
+
+## Busqueda en el espacio resumen (item 1.20)
+
+Las colecciones creadas con resumen de negocio (1.7.7) guardan un tercer vector, `dense-resumen`, que hasta 1.20 no
+se podia consultar. `espacio` en el cuerpo de `POST .../busquedas` elige que vector guardado se consulta; el
+servicio no fusiona espacios, no los pondera ni decide cuando usar cada uno (eso es del consumidor; en el origen era
+una RRF ponderada de tres ramas calibrada para MiniLM, que 1.10 mostro que no se traslada a arctic).
+
+- **`espacio`** (opcional): `"codigo"` (por defecto, y lo mismo que ausente) o `"resumen"`; cualquier otro valor
+  (incluido `"Resumen"` con mayuscula o la cadena vacia), **400**. `"codigo"` no cambia nada respecto a antes de 1.20:
+  mismos ids, orden y puntuaciones (medido pareado contra el codigo anterior sobre la misma coleccion).
+- **`"resumen"`** consulta solo `dense-resumen`, siempre por la rama densa exacta (tambien con
+  `Motor:Busqueda:Modo=FusionNativa`: no hay sparse del resumen con que fusionar), con el mismo desempate
+  deterministico por id. La consulta se vectoriza con el perfil de `Motor:Resumen:PerfilEmbeddings` (y su prefijo de
+  consulta), no con el perfil de la coleccion: por eso `perfil` en el cuerpo junto con `"resumen"` responde **400**
+  en vez de ignorarse. `simbolosDefinidos` (1.18) se aplica igual que en el espacio de codigo.
+- **Solo devuelve chunks con `dense-resumen`**: los "sin contenido de negocio" (sentinel, 1.7.7) y los que siguen
+  `resumen_pending` (la fase 2 no los alcanzo por el tope de tokens) no tienen ese vector y no aparecen en este
+  espacio; si aparecen en el de codigo.
+- **Umbral**: `Motor:Busqueda:UmbralSimilitudResumen`, **0 por defecto = sin umbral** (devuelve el top-K). El 0,10 de
+  `UmbralSimilitud` se calibro para el vector del codigo (1.10) y no se aplica a este espacio. Cada despliegue puede
+  fijarlo si lo calibra; `puntuacion` es el coseno contra `dense-resumen`, asi que el consumidor tambien puede cortar.
+  No se midio recall en este item.
+- **Errores, en este orden y antes de llamar al sidecar de embeddings**: instancia sin
+  `Motor:Resumen:PerfilEmbeddings`: **400**, sin tocar Qdrant. Coleccion inexistente: **200** sin resultados (igual que
+  el espacio de codigo). Coleccion sin `dense-resumen` en su esquema real de Qdrant (no en la metadata): **409**.
+  `dense-resumen` de otra dimension que el perfil de resumen de la instancia: **409**. Misma dimension pero otro
+  perfil de resumen (ver `perfil_resumen` abajo): **409**.
+- **`perfil_resumen` en la metadata de la coleccion**: desde 1.20, crear una coleccion con resumen guarda tambien el
+  nombre del perfil de embeddings del resumen. Cierra, para la busqueda, el mismo hueco que 1.7.4 cerro para
+  `dense`: sin el, cambiar `Motor:Resumen:PerfilEmbeddings` a otro modelo de la misma dimension haria que la
+  busqueda comparara vectores no comparables sin error visible. Una coleccion creada antes de 1.20 no tiene ese campo: solo se comprueba la
+  dimension. La fase 2 de resumen (escritura) no lo verifica todavia; si se cambia el perfil de resumen de una
+  instancia, los chunks nuevos de una coleccion vieja se vectorizan con el perfil nuevo.
+- **`resumen` en cada resultado, en cualquier espacio**: el texto del resumen de negocio del chunk, persistido desde
+  1.20 en el payload (`resumen_texto`) junto con `dense-resumen`. **null** si la coleccion no tiene resumen, si el
+  chunk sigue pendiente, si es "sin contenido de negocio", o **si se resumio antes de 1.20**: hasta 1.20 el texto
+  solo vivia en una cache en memoria por instancia y no se recupera sin volver a llamar al LLM. 1.20 no rellena esos
+  chunks (0 tokens); hoy no existe un mecanismo para volver a marcar como pendiente un chunk sin cambios, asi que el
+  texto aparece cuando el documento cambia y se vuelve a resumir, o al reingestar en una coleccion nueva.
 
 ## Modelo de consumo (item 1.7)
 
@@ -409,7 +454,9 @@ chunking + `dense` + `sparse-code`, sin cambios).
 - **Sentinel `SIN_CONTENIDO_DE_NEGOCIO`**: un chunk puramente tecnico (imports, boilerplate) no lleva vector de
   resumen (como el origen); su `resumen_pending` igual se apaga (ya se proceso, no vuelve a intentarse).
 - **Nombres literales en Qdrant** (fijados en el ledger): vector `dense-resumen`; payload `resumen_pending`
-  (bool), `resumen_modelo` (string) y `resumen_prompt_version` (string, hash de prompt+modelo).
+  (bool), `resumen_modelo` (string) y `resumen_prompt_version` (string, hash de prompt+modelo); desde 1.20 tambien
+  `resumen_texto` (payload, solo en chunks con `dense-resumen`) y `perfil_resumen` (metadata de la coleccion).
+- **Buscar sobre el resumen**: item 1.20, ver "Busqueda en el espacio resumen" arriba.
 - **Aislamiento de fallos**: una respuesta vacia del LLM para UN chunk se salta (aislado, recuperable en la
   siguiente corrida, igual que el origen); un perfil de LLM mal configurado (modelo no permitido o de otra
   capacidad) responde 400 sin tocar el tope de tokens; cualquier otro fallo (conexion) corta la corrida completa

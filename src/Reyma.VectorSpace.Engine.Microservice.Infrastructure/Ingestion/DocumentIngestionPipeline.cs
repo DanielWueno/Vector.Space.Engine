@@ -213,7 +213,7 @@ public sealed class DocumentIngestionPipeline
         //    coleccion, no de la solicitud).
         var resumenHabilitado = await _store.EnsureCollectionAsync(
             collectionName, resuelto.Nombre, brain.ModelName, brain.EmbeddingDimensions,
-            resumenSolicitado, resumenEmbeddings?.Brain.ModelName, resumenEmbeddings?.Brain.EmbeddingDimensions ?? 0, ct);
+            resumenSolicitado, resumenEmbeddings?.Nombre, resumenEmbeddings?.Brain.EmbeddingDimensions ?? 0, ct);
 
         // 3. Que tiene ya cada documento indexado.
         var existing = await _store.GetDocumentPointsAsync(collectionName, prepared.Select(d => d.FilePath).ToArray(), ct);

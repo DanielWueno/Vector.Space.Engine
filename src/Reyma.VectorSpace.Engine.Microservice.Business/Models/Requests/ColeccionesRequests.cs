@@ -33,6 +33,14 @@ public sealed class BuscarRequest
     /// resto (que simbolos sembrar, con que peso) es responsabilidad del consumidor.
     /// </summary>
     public List<string>? SimbolosDefinidos { get; set; }
+
+    /// <summary>
+    /// Espacio de busqueda (item 1.20): <c>"codigo"</c> (por defecto, ausente) consulta el vector del chunk como
+    /// siempre; <c>"resumen"</c> consulta el vector <c>dense-resumen</c> de una coleccion creada con resumen de negocio
+    /// (1.7.7), con el perfil de embeddings del resumen de la instancia. Con <c>"resumen"</c>, <see cref="Perfil"/>
+    /// debe ir ausente (400 si viene).
+    /// </summary>
+    public string? Espacio { get; set; }
 }
 
 public sealed class IngestaRequest

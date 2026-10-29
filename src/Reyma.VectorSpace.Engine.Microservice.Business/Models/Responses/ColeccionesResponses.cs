@@ -30,16 +30,19 @@ public sealed record DocumentoIndexadoResponse(string Ruta, string? Huella, int 
 /// Un resultado de busqueda (item 1.18 amplia los campos). <see cref="LineaInicio"/>/<see cref="LineaFin"/>/
 /// <see cref="Lenguaje"/>/<see cref="TipoChunk"/>/<see cref="ContentHash"/>: metadatos de chunk que la ingesta
 /// escribe en todo punto; null solo si el punto viene de antes de este item y no los tiene. <see cref="Namespace"/>/
-/// <see cref="Clase"/>/<see cref="Metodo"/>: null cuando el chunk no aplica (p. ej. Markdown). Dato, no resumen: el
-/// texto resumido por hit es una decision futura (1.20), <see cref="ContentHash"/> no lo reemplaza.
+/// <see cref="Clase"/>/<see cref="Metodo"/>: null cuando el chunk no aplica (p. ej. Markdown).
 /// <see cref="SimbolosDefinidos"/>/<see cref="SimbolosConsumidos"/>: lista vacia, nunca null, cuando el payload no
 /// los tiene (el chunk no define/consume ningun simbolo, o la estrategia de chunking no los extrae).
+/// <see cref="Resumen"/> (item 1.20): texto del resumen de negocio del chunk (1.7.7), en cualquier espacio de
+/// busqueda. Null si la coleccion no tiene resumen, si el chunk sigue pendiente, si no tiene contenido de negocio, o
+/// si se resumio antes de 1.20 (el texto no se guardaba y no se rellena hasta volver a resumir ese chunk).
 /// </summary>
 public sealed record ResultadoBusquedaResponse(
     string Id, float Puntuacion, string Ruta, string Texto,
     int? LineaInicio = null, int? LineaFin = null, string? Lenguaje = null, string? TipoChunk = null, string? ContentHash = null,
     string? Namespace = null, string? Clase = null, string? Metodo = null,
-    IReadOnlyList<string>? SimbolosDefinidos = null, IReadOnlyList<string>? SimbolosConsumidos = null)
+    IReadOnlyList<string>? SimbolosDefinidos = null, IReadOnlyList<string>? SimbolosConsumidos = null,
+    string? Resumen = null)
 {
     public IReadOnlyList<string> SimbolosDefinidos { get; init; } = SimbolosDefinidos ?? Array.Empty<string>();
     public IReadOnlyList<string> SimbolosConsumidos { get; init; } = SimbolosConsumidos ?? Array.Empty<string>();
