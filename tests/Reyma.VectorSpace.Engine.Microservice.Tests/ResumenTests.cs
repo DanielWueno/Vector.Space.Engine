@@ -18,7 +18,10 @@ public sealed class ResumenTests(ApiFactory factory)
     [Fact]
     public async Task ResumenNoConfiguradoEnEstaInstanciaResponde400SinTocarElVectorStore()
     {
-        using var client = factory.ConIdentidad().Cliente(TokenAna);
+        using var client = factory.ConIdentidad(new Dictionary<string, string?>
+        {
+            ["Motor:Resumen:PerfilEmbeddings"] = ""
+        }).Cliente(TokenAna);
 
         using var respuesta = await client.PostJson("/api/colecciones/propia/ingestas", new
         {

@@ -76,6 +76,7 @@ public sealed class IngestaProyectoGitTests(ApiFactory factory)
         config["Motor:Git:OrigenesPermitidos:0:Esquema"] = "http";
         config["Motor:Git:OrigenesPermitidos:0:Host"] = "127.0.0.1";
         config["Motor:Git:OrigenesPermitidos:0:Puerto"] = "1";
+        config["Motor:Git:OrigenesPermitidos:0:PrefijoRuta"] = "/repo";
         using var client = factory.ConIdentidad(config).Cliente(TokenAna);
         using var response = await client.PostJson("/api/colecciones/propia/ingestas/git", Cuerpo("http://127.0.0.1:1/repo"));
 
