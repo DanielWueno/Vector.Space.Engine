@@ -32,10 +32,13 @@ public interface IMotorDeBusqueda
     /// de este item). No vacio = solo puntos cuyo defined_symbols contenga alguno de esos nombres.
     /// espacio (item 1.20): ver <see cref="EspacioDeBusqueda"/>; con <see cref="EspacioDeBusqueda.Resumen"/>,
     /// perfil llega siempre null (lo fija la instancia, no el cliente).
+    /// modulos (item 1.21.1): filtro exacto opcional, null = sin filtro. No vacio = cada modulo debe coincidir (AND)
+    /// con el namespace (exacto o prefijo seguido de '.') o con la ruta relativa (exacta o prefijo seguido de '/').
+    /// Una coleccion existente sin preparacion completa para este filtro responde 409, nunca una lista vacia.
     /// </summary>
     Task<BusquedaResponse> BuscarAsync(
         string coleccion, string consulta, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos,
-        EspacioDeBusqueda espacio, CancellationToken cancellationToken);
+        EspacioDeBusqueda espacio, IReadOnlyList<string>? modulos, CancellationToken cancellationToken);
 }
 
 public interface IMotorDeIngesta

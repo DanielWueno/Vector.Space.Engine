@@ -16,6 +16,9 @@ public static class Limites
     /// <summary>Filtro opcional por simbolos definidos en una busqueda (item 1.18): 1 a 50 cadenas no vacias.</summary>
     public const int MaxSimbolosDefinidosPorConsulta = 50;
 
+    /// <summary>Filtro opcional por modulo en una busqueda (item 1.21.1): 1 a 50 cadenas no blancas.</summary>
+    public const int MaxModulosPorConsulta = 50;
+
     public const int MaxDocumentosPorIngesta = 100;
     public const int MaxCaracteresRuta = 1_024;
     public const int MaxCaracteresPorDocumento = 1_048_576;

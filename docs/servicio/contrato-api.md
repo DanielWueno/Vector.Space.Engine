@@ -28,7 +28,8 @@ pero de otro perfil de embeddings (1.7.4: el perfil, no solo la dimension, ident
 comparables), **o** se pide `resumen: true` sobre una coleccion existente que no tiene el vector
 `dense-resumen` (1.7.7: el tercer vector no se puede agregar despues de crear la coleccion), **o** se busca con
 `espacio: "resumen"` en una coleccion sin `dense-resumen` o cuyo resumen se genero con otro perfil o dimension
-(1.20); **413**
+(1.20), **o** se busca con `modulos` en una coleccion existente sin preparacion completa del filtro de modulo, o se
+ingesta en una coleccion con un relleno de modulo en curso o interrumpido (1.21.1); **413**
 (`ingestas` e `ingestas/proyecto`) el cuerpo de la solicitud supera el limite de la accion (1.7.1/1.7.5);
 **429** (`ingestas`, `ingestas/proyecto` e `ingestas/git`) hay demasiadas ingestas en curso o en espera,
 reintentar despues de `Retry-After` (1.7); **501** parte del contrato aun sin implementado (origen
@@ -54,6 +55,7 @@ El motor es el de Rag.Context.Engine portado (ver
   Cada resultado trae ademas los metadatos de chunk ya guardados en el payload y admite un filtro exacto opcional
   por simbolos definidos (item 1.18, ver seccion dedicada abajo); igual en ambos modos de busqueda. Con
   `espacio: "resumen"` consulta el vector `dense-resumen` en vez del del codigo (item 1.20, ver seccion dedicada).
+  `modulos` acota por namespace/ruta antes del corte en todas las ramas (item 1.21.1, ver seccion dedicada).
 - **ingestas**: cada documento se trocea por su extension con el perfil del CLI de Rag.Context.Engine
   (`.cs .ts .tsx .js .jsx .xaml .sql .md .txt .json .xml .csproj`, hasta 512 KB en UTF-8), con
   `MaxTokensPerChunk` 1024 (1.11). La coleccion hace de repositorio: el Id de un chunk sale de
@@ -101,6 +103,7 @@ El motor es el de Rag.Context.Engine portado (ver
 // POST .../busquedas    (consulta de hasta 2048 caracteres; topK 1..100, por defecto 10)
 { "consulta": "como se configura X", "topK": 10, "perfil": "altheia-bge-m3-256",
   "simbolosDefinidos": ["MiMetodo"],    // "perfil" y "simbolosDefinidos" opcionales, ver seccion "Metadatos de chunk..." abajo
+  "modulos": ["Empresa.Ventas"],        // opcional, 1..50; AND entre modulos y con simbolosDefinidos (item 1.21.1)
   "espacio": "codigo" }                 // opcional, "codigo" (por defecto) | "resumen"; con "resumen", sin "perfil" (item 1.20)
 // 200: { "coleccion", "resultados": [{ "id", "puntuacion", "ruta", "texto",
 //        "lineaInicio", "lineaFin", "lenguaje", "tipoChunk", "contentHash",      // item 1.18
@@ -246,6 +249,53 @@ una RRF ponderada de tres ramas calibrada para MiniLM, que 1.10 mostro que no se
   solo vivia en una cache en memoria por instancia y no se recupera sin volver a llamar al LLM. 1.20 no rellena esos
   chunks (0 tokens); hoy no existe un mecanismo para volver a marcar como pendiente un chunk sin cambios, asi que el
   texto aparece cuando el documento cambia y se vuelve a resumir, o al reingestar en una coleccion nueva.
+
+## Filtro exacto de modulo en busquedas (item 1.21.1)
+
+Decision en `docs/evaluaciones/1.21/decision.md`: `modulos` es un filtro opcional para acotar consultas y pruebas.
+**No es autorizacion** (1.14 sigue retirada: no lee claims ni restringe a nadie), no hace reranking ni salto por
+simbolo y no promete mejora de recall.
+
+- **`modulos` en el cuerpo de `POST .../busquedas`** (opcional): ausente o `null` = la busqueda no cambia (mismos
+  ids, orden y puntuaciones que antes de este item, medido pareado sobre la misma coleccion). Presente: arreglo de 1
+  a 50 cadenas no blancas; arreglo vacio, mas de 50, elemento null/vacio/solo espacios o cualquier tipo que no sea un
+  arreglo de cadenas JSON (numero, booleano, objeto, cadena suelta, elemento numerico) → **400** antes del motor. No
+  se recorta, no se pasa a minusculas ni se normaliza nada: `" alpha"` es otro modulo.
+- **Predicado por modulo `m`**, comparacion ordinal: el punto cumple si `namespace == m` o empieza por `m + "."`,
+  **o** si `relative_path == m` o empieza por `m + "/"`. Pidiendo `alpha`: cumplen `alpha`, `alpha.Foo`, `alpha..Bar`,
+  `alpha.`, `alpha/child/Foo.cs`, `alpha//x.md`; no cumplen `alpha-private`, `alpha_private`, `Alpha`,
+  `Company.alpha`, `.alpha`, `src/alpha/Foo.cs`, `/alpha/x.md`, `alphabet/x.md`, ni un punto sin namespace cuya ruta no
+  case. Varios modulos: **AND** (cada uno puede cumplirse por campos distintos); con `simbolosDefinidos`: AND con el
+  ANY interno de simbolos. Una conjuncion imposible devuelve 200 sin resultados.
+- **Antes del corte, en todas las ramas**: el predicado va como filtro de Qdrant dentro de la consulta densa exacta,
+  de cada rama de `FusionNativa` (denso y sparse, antes del pool y de la RRF) y del espacio `resumen`. Si hay K
+  elegibles por encima del umbral, se devuelven K aunque haya falsos candidatos de mayor score. Mismo umbral,
+  mismas escalas y mismo desempate por id ordinal.
+- **Indice**: cada punto lleva `module_prefixes` (keyword, indexado): la union ordinal de el namespace completo y
+  cada prefijo anterior a un `.`, y la ruta completa y cada prefijo anterior a un `/` (separadores repetidos
+  incluidos; nunca la cadena vacia), y `module_prefixes_version` (entero, indexado). La consulta es una condicion
+  keyword exacta por modulo, no `Match.Text`. Las ingestas nuevas siempre los escriben; los Ids, vectores,
+  `content_hash`, huella, resumenes y `ChunkingContract.Version` no cambian.
+- **Completitud, en este orden y antes de vectorizar la consulta**: coleccion inexistente → **200** sin resultados.
+  Coleccion existente con `modulos` → **409** si la metadata no tiene `module_prefixes: "completo:1"`, si falta o es
+  incompatible cualquiera de los dos indices, o si **algun** punto no tiene `module_prefixes_version = 1` (conteo
+  exacto); nunca una lista vacia de exito sobre un indice incompleto. Sin `modulos` no se exige preparacion.
+  Las colecciones creadas desde este item nacen completas.
+- **Colecciones anteriores**: se preparan con la herramienta explicita `tools/relleno-modulo` (ver su README):
+  SetPayload paginado, sin revectorizar ni llamar al LLM, idempotente y reanudable, con marca
+  `en_curso:<run>:<expira>` y lease. Mientras la marca este en curso (o interrumpida), las **ingestas** de este
+  servicio en esa coleccion responden **409** y la busqueda con `modulos` tambien; relanzar el relleno la completa.
+  Una reingesta de documentos sin cambios los omite y **no** repara sus puntos antiguos: hace falta el relleno.
+- **Escritores antiguos**: un proceso con el codigo anterior a este item no conoce la marca ni escribe
+  `module_prefixes`. El procedimiento exige detenerlo o actualizarlo antes del relleno; si aun asi escribe, el relleno
+  no marca completo y, si escribe despues, la busqueda con `modulos` vuelve a responder 409 (por conteo) hasta
+  relanzar el relleno. Qdrant no ofrece compare-and-set de metadata: la exclusion entre dos rellenos es por lease
+  verificado en cada pagina y sus escrituras son deterministas e idempotentes.
+- **Rollback**: revertir el commit restaura contrato, escritor y lector anteriores. `module_prefixes`,
+  `module_prefixes_version`, sus indices y la marca son aditivos y quedan inertes: el lector anterior los ignora
+  (comprobado con el lector de 538cb96 sobre una coleccion de prueba preparada: mismos ids, orden y puntuaciones).
+  Si hiciera falta retirarlos de una coleccion real, solo con alcance autorizado y respaldo verificado (ver el README
+  de la herramienta); nunca borrar colecciones como rollback.
 
 ## Modelo de consumo (item 1.7)
 

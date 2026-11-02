@@ -99,8 +99,20 @@ public sealed class QdrantVectorStore
         {
             await CreateCollectionAsync(collectionName, perfil, modelo, dimension, resumenSolicitado, resumenPerfil, resumenDimension, ct);
             await EscribirPerfilAsync(collectionName, perfil, modelo, dimension, resumenSolicitado, ct, resumenSolicitado ? resumenPerfil : null);
+            // 1.21.1: nace con los indices del filtro de modulo y este escritor siempre escribe los prefijos.
+            await ConRestAsync(() => ModulePrefixes.EscribirMarcaAsync(_rest, collectionName, ModulePrefixes.MarcaCompleta, ct),
+                "escribir la marca de modulo", collectionName, ct);
             return resumenSolicitado;
         }
+
+        // 1.21.1: exclusion de escritores durante el relleno de prefijos de modulo (o tras uno interrumpido, hasta
+        // relanzarlo): una ingesta concurrente no debe competir con la migracion ni darla por terminada.
+        var marcaModulo = await ConRestAsync(() => ModulePrefixes.LeerMarcaAsync(_rest, collectionName, ct),
+            "leer la marca de modulo", collectionName, ct);
+        if (marcaModulo is not null && marcaModulo.StartsWith(ModulePrefixes.PrefijoMarcaEnCurso, StringComparison.Ordinal))
+            throw new ConflictException(
+                $"La coleccion '{collectionName}' tiene un relleno de prefijos de modulo en curso o interrumpido; " +
+                "no admite ingestas hasta que el relleno termine (relanzarlo si se interrumpio).");
 
         // El vector de resumen es del esquema real de la coleccion en Qdrant, no de la metadata (que es solo
         // informativa): asi un 409 nunca depende de que alguien haya escrito la metadata correctamente antes.
@@ -161,6 +173,58 @@ public sealed class QdrantVectorStore
 
         return true;
     }
+
+    /// <summary>
+    /// Busqueda con <c>modulos</c> (item 1.21.1), sin escribir nada y antes de vectorizar: 409
+    /// (<see cref="ConflictException"/>) si la coleccion existente no esta preparada por completo para el filtro
+    /// (marca <see cref="ModulePrefixes.MarcaCompleta"/>, indices keyword/integer y ningun punto sin la version
+    /// actual). Un indice incompleto nunca debe convertirse en una lista vacia de exito. El llamador ya comprobo
+    /// que la coleccion existe.
+    /// </summary>
+    public async Task VerificarModulosParaConsultaAsync(string collectionName, CancellationToken ct)
+    {
+        var marca = await ConRestAsync(() => ModulePrefixes.LeerMarcaAsync(_rest, collectionName, ct),
+            "leer la marca de modulo", collectionName, ct);
+        if (!string.Equals(marca, ModulePrefixes.MarcaCompleta, StringComparison.Ordinal))
+            throw new ConflictException(
+                $"La coleccion '{collectionName}' no esta preparada para el filtro 'modulos' " +
+                (marca is null ? "(es anterior a ese filtro)" : "(su relleno de prefijos esta en curso o se interrumpio)") +
+                "; hay que completar el relleno de prefijos de modulo (tools/relleno-modulo) antes de filtrar por modulo.");
+
+        var (prefijos, version, conflicto) = await ModulePrefixes.LeerIndicesAsync(_client, collectionName, ct);
+        if (!prefijos || !version)
+            throw new ConflictException(
+                $"La coleccion '{collectionName}' no tiene los indices del filtro 'modulos'" +
+                (conflicto is null ? "" : $" ({conflicto})") + "; hay que relanzar el relleno de prefijos de modulo.");
+
+        var sinPreparar = await ModulePrefixes.ContarSinPrepararAsync(_client, collectionName, ct);
+        if (sinPreparar > 0)
+            throw new ConflictException(
+                $"La coleccion '{collectionName}' tiene {sinPreparar} puntos sin prefijos de modulo (escritos por una version " +
+                "anterior del servicio despues del relleno); hay que relanzar el relleno de prefijos de modulo.");
+    }
+
+    /// <summary>Llamada REST a Qdrant con la misma traduccion de errores que la metadata de perfil.</summary>
+    private async Task<T> ConRestAsync<T>(Func<Task<T>> accion, string operacion, string collectionName, CancellationToken ct)
+    {
+        try
+        {
+            return await accion();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "No se pudo {Operacion} de la coleccion '{Collection}'.", operacion, collectionName);
+            throw new MotorNoDisponibleException("El vector store no esta disponible o rechazo la operacion.");
+        }
+        catch (TaskCanceledException ex) when (!ct.IsCancellationRequested)
+        {
+            _logger.LogError(ex, "{Operacion} de la coleccion '{Collection}' no respondio a tiempo.", operacion, collectionName);
+            throw new MotorNoDisponibleException("El vector store no esta disponible o rechazo la operacion.");
+        }
+    }
+
+    private Task ConRestAsync(Func<Task> accion, string operacion, string collectionName, CancellationToken ct) =>
+        ConRestAsync<bool>(async () => { await accion(); return true; }, operacion, collectionName, ct);
 
     private async Task VerificarPerfilExistenteAsync(
         string collectionName, ulong existingDimension, string perfil, string modelo, int dimension,
@@ -341,6 +405,8 @@ public sealed class QdrantVectorStore
 
         await _client.CreatePayloadIndexAsync(collectionName, DefinedSymbolsPayloadKey, PayloadSchemaType.Keyword, cancellationToken: ct);
         await _client.CreatePayloadIndexAsync(collectionName, FilePathPayloadKey, PayloadSchemaType.Keyword, cancellationToken: ct);
+        await _client.CreatePayloadIndexAsync(collectionName, ModulePrefixes.PayloadKey, PayloadSchemaType.Keyword, cancellationToken: ct);
+        await _client.CreatePayloadIndexAsync(collectionName, ModulePrefixes.VersionPayloadKey, PayloadSchemaType.Integer, cancellationToken: ct);
 
         _logger.LogInformation("Coleccion Qdrant '{Name}' creada: {Dim}D dense + sparse-code{Resumen}.",
             collectionName, dimension, resumenHabilitado ? $" + {resumenDimension}D {ResumenDenseVectorName}" : "");
@@ -421,6 +487,12 @@ public sealed class QdrantVectorStore
 
             if (item.Chunk.Metadata.Namespace is not null)
                 point.Payload["namespace"] = new Value { StringValue = item.Chunk.Metadata.Namespace };
+
+            // 1.21.1: siempre, aunque la lista quede vacia (sin namespace ni ruta): la version distingue un punto
+            // preparado de uno anterior al filtro de modulo, que el relleno debe completar.
+            point.Payload[ModulePrefixes.PayloadKey] = ModulePrefixes.ToPayloadValue(
+                ModulePrefixes.Derive(item.Chunk.Metadata.Namespace, item.Chunk.Metadata.RelativeFilePath));
+            point.Payload[ModulePrefixes.VersionPayloadKey] = new Value { IntegerValue = ModulePrefixes.Version };
             if (item.Chunk.Metadata.ClassName is not null)
                 point.Payload["class_name"] = new Value { StringValue = item.Chunk.Metadata.ClassName };
             if (item.Chunk.Metadata.MethodName is not null)

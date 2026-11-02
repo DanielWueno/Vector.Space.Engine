@@ -35,6 +35,17 @@ public sealed class BuscarRequest
     public List<string>? SimbolosDefinidos { get; set; }
 
     /// <summary>
+    /// Filtro exacto opcional por modulo (item 1.21.1): 1 a 50 cadenas no blancas; lista vacia, elemento blanco o
+    /// nulo, o cualquier valor que no sea un arreglo de cadenas JSON responde 400. Cada modulo exige que el
+    /// <c>namespace</c> del chunk sea ese valor o empiece por el seguido de <c>.</c>, o que su ruta relativa sea ese
+    /// valor o empiece por el seguido de <c>/</c> (comparacion ordinal, sin normalizar mayusculas ni espacios). Varios
+    /// modulos se combinan con AND entre si y con <see cref="SimbolosDefinidos"/>. Ausente o null: la busqueda no
+    /// cambia. Acota consultas y pruebas; no es un control de acceso.
+    /// </summary>
+    [Newtonsoft.Json.JsonConverter(typeof(ListaDeCadenasEstrictaConverter))]
+    public List<string>? Modulos { get; set; }
+
+    /// <summary>
     /// Espacio de busqueda (item 1.20): <c>"codigo"</c> (por defecto, ausente) consulta el vector del chunk como
     /// siempre; <c>"resumen"</c> consulta el vector <c>dense-resumen</c> de una coleccion creada con resumen de negocio
     /// (1.7.7), con el perfil de embeddings del resumen de la instancia. Con <c>"resumen"</c>, <see cref="Perfil"/>

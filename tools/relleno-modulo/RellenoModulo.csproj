@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- 1.21.1: herramienta de operacion, no parte del servicio. Rellena module_prefixes en una coleccion anterior al
+       filtro de modulo (SetPayload, sin revectorizar) o verifica su estado. Ver README.md. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Reyma.VectorSpace.Engine.Microservice.Infrastructure\Reyma.VectorSpace.Engine.Microservice.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

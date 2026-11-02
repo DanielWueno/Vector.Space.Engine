@@ -149,7 +149,8 @@ public sealed class ColeccionesController : BaseController
     /// <summary>
     /// Busqueda semantica en la coleccion. <c>espacio</c> (item 1.20) elige el vector consultado: <c>codigo</c> (por
     /// defecto) o <c>resumen</c> (<c>dense-resumen</c>, solo en colecciones creadas con resumen de negocio; 409 si no
-    /// lo tienen o si su perfil de resumen no coincide con el de la instancia).
+    /// lo tienen o si su perfil de resumen no coincide con el de la instancia). <c>modulos</c> (item 1.21.1) acota por
+    /// namespace/ruta con fronteras exactas; 409 si la coleccion existente no esta preparada para ese filtro.
     /// </summary>
     [HttpPost("{coleccion}/busquedas")]
     [Authorize]
@@ -162,6 +163,7 @@ public sealed class ColeccionesController : BaseController
     public async Task<ActionResult<BusquedaResponse>> PostBusqueda(
         string coleccion, [FromBody] BuscarRequest? request, CancellationToken cancellationToken) =>
         Ok(await Mediator.Send(
-            new BuscarEnColeccionQuery(coleccion, request?.Consulta, request?.TopK, request?.Perfil, request?.SimbolosDefinidos, request?.Espacio),
+            new BuscarEnColeccionQuery(coleccion, request?.Consulta, request?.TopK, request?.Perfil, request?.SimbolosDefinidos, request?.Espacio,
+                request?.Modulos),
             cancellationToken));
 }

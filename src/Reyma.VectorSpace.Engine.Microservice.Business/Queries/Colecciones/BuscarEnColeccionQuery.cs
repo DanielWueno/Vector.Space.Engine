@@ -13,9 +13,12 @@ namespace Reyma.VectorSpace.Engine.Microservice.Business.Queries.Colecciones;
 /// <see cref="Espacio"/> (item 1.20): <c>"codigo"</c> (por defecto, ausente) o <c>"resumen"</c>; cualquier otro valor,
 /// 400. Con <c>"resumen"</c> no se admite <see cref="Perfil"/>: el perfil de esa consulta lo fija la instancia
 /// (<c>Motor:Resumen:PerfilEmbeddings</c>), y un perfil enviado responde 400 en vez de ignorarse en silencio.
+/// <see cref="Modulos"/> (item 1.21.1): filtro exacto opcional, 1 a 50 cadenas no blancas (fuera de ese rango, 400);
+/// ver <c>BuscarRequest.Modulos</c>. No se recortan ni se normalizan: la comparacion es ordinal.
 /// </summary>
 public sealed record BuscarEnColeccionQuery(
-    string Coleccion, string? Consulta, int? TopK, string? Perfil, IReadOnlyList<string>? SimbolosDefinidos = null, string? Espacio = null)
+    string Coleccion, string? Consulta, int? TopK, string? Perfil, IReadOnlyList<string>? SimbolosDefinidos = null, string? Espacio = null,
+    IReadOnlyList<string>? Modulos = null)
     : IRequest<BusquedaResponse>, IValidable
 {
     public const string EspacioCodigo = "codigo";
@@ -43,6 +46,14 @@ public sealed record BuscarEnColeccionQuery(
                 yield return "SimbolosDefinidos no admite cadenas vacias.";
         }
 
+        if (Modulos is not null)
+        {
+            if (Modulos.Count is < 1 or > Limites.MaxModulosPorConsulta)
+                yield return $"Modulos admite entre 1 y {Limites.MaxModulosPorConsulta} cadenas.";
+            else if (Modulos.Any(string.IsNullOrWhiteSpace))
+                yield return "Modulos no admite cadenas vacias o en blanco.";
+        }
+
         if (Espacio is not null and not EspacioCodigo and not EspacioResumen)
             yield return $"Espacio admite '{EspacioCodigo}' (por defecto) o '{EspacioResumen}'.";
         else if (Espacio == EspacioResumen && Perfil is not null)
@@ -56,6 +67,7 @@ public sealed record BuscarEnColeccionQuery(
             motor.BuscarAsync(request.Coleccion, request.Consulta!, request.TopK ?? Limites.TopKPorDefecto, request.Perfil,
                 request.SimbolosDefinidos,
                 request.Espacio == EspacioResumen ? EspacioDeBusqueda.Resumen : EspacioDeBusqueda.Codigo,
+                request.Modulos,
                 cancellationToken);
     }
 }
