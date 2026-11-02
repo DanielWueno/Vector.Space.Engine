@@ -1,10 +1,49 @@
-# 1.21 - Modulos en busquedas: decision pendiente del responsable
+# 1.21 - Conservar modulo como filtro opcional de busqueda
 
-Fecha: 2026-11-02. Estado: **bloqueado, no aprobado ni implementado**.
+Fecha: 2026-11-02. Estado: **decision documental resuelta; implementacion pendiente**.
 Base Vector.Space.Engine: `7c32bfe43251379f33e7678d2b7950e0de9e0d3f` (1.22 hecho).
 Base Rag.Context.Engine, solo lectura: `aae1de8`.
 
-## Resultado y limite de la decision
+## Decision y motivo
+
+El responsable aclaro: **"no uso module"** y, despues de conocer su funcion,
+**"esta bien que se quede por lo mismo pruebas"**. Se conserva como capacidad
+opcional para acotar busquedas y hacer pruebas; no se afirma que haya uso actual
+ni que solo pueda usarse en tests automatizados.
+
+Se conserva el predicado ordinal del origen: namespace exacto/descendiente por `.`
+**o** ruta relativa exacta/descendiente por `/`. Se elige **(a), prefijos derivados
+con indice keyword**, para filtrar antes del corte sin depender de `Match.Text`.
+Los puntos existentes se completaran mediante **SetPayload**, sin revectorizar
+ni cambiar el contrato de chunking. No se elige (b), por su dependencia de version
+y perdida de candidatos, ni (c), porque no se pidio un mapa de etiquetas nuevo.
+
+El filtro es un dato opcional de busqueda, **no una frontera de autorizacion**.
+Se conserva 1.14: no se agregan permisos por modulo/coleccion a VectorSpace.
+La autorizacion que corresponda a Rag sigue siendo responsabilidad de Rag; este
+cierre no habilita un modo empresarial ni garantiza aislamiento en acceso directo.
+
+Lenguaje, namespace y tenant quedan **fuera de la implementacion de modulo**.
+No se eliminan ni se presume su uso o falta de uso. Su compatibilidad se preparara
+en `1.21.2-preparar-compatibilidad-de-filtros-del-cliente`, antes de 1.12.
+Esa separacion satisface el punto 5 de esta decision sin inventar otra decision
+del responsable. El objetivo sigue siendo cliente completo para ingesta/busqueda,
+con orquestacion y generacion RAG en Rag.
+
+Se crean dos fichas, sin ejecutarlas:
+
+- `1.21.1-implementar-filtro-exacto-de-modulo`: contrato opcional, prefijos/indexado,
+  relleno de puntos existentes, pruebas aisladas y rollback.
+- `1.21.2-preparar-compatibilidad-de-filtros-del-cliente`: revisar el contrato
+  resultante de 1.21.1 y resolver/preparar los filtros restantes y los contextos
+  autorizados antes de integrar. Si hacen falta mas implementaciones, registrarlas
+  y enlazarlas como prerrequisitos efectivos de 1.12.
+
+La cadena de entrada es 1.21 -> 1.21.1 -> 1.21.2 -> 1.12. El siguiente trabajo
+sera 1.21.1; **1.12 sigue bloqueada**. Cerrar esta decision no significa que el
+filtro ni su migracion esten implementados, ni autoriza tocar colecciones servidas.
+
+## Antecedente: bloqueo registrado en e8cf0bb
 
 El codigo permite describir la capacidad y comparar mecanismos, pero no demostrar
 si los usuarios emplean `module` o `FilterByModule`. Esa confirmacion es condicion
@@ -14,8 +53,9 @@ respuestas ni autorizaciones.**
 
 El usuario si fijo el objetivo posterior: Rag.Context.Engine sera cliente completo
 de VectorSpace para ingesta y busqueda, conservando orquestacion y generacion RAG.
-Eso no decide por si solo la politica de autorizacion ni permite eliminar filtros.
-1.12 queda bloqueada por 1.21, no ejecutada. No se cambia 1.14.
+En ese momento no habia respuesta sobre modulo; 1.12 quedo bloqueada por 1.21,
+sin ejecutarse. La respuesta posterior resuelve ese bloqueo como se indica arriba.
+El analisis parcial y sus comprobaciones se conservan como antecedente.
 
 ## Evidencia de codigo, configuracion y pruebas
 
@@ -54,15 +94,16 @@ La API carga `WebApplication.CreateBuilder` e inserta configuracion compartida
 ejecutando esa configuracion, sus overrides, ni que cargase el archivo local
 anterior. No se consultaron logs, identidades, tokens, user-secrets ni servicios.
 Los ejemplos del roadmap y los tests no completan esa falta de evidencia.
-El uso real de filtros sigue **no confirmado**, no "inexistente".
+En la inspeccion inicial el uso real no estaba confirmado. La fuente posterior
+para modulo es la declaracion del responsable, no estos archivos. No se extiende
+"no uso module" a lenguaje, namespace, tenant ni a otros usuarios no consultados.
 
-## Alternativas tecnicas, no seleccionadas
+## Mecanismo elegido y alternativas descartadas para este alcance
 
-### (a) Prefijos de frontera calculados en la ingesta - recomendacion condicionada
+### (a) Prefijos de frontera calculados en la ingesta - elegido
 
-Si se decide conservar modulo como filtro de busqueda, la alternativa recomendada
-es derivar un array keyword de los prefijos de namespace/ruta, incluyendo cada
-valor completo. Preservaria la comparacion ordinal, los separadores respectivos y
+Se derivara un array keyword de los prefijos de namespace/ruta, incluyendo cada
+valor completo. Preserva la comparacion ordinal, los separadores respectivos y
 el OR entre campos. No aplicar lowercase, trim o normalizacion nueva que altere
 las fronteras. Un namespace ausente no inventa modulo; la ruta aun puede coincidir.
 
@@ -75,9 +116,16 @@ empates o pools finitos de fusion, ni demuestra una mejora de recall.
 
 Ventaja: contrato de frontera independiente de la tokenizacion full-text.
 Coste: campo/indice nuevos, escrituras futuras y migracion de puntos existentes.
-El nombre del campo y el contrato HTTP no se fijan sin elegir esta alternativa.
+Preparacion para 1.21.1: campo de payload `module_prefixes`; parametro HTTP
+opcional `modulos`, lista de 1 a 50 cadenas no blancas, con AND entre elementos.
+Un solo modulo satisface el uso pedido; la lista permite expresar tambien la
+interseccion de restricciones que el puerto de Rag ya admite, sin inferir permisos.
+Ausente/null conserva la busqueda actual; lista vacia o elemento blanco responde
+400, no una busqueda ampliada silenciosamente. No normalizar mayusculas ni recortar
+valores no blancos. El limite de lista sigue el patron de `simbolosDefinidos`.
+La ingesta deriva el campo; el consumidor no envia ni mantiene etiquetas.
 
-### (b) Match.Text mas comprobacion posterior
+### (b) Match.Text mas comprobacion posterior - no elegido
 
 Reutiliza namespace/ruta y no obliga a rellenar payload. Conserva el mecanismo
 aproximado del origen, pero hereda resultados incompletos tras el corte y depende
@@ -88,20 +136,19 @@ La copia de `tools\vectorstore-eval\Harness\Model.cs:224-234` y
 `QdrantStore.cs:117-134` es un banco sintetico, no el endpoint productivo actual.
 No recomendar este mecanismo como nuevo contrato exacto ni como autorizacion.
 
-### (c) Etiqueta explicita de ingesta
+### (c) Etiqueta explicita de ingesta - no elegida
 
 Sirve si el dominio necesita modulos independientes de namespace/ruta, pero
 **cambia** la semantica: exige asignar etiquetas, definir su responsable y ampliar
 todos los origenes de ingesta afectados. No hay evidencia para inventar ese mapa.
 La etiqueta aportada por el consumidor tampoco es prueba de permiso de acceso.
 
-### No incluir modulo en la primera integracion
+### No incluir modulo en la primera integracion - no elegido
 
-Solo es una alternativa si el responsable acepta expresamente ese alcance.
-En tal caso, el adaptador debe rechazar el filtro o contexto restringido no
-soportado, nunca omitirlo, convertirlo en una busqueda sin restriccion ni caer
-silenciosamente al pipeline local. Conservar la capacidad futura con condicion de
-entrada; no eliminarla por no haber demostrado uso actual.
+El responsable pidio conservarlo para pruebas. Por tanto, no se elimina de la
+primera integracion por falta de uso actual. El principio de no omitir restricciones
+sigue vigente para los filtros/contextos aun no soportados: rechazarlos
+explicitamente, nunca ampliar la busqueda ni caer silenciosamente al pipeline local.
 
 ## Puntos ya indexados y rollback
 
@@ -112,12 +159,17 @@ modelo y dimension (`:283-300`). Cambiar `ChunkingContract.Version` o esa huella
 fuerza revectorizacion al reingestar; **no es una migracion automatica** y no se
 justifica fingir un cambio de chunking solo para agregar un dato derivado.
 
-Para (a), se recomienda preparar un relleno explicito con `SetPayload`, paginado,
+Para (a), se preparara un relleno explicito con `SetPayload`, paginado,
 idempotente y reanudable, sin TEI/LLM ni cambios en IDs, vectores, hashes, resumenes
 o huellas. Coordinar con escritores: un upsert antiguo puede quitar el campo;
 un relleno sobre datos leidos antes de otra ingesta puede dejarlo desactualizado.
 Definir version/completitud verificable y comportamiento explicito mientras
 falten campos; no presentar una migracion incompleta como "cero coincidencias".
+1.21.1 debe responder 409 a busquedas con modulo en una coleccion existente sin
+esa preparacion completa, antes de vectorizar. Una coleccion inexistente sigue
+respondiendo 200 sin resultados; sin filtro se conserva el comportamiento actual.
+La comprobacion de completitud debe cubrir el indice y todos los puntos, y solo
+publicarse tras finalizar el relleno bajo exclusion efectiva de escritores.
 Para (c), primero hace falta el mapa autorizado de etiquetas historicas.
 
 Cualquier futura ficha debe probar en coleccion aislada puntos nuevos, antiguos,
@@ -142,8 +194,9 @@ valido que lo omita: conservar autorizacion en Rag protege su interfaz, no convi
 el acceso directo a VectorSpace en multi-tenant. Si ese acceso debe restringirse,
 hay que reabrir 1.14 y preparar su propia decision/implementacion; no basta un campo.
 
-Lenguaje y namespace entran aqui como **brechas identificadas**, no como cambios
-aprobados. `R\src\RagEngine.Core\Infrastructure\VectorStore\QdrantSemanticRetriever.cs:685-705`
+Lenguaje y namespace quedan **fuera de 1.21.1**, como brechas de compatibilidad
+para 1.21.2, no como capacidades eliminadas.
+`R\src\RagEngine.Core\Infrastructure\VectorStore\QdrantSemanticRetriever.cs:685-705`
 usa `Match.Text` para ambos. La descripcion de namespace dice "prefix", pero el
 codigo no hace la comprobacion de frontera del modulo: no equipararlos sin decision.
 Tenant, acoplado a autorizacion, usa keyword exacto y AND entre filtro/contexto
@@ -156,44 +209,40 @@ solo porque search/ask no tengan esos parametros en el cuerpo HTTP.
 
 | Punto de `verificacion` | Estado |
 |---|---|
-| 1. Semantica conservada o cambiada, con motivo | Origen contrastado; eleccion del responsable pendiente. |
-| 2. Mecanismo (a), (b) o (c) | Alternativas y recomendacion documentadas, ninguna aprobada. |
-| 3. Tratamiento de documentos existentes | Coste, riesgo y alternativas definidos; depende de 2. |
-| 4. Frontera de autorizacion | Estado de 1.14 comprobado; necesidad de restriccion real pendiente. |
-| 5. Lenguaje y namespace dentro/fuera | Brechas documentadas; alcance final pendiente, no suprimido. |
+| 1. Semantica conservada o cambiada, con motivo | Se conserva namespace/ruta ordinal con fronteras, para mantener la capacidad solicitada de acotar pruebas. |
+| 2. Mecanismo (a), (b) o (c) | Elegido (a): prefijos keyword, por exactitud previa al corte; (b) y (c) no elegidos con motivos arriba. |
+| 3. Tratamiento de documentos existentes | SetPayload paginado/idempotente, sin TEI/LLM ni cambio de huella; completitud/exclusion y rollback exigidos en 1.21.1. |
+| 4. Frontera de autorizacion | Filtro opcional, no permiso; 1.14 se conserva. Rag sigue siendo responsable de sus restricciones; acceso directo no queda aislado por modulo. |
+| 5. Lenguaje y namespace dentro/fuera | Fuera de la implementacion de modulo; compatibilidad, junto con tenant, preparada en 1.21.2 antes de 1.12. |
 
-La aceptacion completa **no se satisface**; 1.21 no se marca hecho. La validacion
-del JSON por `arnes` no sustituye esas decisiones ni acredita paridad funcional.
+La aceptacion es **documental**, no una medicion de recall ni prueba del filtro
+implementado. La respuesta del responsable y los cinco puntos anteriores permiten
+cerrar 1.21 una vez verificados documento, fichas nuevas y ledger. La validacion
+del JSON por `arnes` no sustituye esa revision ni acredita paridad funcional.
 
-Antes de desbloquear, el responsable debe confirmar (sin aportar secretos):
-uso real de module/FilterByModule, comportamiento deseado del modulo en el cliente
-completo, frontera de autorizacion y alcance de lenguaje/namespace/tenant.
-Si desconoce el uso, puede declarar expresamente el contrato que exige conservar
-y aceptar esa incertidumbre; el agente no puede asumir esa respuesta.
-
-Despues de elegir, **crear en el ledger, antes de cerrar 1.21**, las fichas de
-implementacion/migracion que esa eleccion requiera, con dependencias, presupuesto,
-criterio literal y rollback. No se crean ahora fichas ejecutables de un mecanismo
-no aprobado. Como minimo, si se elige (a), su criterio debe cubrir:
+Las fichas de implementacion/migracion estan registradas antes del cierre.
+1.21.1 exige:
 fronteras positivas/negativas anteriores y casos adversariales que llenaban el
 top-K con falsos candidatos; filtros combinados; denso/fusion/resumen/simbolos;
 paridad de IDs/orden/scores sin filtro sobre el mismo dataset; migracion completa
 sin revectorizar y sin alteracion de los demas datos; error explicito si falta
 infraestructura o cobertura en la comprobacion. Lenguaje/namespace/tenant y una
-eventual reapertura de 1.14 necesitan fichas propias si quedan trabajo adicional.
+eventual reapertura de 1.14 necesitan fichas propias si 1.21.2 determina trabajo
+adicional; este cierre no las autoriza de antemano.
 
 1.18, 1.20 y 1.22 ya estan hechos; no se reescriben sus resultados. No bastan para
-dar por lista la integracion: 1.12 queda `bloqueado_por` 1.21 y debera incorporar
-las dependencias nuevas, no solo notas `_...`, cuando se aprueben. El objetivo
+dar por lista la integracion: 1.12 queda `bloqueado_por` 1.21.2, que requiere
+1.21.1 hecho y verificara su contrato real antes de preparar la compatibilidad.
+Hay aristas literales, no solo notas `_...`. El objetivo
 cliente completo no autoriza una sustitucion de solo embeddings ni ejecutar 1.12
 en esta conversacion. Al retomarla, tambien debe respetar el trabajo `19.6`
 en_curso de Rag, su baseline vigente, presupuesto real y colecciones aisladas.
 
-No hay otro item automaticamente ejecutable en el ledger actual: 1.7.2 conserva
-condiciones externas sin satisfacer y 1.12 depende de esta decision. El relevo
-inmediato es **resolver y retomar 1.21**, no iniciar otro item de producto.
+El relevo inmediato es **1.21.1-implementar-filtro-exacto-de-modulo** en una
+conversacion nueva, despues de cerrar 1.21. 1.7.2 conserva sus condiciones externas;
+1.12 no se ejecuta hasta satisfacer todas sus condiciones.
 
-### Comprobaciones ejecutadas
+### Comprobaciones del bloqueo inicial (e8cf0bb; historicas)
 
 En invocacion separada de la edicion, `arnes.cmd validar` valido los 32 items
 (28 hechos, 3 bloqueados, 1 descartado). `arnes.cmd validar --al-cerrar
@@ -203,3 +252,22 @@ no hay siguiente pendiente. Se uso arnes 1.17.4 (017e7d9); su wrapper local emit
 errores de cmd sobre comentarios antes de ejecutar el arnes. No se corrigio ese
 problema ajeno ni se confundio su codigo de salida con aceptacion de la decision.
 El SHA256 del appsettings.json local de VectorSpace permanecio identico al inicial.
+
+### Comprobaciones tras resolver la decision
+
+Revision manual de los cinco puntos de la matriz, las fichas nuevas y sus
+dependencias, en invocacion separada de la edicion. Se verifico que el criterio y
+rollback originales no cambiaron y que el resultado parcial se conserva literalmente
+en `_resultado_parcial_e8cf0bb`.
+
+`arnes.cmd validar` valido 34 items (29 hechos, 2 pendientes, 2 bloqueados,
+1 descartado). `arnes.cmd validar --al-cerrar
+1.21-decidir-filtro-de-modulo-en-busquedas` confirmo cierre con resultado.
+`arnes.cmd validar --item 1.21.1-implementar-filtro-exacto-de-modulo` confirmo que
+la ficha esta preparada; se anuncio su ID sin ejecutarla y se comprobo que es
+el primer pendiente, con su prerrequisito hecho. 1.12 conserva su bloqueo.
+
+`git diff --check` de los archivos documentales sin errores; appsettings.json
+de VectorSpace conserva su SHA256 inicial y Rag mantiene sus cambios ajenos
+intactos. No se ejecutaron pruebas de producto, servicios ni ingestas: se verifica
+una decision documental, no la implementacion futura del filtro.
