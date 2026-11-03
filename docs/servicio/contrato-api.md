@@ -4,6 +4,10 @@ Definido en el item `1.3-definir-contrato-api-y-autenticacion` del ledger. Rutas
 ruta base del servicio (`/reyma/vectorspace/engine` desplegado; vacia en local) y al prefijo global
 `api/` de la plantilla. Swagger (solo Development) publica el mismo contrato.
 
+Guia de uso: [filtros de busqueda y ejemplos](filtros.md). Distingue los filtros
+HTTP disponibles de lenguaje/namespace aun pendientes para el cliente de Rag;
+documentar estos ultimos no agrega parametros a este contrato.
+
 | Metodo | Ruta | Operacion | Respuesta 200 |
 |---|---|---|---|
 | GET | `api/sesion` | — (solo login) | Usuario en sesion desde los claims |

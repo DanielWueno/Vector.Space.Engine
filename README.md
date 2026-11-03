@@ -14,6 +14,8 @@ adaptador Qdrant) con el vector denso de un sidecar TEI; corre en local contra
 servidor. Ver `docs/plan/ejecucion-plan.estado.json`.
 
 - Contrato HTTP y multi-tenencia: [docs/servicio/contrato-api.md](docs/servicio/contrato-api.md).
+- Filtros de busqueda, ejemplos y capacidades pendientes:
+  [docs/servicio/filtros.md](docs/servicio/filtros.md).
 - Operacion del servicio generado (configuracion, Docker, pipeline):
   [docs/servicio/README.md](docs/servicio/README.md).
 

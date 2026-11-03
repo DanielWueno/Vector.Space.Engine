@@ -1,6 +1,7 @@
 # 1.21.2 - Compatibilidad de filtros del futuro cliente
 
-Fecha: 2026-11-02. **Bloqueada: falta respuesta del responsable; preparacion parcial.**
+Fecha inicial: 2026-11-02. Actualizada: 2026-11-03.
+**Preparacion documental completada. Implementaciones pendientes.**
 Base VectorSpace: `9d4c2f1736c90918a949e1fedfbdd63db2ffdf78`.
 Base Rag.Context.Engine (solo lectura): `aae1de8d2afde69bfab88248cdd31768bded2443`.
 `V\` y `R\` identifican esos repositorios; las referencias de codigo son de esas bases.
@@ -9,6 +10,11 @@ No se ejecuta 1.12 ni se reabren 1.14/1.21.1. No se modifican contratos producti
 indices, datos o permisos. La declaracion del responsable en 1.21 ("no uso module",
 "esta bien que se quede por lo mismo pruebas") solo decide conservar modulo opcional;
 no demuestra nada sobre uso de otros filtros o de autorizacion.
+
+Guia para consumidores, con ejemplos y disponibilidad separada de propuestas:
+[filtros de busqueda](../../servicio/filtros.md). La respuesta posterior del
+2026-11-03 decide lenguaje/namespace/tenant/Authorized; no se infiere de la
+declaracion antigua sobre modulo.
 
 ## Evidencia real de 1.21.1
 
@@ -48,17 +54,17 @@ partir de la menor superficie del cuerpo HTTP.
 
 En las filas L/N/T se indica el comportamiento en **Local y Authorized**: los
 filtros explicitos se aplican en ambos. Las filas C-L/C-A distinguen los contextos.
-Las alternativas pendientes NO son decisiones consentidas ni autorizan ejecucion.
+Las decisiones son documentales: no autorizan ejecutar aqui sus implementaciones.
 
 | Fila/capacidad | Entrada actual API / CLI / puerto | Semantica real de Rag | Dato/contrato disponible en VectorSpace | Tratamiento futuro concreto y brecha |
 |---|---|---|---|---|
-| L - lenguaje (Local/Authorized) | API: no en body ni resuelto por claims. CLI: `--language`/`-l`, `SourceLanguage?`. Puerto: `FilterByLanguage`. | Si HasValue: `Match.Text(language, enum.ToString())`, no keyword. Null no filtra. Enum compartido: CSharp, TypeScript, JavaScript, Xaml, Sql, Markdown, PlainText, Unknown. No hay una entrada de texto blanco en el puerto tipado. | Payload `language` y hit `lenguaje`; enum identico. Request/puerto de busqueda NO lo aceptan. | Pendiente: preservar Match.Text con version/esquema de referencia fijados; o cambiar con consentimiento a igualdad ordinal del enum; o diferir y rechazar todo valor activo antes de enviar HTTP. Preservar/cambiar exige ampliacion de filtro de servidor; diferir exige guardia del adaptador. Sin valor: omitir, nunca inventar lenguaje. |
-| N - namespace (Local/Authorized) | API: no en body ni claims. CLI: `--namespace`/`-n`. Puerto: `FilterByNamespace`. | No blanco: `Match.Text(namespace, valor)` sin post-filtro de frontera. Null/vacio/blanco no filtra. Texto no blanco se pasa literal, sin trim/lowercase. El comentario "prefix" NO convierte el codigo en StartsWith. | Payload y hit `namespace` opcionales. No hay parametro de namespace. `module_prefixes` mezcla namespace y ruta, por tanto NO lo representa. | Pendiente: preservar full-text con version/esquema fijados; o consentir namespace exacto/descendiente por `.` SOLO en namespace, con mecanismo separado; o diferir rechazando valor activo. No traducir namespace a `modulos`: admitiria rutas ajenas al namespace y cambiaria pertenencia. |
-| T-E - tenant explicito (Local/Authorized) | API: no en body. CLI: `--tenant`. Puerto: `FilterByTenant`. | No blanco: keyword exacto ordinal en payload `tenant`; ausente/blanco no restringe e incluye puntos sin tenant. Con valor, punto sin tenant NO coincide. AND con tenant del contexto Authorized, nunca reemplazo/union. | No hay campo de tenant en request de ingesta/documento, busqueda o hit; el escritor no lo guarda. Coleccion y `repository_name` no son sustitutos para una coleccion mixta. | Pendiente: preservar con fuente de asignacion por documento/punto e historicos, campo/indice y filtro AND; o diferir rechazando todo tenant explicito activo, aun en Local. No deducirlo del nombre/ruta, ni buscar sin tenant y post-filtrar un top-K. Reentrada de preservacion: mapa con procedencia y politica para puntos sin asignacion. |
-| T-A - tenant autorizado | API: claim `tenant` de identidad autenticada unica; no texto del body. CLI search: no crea Authorized. Puerto: `Context.Tenant` si Mode=Authorized. | Keyword exacto adicional si no blanco. `FilterByTenant=A` AND `Context.Tenant=B` no puede ampliar resultados; con payload escalar A != B da vacio. Un administrador puede superar ACL de coleccion, pero sus filtros de contexto siguen aplicando. | Mismas carencias de T-E; JWT valido de VectorSpace no resuelve el tenant del actor de Rag. | Depende de T-E y C-A. Preservar exige transportar AMBAS restricciones; si se difiere, rechazar la solicitud antes de buscar, no suprimir el claim. Nunca prometer aislamiento en acceso directo a VectorSpace. |
-| M-E/M-A - modulo explicito y autorizado | API: solo claim `module` autenticado para contexto, no filtro en body. CLI: `--module` con Local. Puerto: `FilterByModule` y `Context.Module` en Authorized. | Cada activo exige namespace exacto/descendiente `.` O ruta exacta/descendiente `/`, ordinal. AND entre ambos. Prefiltro Match.Text aproximado, comprobacion exacta tras corte y antes/despues de two-hop; puede devolver menos de K. | `modulos` 1..50, AND, keyword de prefijos y guardia de completitud de 1.21.1. Namespace/ruta ausentes no inventan coincidencia. | Preservacion del predicado YA decidida en 1.21: lista de los activos, no ANY. Sin ampliar el conjunto elegible; puede recuperar mas elegibles que el antiguo post-filtro, no garantiza los mismos top-K/scores. No requiere otra implementacion de servidor para modulo; SI traduccion y pruebas del adaptador. La admision de Authorized sigue pendiente en C-A. |
-| C-L - Local explicito | API: `AuthorizationMode.Local` -> actor administrador local, sin consultar identidad. CLI search siempre construye `RetrievalContext.Local`. Puerto: Mode=Local obligatorio. | No activa `Context.Tenant/Module`, aunque alguien construya un Local con esos campos; SI aplica los filtros explicitos. Local no es fallback de un fallo de identidad. | VectorSpace siempre exige su autenticacion HTTP, aunque el contexto de Rag sea Local. No entiende Local/Authorized. | Conservar seleccion Local explicita, sin convertirla en promesa de acceso anonimo al servicio. Credencial de servicio se resuelve fuera de esta ficha. L/N/T-E deben preservarse o rechazarse segun decision, M-E se transmite. No hace falta modo Local en VectorSpace; hace falta guardia/composicion en adaptador. |
-| C-A - Authorized / autorizacion | API: modo de configuracion `Empresarial`; primero identidad/ACL de coleccion, despues `ForAuthorized(actor.Tenant, actor.Module)`. Puerto recibe contexto YA resuelto; no autoriza por crear ese record. | Exactamente una identidad autenticada; mas de un tenant o modulo distinto invalida identidad (duplicados ordinalmente iguales no). ACL por scopes/tenants del manifiesto, administrador como excepcion. Manifiesto ausente/no publicado: solo administrador. Tenant/module ausentes/blancos no activan filtro de payload; no eximen de ACL. | No hay ACL/manifiesto de Rag ni decision por tenant/modulo: 1.14 retirada, cualquier autenticado alcanza cualquier coleccion. Metadata de perfil del modelo no es ACL. | Pendiente: preservar autorizacion en Rag con fuente ACL independiente de su Qdrant al pasar a cliente, incluyendo politica explicita de claims ausentes/blancos; o diferir TODO Authorized con rechazo explicito, aun sin tenant/module. Nunca degradar a Local. Nuevos permisos de VectorSpace requeririan reabrir 1.14 y quedan fuera de este trabajo. |
+| L - lenguaje (Local/Authorized) | API: no en body ni resuelto por claims. CLI: `--language`/`-l`, `SourceLanguage?`. Puerto: `FilterByLanguage`. | Si HasValue: `Match.Text(language, enum.ToString())`, no keyword. Null no filtra. Enum compartido: CSharp, TypeScript, JavaScript, Xaml, Sql, Markdown, PlainText, Unknown. No hay una entrada de texto blanco en el puerto tipado. | Payload `language` y hit `lenguaje`; enum identico. Request/puerto de busqueda NO lo aceptan. | CONSERVAR Match.Text, decidido el 2026-11-03. 1.21.4 implementara el filtro con paridad frente al operador de origen en Qdrant 1.19.2 y esquema sin indice full-text; 1.21.3 traducira el enum. Sin valor se omite. No convertir a keyword ni prometer invariancia entre versiones. Authorized sigue diferido por C-A. |
+| N - namespace (Local/Authorized) | API: no en body ni claims. CLI: `--namespace`/`-n`. Puerto: `FilterByNamespace`. | No blanco: `Match.Text(namespace, valor)` sin post-filtro de frontera. Null/vacio/blanco no filtra. Texto no blanco se pasa literal, sin trim/lowercase. El comentario "prefix" NO convierte el codigo en StartsWith. | Payload y hit `namespace` opcionales. No hay parametro de namespace. `module_prefixes` mezcla namespace y ruta, por tanto NO lo representa. | CONSERVAR Match.Text SOLO sobre namespace, decidido el 2026-11-03, mismo banco que L. 1.21.4 agrega filtro y 1.21.3 lo transmite literal. No cambiarlo a prefijo exacto, trim/lowercase ni modulos; una ruta coincidente no suple namespace. |
+| T-E - tenant explicito (Local/Authorized) | API: no en body. CLI: `--tenant`. Puerto: `FilterByTenant`. | No blanco: keyword exacto ordinal en payload `tenant`; ausente/blanco no restringe e incluye puntos sin tenant. Con valor, punto sin tenant NO coincide. AND con tenant del contexto Authorized, nunca reemplazo/union. | No hay campo de tenant en request de ingesta/documento, busqueda o hit; el escritor no lo guarda. Coleccion y `repository_name` no son sustitutos para una coleccion mixta. | DIFERIDO por el responsable para definirlo bien. 1.21.3 rechazara FilterByTenant no blanco, incluso en Local, antes de HTTP; no se reinterpreta como coleccion. Null/vacio/blanco explicito conserva ausencia de restriccion. Reentrada: 1.21.5, fuente de asignacion/historicos, puntos sin tenant y contrato exacto con oraculos antes de implementar. |
+| T-A - tenant autorizado | API: claim `tenant` de identidad autenticada unica; no texto del body. CLI search: no crea Authorized. Puerto: `Context.Tenant` si Mode=Authorized. | Keyword exacto adicional si no blanco. `FilterByTenant=A` AND `Context.Tenant=B` no puede ampliar resultados; con payload escalar A != B da vacio. Un administrador puede superar ACL de coleccion, pero sus filtros de contexto siguen aplicando. | Mismas carencias de T-E; JWT valido de VectorSpace no resuelve el tenant del actor de Rag. | DIFERIDO junto con todo Authorized. Rechazar el contexto completo antes de HTTP, nunca suprimir tenant y ejecutar la consulta. Reentrada requiere 1.21.5/1.21.6 y sus implementaciones verificadas; no promete aislamiento en acceso directo. |
+| M-E/M-A - modulo explicito y autorizado | API: solo claim `module` autenticado para contexto, no filtro en body. CLI: `--module` con Local. Puerto: `FilterByModule` y `Context.Module` en Authorized. | Cada activo exige namespace exacto/descendiente `.` O ruta exacta/descendiente `/`, ordinal. AND entre ambos. Prefiltro Match.Text aproximado, comprobacion exacta tras corte y antes/despues de two-hop; puede devolver menos de K. | `modulos` 1..50, AND, keyword de prefijos y guardia de completitud de 1.21.1. Namespace/ruta ausentes no inventan coincidencia. | CONSERVAR modulo explicito, ya decidido en 1.21: lista de activos, no ANY; 1.21.3 lo traduce. Sin ampliar elegibilidad, aunque puede recuperar mas elegibles que el post-filtro antiguo. No necesita otra implementacion de servidor para modulo. El autorizado no se omite: toda solicitud Authorized se rechaza; la interseccion de la tabla queda como contrato para su reentrada, no como soporte actual. |
+| C-L - Local explicito | API: `AuthorizationMode.Local` -> actor administrador local, sin consultar identidad. CLI search siempre construye `RetrievalContext.Local`. Puerto: Mode=Local obligatorio. | No activa `Context.Tenant/Module`, aunque alguien construya un Local con esos campos; SI aplica los filtros explicitos. Local no es fallback de un fallo de identidad. | VectorSpace siempre exige su autenticacion HTTP, aunque el contexto de Rag sea Local. No entiende Local/Authorized. | CONSERVAR Local explicito para la primera integracion, sin derivar permisos, por decision del responsable. L/N/M-E se transmiten y T-E activo se rechaza. No agregar modo/permisos a VectorSpace ni retirar su autenticacion HTTP. 1.21.3 prepara guardia/traduccion; la activacion productiva pertenece a 1.12. |
+| C-A - Authorized / autorizacion | API: modo de configuracion `Empresarial`; primero identidad/ACL de coleccion, despues `ForAuthorized(actor.Tenant, actor.Module)`. Puerto recibe contexto YA resuelto; no autoriza por crear ese record. | Exactamente una identidad autenticada; mas de un tenant o modulo distinto invalida identidad (duplicados ordinalmente iguales no). ACL por scopes/tenants del manifiesto, administrador como excepcion. Manifiesto ausente/no publicado: solo administrador. Tenant/module ausentes/blancos no activan filtro de payload; no eximen de ACL. | No hay ACL/manifiesto de Rag ni decision por tenant/modulo: 1.14 retirada, cualquier autenticado alcanza cualquier coleccion. Metadata de perfil del modelo no es ACL. | DIFERIDO por el responsable: no integrar autorizacion por permisos ahora; uso Local explicito. 1.21.3 rechazara TODO Authorized, incluso sin claims, y una configuracion Empresarial no podra caer a Local. 1.21.6 definira fuente de identidad/ACL, ausentes/blancos, alcance y oraculos antes de habilitarlo. No borrar aqui las protecciones locales actuales de Rag ni reabrir 1.14. |
 
 ### Fuentes de la matriz y limites de evidencia
 
@@ -95,6 +101,10 @@ revisados; el codigo permite describir su semantica, no certificar paridad remot
 
 ## Traduccion futura de modulo: tabla literal
 
+La primera integracion solo admitira Local explicito. Las filas Authorized
+admitido describen la interseccion exigida SI se habilita esa capacidad en el
+futuro; hoy el tratamiento decidido para cualquiera de ellas es rechazo previo.
+
 Definicion: activo = `!string.IsNullOrWhiteSpace(valor)`. Ningun valor activo se
 recorta ni cambia de mayusculas. P(m,p) = frontera namespace por `.` O ruta por `/`.
 El destino debe satisfacer todos los P de la lista; no seleccionar solo uno.
@@ -125,7 +135,7 @@ Los filtros deben viajar en codigo, resumen y cada peticion por simbolos; ningun
 semilla, reranker, contexto LLM, fuente o respuesta puede consumir un resultado
 fuera del contexto. No basta filtrar la respuesta final.
 
-## Decisiones solicitadas y trabajo dependiente
+## Antecedente del bloqueo de bb16b76 (2026-11-02)
 
 Se consulto al responsable con la herramienta de preguntas, DESPUES de esta matriz,
 solamente:
@@ -185,6 +195,55 @@ preparacion; el objetivo sigue siendo cliente completo de ingesta/busqueda con
 orquestacion/generacion en Rag, no solo sustitucion del brain. 1.7.2 conserva su
 bloqueo externo y no se ejecuta.
 
+## Decision recibida y dependencias vigentes (2026-11-03)
+
+El responsable respondio: "conservar el filtro textual", "conservar el dos tambien
+el de namespace", "el tercero el tenant estaria bien posponerlo ya que esto
+estaria bien hacer la definicion bien planteada" y "el cuarto y ultimo quitemos
+las autorizaciones eso queda pospuesto en otro momento dejemos todo libre de uso
+sin derivar de permisos u otros mecanismos". Pidio documentar los filtros con
+ejemplos para que se descubran y puedan usarse tambien en pruebas.
+
+La respuesta completa sustituye la incertidumbre del mensaje previamente truncado
+en "el tercero el"; la aclaracion por herramienta no obtuvo respuesta, pero
+este mensaje posterior SI contiene las decisiones. No se repiten las preguntas.
+
+Se conserva el operador textual de lenguaje/namespace, sin transformarlo en
+igualdad keyword ni frontera de modulo. Referencia tecnica para 1.21.4:
+Qdrant 1.19.2, la imagen ya fijada por `docker-compose.motor.yml`, campos sin
+indice full-text, valores de payload iguales a los del origen. Ambos brazos del
+ensayo deben usar la misma version/esquema/dataset. No significa que una instancia
+de Rag este usando esa version, que se haya actualizado, ni que haya paridad con
+la semantica distinta de 1.14.1. Esa diferencia historica queda visible en la guia;
+1.12 debe registrar la procedencia real de su comparacion, no darla por resuelta.
+
+El uso sin permisos se concreta en **Local explicito**, sin resolver identidad/ACL
+de Rag en ese modo. Tenant activo y TODO Authorized quedan fuera del primer
+cliente: rechazo explicito previo, no busqueda amplia ni fallback. "Pospuesto"
+no significa eliminar el concepto del puerto o borrar las comprobaciones del
+motor local existente en esta ficha. La autenticacion HTTP de VectorSpace sigue
+vigente; quitar JWT no es parte de decidir filtros/permisos ni de 1.14.
+
+| Ficha nueva o preparada | Alcance / condicion |
+|---|---|
+| 1.21.4-implementar-filtros-textuales-de-lenguaje-y-namespace | Filtros de servidor antes del corte, AND con modulos/simbolos, en codigo/fusion/resumen. Paridad contra Match.Text de referencia en el banco anterior, casos positivos/negativos/adversariales, sin filtro pareado. 0.6 h provisionales, sin migracion: reutiliza payload; rollback de codigo. Siguiente ejecutable tras cerrar 1.21.2. |
+| 1.21.3-implementar-guardias-y-traduccion-de-filtros-del-cliente | Despues de 1.21.4: Local explicito, L/N/M conservados, tenant activo/Authorized rechazados, cero solicitudes/consumo en rechazos. No activa la composicion ni ejecuta 1.12. 0.6 h provisionales y rollback de componente sin datos. |
+| 1.21.5-definir-tenencia-del-cliente | Bloqueada por necesidad/alcance del responsable: fuente de asignacion, historicos, ausencias, AND exacto y riesgos de coleccion mixta; luego preparar implementacion/migracion con oraculos. No bloquea el cliente Local con rechazo de tenant. |
+| 1.21.6-definir-autorizacion-del-cliente | Bloqueada hasta peticion expresa de acceso restringido: identidad/ACL, alcance, claims ausentes, fallos y oraculos de no filtracion. No implica permisos en VectorSpace ni reapertura automatica de 1.14. No bloquea Local. |
+
+**Cadena vigente: 1.12 -> 1.21.3 -> 1.21.4 -> 1.21.2 -> 1.21.1.**
+Los bloqueos y condiciones estan en el ledger; la cadena del antecedente anterior
+es historica. 1.21.5/1.21.6 son capacidades diferidas, no puertas artificiales
+para el trabajo local. Se registran oraculos/presupuesto/rollback en cada ficha,
+sin ejecutarlas.
+
+Por fila, queda justificado que M/C-L no precisan otro filtro/permisos de servidor;
+L/N SI precisan 1.21.4; T/C-A no precisan implementacion de datos/permisos ahora
+porque se difieren con rechazo, pero SI las guardias de 1.21.3 y su definicion
+futura. No se afirma paridad total de todas las capacidades: es cliente completo
+para ingesta/busqueda Local con exclusiones declaradas, no reemplazo solo del brain.
+La aceptacion funcional con baseline/eval-set pareados de 1.12 sigue pendiente.
+
 ## Rollback y comprobacion documental
 
 Revertir el commit documental restituye esta preparacion y los bloqueos anteriores,
@@ -196,7 +255,8 @@ dependientes, mas `arnes validar`; validar el JSON no prueba filtros ni recall.
 Si falta respuesta, el resultado es parcial y la ficha debe quedar bloqueada con
 condicion concreta de reentrada, aunque el arnes salga 0.
 
-Comprobaciones ejecutadas manualmente, en invocaciones separadas de la edicion:
+Comprobaciones historicas de bb16b76, ejecutadas manualmente en invocaciones
+separadas de la edicion:
 `arnes.cmd validar` valido 35 items (30 hechos, 4 bloqueados, 1 descartado);
 `arnes.cmd validar --al-cerrar 1.21.2-preparar-compatibilidad-de-filtros-del-cliente`
 devolvio 0 e informo expresamente **bloqueado, no cerro**. Arnes 1.17.4 (017e7d9);
@@ -209,3 +269,23 @@ dependencias existentes sin ciclos, cadena bloqueada y objetos historicos intact
 `appsettings.json` de VectorSpace conserva el SHA256 inicial sin leer su contenido;
 Rag conserva su estado local ajeno. No se ejecutaron pruebas de producto,
 servicios ni ingestas; no hay aceptacion funcional nueva de 1.21.1 o 1.12.
+
+### Comprobaciones finales tras la respuesta (2026-11-03)
+
+Revision manual de los cinco puntos de aceptacion: evidencia de 1.21.1, matriz
+resuelta, decisiones del responsable, fichas/oraculos/rollback y dependencias
+literales. Guia con disponibilidad separada de propuestas y ejemplos de uso/pruebas.
+Comprobacion documental separada de la edicion: 38 IDs sin duplicados/ciclos,
+resultado parcial bb16b76 preservado literalmente, fichas historicas intactas,
+9 enlaces locales validos y 4 cuerpos JSON validos con parametros existentes.
+
+`arnes.cmd validar` devolvio 0: 38 items (31 hechos, 5 bloqueados, 1 pendiente,
+1 descartado). `arnes.cmd validar --al-cerrar
+1.21.2-preparar-compatibilidad-de-filtros-del-cliente` devolvio 0 y confirmo cierre
+con resultado. `arnes.cmd validar --item
+1.21.4-implementar-filtros-textuales-de-lenguaje-y-namespace` confirmo preparacion;
+`arnes.cmd --solo-anunciar` selecciono esa ficha, sin ejecutarla. Los avisos del
+wrapper cmd descritos arriba persisten; no se modifico la herramienta.
+
+Esto cierra la preparacion documental, no una implementacion ni la aceptacion
+funcional de 1.12. Sin servicios, ingestas, cambios de producto, indices o permisos.
