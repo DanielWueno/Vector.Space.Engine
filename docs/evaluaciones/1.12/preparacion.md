@@ -5,7 +5,122 @@ Fecha: 2026-11-03, continuaciones posteriores a `122755f`, `b50eb6b` y `832b31a`
 Fuente rectora: `docs\plan\ejecucion-plan.estado.json`, ficha
 `1.12-decidir-si-rag-context-engine-pasa-a-cliente`. No se ejecuta otra ficha.
 
-## Implementacion y fixture real posteriores
+## Diagnostico vigente posterior a 355613f: H1 refutada
+
+Solo1.12, sin subagentes. Se preservan literal los resultados anteriores.
+No se cambio producto del servidor, cliente ni original: solo instrumento
+aislado y documentacion. 1.12 sigue **bloqueado**, no aceptado.
+
+H1 se fijo antes de implementar/medir en `protocol-diagnosis.json`:
+candidato FusionNativa, pool100/prefetch400, contra control native40.
+Sobre los cuatro indices completos conservados se midieron las45 preguntas
+docs/tickets, incluidas4 negativas, ambas vistas y @1/3/5/10. Un vector real
+Snowflake por pregunta se compartio entre brazos. Rankings exactos completos,
+RRF f32 k2, desempate UUID ordinal y umbrales originales. La recomposicion
+independiente coincide con el metodo real de fusion del servidor; esto NO
+certifica la composicion de su endpoint HTTP ni activa FusionNativa en cliente.
+
+| Caso/ancla | Control | Candidato | Conclusion acotada |
+|---|---|---|---|
+| tickets005, validator14-21 | dense18,sparse3,native7 | dense16,sparse4,native8 | Fusion recupera el ancla sobre el mismo indice; pool40/400 no cambia ese resultado |
+| tickets010, validacion de estatus | raw70-95,dense7,sparse7,native8 | raw70-93,dense8,sparse8,native11 | H1 pierde full@10 en ambas vistas; pool40 tampoco lo resuelve |
+
+El ancla005 conserva el mismo hash crudo en ambos indices; sus hashes
+enriquecidos difieren. El ancla010 sobrevive, pero el chunk crudo cambia.
+No atribuir toda la perdida a sparse ni afirmar causalidad exclusiva de
+fragmentacion/enriquecimiento. Denso candidato tambien pierde tickets012.
+Los contrafactuales explican mecanismos, no autorizan elegir parametros
+despues de observar resultados. H1 queda refutada aunque mejore005.
+Los62 top10 antiguos disponibles se reprodujeron EXACTAMENTE por
+ruta,lineas,contenido y orden. El rechazo original permanece intacto.
+
+### Correccion del inventario, previa a cualquier embedding diagnostico
+
+La primera invocacion fallo porque9/1707 hashes candidatos de tickets no
+coincidian con `chunks.json`; los otros tres multisets si coincidieron.
+Se prerregistro `protocol-diagnosis-inventory.json`, sin alterar H1 ni su
+oraculo, para exigir doble replay sobre los mismos bytes: nombre preparado
+`v112-<dataset>` contra TODO el inventario preparado y nombre UUID real
+contra TODOS los puntos. Ambas igualdades pasan: cambiar el nombre reproduce
+exactamente los9 hashes distintos; docs tiene0/629 diferencias. Sin reingesta.
+El header afecta al presupuesto de fragmentacion. El runner anterior solo
+comprobaba conteos candidatos; no retrocertificar su procedencia completa.
+
+### Evidencia, consumo y reanudacion
+
+Salida `.artifacts\1.12-diagnosis-r2`; resumen versionado
+`docs\eval\quality\1.12\diagnosis-result.json` en el clon.
+Resultado `result-ecbcc49e4c034f1a8d7cfe02020a15f4.json` SHA256
+`e3f8032d45664c7a90c667ec7eebc30ec9c5c83139ad6faef7bf5fd0f3d1b035`.
+Verificacion independientev2 SHA256
+`fb82c14b05aa34c432156be163fc4c82b160a38ca59326de61d2f8903aa7050d`.
+Comprueba45 preguntas completas, recibos/sello, mascaras, RRF y cosenos
+recalculados desde vectores guardados; evidencia vacia/incompleta falla.
+
+Corrida9.2250393s,45 embeddings de consulta,0 embeddings documentos,0 LLM.
+Tokens de consulta, factura y tiempo total de sesion desconocidos. Las4h de
+investigacion y40h de aceptacion siguen estimaciones, no limites.
+Los31880 misses restantes no se consumieron.
+
+El instrumento incorpora lock exclusivo, checkpoints con recibos inmutables
+y sello de fuentes/inventario/protocolo/binarios/servicio/indices. El intento
+real de reanudar r2 fallo ANTES de inferencia por diferencias de escape JSON
+en la canonizacion. Se corrigio y se cubrio con10 aserciones, incluido roundtrip
+escapado; build0warnings/0errores. La DLL medida se conserva en
+`measured-binaries\Fixture.dll`, SHA256
+`a34c12a71f0b4ad52b6ca3b606120016494c08ec06f74171c7b25551ec7f284c`.
+El binario corregido rechaza correctamente el sello antiguo antes de inferir.
+**No hubo reanudacion real r2 completa exitosa.** No sobrescribir/migrar sus
+sellos ni regenerar H1 rechazada para conseguir un verde. El runner primario
+largo sigue sin reanudacion: antes de usarlo faltan identidad persistente de
+cohortes/colecciones, ingesta/resumen/procedencia y commits atomicos de pares
+de cuatro respuestas. La cache candidata en memoria no es durable.
+
+Comandos ejecutados manualmente en invocaciones separadas de edicion:
+
+```powershell
+# Desde D:\Git\Rag.VectorSpace.Client; diagnostico, NUNCA cierre completo.
+dotnet build docs\eval\quality\1.12\Fixture\Fixture.csproj -p:VectorSpaceRoot=D:\Git\Vector.Space.Engine --no-restore --verbosity quiet
+dotnet docs\eval\quality\1.12\Fixture\bin\Debug\net10.0\Fixture.dll --diagnose-self-test
+# Procedencia historica del binario medido: NO repetir con el binario corregido.
+dotnet docs\eval\quality\1.12\Fixture\bin\Debug\net10.0\Fixture.dll --diagnose .artifacts\1.12-20261103-r3 .artifacts\1.12-paired-r1 .artifacts\1.12-diagnosis-r2
+# Salida existente inmutable: para recomprobar elegir OTRO nombre de reporte.
+python docs\eval\quality\1.12\verify-diagnosis.py .artifacts\1.12-20261103-r3 .artifacts\1.12-paired-r1 .artifacts\1.12-diagnosis-r2 --report .artifacts\1.12-diagnosis-r2\independent-verification-v2.json
+```
+
+El diagnostico devuelve error por H1 refutada; aun sin perdidas devolveria
+error por aceptacion completa ausente. El verificador independiente valida
+la evidencia del rechazo, NO la calidad para cerrar1.12. Los110 tests y18
+fallos Windows anteriores no se reejecutaron ni se modificaron.
+
+Los cuatro indices mantuvieron hashes completos de payload/vectores/esquema
+antes/despues. Qdrant propio se verifico por ID/imagen/volumen/puertos antes
+de arrancar y quedo detenido, `exited`, volumen conservado. Sin escrituras de
+indice, SQLite/WAL, hosts HTTP nuevos, AltheIA, credenciales o tuneles.
+
+### H2 propuesta: permiso especifico del servidor pendiente
+
+`protocol-compatibility.proposed.json` mantiene ranking H1 fijo y propone
+perfil de ingesta servidor opt-in compatible con representacion del control,
+con nombre logico independiente de coleccion. Antes de embeddings exige
+igualdad completa raw/enriched/lineas/IDs; despues45 preguntas y, solo si no
+pierde, toda la aceptacion original. No es garantia de mejora ni unica solucion.
+Se pide aprobacion de contrato/perfil/DTOs/jobs/procedencia y pruebas aisladas,
+sin despliegues ni indices servidos; defaults nativos intactos, controles
+conservados y rollback Local explicito. Estimacion8h implementacion mas40h
+provisionales de aceptacion. **Consulta especifica para futura reentrada:
+usuario no disponible; no autorizada, implementada ni medida.**
+Las aprobaciones anteriores del clon/tiempo/AltheIA siguen vigentes.
+
+Persistencia del diagnostico en el clon:
+`b14ebdbcb2a96d08ebdb680f8db6bbfe0ccbc399`,8 archivos solo1.12, incluyendo
+instrumento/protocolos/propuesta/resumen y nota del ledger. Autor/committerDWeno,
+mensaje y archivos comprobados, sin coautoria/firmas, arbol limpio, sin push.
+El commit rector que contiene esta seccion coordina ficha/preparacion/relevo;
+no representa cierre funcional. `arnes validar` sale0 en ambos y `--al-cerrar`
+informa bloqueado/no cerro; solo validacion documental, con avisos heredados.
+
+## Implementacion y fixture real anteriores (historia preservada)
 
 Se implemento solo en `D:\Git\Rag.VectorSpace.Client`: transporte/API tipada,
 retrieval remoto, perfiles/catalogo, brain para meta-intent, pipeline ZIP/estado,

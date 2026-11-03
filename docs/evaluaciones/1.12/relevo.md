@@ -3,6 +3,162 @@
 Copia el primer bloque VIGENTE en una conversacion nueva. Los bloques anteriores
 se conservan despues como historia, no como instrucciones actuales.
 
+## VIGENTE: diagnostico H1 rechazado, H2 sin autorizacion de servidor
+
+```text
+Retoma UNICAMENTE 1.12-decidir-si-rag-context-engine-pasa-a-cliente de
+Vector.Space.Engine. Sin subagentes; una conversacion, un item. No otra ficha.
+
+REPOSITORIOS Y LECTURAS OBLIGATORIAS
+D:\Git\Vector.Space.Engine: rector docs\plan\ejecucion-plan.estado.json.
+D:\Git\Rag.VectorSpace.Client: Git independiente, feature/vectorspace-client,
+sin remoto; solo _bifurcacion_1_12 del ledger
+docs\analisis-futuro\ejecucion-plan.estado.json pertenece a este trabajo.
+D:\git\Rag.Context.Engine: original SOLO LECTURA, base
+3c3972b90b74ee3d9cd7b86945e07d4775a9c965, mismo path de ledger que el clon.
+Leer instrucciones/ledgers completos, ficha1.12 completa, dependencias,
+fuentes, git status/diff incluidos staged; preservar cambios ajenos.
+Bases previas: rector355613f3fec6e054526537f389d0865b7e44a69c y
+clon3bf19259a91756f14c27dbe500be2be98d71e0c6. Verificar commits posteriores
+que contienen este relevo y diagnosis-result.json; no asumir esos HEAD antiguos.
+Diagnostico del clon persistido en b14ebdbcb2a96d08ebdb680f8db6bbfe0ccbc399,
+8archivos solo1.12,autor/committerDWeno,mensaje/archivos comprobados.
+El commit rector contenedor de este relevo coordina la persistencia documental.
+Leer primer bloque VIGENTE completo de este relevo y preparacion.md;
+_implementacion_y_medicion_2026_11_03, _investigacion_calidad_posterior_355613f,
+resultado/reentrada/rollback del rector; protocol.json, protocol-diagnosis.json,
+protocol-diagnosis-inventory.json, diagnosis-result.json,
+protocol-compatibility.proposed.json y harness Fixture del clon.
+Contratos/filtros/compatibilidad1.18/1.20/1.21.1/1.21.3/1.21.4 y fuentes tecnicas.
+Los diez insumos/dependencias estaban hechos;1.21.3 no era bloqueo vivo.
+
+EXCLUSIONES ABSOLUTAS
+En VectorSpace NO leer,buscar,hashear,modificar,copiar al build ni incluir
+en diff/commit src\Reyma.VectorSpace.Engine.Microservice.Api\appsettings.json.
+Tiene cambio ajeno. No git add -A. Preservar sin copiar ni incorporar
+src\RagEngine.Api\Properties\ sin seguimiento del original.
+No modificar original, ejecutar/cerrar19.6, alterar goldens/CI/tests ajenos,
+ejecutar1.21.5/1.21.6 u otra ficha. No push,compose/configuracion heredada,
+colecciones servidas,credenciales/permisos,despliegues,tuneles nuevos o
+modificados ni acceso corporativo adicional. No ejecutar preguntar.ps1.
+
+DECISION Y AUTORIZACIONES
+Cliente COMPLETO Local explicito,no solo brain: VectorSpace posee fragmentacion,
+embeddings,indice y resumen indexado; Rag mantiene API/CLI,fusion,simbolos,
+reranking,contexto,generacion y fuentes. Conservar original/backend Local.
+YA autorizados implementacion en clon,pruebas/ingestas aisladas,ranking distinto
+con referencia pareada estricta,tiempo/AltheIA sin limite para1.12 y corpus
+completo si necesario. No repetir solicitudes. Mantener horas numericas y
+consumo real conocido; respetar limites efectivos/429 sin eludirlos.
+No autoriza ampliar contrato/producto del servidor.
+
+ESTADO ACTUAL: BLOQUEADO, NO HECHO
+Denso original rechazado en tickets005; H1 FusionNativa400 TAMBIEN rechazada,
+ahora en tickets010. No repetirlas sin cambio ni ajustar anclas/umbrales/corpus.
+H2 esta PROPUESTA en protocol-compatibility.proposed.json: perfil de ingesta
+servidor opt-in que reproduzca representacion del control y separe nombre
+logico de coleccion fisica, manteniendo ranking H1 fijo. Exige igualdad
+raw/enriched/lineas/IDs antes de embeddings y despues el criterio pareado.
+Requiere permiso NUEVO especifico para contrato/perfil/DTOs/jobs/procedencia
+del servidor; defaults nativos,autenticacion y filtros intactos. Se consulto
+para una futura reentrada; usuario no disponible, NO hubo autorizacion.
+No implementar H2 por silencio ni llamar aprobado al archivo de propuesta.
+Concretar campos DTO y protocolo antes de producto si se autoriza; no promete
+paridad ni es la unica solucion. Estimacion8h implementacion+40h aceptacion
+provisionales; investigacion anterior4h estimadas,no consumo total medido.
+
+HALLAZGOS VERIFICADOS
+Rechazo original .artifacts\1.12-paired-r1:124 HTTP200,31 pares search/ask,
+26docs+5tickets,solo ronda1. tickets005 pierde hit_full@10 true->false en
+ambas vistas. Evaluacion SHA9acd079abed96cd43d151d31ae6586aac1f94d9ff746cd951cdd1ce21ff4b511;
+protocolo medido9a682d542c74096914caff1bc1ad62b5bc7f328a6dbac08258c612c889180232.
+Nuevo diagnostico .artifacts\1.12-diagnosis-r2:45 preguntas completas docs/tickets,
+4negativas,ambas vistas,@1/3/5/10;misma query embedding en ambos indices.
+62/62top10 historicos reproducidos exactamente. Rankings denso/sparse exactos
+y RRFf32 nativo con pool40/400; metodo real de fusion servidor contrastado,
+NO nueva aceptacion de endpoints HTTP ni producto FusionNativa activado.
+- tickets005: mismo rawhash validator14-21 en ambos indices,enriched distinto.
+  Control dense18/sparse3/native7;candidato dense16/sparse4/native8.
+  Agregar sparse via fusion recupera el ancla en ese indice fijo.
+- tickets010: validacion estatus control raw70-95,dense7/sparse7/native8;
+  candidato raw70-93,dense8/sparse8/native11. Candidato dense pasa,
+  native40 y400 pierden full@10 en ambas vistas. H1 refutada.
+- El nombre de coleccion afecta fragmentacion: doble replay SIN embeddings
+  con nombres preparado/real reproduce TODOS los hashes preparados/indexados;
+  explica9/1707 entradas distintas tickets,0/629docs. Controles exactos.
+  El runner anterior solo comprobaba conteos candidatos,no retrocertificarlo.
+No atribuir toda perdida exclusivamente a sparse,chunking,enriched o pools.
+No seleccionar un ranking ganador a posteriori.
+
+EVIDENCIA Y LIMITES
+diagnosis-result.json versionado resume hashes/comandos/limites.
+Resultado r2 e3f8032d45664c7a90c667ec7eebc30ec9c5c83139ad6faef7bf5fd0f3d1b035;
+independent-verification-v2.json
+fb82c14b05aa34c432156be163fc4c82b160a38ca59326de61d2f8903aa7050d.
+9.2250393s medidos,45 embeddings consulta,0documentos,0LLM;tokens/factura/
+tiempo total sesion desconocidos. No se gastaron31880 misses restantes.
+10aserciones del instrumento y negativos pasan,buildlimpio. 110tests y18
+fallos Windows reproducidos en original son HISTORIA,no reejecutados aqui.
+No paridad ni aceptacion ask: faltan116preguntas completas,dosrondas928
+respuestas,suplemento29,adjudicacion semantica cegada y riesgos completos.
+Comando diagnostico falla incluso si el subconjunto no pierde: nunca cierre.
+
+REANUDACION ANTES DE TRABAJO LARGO
+Diagnostico: lock,recibos inmutables,sello de fuentes/protocolo/inventario/
+binarios/servicio y todos los payload/vectores/esquemas. Resume compatible r2
+fallo antes de inferir por escapesJSON; canonizacion corregida y testeada.
+DLL medida guardada en measured-binaries\Fixture.dll,
+a34c12a71f0b4ad52b6ca3b606120016494c08ec06f74171c7b25551ec7f284c.
+Binario nuevo rechaza sello r2 antes de inferir, comprobado. NO afirmar resume
+r2 completo exitoso ni cambiar sellos para forzarlo. No repetir H1 refutada
+para probar resume. Runner primario --paired exige salida nueva y sigue sin
+reanudacion: resolver/testear identidad persistente de cohortes/colecciones,
+ingesta/resumen/procedencia y commits atomicos de cuatro respuestas antes
+de trabajos largos. Reusar solo indices/cache compatibles verificados.
+Cache candidata en memoria NO durable; puntos completos pueden conservarse.
+Nunca dos escritores WAL; cache original sin modificaciones.
+
+BANCO Y PROVEEDORES INMUTABLES
+.artifacts\1.12-20261103-r3:116 preguntas,104ancladas+12negativas,29extras aparte.
+SHAinstrumento19b9526fcb467b6dfe0470dddfe4a818e3deccd27932346c99cbd984145cf815;
+SHAfuentes32a535d48b489795b01b4810de7255c2159642315c492647b8b6371dc0863fd8.
+Preservar ambos instrumentos,erratas derivadas docs020/tickets008 y originales5.e.
+Snowflake/snowflake-arctic-embed-m-v2.0,tunel8081,256dMatryoshka/L2,
+prefijo "query: ",TEI1.8.3,8192/16384,
+SHAservicio78502d8e61223d2c73d4bb7aeaea46787e90d596;pesos revision desconocida.
+AltheIA qwen3.8-27b-fast para resumen/generacion,mismos proveedores en ambos.
+ALTHEIA_KEY/ALTHEIA_CERT solo consumidos en proceso,sin revelar/persistir
+valores ni certificados,TLS intacto. No sustituir por modelos locales.
+Control adaptado aislado,NO runtime original intacto ni baseline5.e.
+Solo Qdrant propio26333/26334 loopback,NO tunel6333.
+Contenedor v112-qdrant-20261103 DETENIDO,ID
+de46bf35feb6fb5661da269e3d7a4238723a865059b69d704ca2fe0a562fc0db,
+imagenSHA b7b0444c4c351c970b98e90a6f89c2ee4287c65b44e52b4cb503fa5b2aa927ad,
+volumen v112-qdrant-20261103-data CONSERVADO. Verificar identidad antes de usar.
+Cuatro colecciones exactas en protocol-diagnosis.json; hashes completos
+inalterados antes/despues. No borrar volumen/controles ni regenerar puntos.
+
+INVARIANTES Y PERSISTENCIA
+JWT HTTP,L/N textuales y modulo opcional en codigo,resumen y cada salto
+antes de consumir candidatos. Rechazar tenantactivo,TODA Authorized y
+Empresarial+remoto antes de I/O/rerank/LLM,sin quitar claims ni convertir Local.
+Resumen remoto incluso null autoritativo; no cache local ni fallback;
+parciales/404/429/metricas desconocidas explicitos. Rollback Local EXPRESO;
+revertir codigo no revierte indices.
+Fixture referencia Infrastructure y SOLO4archivos API enlazados,NUNCA
+proyecto API ni appsettings protegido. No tocar producto mientras falte permiso.
+Anunciar ID/alcance/modelo efectivo/esfuerzo solo si expuesto/horas.
+Mantener aliases opus/high; registrar _ejecucion real. Ultimo gpt-6-astra,
+esfuerzo no expuesto. Marcar en_curso antes de implementar tras cumplir puertas.
+Aceptacion separada de edicion; arnes validar NO ejecuta aceptacion funcional.
+Commits coordinados solo1.12/ledgers,autor y committerDWeno,sin coautoria ni
+firmas de herramientas,sin amend/push; verificar mensajes y archivos.
+Conservar historia y cambios ajenos. No marcar hecho parciales.
+Entregar resultado,evidencia,limites,commits y prompt completo de relevo.
+```
+
+## Relevo posterior a implementacion (historia, no ejecutar)
+
 ```text
 Retoma unicamente 1.12-decidir-si-rag-context-engine-pasa-a-cliente de
 Vector.Space.Engine. Sin subagentes; una conversacion, un item. Ninguna otra ficha.
