@@ -3,7 +3,171 @@
 Copia el primer bloque VIGENTE en una conversacion nueva. Los bloques anteriores
 se conservan despues como historia, no como instrucciones actuales.
 
-## VIGENTE: diagnostico H1 rechazado, H2 sin autorizacion de servidor
+## VIGENTE: H2 implementada y rechazada en tickets014; reanudacion probada
+
+```text
+Retoma UNICAMENTE 1.12-decidir-si-rag-context-engine-pasa-a-cliente de
+Vector.Space.Engine. Sin subagentes; una conversacion, un item. No otra ficha.
+La reentrada es PREPARAR una nueva hipotesis y protocolo tras H2 rechazada,
+no repetir H2 ni cambiar sus parametros para pasar. No ejecutar producto/
+mediciones hasta concretar hipotesis, criterio literal, procedencia y rollback.
+
+REPOSITORIOS Y LECTURAS
+D:\Git\Vector.Space.Engine: ledger rector docs\plan\ejecucion-plan.estado.json.
+Rama de trabajo H2:feature/1.12-h2-ingestion-compatibility,sin push.
+D:\Git\Rag.VectorSpace.Client: Git independiente, feature/vectorspace-client,
+sin remoto; solo _bifurcacion_1_12 del ledger
+docs\analisis-futuro\ejecucion-plan.estado.json pertenece al trabajo.
+D:\git\Rag.Context.Engine: ORIGINAL SOLO LECTURA,
+base3c3972b90b74ee3d9cd7b86945e07d4775a9c965.
+Bases previas a H2: rector903f3e4c9e6180a7879ad03d0d3c2d81d102cc63,
+clonb14ebdbcb2a96d08ebdb680f8db6bbfe0ccbc399. Verificar commits posteriores
+contenedores de este relevo y h2-result.json; persistencia coordinada en rector.
+Persistencia H2 clon2d8865aead9443aa1e0a7f77b6856da31a97c613,22archivos
+y arbol limpio comprobados;rector es el commit contenedor de este bloque.
+Leer instrucciones/ledgers completos,ficha1.12,dependencias,fuentes,
+git status y diffs incluidos staged; preservar cambios ajenos.
+Leer entero este PRIMER bloque VIGENTE,preparacion.md,resultado,rollback,
+reentrada,_continuacion_H2_2026_11_03,_implementacion_y_medicion_2026_11_03
+y _investigacion_calidad_posterior_355613f. Bloques posteriores son historia.
+En clon: protocol.json,protocol-diagnosis.json,protocol-diagnosis-inventory.json,
+diagnosis-result.json,protocol-compatibility.proposed.json,
+protocol-compatibility.json,h2-result.json,verify_h2.py y Fixture completo.
+Releer contratos/filtros/compatibilidad1.18/1.20/1.21.1/1.21.3/1.21.4.
+Los diez insumos/dependencias estaban hechos;1.21.3 no era bloqueo vivo.
+
+EXCLUSIONES ABSOLUTAS
+En VectorSpace NO leer,buscar,hashear,modificar,copiar al build ni incluir
+en diff/commit src\Reyma.VectorSpace.Engine.Microservice.Api\appsettings.json:
+cambio ajeno. No compilar el proyecto API protegido. Solo harness con enlaces
+explicitos revisados. No git add -A,amend ni push.
+Preservar sin copiar ni incorporar src\RagEngine.Api\Properties\ untracked
+del original. No modificar original,19.6,goldens,CI/tests ajenos ni fichas
+heredadas. No1.21.5/1.21.6. No preguntar.ps1,compose/configuracion heredada,
+datos servidos,credenciales/permisos,despliegues,tuneles nuevos/modificados
+ni acceso corporativo adicional.
+
+AUTORIZACION Y DECISION
+Cliente COMPLETO Local explicito,no solo brain. VectorSpace posee fragmentacion,
+embeddings,indice y resumen indexado; Rag conserva API/CLI,fusion,simbolos,
+reranking,contexto,generacion y fuentes. Original/backend Local conservados,
+rollback expreso,nunca fallback silencioso.
+El usuario autorizo especificamente H2 el2026-11-03T16:35:22-06:00:
+perfil opt-in servidor,nombre logico separado,DTO/jobs/procedencia/rechazo
+de mezcla y cambios dependientes en clon. Es POSTERIOR a la consulta sin
+respuesta historica; permiso H2 ya no bloquea,no borrar aquella historia.
+Implementacion/pruebas aisladas,ranking distinto con referencia pareada estricta,
+tiempo/AltheIA sin limite solo1.12 y corpus completo YA autorizados.
+No volver a pedirlos. Solo alcance genuinamente nuevo requiere aprobacion.
+Estimacion8h implementacion+40h aceptacion=48h provisionales,no limites.
+Modelo efectivo anteriorgpt-6-astra; usuario declaro configurarlo en xhigh,
+esfuerzo efectivo no expuesto,no afirmarlo comprobado. Alias opus/high intactos.
+Registrar _ejecucion real y marcar en_curso solo tras comprobar puertas.
+
+RESULTADO VIGENTE: BLOQUEADO POR CALIDAD,NO HECHO
+Denso fue rechazado en tickets005. H1 FusionNativa400 recupero005,pero perdio
+full@10 en010;native40 tampoco lo resolvio. r2 cubrio45y reprodujo62top10
+historicos. Doble replay explica9hashes distintos por nombre fisico,NO prueba
+causalidad unica de fragmentacion. Conservar .artifacts\1.12-paired-r1,
+1.12-diagnosis-r2,protocolos,resultados y DLL medidas sin cambiar sellos.
+
+H2 implementada: perfilIngesta=rag-local-1.12/repositorioLogico juntos,
+binding metadata inmutable,400/409; default nativo1024 intacto,H2fijo512/64,
+lote32,contexto5,SplitWithOverlap,shortTypesfalse,cabeceras Windows.
+Servidor hace admision/chunking; no se copiaron chunks al indice.
+Cliente FusionNativa explicito no filtra RRF por coseno; minScore incompatible
+rechazado antes del consumo. Ranking H1 se mantuvo fijo.
+Igualdad completa por documento/chunk raw-hash/raw/enriched/lineas/ID paso
+en TODOS los corpus congelados,independiente de nombre fisico:
+bsuite2113/23221,auditorias311/2081,docs15/743,tickets553/1855
+documentos/chunks. Auditorias solapa fuentes; no totalizar como archivos unicos.
+
+Diagnostico H2:45preguntas completas docs/tickets,4negativas,ambasvistas,
+@1/3/5/10,candidato native400/controlnative40,mismo vector query por par.
+H2 RECHAZADA: tickets-microservice-014 pierde any@10 y full@10 true->false
+en ambas vistas. Mismo ID2c679ab0-cfd8-5ffb-acff-ff045f9a8a79,
+rawhash3a35bfc63a57bc47ef3dff079af25e30209605817ad66789dc08ae79c7182265,
+ValidarMesaAyudaTicketCommandHandler.cs73-77: nativo10/control y11/candidato,
+denso9/sparse9 ambos. No seleccionar un pool ganador a posteriori.
+NO se ejecuto aceptacion116preguntasx2/928HTTP,29extras ni adjudicacion/riesgos
+completos tras rechazo. Build/inventario/fixture no son paridad.
+
+REANUDACION Y PRUEBAS
+Runner principal ahora tiene identidad persistente/lock/sellos/estado-job,
+errores/misses y commits atomicos de cuatro respuestas,con parciales conservados.
+Probe real r2:interrupcion tras1de2documentos resumidos,reentrada valida subset
+y reusa el completado;interrupcion3/4HTTP,reentrada valida indices/cache y
+reacquiere4/4;tercera reentrada restaura par confirmado sinHTTP.
+80tests cliente0skips;23aserciones checkpoint+8inventario+10diagnostico.
+Fixture HTTP real:12aserciones H2 mas filtros/resumen/cada salto,idempotencia,
+borrado,401,404,429/Retry-After. Git propagation con puerto explicito sin red.
+No confundir con resume historico r2: fallo por escapesJSON y su binario
+corregido no es compatible con sello medido. No migrar sellos/observaciones.
+Cache candidata en memoria NO durable; puntos completos solo reutilizables
+tras comprobar procedencia. Control SQLite aislado,comprobacion de claves/
+prompt/resumen en reentrada; nunca dos escritores WAL ni cache original.
+
+EVIDENCIA NUEVA Y CONSUMO
+Clon .artifacts\1.12-h2-representation-r2,1.12-h2-resume-probe-r2,
+1.12-h2-fixture-r1,1.12-h2-diagnosis-r1. Resumen versionado h2-result.json.
+Resultado result-5d1257087a4443a7b30846e1082a8ccd.json,
+SHA5a425137cb1911493aef938c6f3216c36af0ce6a7c9003d91010b7a62e9a8596.
+Verificacion independiente7049a89910a867d151c3f60396660b14bb5a4be8213d05186387eb8628f1e751:
+45rankings/mascaras,cosenos y sparse desde vectores,RRFf32 y recibos completos;
+4indices historicos+2H2 comparados completos con Qdrant e intactos.
+DLL medida f0004d65c48bc47e93bb60fc0516c86f9ed285da26f7d67906d820f2ca16c220,
+todas DLL/deps/runtimeconfig conservadas en measured-binaries,sin configuraciones.
+Diagnostico156.1912939s,45queryembeddings,2598puntos nuevos,0LLM.
+Probes/fixture pequenos7resumenes porbrazo,2542tokens resumen candidatos
+reportados,7llamadas resumen control reportadas,8respuestas ask. Totales de
+tokens facturados/llamadas/tiempo sesion desconocidos. No resumenes masivos.
+Conteos/misses historicos no se reutilizan como consumo actual.
+verify_h2.py --evidence-only solo verifica evidencia; sin ese flag sale2,
+nunca acepta por faltar116x2/suplementos/adjudicacion/riesgos.
+Verificado tambien offline,exit2 esperado;3negativos rechazan ausencia,
+envelope manipulado y una pregunta requerida ausente. No tocar observaciones.
+Revision final cerro entrada invalida CodeScoreFloor distinto0.1 en FusionNativa.
+NO cambia perfil/ranking/piso medidos;80tests y23+8aserciones pasan.
+Binarios recompilados RECHAZAN sello medido antes de red/crear salida:
+no reutilizar respuestas con ellos;measured-binaries conserva los medidos.
+Arnes validar pasa en ambos;--al-cerrar1.12 informa bloqueado/no cerro.
+Avisos heredados wrappercmd/55campos y2warnings tests no se corrigieron.
+
+PROVEEDORES E AISLAMIENTO
+Mismos Snowflake/snowflake-arctic-embed-m-v2.0 del tunel8081,256dMatryoshka/L2,
+prefijo "query: ",TEI1.8.3,8192/16384,
+SHAservicio78502d8e61223d2c73d4bb7aeaea46787e90d596;revisionpesos desconocida.
+AltheIA qwen3.8-27b-fast para resumenes/generacion;no modelos locales.
+ALTHEIA_KEY/ALTHEIA_CERT existentes solo consumidos en proceso,sin exponer/
+persistir valores o certificados,TLS intacto. Respetar429/limites efectivos.
+Control adaptado aislado,NO original intacto ni baseline5.e.
+Solo Qdrant propio loopback26333/26334,NO tunel6333.
+Contenedor v112-qdrant-20261103 DETENIDO y comprobado exited:
+de46bf35feb6fb5661da269e3d7a4238723a865059b69d704ca2fe0a562fc0db.
+ImagenSHA b7b0444c4c351c970b98e90a6f89c2ee4287c65b44e52b4cb503fa5b2aa927ad.
+Volumen v112-qdrant-20261103-data conservado;verificar identidad/imagen/
+volumen/puertos antes de reutilizar;no borrar controles ni volumen.
+Candidatas H2 docs v112-fixture-225de2caddbb4bfbac24743d17a251a8,
+tickets v112-fixture-7e07878782a14c04a3ea6c714707daa3.
+Controles antiguos en protocol-diagnosis.json. Auxiliares HTTP detenidos.
+Preparacion congelada .artifacts\1.12-20261103-r3:
+instrumento19b9526fcb467b6dfe0470dddfe4a818e3deccd27932346c99cbd984145cf815,
+fuentes32a535d48b489795b01b4810de7255c2159642315c492647b8b6371dc0863fd8.
+
+INVARIANTES Y CIERRE
+JWT HTTP,L/N textuales y modulo opcional en codigo,resumen y cada salto antes
+del consumo. Rechazar tenantactivo,TODA Authorized y Empresarial+remoto antes
+de I/O/rerank/LLM,sin quitar claims ni convertir a Local. Resumen remoto incluso
+null autoritativo;no cache local/fallback. Parciales/404/429/metricas desconocidas
+explicitos. Revertir codigo NO revierte puntos.
+Comprobaciones separadas de edicion; arnes validar solo valida ficha,no acepta
+calidad. Commits coordinados solo1.12 y ledgers,autor/committerDWeno,
+sin coautoria/firmas de herramientas,no amend/push;verificar mensajes/archivos.
+Conservar rechazos/resultados/cambios ajenos. No marcar hecho parciales.
+Entregar resultado,evidencia,limites,commits y prompt completo de relevo.
+```
+
+## HISTORICO: diagnostico H1 rechazado, H2 sin autorizacion de servidor
 
 ```text
 Retoma UNICAMENTE 1.12-decidir-si-rag-context-engine-pasa-a-cliente de

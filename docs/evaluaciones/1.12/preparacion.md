@@ -5,7 +5,94 @@ Fecha: 2026-11-03, continuaciones posteriores a `122755f`, `b50eb6b` y `832b31a`
 Fuente rectora: `docs\plan\ejecucion-plan.estado.json`, ficha
 `1.12-decidir-si-rag-context-engine-pasa-a-cliente`. No se ejecuta otra ficha.
 
-## Diagnostico vigente posterior a 355613f: H1 refutada
+## Continuacion H2 autorizada posteriormente (2026-11-03,16:35)
+
+**Resultado: H2 implementada y RECHAZADA, ficha bloqueada por calidad.** El permiso
+especifico ya no bloquea. Perfil/ranking no se retocaron tras medir y no se ejecuto
+la aceptacion completa ni otra ficha.
+
+La representacion coincide exhaustivamente por documento/chunk, raw/enriched,
+lineas e ID en cuatro cohortes:2113/23221,311/2081,15/743,553/1855
+documentos/chunks. Las auditorias solapan fuentes de bsuite; no son totales
+de documentos unicos. El nombre fisico alternativo no modifica H2.
+La ingesta real sigue ocurriendo en el servidor, no se copiaron chunks al indice.
+
+Runner principal: identidad persistente, lock, envelopes atomicos, estado/job/
+errores/misses y pares de cuatro respuestas. Probe real r2 interrumpe tras un
+documento resumido de dos, conserva ese punto al reingestar, luego interrumpe
+tras3/4respuestas; reentrada valida indices/cache, adquiere4/4 y confirma un
+par atomico. Una tercera reentrada restaura ese par sin HTTP. No equivale a
+reanudar la corrida historica r2 ni a completar la aceptacion masiva.
+
+Diagnostico H2 completo:45preguntas,4negativas,ambas vistas,@1/3/5/10,
+native400 candidato/native40 control. **tickets-microservice-014 pierde
+any@10 y full@10 true->false en ambas vistas.** El mismo chunk
+`2c679ab0-cfd8-5ffb-acff-ff045f9a8a79`, rawhash
+`3a35bfc63a57bc47ef3dff079af25e30209605817ad66789dc08ae79c7182265`,
+`ValidarMesaAyudaTicketCommandHandler.cs:73-77`, queda nativo10/control y
+nativo11/candidato; denso9 y sparse9 en ambos. No seleccionar otro pool
+despues de observarlo ni atribuir toda discrepancia historica a fragmentacion.
+
+Evidencia en el clon: `docs\eval\quality\1.12\h2-result.json` y artefactos
+`.artifacts\1.12-h2-representation-r2`, `1.12-h2-resume-probe-r2`,
+`1.12-h2-fixture-r1`, `1.12-h2-diagnosis-r1`. Resultado diagnostico SHA256
+`5a425137cb1911493aef938c6f3216c36af0ce6a7c9003d91010b7a62e9a8596`;
+verificacion independiente
+`7049a89910a867d151c3f60396660b14bb5a4be8213d05186387eb8628f1e751`.
+Recompone45rankings/mascaras con cosenos, producto sparse y RRFf32 desde
+vectores guardados; verifica todos los bytes/sellos y los cuatro indices
+historicos mas los dos H2 completos e intactos. DLL medida
+`f0004d65c48bc47e93bb60fc0516c86f9ed285da26f7d67906d820f2ca16c220`,
+con todas sus DLL/deps/runtimeconfig conservadas, sin configuraciones.
+
+Build aislado0warnings/0errores;80tests cliente sin skips;23aserciones checkpoint,
+8inventario,10diagnostico; fixture HTTP real con12aserciones H2 mas filtros,
+resumen/saltos, idempotencia/borrado,401/404/429. No llamar esto paridad.
+Diagnostico156.1912939s,45embeddingsconsulta,2598puntos candidatos,0LLM;
+tokens/factura totales desconocidos. Fixtures/probes pequenos:7resumenes por
+brazo,2542tokens resumen candidatos reportados,7llamadas resumen control
+reportadas y8respuestas ask. No se consumieron resumenes masivos.
+
+Revision final:3negativos del verificador rechazan ausencia/manipulacion/
+cobertura incompleta; modo offline verifica45y sale2 sinflag de solo evidencia.
+Se cerro la entrada invalida CodeScoreFloor distinto0.1 en FusionNativa,
+sin cambiar parametros medidos. Build/80tests/23+8aserciones pasan;2warnings
+heredados del proyecto tests no corregidos. Binario recompilado rechaza
+el sello anterior antes de red/salida; no se migraron observaciones.
+Arnes validar pasa en ambos y --al-cerrar informa bloqueado/no cerro.
+Clon persistido en `2d8865aead9443aa1e0a7f77b6856da31a97c613`,22archivos
+solo1.12 junto con su ledger; autor/committerDWeno,mensaje sin coautoria,
+arbol limpio y sin push comprobados. El commit rector contenedor coordina
+servidor/contrato/dobles dependientes y resultado/ledger/relevo, no aceptacion.
+
+Reentrada: nueva hipotesis y protocolo comparativo ANTES de cambios/medicion,
+manteniendo rechazos Denso005/H1-010/H2-014 y el oraculo estricto.
+No repetir H2 sin cambios ni ajustar ranking/perfil para pasar. Las autorizaciones
+vigentes no se piden otra vez; solo un alcance realmente nuevo requiere permiso.
+Quedan116x2/928HTTP,29extras,adjudicacion cegada y todos los riesgos para una
+eventual aceptacion. La siguiente seccion conserva el prerregistro previo.
+
+El usuario autoriza ahora el perfil opt-in servidor y nombre logico separado,
+DTO/jobs/procedencia y rechazo de mezclas, mas los cambios dependientes del clon.
+La consulta sin respuesta de abajo se conserva: esta aprobacion es posterior,
+no retroactiva. Solo se retira el bloqueo de permiso H2; la calidad sigue sin
+aceptar y las puertas tecnicas permanecen. Unicamente1.12, sin subagentes.
+
+Contrato/oraculo registrado ANTES de producto en el clon:
+`docs\eval\quality\1.12\protocol-compatibility.json`.
+Campos `perfilIngesta="rag-local-1.12"` y `repositorioLogico`, juntos y con
+procedencia inmutable; nativo sin cambios. Primero runner reanudable con
+identidad, estado de ingesta/resumen y cuatro respuestas atomicas; luego
+igualdad completa raw/enriched/lineas/IDs de todos los corpus sin embeddings,
+diagnostico45 native400/controlnative40 y, solo si pasa, aceptacion completa.
+No retocar ranking, corpus, anclas ni umbrales segun el resultado.
+
+Modelo efectivo gpt-6-astra, esfuerzo no expuesto; alias opus/high conservados.
+8h implementacion+40h aceptacion estimadas, no limites ni consumo medido.
+Rollback Local explicito, indices/volumen/rechazos conservados. Sin API protegida,
+original, otras fichas, despliegues, credenciales/permisos/tuneles o push.
+
+## Diagnostico posterior a 355613f: H1 refutada (historia preservada)
 
 Solo1.12, sin subagentes. Se preservan literal los resultados anteriores.
 No se cambio producto del servidor, cliente ni original: solo instrumento

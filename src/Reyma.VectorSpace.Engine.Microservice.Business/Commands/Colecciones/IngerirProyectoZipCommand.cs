@@ -14,11 +14,14 @@ namespace Reyma.VectorSpace.Engine.Microservice.Business.Commands.Colecciones;
 /// (el controller la convierte en 202); el trabajo pesado (chunking, vectorizacion, barrido de ausentes) corre en
 /// segundo plano y actualiza <see cref="IRegistroDeIngestasProyecto"/>, consultable por <c>GetEstadoIngestaQuery</c>.
 /// </summary>
-public sealed record IngerirProyectoZipCommand(string Coleccion, byte[]? Zip, string? CarpetaRaiz, string? Perfil, bool? Resumen = null)
+public sealed record IngerirProyectoZipCommand(string Coleccion, byte[]? Zip, string? CarpetaRaiz, string? Perfil, bool? Resumen = null,
+    string? PerfilIngesta = null, string? RepositorioLogico = null)
     : IRequest<IngestaResponse>, IValidable
 {
     public IEnumerable<string> Errores()
     {
+        foreach (var error in PerfilDeIngesta.Errores(PerfilIngesta, RepositorioLogico))
+            yield return error;
         if (Zip is null || Zip.Length == 0)
             yield return "Zip es obligatorio y no puede estar vacio.";
         else if (Zip.Length > Limites.MaxBytesZipProyecto)
@@ -46,28 +49,32 @@ public sealed record IngerirProyectoZipCommand(string Coleccion, byte[]? Zip, st
             // invalido o malicioso lanza BadRequestException (400) aqui, sin tocar el limite de admision ni crear
             // ningun registro de estado.
             var documentos = motor.LeerProyectoZip(request.Zip!, request.CarpetaRaiz);
+            var ingesta = PerfilDeIngesta.Crear(request.PerfilIngesta, request.RepositorioLogico);
+            await motor.VerificarPerfilDeIngestaAsync(request.Coleccion, ingesta, cancellationToken);
 
             // 2. Admision: mismo limite global que el origen 'documentos' (1.7), para que ambos orígenes compitan por
             // el mismo cupo del sidecar de embeddings. Si esta saturado, EntrarAsync lanza IngestasSaturadasException
             // (429) antes de crear ningun registro de estado.
             var permiso = await limite.EntrarAsync(cancellationToken);
-            var ingestaId = registro.Crear(request.Coleccion, documentos.Count);
+            var ingestaId = registro.Crear(request.Coleccion, documentos.Count, ingesta);
 
             // 3. El trabajo pesado corre en segundo plano, fuera del ciclo de vida de esta solicitud HTTP (CancellationToken.None):
             // cerrar la conexion del cliente no debe abortar una ingesta que ya se admitio.
-            _ = ProcesarEnSegundoPlanoAsync(request.Coleccion, documentos, request.Perfil, request.Resumen == true, ingestaId, permiso);
+            _ = ProcesarEnSegundoPlanoAsync(request.Coleccion, documentos, request.Perfil, request.Resumen == true, ingestaId, permiso, ingesta);
 
             return new IngestaResponse(ingestaId, request.Coleccion, EstadosIngestaProyecto.Pendiente,
-                documentos.Count, DocumentosIndexados: 0, DocumentosSinCambios: 0);
+                documentos.Count, DocumentosIndexados: 0, DocumentosSinCambios: 0,
+                PerfilIngesta: ingesta?.Nombre, RepositorioLogico: ingesta?.RepositorioLogico);
         }
 
         private async Task ProcesarEnSegundoPlanoAsync(
-            string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, Guid ingestaId, IDisposable permiso)
+            string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, Guid ingestaId, IDisposable permiso,
+            PerfilDeIngesta? perfilIngesta)
         {
             try
             {
                 registro.MarcarProcesando(ingestaId);
-                var resultado = await motor.ProcesarAsync(coleccion, documentos, perfil, resumen, CancellationToken.None);
+                var resultado = await motor.ProcesarAsync(coleccion, documentos, perfil, resumen, CancellationToken.None, perfilIngesta);
                 registro.MarcarCompletada(ingestaId, resultado);
             }
             catch (Exception ex)

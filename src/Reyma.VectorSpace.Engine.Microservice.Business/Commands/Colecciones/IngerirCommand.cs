@@ -6,11 +6,14 @@ using Reyma.VectorSpace.Engine.Microservice.Business.Validacion;
 
 namespace Reyma.VectorSpace.Engine.Microservice.Business.Commands.Colecciones;
 
-public sealed record IngerirCommand(string Coleccion, OrigenIngestaRequest? Origen, string? Perfil, bool? Resumen = null)
+public sealed record IngerirCommand(string Coleccion, OrigenIngestaRequest? Origen, string? Perfil, bool? Resumen = null,
+    string? PerfilIngesta = null, string? RepositorioLogico = null)
     : IRequest<IngestaResponse>, IValidable
 {
     public IEnumerable<string> Errores()
     {
+        foreach (var error in PerfilDeIngesta.Errores(PerfilIngesta, RepositorioLogico))
+            yield return error;
         if (Perfil is not null && Perfil.Trim().Length == 0)
             yield return "Perfil no puede ser una cadena vacia si se especifica.";
         else if (Perfil is { Length: > 0 } && Perfil.Length > Limites.MaxCaracteresPerfil)
@@ -78,7 +81,8 @@ public sealed record IngerirCommand(string Coleccion, OrigenIngestaRequest? Orig
 
             // 1.7: despues de autorizar y validar (behaviors), asi un 403 o un 400 no ocupan lugar en la cola.
             using var permiso = await limite.EntrarAsync(cancellationToken);
-            return await motor.IngerirAsync(request.Coleccion, request.Origen.Documentos!, request.Perfil, request.Resumen == true, cancellationToken);
+            return await motor.IngerirAsync(request.Coleccion, request.Origen.Documentos!, request.Perfil, request.Resumen == true, cancellationToken,
+                PerfilDeIngesta.Crear(request.PerfilIngesta, request.RepositorioLogico));
         }
     }
 }

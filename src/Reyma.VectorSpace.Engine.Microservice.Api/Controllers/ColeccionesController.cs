@@ -57,7 +57,8 @@ public sealed class ColeccionesController : BaseController
     [ProducesResponseType(StatusCodes.Status501NotImplemented)]
     public async Task<ActionResult<IngestaResponse>> PostIngesta(
         string coleccion, [FromBody] IngestaRequest? request, CancellationToken cancellationToken) =>
-        Ok(await Mediator.Send(new IngerirCommand(coleccion, request?.Origen, request?.Perfil, request?.Resumen), cancellationToken));
+        Ok(await Mediator.Send(new IngerirCommand(coleccion, request?.Origen, request?.Perfil, request?.Resumen,
+            request?.PerfilIngesta, request?.RepositorioLogico), cancellationToken));
 
     /// <summary>
     /// Ingesta de un proyecto completo subido como .zip (origen 'proyecto', item 1.7.5); asincrona: responde 202 con
@@ -77,7 +78,7 @@ public sealed class ColeccionesController : BaseController
     [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<ActionResult<IngestaResponse>> PostIngestaProyectoZip(
         string coleccion, IFormFile? zip, [FromForm] string? carpetaRaiz, [FromForm] string? perfil, [FromForm] bool? resumen,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken, [FromForm] string? perfilIngesta = null, [FromForm] string? repositorioLogico = null)
     {
         byte[]? contenido = null;
         if (zip is not null)
@@ -87,7 +88,8 @@ public sealed class ColeccionesController : BaseController
             contenido = memoria.ToArray();
         }
 
-        var respuesta = await Mediator.Send(new IngerirProyectoZipCommand(coleccion, contenido, carpetaRaiz, perfil, resumen), cancellationToken);
+        var respuesta = await Mediator.Send(new IngerirProyectoZipCommand(coleccion, contenido, carpetaRaiz, perfil, resumen,
+            perfilIngesta, repositorioLogico), cancellationToken);
         return Accepted($"/api/colecciones/{coleccion}/ingestas/{respuesta.IngestaId}", respuesta);
     }
 
@@ -107,7 +109,8 @@ public sealed class ColeccionesController : BaseController
         string coleccion, [FromBody] IngerirProyectoGitRequest? request, CancellationToken cancellationToken)
     {
         var respuesta = await Mediator.Send(
-            new IngerirProyectoGitCommand(coleccion, request?.Url, request?.CarpetaRaiz, request?.Perfil, request?.Resumen), cancellationToken);
+            new IngerirProyectoGitCommand(coleccion, request?.Url, request?.CarpetaRaiz, request?.Perfil, request?.Resumen,
+                request?.PerfilIngesta, request?.RepositorioLogico), cancellationToken);
         return Accepted($"/api/colecciones/{coleccion}/ingestas/{respuesta.IngestaId}", respuesta);
     }
 

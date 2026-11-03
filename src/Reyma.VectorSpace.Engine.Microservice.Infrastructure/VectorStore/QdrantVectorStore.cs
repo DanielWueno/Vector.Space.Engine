@@ -6,6 +6,7 @@ using Qdrant.Client;
 using Qdrant.Client.Grpc;
 using Reyma.Exceptions.Api;
 using Reyma.VectorSpace.Engine.Microservice.Business;
+using Reyma.VectorSpace.Engine.Microservice.Business.Motor;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Abstractions;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Model;
 
@@ -92,12 +93,14 @@ public sealed class QdrantVectorStore
     /// <returns>Si la coleccion (ya existente o recien creada) tiene el resumen habilitado de verdad (vector presente).</returns>
     public async Task<bool> EnsureCollectionAsync(
         string collectionName, string perfil, string modelo, int dimension,
-        bool resumenSolicitado, string? resumenPerfil, int resumenDimension, CancellationToken ct)
+        bool resumenSolicitado, string? resumenPerfil, int resumenDimension, CancellationToken ct,
+        PerfilDeIngesta? perfilIngesta = null)
     {
+        await VerificarPerfilDeIngestaAsync(collectionName, perfilIngesta, ct);
         var esquema = await GetEsquemaAsync(collectionName, ct);
         if (esquema is null)
         {
-            await CreateCollectionAsync(collectionName, perfil, modelo, dimension, resumenSolicitado, resumenPerfil, resumenDimension, ct);
+            await CreateCollectionAsync(collectionName, perfil, modelo, dimension, resumenSolicitado, resumenPerfil, resumenDimension, ct, perfilIngesta);
             await EscribirPerfilAsync(collectionName, perfil, modelo, dimension, resumenSolicitado, ct, resumenSolicitado ? resumenPerfil : null);
             // 1.21.1: nace con los indices del filtro de modulo y este escritor siempre escribe los prefijos.
             await ConRestAsync(() => ModulePrefixes.EscribirMarcaAsync(_rest, collectionName, ModulePrefixes.MarcaCompleta, ct),
@@ -124,6 +127,41 @@ public sealed class QdrantVectorStore
         await VerificarPerfilExistenteAsync(collectionName, esquema.Value.Dense, perfil, modelo, dimension, esquema.Value.TieneResumen, ct, puedeEscribirMetadata: true);
         return esquema.Value.TieneResumen;
     }
+
+    /// <summary>Comprueba el binding sin inferencia ni escrituras. No adopta colecciones nativas/historicas.</summary>
+    public async Task VerificarPerfilDeIngestaAsync(string collectionName, PerfilDeIngesta? requested, CancellationToken ct)
+    {
+        PerfilDeIngesta.Crear(requested?.Nombre, requested?.RepositorioLogico);
+        var (exists, stored) = await LeerIngestaAsync(collectionName, ct);
+        if (exists && stored != requested)
+            throw new ConflictException($"La coleccion '{collectionName}' tiene otro perfil de ingesta o repositorio logico; usar una coleccion nueva.");
+    }
+
+    /// <summary>Binding de representacion; null conserva el nombre fisico del perfil nativo.</summary>
+    public async Task<PerfilDeIngesta?> LeerPerfilDeIngestaAsync(string collectionName, CancellationToken ct) =>
+        (await LeerIngestaAsync(collectionName, ct)).Profile;
+
+    private Task<(bool Exists, PerfilDeIngesta? Profile)> LeerIngestaAsync(string collectionName, CancellationToken ct) =>
+        ConRestAsync(async () =>
+        {
+            using var response = await _rest.GetAsync($"collections/{Uri.EscapeDataString(collectionName)}", ct);
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                return (false, (PerfilDeIngesta?)null);
+            response.EnsureSuccessStatusCode();
+            using var document = await response.Content.ReadFromJsonAsync<JsonDocument>(cancellationToken: ct)
+                ?? throw new MotorNoDisponibleException("El vector store devolvio metadata incompleta.");
+            var config = document.RootElement.GetProperty("result").GetProperty("config");
+            if (!config.TryGetProperty("metadata", out var metadata) || metadata.ValueKind == JsonValueKind.Null)
+                return (true, (PerfilDeIngesta?)null);
+            var hasProfile = metadata.TryGetProperty("perfil_ingesta", out var profile);
+            var hasName = metadata.TryGetProperty("repositorio_logico", out var name);
+            if (!hasProfile && !hasName)
+                return (true, (PerfilDeIngesta?)null);
+            if (!hasProfile || !hasName || profile.ValueKind != JsonValueKind.String || name.ValueKind != JsonValueKind.String ||
+                PerfilDeIngesta.Errores(profile.GetString(), name.GetString()).Any())
+                throw new ConflictException($"La coleccion '{collectionName}' tiene procedencia de ingesta incompleta o incompatible.");
+            return (true, new PerfilDeIngesta(profile.GetString()!, name.GetString()!));
+        }, "leer el perfil de ingesta", collectionName, ct);
 
     /// <summary>
     /// Igual que <see cref="EnsureCollectionAsync"/> pero sin crear la coleccion (busquedas y calculo de embeddings,
@@ -378,7 +416,7 @@ public sealed class QdrantVectorStore
 
     private async Task CreateCollectionAsync(
         string collectionName, string perfil, string modelo, int dimension, bool resumenHabilitado, string? resumenPerfil, int resumenDimension,
-        CancellationToken ct)
+        CancellationToken ct, PerfilDeIngesta? perfilIngesta)
     {
         var vectorsConfig = new VectorParamsMap();
         vectorsConfig.Map[DenseVectorName] = new VectorParams { Size = (ulong)dimension, Distance = Distance.Cosine };
@@ -393,13 +431,33 @@ public sealed class QdrantVectorStore
 
         try
         {
-            await _client.CreateCollectionAsync(collectionName, vectorsConfig: vectorsConfig, sparseVectorsConfig: sparseConfig,
-                cancellationToken: ct);
+            if (perfilIngesta is null)
+                await _client.CreateCollectionAsync(collectionName, vectorsConfig: vectorsConfig, sparseVectorsConfig: sparseConfig,
+                    cancellationToken: ct);
+            else
+            {
+                var vectors = new Dictionary<string, object> { [DenseVectorName] = new { size = dimension, distance = "Cosine" } };
+                if (resumenHabilitado)
+                    vectors[ResumenDenseVectorName] = new { size = resumenDimension, distance = "Cosine" };
+                var metadata = new Dictionary<string, object?>
+                {
+                    [PerfilEmbeddingsMetadataKey] = perfil, [ModeloMetadataKey] = modelo, [DimensionMetadataKey] = dimension,
+                    [ResumenHabilitadoMetadataKey] = resumenHabilitado, [PerfilResumenMetadataKey] = resumenPerfil,
+                    ["perfil_ingesta"] = perfilIngesta.Nombre, ["repositorio_logico"] = perfilIngesta.RepositorioLogico
+                };
+                await ConRestAsync(async () =>
+                {
+                    using var response = await _rest.PutAsJsonAsync($"collections/{Uri.EscapeDataString(collectionName)}",
+                        new { vectors, sparse_vectors = new Dictionary<string, object>
+                            { [SparseVectorName] = new { index = new { full_scan_threshold = 5000 } } }, metadata }, ct);
+                    response.EnsureSuccessStatusCode();
+                }, "crear la coleccion con procedencia de ingesta", collectionName, ct);
+            }
         }
         catch (RpcException ex) when (ex.StatusCode == StatusCode.AlreadyExists)
         {
             // Otra ingesta la creo entre la comprobacion y aqui: se valida su esquema y su perfil como si ya existiera.
-            await EnsureCollectionAsync(collectionName, perfil, modelo, dimension, resumenHabilitado, resumenPerfil, resumenDimension, ct);
+            await EnsureCollectionAsync(collectionName, perfil, modelo, dimension, resumenHabilitado, resumenPerfil, resumenDimension, ct, perfilIngesta);
             return;
         }
 

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Reyma.Dates.Abstractions;
 using Reyma.Exceptions.Api;
+using Reyma.VectorSpace.Engine.Microservice.Business.Motor;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Abstractions;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Chunking;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Model;
@@ -84,13 +85,33 @@ public sealed class DocumentIngestionPipeline
     }
 
     /// <summary>Las mismas opciones que arma el CLI del origen, con el tamano de chunk de configuracion (1.11).</summary>
-    internal ChunkingOptions ChunkingOptionsFor(string collectionName) => new()
+    public ChunkingOptions ChunkingOptionsFor(string collectionName, PerfilDeIngesta? perfilIngesta = null)
     {
-        MaxTokensPerChunk = _options.MaxTokensPorChunk,
-        OverlapTokens = _options.TokensDeSolape,
-        RepositoryName = collectionName,
-        BatchSize = _options.LoteDeChunks
-    };
+        PerfilDeIngesta.Crear(perfilIngesta?.Nombre, perfilIngesta?.RepositorioLogico);
+        return perfilIngesta is null
+            ? new() { MaxTokensPerChunk = _options.MaxTokensPorChunk, OverlapTokens = _options.TokensDeSolape,
+                RepositoryName = collectionName, BatchSize = _options.LoteDeChunks }
+            : new() { MaxTokensPerChunk = 512, OverlapTokens = 64, BatchSize = 32,
+                ParentContextLines = 5, OversizedBehavior = OversizedChunkBehavior.SplitWithOverlap,
+                RepositoryName = perfilIngesta.RepositorioLogico };
+    }
+
+    /// <summary>Misma preparacion usada por la ingesta, sin embeddings ni escrituras; null indica documento omitido.</summary>
+    public async Task<IReadOnlyList<CodeChunk>?> PrepararDocumentoAsync(
+        string collectionName, string path, string content, PerfilDeIngesta? perfilIngesta, CancellationToken ct)
+    {
+        var options = ChunkingOptionsFor(collectionName, perfilIngesta);
+        var artifact = DocumentArtifacts.TryCreate(
+            perfilIngesta is null ? path : path.Replace('/', '\\'), content, ScanProfile.DotNetEnterprise,
+            new DateTimeOffset(DateTime.SpecifyKind(_clock.Now, DateTimeKind.Utc)));
+        if (artifact is null)
+            return null;
+        var chunks = new List<CodeChunk>();
+        await foreach (var chunk in _chunkRouter.GetStrategy(artifact).ChunkAsync(artifact, content, options, ct))
+            if (IsIndexable(chunk, IndexShortTypeDeclarations))
+                chunks.Add(chunk);
+        return chunks;
+    }
 
     /// <param name="barrerDocumentosAusentes">
     /// 1.7.5 (origen 'proyecto'): tras indexar, borra los puntos de documentos que ya estaban en la coleccion pero no
@@ -108,19 +129,20 @@ public sealed class DocumentIngestionPipeline
     /// </param>
     public async Task<IngestionResult> IngestAsync(
         string collectionName, string? perfil, IReadOnlyList<(string Path, string Content)> documents, CancellationToken ct,
-        bool barrerDocumentosAusentes = false, bool resumenSolicitado = false)
+        bool barrerDocumentosAusentes = false, bool resumenSolicitado = false, PerfilDeIngesta? perfilIngesta = null)
     {
         var gate = _collectionLocks.GetOrAdd(collectionName, _ => new SemaphoreSlim(1, 1));
         await gate.WaitAsync(ct);
         try
         {
-            var resultado = await IngestLockedAsync(collectionName, perfil, documents, resumenSolicitado, ct);
+            var resultado = await IngestLockedAsync(collectionName, perfil, documents, resumenSolicitado, ct, perfilIngesta);
             if (!barrerDocumentosAusentes)
                 return resultado;
 
             // El file_path guardado en Qdrant es la clave de identidad compuesta (ChunkBuilder.BuildIdentityKey),
             // no la ruta cruda: compararlas tal cual aqui habria barrido todo lo que se acababa de escribir.
-            var actuales = documents.Select(d => ChunkBuilder.BuildIdentityKey(collectionName, d.Path)).ToHashSet(StringComparer.Ordinal);
+            var repository = perfilIngesta?.RepositorioLogico ?? collectionName;
+            var actuales = documents.Select(d => ChunkBuilder.BuildIdentityKey(repository, d.Path)).ToHashSet(StringComparer.Ordinal);
             var eliminados = await BarrerDocumentosAusentesAsync(collectionName, actuales, ct);
             return resultado with { DocumentsSweptAway = eliminados };
         }
@@ -148,8 +170,9 @@ public sealed class DocumentIngestionPipeline
 
     private async Task<IngestionResult> IngestLockedAsync(
         string collectionName, string? perfilSolicitado, IReadOnlyList<(string Path, string Content)> documents,
-        bool resumenSolicitado, CancellationToken ct)
+        bool resumenSolicitado, CancellationToken ct, PerfilDeIngesta? perfilIngesta)
     {
+        await _store.VerificarPerfilDeIngestaAsync(collectionName, perfilIngesta, ct);
         // 1.7.4: se resuelve el perfil de embeddings antes de trocear, porque el fingerprint de cada documento
         // incluye el modelo y la dimension (si el perfil cambia, el documento se vuelve a vectorizar).
         var resuelto = _brainFactory.Resolver(perfilSolicitado);
@@ -162,30 +185,17 @@ public sealed class DocumentIngestionPipeline
             throw new BadRequestException("El resumen de negocio no esta configurado en este servicio (falta Motor:Resumen:PerfilEmbeddings).");
         var resumenEmbeddings = resumenSolicitado ? _brainFactory.Resolver(_resumenOptions.PerfilEmbeddings) : null;
 
-        var options = ChunkingOptionsFor(collectionName);
-        var profile = ScanProfile.DotNetEnterprise;
-        var now = new DateTimeOffset(DateTime.SpecifyKind(_clock.Now, DateTimeKind.Utc));
+        var options = ChunkingOptionsFor(collectionName, perfilIngesta);
         var omitted = 0;
 
         // 1. Trocear cada documento admitido, igual que el productor del origen.
         var prepared = new List<PreparedDocument>(documents.Count);
         foreach (var (path, content) in documents)
         {
-            var artifact = DocumentArtifacts.TryCreate(path, content, profile, now);
-            if (artifact is null)
-            {
-                omitted++;
-                continue;
-            }
-
-            var chunks = new List<CodeChunk>();
+            IReadOnlyList<CodeChunk>? chunks;
             try
             {
-                await foreach (var chunk in _chunkRouter.GetStrategy(artifact).ChunkAsync(artifact, content, options, ct))
-                {
-                    if (IsIndexable(chunk, IndexShortTypeDeclarations))
-                        chunks.Add(chunk);
-                }
+                chunks = await PrepararDocumentoAsync(collectionName, path, content, perfilIngesta, ct);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -194,10 +204,16 @@ public sealed class DocumentIngestionPipeline
                 omitted++;
                 continue;
             }
+            if (chunks is null)
+            {
+                omitted++;
+                continue;
+            }
 
+            var representationPath = perfilIngesta is null ? path : path.Replace('/', '\\');
             prepared.Add(new PreparedDocument(
-                ChunkBuilder.BuildIdentityKey(options.RepositoryName, artifact.RelativePath),
-                Fingerprint(options, path, content, brain),
+                ChunkBuilder.BuildIdentityKey(options.RepositoryName, representationPath),
+                Fingerprint(options, representationPath, content, brain),
                 chunks));
         }
 
@@ -213,7 +229,7 @@ public sealed class DocumentIngestionPipeline
         //    coleccion, no de la solicitud).
         var resumenHabilitado = await _store.EnsureCollectionAsync(
             collectionName, resuelto.Nombre, brain.ModelName, brain.EmbeddingDimensions,
-            resumenSolicitado, resumenEmbeddings?.Nombre, resumenEmbeddings?.Brain.EmbeddingDimensions ?? 0, ct);
+            resumenSolicitado, resumenEmbeddings?.Nombre, resumenEmbeddings?.Brain.EmbeddingDimensions ?? 0, ct, perfilIngesta);
 
         // 3. Que tiene ya cada documento indexado.
         var existing = await _store.GetDocumentPointsAsync(collectionName, prepared.Select(d => d.FilePath).ToArray(), ct);
@@ -300,7 +316,7 @@ public sealed class DocumentIngestionPipeline
         return ContentHasher.Compute(header + "\n" + SourceLines.Normalize(content));
     }
 
-    private sealed record PreparedDocument(string FilePath, string Fingerprint, List<CodeChunk> Chunks);
+    private sealed record PreparedDocument(string FilePath, string Fingerprint, IReadOnlyList<CodeChunk> Chunks);
 }
 
 /// <summary>

@@ -14,7 +14,8 @@ public sealed record BusquedaResponse(string Coleccion, IReadOnlyList<ResultadoB
 /// metadata guardada en la coleccion (item 1.7.4); los tres null si la coleccion no la tiene (creada antes de
 /// 1.7.4 y nunca tocada desde entonces).
 /// </summary>
-public sealed record ColeccionInfoResponse(string Coleccion, string? PerfilEmbeddings, string? Modelo, int? Dimension);
+public sealed record ColeccionInfoResponse(string Coleccion, string? PerfilEmbeddings, string? Modelo, int? Dimension,
+    string? PerfilIngesta = null, string? RepositorioLogico = null);
 
 /// <summary>
 /// Un documento indexado en una coleccion (item 1.19), agrupado por su clave de identidad (<c>file_path</c>, sin
@@ -75,4 +76,6 @@ public sealed record IngestaResponse(
     int ResumenesGenerados = 0,
     int ResumenesPendientes = 0,
     int ResumenTokensConsumidos = 0,
-    string? MensajeError = null);
+    string? MensajeError = null,
+    string? PerfilIngesta = null,
+    string? RepositorioLogico = null);

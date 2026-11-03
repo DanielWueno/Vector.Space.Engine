@@ -98,6 +98,35 @@ El motor es el de Rag.Context.Engine portado (ver
   reintentar el 429 despues de `Retry-After` y reintentar ante fallos de red: repetir una ingesta es
   idempotente y solo vuelve a vectorizar los documentos que no quedaron completos.
 
+## Perfil de ingesta compatible opt-in (1.12)
+
+`perfilIngesta: "rag-local-1.12"` y `repositorioLogico` se admiten juntos en el
+JSON de documentos/Git y como campos del formulario ZIP. Ambos ausentes conservan
+el perfil nativo (1024 tokens/configuracion existente, repositorio=coleccion).
+No son el campo `perfil` de embeddings ni cambian el modo de busqueda.
+Un perfil desconocido, tipo no textual, nombre blanco, de mas de128 caracteres
+o con separadores/caracteres de control responde400; un nombre sin perfil tambien.
+
+El opt-in reutiliza los chunkers/admisiones del servidor con512/64 tokens,
+lote32, contexto padre5 y SplitWithOverlap, sin declaraciones cortas. La cabecera
+de ruta usa `\` como el control Windows; la identidad normaliza separadores.
+El nombre logico, no la coleccion fisica, identifica repositorio/documentos/chunks.
+El cliente sigue enviando documentos completos, nunca fragmentos preparados.
+
+La coleccion H2 se crea con `perfil_ingesta` y `repositorio_logico` atomicos en su
+metadata. Una coleccion nativa/legacy, incluso vacia, no se adopta como H2.
+Omitir/cambiar el perfil o nombre de una H2 responde409 antes de embeddings;
+ZIP/Git verifican el binding antes de admitir el job y al procesarlo.
+Los campos se propagan a respuestas/estado de ingesta y al catalogo de colecciones.
+El listado y barrido de documentos usan el nombre logico; no se renombra el indice.
+Los jobs siguen siendo memoria de instancia: un404 tras reinicio no es completitud.
+
+**Implementado, no aceptado como sustituto del control:** la igualdad exhaustiva
+de representacion paso, pero el diagnostico H2 perdio any/full@10 en tickets014.
+Ver [preparacion y resultado de1.12](../evaluaciones/1.12/preparacion.md).
+Defaults nativos, autenticacion, filtros y resumenes no cambian.
+Revertir codigo o desactivar el opt-in no revierte puntos existentes.
+
 ## Cuerpos
 
 ```jsonc
@@ -126,7 +155,8 @@ El motor es el de Rag.Context.Engine portado (ver
 { "origen": { "tipo": "ruta", "ruta": "/ruta/accesible/al/servicio" } }
 // 200: { "ingestaId", "coleccion", "estado": "completada", "documentosRecibidos",
 //        "documentosIndexados", "documentosSinCambios", "documentosOmitidos", "documentosEliminados",
-//        "resumenesGenerados", "resumenesPendientes", "resumenTokensConsumidos" }   // 1.7.7, siempre 0 sin resumen
+//        "resumenesGenerados", "resumenesPendientes", "resumenTokensConsumidos",
+//        "perfilIngesta", "repositorioLogico" }  // binding1.12; null para nativo
 
 // POST .../ingestas/proyecto   origen 'proyecto' desde .zip (item 1.7.5); multipart/form-data, no JSON:
 //   zip          archivo .zip (campo de archivo), hasta 100 MiB, leido en memoria
@@ -155,7 +185,7 @@ El motor es el de Rag.Context.Engine portado (ver
 //      (nunca 404); sin orden garantizado
 
 // GET api/colecciones   lista las colecciones existentes en el vector store (item 1.16)
-// 200: [ { "coleccion", "perfilEmbeddings", "modelo", "dimension" }, ... ]
+// 200: [ { "coleccion", "perfilEmbeddings", "modelo", "dimension", "perfilIngesta", "repositorioLogico" }, ... ]
 //      perfilEmbeddings/modelo/dimension salen de la metadata de la coleccion (item 1.7.4); los tres null si la
 //      coleccion no la tiene (creada antes de 1.7.4 y nunca tocada desde entonces); lista vacia si no hay ninguna
 //      coleccion (nunca 404)

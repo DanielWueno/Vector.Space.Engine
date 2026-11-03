@@ -49,7 +49,8 @@ public interface IMotorDeIngesta
 {
     /// <summary>resumen: opt-in del resumen de negocio (1.7.7); solo tiene efecto al crear la coleccion.</summary>
     Task<IngestaResponse> IngerirAsync(
-        string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken);
+        string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken,
+        PerfilDeIngesta? perfilIngesta = null);
 }
 
 /// <summary>
@@ -59,7 +60,7 @@ public interface IMotorDeIngesta
 /// ingesta de siempre, mas el barrido de documentos que ya no estan en el .zip, y corre en segundo plano porque un
 /// proyecto completo tarda minutos u horas (1.7.3).
 /// </summary>
-public interface IMotorDeIngestaProyecto
+public interface IMotorDeIngestaProyecto : IPerfilDeIngestaColeccion
 {
     /// <summary>Lee y valida el .zip (limites de tamano, entradas, ratio, Zip Slip, enlaces); 400 si no es admisible.</summary>
     IReadOnlyList<DocumentoRequest> LeerProyectoZip(byte[] zip, string? carpetaRaiz);
@@ -67,7 +68,8 @@ public interface IMotorDeIngestaProyecto
     /// <summary>Ingesta normal mas el barrido de documentos ausentes, acotado a lo que el .zip trajo esta vez.</summary>
     /// <param name="resumen">Ver <see cref="IMotorDeIngesta.IngerirAsync"/> (1.7.7).</param>
     Task<ResultadoIngestaProyecto> ProcesarAsync(
-        string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken);
+        string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken,
+        PerfilDeIngesta? perfilIngesta = null);
 }
 
 /// <summary>
@@ -89,7 +91,7 @@ public sealed record ResultadoIngestaProyecto(
 /// admision); clonar (superficial y endurecido), escanear el checkout y ejecutar el mismo pipeline de ingesta de
 /// proyecto (con barrido de ausentes) tarda segundos a minutos y corre en segundo plano, igual que el .zip.
 /// </summary>
-public interface IMotorDeIngestaProyectoGit
+public interface IMotorDeIngestaProyectoGit : IPerfilDeIngestaColeccion
 {
     /// <summary>
     /// Valida la URL contra la lista blanca de origenes Git permitidos (esquema, host, puerto y prefijo de ruta
@@ -104,7 +106,8 @@ public interface IMotorDeIngestaProyectoGit
     /// </summary>
     /// <param name="resumen">Ver <see cref="IMotorDeIngesta.IngerirAsync"/> (1.7.7).</param>
     Task<ResultadoIngestaProyecto> ProcesarGitAsync(
-        string coleccion, Uri url, string? carpetaRaiz, string? perfil, bool resumen, CancellationToken cancellationToken);
+        string coleccion, Uri url, string? carpetaRaiz, string? perfil, bool resumen, CancellationToken cancellationToken,
+        PerfilDeIngesta? perfilIngesta = null);
 }
 
 /// <summary>

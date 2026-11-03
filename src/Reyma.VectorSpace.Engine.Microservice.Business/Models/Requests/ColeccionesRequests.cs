@@ -71,6 +71,14 @@ public sealed class BuscarRequest
 
 public sealed class IngestaRequest
 {
+    /// <summary>Opt-in rag-local-1.12; requiere RepositorioLogico. Ausentes: comportamiento nativo.</summary>
+    [Newtonsoft.Json.JsonConverter(typeof(CadenaEstrictaConverter))]
+    public string? PerfilIngesta { get; set; }
+
+    /// <summary>Nombre logico inmutable, independiente de la coleccion fisica.</summary>
+    [Newtonsoft.Json.JsonConverter(typeof(CadenaEstrictaConverter))]
+    public string? RepositorioLogico { get; set; }
+
     public OrigenIngestaRequest? Origen { get; set; }
 
     /// <summary>
@@ -122,6 +130,14 @@ public sealed class DocumentoRequest
 /// </summary>
 public sealed class IngerirProyectoGitRequest
 {
+    /// <summary>Ver <see cref="IngestaRequest.PerfilIngesta"/>.</summary>
+    [Newtonsoft.Json.JsonConverter(typeof(CadenaEstrictaConverter))]
+    public string? PerfilIngesta { get; set; }
+
+    /// <summary>Ver <see cref="IngestaRequest.RepositorioLogico"/>.</summary>
+    [Newtonsoft.Json.JsonConverter(typeof(CadenaEstrictaConverter))]
+    public string? RepositorioLogico { get; set; }
+
     public string? Url { get; set; }
 
     /// <summary>Igual que el origen .zip: quita el envoltorio "repo-rama/" si aplica.</summary>

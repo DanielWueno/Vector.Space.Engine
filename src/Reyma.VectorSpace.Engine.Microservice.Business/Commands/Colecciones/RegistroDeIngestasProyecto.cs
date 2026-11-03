@@ -22,7 +22,7 @@ public static class EstadosIngestaProyecto
 public interface IRegistroDeIngestasProyecto
 {
     /// <summary>Registra una ingesta nueva en estado "pendiente" y devuelve su identificador.</summary>
-    Guid Crear(string coleccion, int documentosRecibidos);
+    Guid Crear(string coleccion, int documentosRecibidos, PerfilDeIngesta? perfilIngesta = null);
 
     void MarcarProcesando(Guid ingestaId);
 
@@ -48,14 +48,15 @@ public sealed class RegistroDeIngestasProyecto : IRegistroDeIngestasProyecto
 {
     private sealed record Entrada(
         string Coleccion, int Recibidos, string Estado, int Indexados, int SinCambios, int Omitidos, int Eliminados,
-        int ResumenesGenerados = 0, int ResumenesPendientes = 0, int ResumenTokensConsumidos = 0, string? Mensaje = null);
+        int ResumenesGenerados = 0, int ResumenesPendientes = 0, int ResumenTokensConsumidos = 0, string? Mensaje = null,
+        PerfilDeIngesta? PerfilIngesta = null);
 
     private readonly ConcurrentDictionary<Guid, Entrada> _entradas = new();
 
-    public Guid Crear(string coleccion, int documentosRecibidos)
+    public Guid Crear(string coleccion, int documentosRecibidos, PerfilDeIngesta? perfilIngesta = null)
     {
         var id = Guid.NewGuid();
-        _entradas[id] = new Entrada(coleccion, documentosRecibidos, EstadosIngestaProyecto.Pendiente, 0, 0, 0, 0);
+        _entradas[id] = new Entrada(coleccion, documentosRecibidos, EstadosIngestaProyecto.Pendiente, 0, 0, 0, 0, PerfilIngesta: perfilIngesta);
         return id;
     }
 
@@ -100,7 +101,8 @@ public sealed class RegistroDeIngestasProyecto : IRegistroDeIngestasProyecto
 
     private static IngestaResponse AResponse(Guid ingestaId, Entrada e) =>
         new(ingestaId, e.Coleccion, e.Estado, e.Recibidos, e.Indexados, e.SinCambios, e.Omitidos, e.Eliminados,
-            e.ResumenesGenerados, e.ResumenesPendientes, e.ResumenTokensConsumidos, e.Mensaje);
+            e.ResumenesGenerados, e.ResumenesPendientes, e.ResumenTokensConsumidos, e.Mensaje,
+            e.PerfilIngesta?.Nombre, e.PerfilIngesta?.RepositorioLogico);
 
     private static InvalidOperationException IngestaDesconocida(Guid ingestaId) =>
         new($"La ingesta de proyecto '{ingestaId}' no fue creada con Crear antes de actualizarla.");
