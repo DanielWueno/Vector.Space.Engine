@@ -249,6 +249,18 @@ Dato, no logica: el servicio consulta el vector guardado que el cliente pide (`E
   `VSE_MOTOR_LOCAL=1`, LLM inyectado, 0 tokens) con un perfil de resumen propio de 128d distinto del perfil del codigo;
   validacion del cuerpo y el 400 sin configuracion en `tests/.../EspacioDeBusquedaTests.cs`, sin Docker.
 
+## Filtros textuales (item 1.21.4)
+
+`QdrantSemanticRetriever.SearchAsync` agrega `Match.Text` sobre `language` cuando
+llega un nombre canonico y sobre `namespace` cuando el valor no es blanco.
+No normaliza cadenas ni incluye `relative_path`. El mismo `Filter.Must` combina
+ambos con cada modulo y el ANY de simbolos y viaja a todas las ramas antes del corte,
+sin tocar ranking, umbrales, escritor, payload ni indices. El operador depende de
+version/esquema; el banco de aceptacion fija Qdrant 1.19.2 sin indice full-text.
+No es autorizacion ni activa el adaptador remoto. Contrato y ejemplos en
+`docs/servicio/contrato-api.md` y `filtros.md`; reproduccion en
+`docs/evaluaciones/1.21/filtros-textuales.md`.
+
 ## Codigo portado
 
 `Chunking/`, `Utilities/`, `Model/` y `Vectorization/SparseTokenizer.cs` vienen de Rag.Context.Engine y deben producir

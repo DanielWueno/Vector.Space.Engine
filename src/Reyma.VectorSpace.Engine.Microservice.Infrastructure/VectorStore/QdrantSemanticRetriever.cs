@@ -19,8 +19,8 @@ namespace Reyma.VectorSpace.Engine.Microservice.Infrastructure.VectorStore;
 /// nativa denso + sparse-code se conserva tal cual detras de <see cref="ModoBusqueda.FusionNativa"/>.
 ///
 /// No se portan: reranking cross-encoder, salto por simbolo (6.a), perfiles por coleccion (7.a) y filtros de
-/// tenant/lenguaje; el contrato de 1.3 no los expone y la coleccion ya es el tenant. El filtro de modulo (item 1.21.1)
-/// no es el del origen (prefijo de texto sin fronteras): es exacto por namespace/ruta con fronteras '.' y '/' sobre
+/// tenant. Lenguaje/namespace (1.21.4) conservan Match.Text del origen; no son controles de acceso.
+/// El filtro de modulo (item 1.21.1) es exacto por namespace/ruta con fronteras '.' y '/' sobre
 /// <see cref="ModulePrefixes.PayloadKey"/>, se aplica en Qdrant dentro de cada rama antes del corte y exige una
 /// coleccion preparada (409 si no; ver <see cref="QdrantVectorStore.VerificarModulosParaConsultaAsync"/>). La banda resumen del origen
 /// era una rama de una RRF ponderada de tres ramas; aqui (item 1.20) es un espacio de busqueda aparte que el cliente
@@ -65,10 +65,12 @@ public sealed class QdrantSemanticRetriever
     /// <c>module_prefixes</c> por modulo (AND entre ellas y con <paramref name="simbolosDefinidos"/>) en cada rama
     /// (densa, sparse y resumen), dentro de Qdrant y por tanto antes de cada corte. Con modulos, una coleccion
     /// existente sin preparar responde 409 antes de resolver el perfil o vectorizar.
+    /// <paramref name="lenguaje"/> y <paramref name="namespace"/> (1.21.4): Match.Text sobre sus campos existentes,
+    /// AND con los otros filtros en todas las ramas. Namespace blanco no filtra; texto activo no se normaliza.
     /// </summary>
     public async Task<IReadOnlyList<SearchHit>> SearchAsync(
         string collectionName, string query, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos,
-        EspacioDeBusqueda espacio, IReadOnlyList<string>? modulos, CancellationToken ct)
+        EspacioDeBusqueda espacio, IReadOnlyList<string>? modulos, string? lenguaje, string? @namespace, CancellationToken ct)
     {
         // 1.20: sin perfil de resumen configurado es un 400 claro, antes de tocar Qdrant o el sidecar (mismo mensaje
         // y mismo criterio que pedir resumen en la ingesta, DocumentIngestionPipeline.IngestLockedAsync).
@@ -97,19 +99,23 @@ public sealed class QdrantSemanticRetriever
                 }
             }
         };
-        Filter? filtroSimbolos = null;
-        if (simbolosDefinidos is { Count: > 0 } || conModulos)
+        Filter? filtro = null;
+        if (simbolosDefinidos is { Count: > 0 } || conModulos || lenguaje is not null || !string.IsNullOrWhiteSpace(@namespace))
         {
-            filtroSimbolos = new Filter();
+            filtro = new Filter();
             if (simbolosDefinidos is { Count: > 0 })
-                filtroSimbolos.Must.Add(Conditions.Match(QdrantVectorStore.DefinedSymbolsPayloadKey, simbolosDefinidos));
+                filtro.Must.Add(Conditions.Match(QdrantVectorStore.DefinedSymbolsPayloadKey, simbolosDefinidos));
             if (conModulos)
                 foreach (var modulo in modulos!)
-                    filtroSimbolos.Must.Add(Conditions.MatchKeyword(ModulePrefixes.PayloadKey, modulo));
+                    filtro.Must.Add(Conditions.MatchKeyword(ModulePrefixes.PayloadKey, modulo));
+            if (lenguaje is not null)
+                filtro.Must.Add(new Condition { Field = new FieldCondition { Key = "language", Match = new Match { Text = lenguaje } } });
+            if (!string.IsNullOrWhiteSpace(@namespace))
+                filtro.Must.Add(new Condition { Field = new FieldCondition { Key = "namespace", Match = new Match { Text = @namespace } } });
         }
 
         if (espacio == EspacioDeBusqueda.Resumen)
-            return Mapear(await BuscarEnResumenAsync(collectionName, query, (ulong)topK, payload, filtroSimbolos, ct));
+            return Mapear(await BuscarEnResumenAsync(collectionName, query, (ulong)topK, payload, filtro, ct));
 
         var resuelto = _brainFactory.Resolver(perfil);
         await _store.VerificarPerfilParaConsultaAsync(collectionName, resuelto.Nombre, resuelto.Brain.ModelName, resuelto.Brain.EmbeddingDimensions, ct);
@@ -121,7 +127,7 @@ public sealed class QdrantSemanticRetriever
         if (_options.Modo == ModoBusqueda.Denso)
         {
             ranked = await QueryOrderedAsync(collectionName, queryVector, QdrantVectorStore.DenseVectorName,
-                (ulong)topK, payload, filtroSimbolos, ct, threshold);
+                (ulong)topK, payload, filtro, ct, threshold);
         }
         else
         {
@@ -139,9 +145,9 @@ public sealed class QdrantSemanticRetriever
             }
 
             var dense = QueryOrderedAsync(collectionName, queryVector, QdrantVectorStore.DenseVectorName,
-                prefetchLimit, payload, filtroSimbolos, ct, threshold);
+                prefetchLimit, payload, filtro, ct, threshold);
             var sparse = QueryOrderedAsync(collectionName, (sparseValues, sparseIndices), QdrantVectorStore.SparseVectorName,
-                prefetchLimit, payload, filtroSimbolos, ct);
+                prefetchLimit, payload, filtro, ct);
             await Task.WhenAll(dense, sparse);
             ranked = FuseNativeRanks(await dense, await sparse, finalLimit);
         }

@@ -35,10 +35,14 @@ public interface IMotorDeBusqueda
     /// modulos (item 1.21.1): filtro exacto opcional, null = sin filtro. No vacio = cada modulo debe coincidir (AND)
     /// con el namespace (exacto o prefijo seguido de '.') o con la ruta relativa (exacta o prefijo seguido de '/').
     /// Una coleccion existente sin preparacion completa para este filtro responde 409, nunca una lista vacia.
+    /// lenguaje (1.21.4): nombre canonico validado o null; Match.Text sobre language.
+    /// namespace (1.21.4): blanco/null no filtra; texto literal en Match.Text solo sobre namespace.
+    /// Ambos se combinan por AND con cada modulo y con el ANY de simbolos, antes del corte.
     /// </summary>
     Task<BusquedaResponse> BuscarAsync(
         string coleccion, string consulta, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos,
-        EspacioDeBusqueda espacio, IReadOnlyList<string>? modulos, CancellationToken cancellationToken);
+        EspacioDeBusqueda espacio, IReadOnlyList<string>? modulos, string? lenguaje, string? @namespace,
+        CancellationToken cancellationToken);
 }
 
 public interface IMotorDeIngesta

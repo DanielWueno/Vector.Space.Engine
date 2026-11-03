@@ -15,6 +15,7 @@ public sealed class CalcularEmbeddingsRequest
     public string? Perfil { get; set; }
 }
 
+[Newtonsoft.Json.JsonConverter(typeof(BuscarRequestConverter))]
 public sealed class BuscarRequest
 {
     public string? Consulta { get; set; }
@@ -44,6 +45,20 @@ public sealed class BuscarRequest
     /// </summary>
     [Newtonsoft.Json.JsonConverter(typeof(ListaDeCadenasEstrictaConverter))]
     public List<string>? Modulos { get; set; }
+
+    /// <summary>
+    /// Nombre exacto de SourceLanguage: CSharp, TypeScript, JavaScript, Xaml, Sql, Markdown, PlainText o Unknown.
+    /// Null/ausente no filtra; blanco u otro valor responde 400. Match.Text sobre language, no igualdad keyword.
+    /// </summary>
+    [Newtonsoft.Json.JsonConverter(typeof(CadenaEstrictaConverter))]
+    public string? Lenguaje { get; set; }
+
+    /// <summary>
+    /// Match.Text solo sobre namespace. Null/ausente/vacio/blanco no filtra; lo demas se conserva literal.
+    /// No incluye rutas ni aplica fronteras de modulo. Ambos filtros textuales se combinan con los demas por AND.
+    /// </summary>
+    [Newtonsoft.Json.JsonConverter(typeof(CadenaEstrictaConverter))]
+    public string? Namespace { get; set; }
 
     /// <summary>
     /// Espacio de busqueda (item 1.20): <c>"codigo"</c> (por defecto, ausente) consulta el vector del chunk como

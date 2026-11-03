@@ -5,8 +5,8 @@ ruta base del servicio (`/reyma/vectorspace/engine` desplegado; vacia en local) 
 `api/` de la plantilla. Swagger (solo Development) publica el mismo contrato.
 
 Guia de uso: [filtros de busqueda y ejemplos](filtros.md). Distingue los filtros
-HTTP disponibles de lenguaje/namespace aun pendientes para el cliente de Rag;
-documentar estos ultimos no agrega parametros a este contrato.
+HTTP disponibles de las capacidades aun pendientes del cliente de Rag.
+Lenguaje y namespace estan disponibles desde 1.21.4; el adaptador de Rag sigue pendiente.
 
 | Metodo | Ruta | Operacion | Respuesta 200 |
 |---|---|---|---|
@@ -60,6 +60,7 @@ El motor es el de Rag.Context.Engine portado (ver
   por simbolos definidos (item 1.18, ver seccion dedicada abajo); igual en ambos modos de busqueda. Con
   `espacio: "resumen"` consulta el vector `dense-resumen` en vez del del codigo (item 1.20, ver seccion dedicada).
   `modulos` acota por namespace/ruta antes del corte en todas las ramas (item 1.21.1, ver seccion dedicada).
+  `lenguaje` y `namespace` agregan filtros textuales antes del corte sobre sus campos de payload (1.21.4).
 - **ingestas**: cada documento se trocea por su extension con el perfil del CLI de Rag.Context.Engine
   (`.cs .ts .tsx .js .jsx .xaml .sql .md .txt .json .xml .csproj`, hasta 512 KB en UTF-8), con
   `MaxTokensPerChunk` 1024 (1.11). La coleccion hace de repositorio: el Id de un chunk sale de
@@ -108,6 +109,8 @@ El motor es el de Rag.Context.Engine portado (ver
 { "consulta": "como se configura X", "topK": 10, "perfil": "altheia-bge-m3-256",
   "simbolosDefinidos": ["MiMetodo"],    // "perfil" y "simbolosDefinidos" opcionales, ver seccion "Metadatos de chunk..." abajo
   "modulos": ["Empresa.Ventas"],        // opcional, 1..50; AND entre modulos y con simbolosDefinidos (item 1.21.1)
+  "lenguaje": "CSharp",                 // opcional, nombre exacto del enum; Match.Text sobre language (1.21.4)
+  "namespace": "Empresa.Ventas",        // opcional; Match.Text SOLO sobre namespace, sin rutas ni normalizacion
   "espacio": "codigo" }                 // opcional, "codigo" (por defecto) | "resumen"; con "resumen", sin "perfil" (item 1.20)
 // 200: { "coleccion", "resultados": [{ "id", "puntuacion", "ruta", "texto",
 //        "lineaInicio", "lineaFin", "lenguaje", "tipoChunk", "contentHash",      // item 1.18
@@ -300,6 +303,51 @@ simbolo y no promete mejora de recall.
   (comprobado con el lector de 538cb96 sobre una coleccion de prueba preparada: mismos ids, orden y puntuaciones).
   Si hiciera falta retirarlos de una coleccion real, solo con alcance autorizado y respaldo verificado (ver el README
   de la herramienta); nunca borrar colecciones como rollback.
+
+## Filtros textuales de lenguaje y namespace (item 1.21.4)
+
+Disponibles en `POST .../busquedas`, sin migracion ni nuevos indices. No son permisos:
+la autenticacion HTTP sigue obligatoria y tenant/Authorized no se implementan aqui.
+
+- **`lenguaje`**: ausente/null no filtra. Solo admite cadenas con uno de los nombres exactos
+  `CSharp`, `TypeScript`, `JavaScript`, `Xaml`, `Sql`, `Markdown`, `PlainText`, `Unknown`.
+  Vacio/blanco, otro nombre (incluido `"csharp"`), numero, booleano, arreglo u objeto: **400 antes del motor**.
+  El nombre valido viaja literal en `Match.Text` sobre `language`, no como igualdad keyword.
+- **`namespace`**: ausente/null/vacio/blanco no filtra. Cualquier cadena no blanca se conserva literalmente
+  (espacios, mayusculas y separadores incluidos); los tipos JSON distintos de cadena/null responden **400**.
+  Se envia como `Match.Text` SOLO sobre `namespace`: no es `StartsWith`, keyword, modulo ni OR con ruta.
+- **Combinacion**: lenguaje AND namespace AND cada modulo AND el ANY interno de `simbolosDefinidos`.
+  El filtro se aplica dentro de la rama densa, la sparse de `FusionNativa` y la densa de resumen,
+  antes del pool/corte. No cambia los umbrales, el desempate por id ni las escalas coseno/RRF.
+- **Campos ausentes**: un punto sin `language` o sin `namespace` no satisface el filtro activo de ese campo.
+  Sin ese filtro, la ausencia no lo excluye. Una ruta coincidente nunca suple un namespace ausente/distinto.
+  El filtro textual no exige el relleno de modulo; si ademas se piden `modulos`, se conserva su puerta 409.
+- **Version y esquema**: comprobado con Qdrant **1.19.2**, sin indices full-text de estos campos, contra
+  consultas directas `Match.Text` independientes sobre los mismos puntos. En esa referencia
+  `Reyma.Ventas` y `reyma.ventas` coinciden con `Reyma.Ventas.Api`, no con
+  `Reyma.VentasExtra.Api` ni `xReyma.Ventas`. El operador depende de version/tokenizacion/indices:
+  no se promete paridad con 1.14.1 ni con otra instancia no comprobada.
+- **Sin filtros nuevos**: IDs, orden y scores identicos al lector de `da1b3d0` en el banco pareado,
+  incluidos los filtros anteriores y ambos espacios/modos. Payload, vectores, huellas e indices intactos.
+  No es evidencia de mejora de recall ni activa el cliente remoto de Rag.
+
+Ejemplo, con ambos filtros y los existentes:
+
+```json
+{
+  "consulta": "confirmar pedido",
+  "topK": 5,
+  "lenguaje": "CSharp",
+  "namespace": "Empresa.Ventas",
+  "modulos": ["Empresa", "pruebas"],
+  "simbolosDefinidos": ["ConfirmarPedido", "CancelarPedido"]
+}
+```
+
+Para resumen se agrega `"espacio": "resumen"` sin `perfil`, con el resumen configurado y su vector presente.
+Reproduccion, evidencia y limites: [banco 1.21.4](../evaluaciones/1.21/filtros-textuales.md).
+Rollback: revertir el commit de 1.21.4; no hay escrituras/migracion de datos que revertir.
+Un cliente que requiera filtros no debe reintentar sin ellos contra un servidor anterior.
 
 ## Modelo de consumo (item 1.7)
 

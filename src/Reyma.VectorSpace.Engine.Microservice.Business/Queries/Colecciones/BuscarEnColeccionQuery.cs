@@ -18,7 +18,7 @@ namespace Reyma.VectorSpace.Engine.Microservice.Business.Queries.Colecciones;
 /// </summary>
 public sealed record BuscarEnColeccionQuery(
     string Coleccion, string? Consulta, int? TopK, string? Perfil, IReadOnlyList<string>? SimbolosDefinidos = null, string? Espacio = null,
-    IReadOnlyList<string>? Modulos = null)
+    IReadOnlyList<string>? Modulos = null, string? Lenguaje = null, string? Namespace = null)
     : IRequest<BusquedaResponse>, IValidable
 {
     public const string EspacioCodigo = "codigo";
@@ -54,6 +54,10 @@ public sealed record BuscarEnColeccionQuery(
                 yield return "Modulos no admite cadenas vacias o en blanco.";
         }
 
+        // El enum del chunker vive en Infrastructure; Business valida el contrato HTTP sin invertir la dependencia.
+        if (Lenguaje is not null and not ("CSharp" or "TypeScript" or "JavaScript" or "Xaml" or "Sql" or "Markdown" or "PlainText" or "Unknown"))
+            yield return "Lenguaje admite CSharp, TypeScript, JavaScript, Xaml, Sql, Markdown, PlainText o Unknown.";
+
         if (Espacio is not null and not EspacioCodigo and not EspacioResumen)
             yield return $"Espacio admite '{EspacioCodigo}' (por defecto) o '{EspacioResumen}'.";
         else if (Espacio == EspacioResumen && Perfil is not null)
@@ -68,6 +72,7 @@ public sealed record BuscarEnColeccionQuery(
                 request.SimbolosDefinidos,
                 request.Espacio == EspacioResumen ? EspacioDeBusqueda.Resumen : EspacioDeBusqueda.Codigo,
                 request.Modulos,
+                request.Lenguaje, request.Namespace,
                 cancellationToken);
     }
 }

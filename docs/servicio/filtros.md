@@ -16,15 +16,14 @@ Contrato normativo: [contrato-api.md](contrato-api.md).
 |---|---|---|---|
 | Buscar dentro de un modulo o directorio raiz | VectorSpace: `modulos`; CLI de Rag: `--module` | Namespace exacto/descendiente por `.` **O** ruta relativa exacta/descendiente por `/`. Comparacion ordinal, sensible a mayusculas. Varios modulos: **AND**. | Implementado en ambos, pero Rag aun usa su motor local. VectorSpace filtra antes del corte; Rag usa prefiltro textual y comprobacion posterior. |
 | Encontrar definiciones de uno o varios simbolos | VectorSpace: `simbolosDefinidos` | Coincidencia keyword exacta con **cualquiera** de los nombres guardados. Se combina con los otros filtros por AND. | Implementado en VectorSpace. No hace por si mismo expansion por simbolos ni reranking. |
-| Acotar por lenguaje, por ejemplo CSharp | CLI de Rag: `--language`; puerto: `FilterByLanguage` | `Match.Text` sobre `language` con el nombre del enum. No se convierte en igualdad keyword. | Existe en Rag local. Conservacion decidida el 2026-11-03; falta implementarlo en VectorSpace (1.21.4). |
-| Acotar por texto del namespace | CLI de Rag: `--namespace`; puerto: `FilterByNamespace` | `Match.Text` SOLO sobre `namespace`. No es un prefijo exacto ni incluye rutas. | Existe en Rag local. Conservacion decidida el 2026-11-03; falta implementarlo en VectorSpace (1.21.4). |
+| Acotar por lenguaje, por ejemplo CSharp | VectorSpace: `lenguaje`; CLI de Rag: `--language`; puerto: `FilterByLanguage` | `Match.Text` sobre `language` con el nombre del enum. No se convierte en igualdad keyword. | Implementado en VectorSpace (1.21.4) y Rag local. El adaptador remoto sigue pendiente. |
+| Acotar por texto del namespace | VectorSpace: `namespace`; CLI de Rag: `--namespace`; puerto: `FilterByNamespace` | `Match.Text` SOLO sobre `namespace`. No es un prefijo exacto ni incluye rutas. | Implementado en VectorSpace (1.21.4) y Rag local. El adaptador remoto sigue pendiente. |
 | Separar documentos por tenant | CLI/puerto local de Rag: `--tenant`/`FilterByTenant` | En Rag actual, keyword exacto; se combina con tenant autorizado por AND. | **Diferido en el futuro cliente remoto**. VectorSpace no guarda ni filtra tenant. Una solicitud que lo exija debera rechazarse, no ignorarse. |
 | Restringir por permisos de una identidad | Rag: contexto `Authorized`, derivado de modo `Empresarial` | En el motor actual de Rag, ACL de coleccion mas filtros de contexto. No es un parametro de filtro libre de VectorSpace. | **Diferido en el futuro cliente remoto**. Primera integracion en Local explicito, sin derivar permisos; solicitar Authorized debera producir rechazo, no conversion a Local. |
 
-`lenguaje` y `namespace` en un resultado de VectorSpace son metadatos de salida:
-**no implican parametros de entrada**. No agregues propiedades inventadas al JSON
-actual esperando que filtren; su mera presencia no demuestra que se aplicaron.
-Los nombres HTTP de lenguaje/namespace se fijaran y documentaran en 1.21.4.
+`lenguaje` y `namespace` son tanto metadatos de salida como filtros opcionales de
+entrada desde 1.21.4. Un servidor anterior no ofrece estos filtros: no basta que
+acepte propiedades desconocidas o devuelva esos metadatos para darlo por compatible.
 El cuerpo de `/api/search` y `/api/ask` de Rag tampoco expone estos filtros:
 los ejemplos de lenguaje/namespace siguientes son de su CLI, no de esas rutas.
 
@@ -104,6 +103,37 @@ tiene el vector de resumen y el servicio tiene configurado su perfil. No agregue
 `perfil` junto con ese espacio: responde 400. En resumen solo participan chunks
 que ya tienen ese vector; el filtro no genera resumenes pendientes.
 
+### Lenguaje y namespace textuales por HTTP
+
+Solo lenguaje:
+
+```json
+{ "consulta": "confirmar pedido", "lenguaje": "CSharp" }
+```
+
+Solo namespace:
+
+```json
+{ "consulta": "confirmar pedido", "namespace": "Empresa.Ventas" }
+```
+
+Ambos y los filtros anteriores:
+
+```json
+{
+  "consulta": "confirmar pedido",
+  "lenguaje": "CSharp",
+  "namespace": "Empresa.Ventas",
+  "modulos": ["Empresa", "pruebas"],
+  "simbolosDefinidos": ["ConfirmarPedido", "CancelarPedido"]
+}
+```
+
+La conjuncion exige todos los filtros: cada modulo y al menos uno de los simbolos.
+Namespace textual no se sustituye por modulo: `relative_path = "Empresa/Ventas/a.cs"`
+con namespace ausente o distinto no satisface el filtro textual solo por la ruta.
+Con `"espacio": "resumen"` se conservan las mismas restricciones; no se genera ningun resumen.
+
 ## Ejemplos de lenguaje y namespace: CLI actual de Rag
 
 Estos ejemplos se ejecutarian desde `D:\Git\Rag.Context.Engine`, contra una
@@ -135,11 +165,11 @@ namespace usa namespace, con la semantica de la version/esquema de Qdrant.
 | `Reyma.Ventas` | Coincidia con `Reyma.Ventas.Api`, `Reyma.VentasExtra.Api` y `xReyma.Ventas`. | Coincidia solo con `Reyma.Ventas.Api` entre esos tres. |
 | `reyma.ventas` | No coincidia con esos valores con mayusculas. | Coincidia con `Reyma.Ventas.Api`. |
 
-Es evidencia historica, no una comprobacion de tu instancia. Conservar
-`Match.Text` no garantiza resultados invariantes al cambiar de version. 1.21.4
-debera probar el operador de origen y el nuevo filtro sobre el MISMO corpus,
-Qdrant 1.19.2 y esquema sin indice full-text (referencia del servicio actual),
-sin declarar paridad con un despliegue antiguo no comprobado.
+La fila de 1.19.2 se comprobo tambien en el banco sintetico de 1.21.4, sin indice
+full-text; la de 1.14.1 sigue siendo historica. No es una comprobacion de tu instancia.
+Conservar `Match.Text` no garantiza resultados invariantes al cambiar de version.
+1.21.4 compara operador directo y filtro nuevo sobre los MISMOS puntos/version/esquema,
+sin declarar paridad con un despliegue antiguo ni mejora de recall.
 
 ## Ausentes, blancos y errores
 
@@ -148,6 +178,11 @@ sin declarar paridad con un despliegue antiguo no comprobado.
 | VectorSpace: `modulos` o `simbolosDefinidos` ausente/null | No activa ese filtro. |
 | VectorSpace: lista presente vacia, mas de 50 elementos o cadena blanca | 400, no una busqueda ampliada. `modulos` exige ademas arreglo JSON de cadenas, sin elementos null. |
 | Modulo `" Ventas"` o `"Ventas "` | Se conserva literal, sin trim ni lowercase; no equivale a `"Ventas"`. |
+| VectorSpace: `lenguaje` ausente/null | No activa el filtro. |
+| VectorSpace: `lenguaje` vacio/blanco, nombre no canonico o tipo JSON distinto de cadena/null | 400 antes del motor. `"csharp"` no es el nombre canonico `"CSharp"`, aunque Match.Text pueda ignorar mayusculas del payload. |
+| VectorSpace: `namespace` ausente/null/vacio/blanco | No activa el filtro; no implica permisos. |
+| VectorSpace: `namespace` no blanco | Cadena literal, sin trim/lowercase; numero/booleano/arreglo/objeto produce 400. |
+| Punto sin language/namespace | No satisface el filtro activo de ese campo. Sin filtro no se excluye por esa ausencia. |
 | Rag local: lenguaje null; namespace/tenant/modulo null, vacio o blanco | No activa ese filtro explicito. No interpretar esto como permiso de acceso. |
 | VectorSpace: modulo sobre coleccion existente sin preparacion completa | 409 antes de vectorizar; no reintentar quitando el filtro. |
 | VectorSpace: coleccion inexistente | 200 con resultados vacios; no demuestra que otra coleccion este preparada. |
@@ -171,6 +206,9 @@ otros lenguajes, mayusculas, tokens, subcadenas, namespace ausente y una ruta
 coincidente con namespace distinto. Un resultado por ruta en ese ultimo caso
 puede ser correcto para modulo, pero no demuestra que se haya filtrado namespace.
 Compara contra `Match.Text` de referencia, no contra un predicado de modulo.
+El [banco reproducible de 1.21.4](../evaluaciones/1.21/filtros-textuales.md)
+comprueba estos casos con Qdrant efimero y embeddings/LLM inyectados. No necesita
+relleno de language/namespace, nuevos indices ni acceso a colecciones servidas.
 
 Para el futuro adaptador, prueba ademas que un tenant activo o Authorized
 rechazado no provoque peticiones remotas, uso de resultados, ni fallback local.

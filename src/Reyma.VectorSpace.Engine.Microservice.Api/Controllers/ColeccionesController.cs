@@ -164,6 +164,6 @@ public sealed class ColeccionesController : BaseController
         string coleccion, [FromBody] BuscarRequest? request, CancellationToken cancellationToken) =>
         Ok(await Mediator.Send(
             new BuscarEnColeccionQuery(coleccion, request?.Consulta, request?.TopK, request?.Perfil, request?.SimbolosDefinidos, request?.Espacio,
-                request?.Modulos),
+                request?.Modulos, request?.Lenguaje, request?.Namespace),
             cancellationToken));
 }

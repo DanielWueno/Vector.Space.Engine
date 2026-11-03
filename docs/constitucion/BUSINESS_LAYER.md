@@ -45,6 +45,16 @@ Proyecto `Reyma.VectorSpace.Engine.Microservice.Business`. CQRS con MediatR; el 
   para cualquier fase 2 opcional futura: el command solo transporta el opt-in, Infrastructure resuelve el permiso
   de habilitarlo y Business no conoce Qdrant ni el LLM.
 
+## Filtros textuales (item 1.21.4)
+
+Filtros textuales de busqueda (1.21.4): `BuscarRequest` usa `CadenaEstrictaConverter`
+para impedir que Newtonsoft convierta numeros/booleanos a cadenas. Su convertidor
+de objeto desactiva la lectura automatica de fechas SOLO durante esa solicitud:
+una cadena de namespace debe llegar literal, aunque parezca una fecha. El query
+valida los nombres canonicos de lenguaje sin referenciar el enum de Infrastructure;
+los tests de contrato recorren ese enum para detectar desalineacion. No normalizar
+namespace no blanco ni convertirlo en modulo.
+
 ## Responses
 
 - `record` inmutables en `Models/Responses/`; nunca devolver entidades.
