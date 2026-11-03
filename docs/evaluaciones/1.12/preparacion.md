@@ -1,6 +1,6 @@
 # 1.12 - Preparacion del cliente completo y bifurcacion local
 
-Fecha: 2026-11-03, continuacion posterior a `122755f`.
+Fecha: 2026-11-03, continuaciones posteriores a `122755f` y `b50eb6b`.
 **Resultado parcial. Producto y aceptacion funcional pendientes.**
 Fuente rectora: `docs\plan\ejecucion-plan.estado.json`, ficha
 `1.12-decidir-si-rag-context-engine-pasa-a-cliente`. No se ejecuta otra ficha.
@@ -14,8 +14,19 @@ No se reduce a sustituir el brain ni se retira el pipeline local.
 
 El usuario aprobo posteriormente **"te apruebo uso de tiempo sin limite"**, solo
 para 1.12. Ya no hay bloqueo presupuestario de 4 h. La consulta historica sin
-respuesta permanece intacta. La nueva consulta sobre IMPLEMENTAR y ACTIVAR pruebas
-aisladas tampoco obtuvo respuesta; no se interpreta como consentimiento.
+respuesta permanece intacta. La consulta inicial sobre IMPLEMENTAR y ACTIVAR
+pruebas aisladas tampoco obtuvo respuesta en esa etapa.
+
+**Actualizacion posterior a `b50eb6b`, 12:21:** el usuario respondio expresamente:
+
+> Autorizo implementar 1.12 en D:\Git\Rag.VectorSpace.Client y ejecutar ingestas y pruebas aisladas, conservando el original y sin tocar colecciones servidas, credenciales, despliegues ni hacer push.
+
+La autorizacion de implementacion y pruebas aisladas **ya existe**: no volver
+a pedirla ni presentar la consulta historica sin respuesta como estado actual.
+Sigue faltando el protocolo/oraculo previo. Se consulto la propuesta concreta
+de ranking y referencia pareada de abajo; el usuario no estuvo disponible.
+No se interpreta esa ausencia como aprobacion metodologica ni como revocacion
+de la autorizacion de implementacion. No se modifico producto.
 
 Durante esta conversacion el usuario pidio una bifurcacion con Git aparte para
 conservar el original y luego autorizo generarla. Se creo:
@@ -30,6 +41,9 @@ El nombre de carpeta es el propuesto localmente, no un nombre remoto confirmado.
 Commit de preparacion del clon: `4e328bc7765033ea2f04a96d163dd1b534a5e017`;
 solo AGENTS.md, README.md y nota en el ledger, autor/committer DWeno,
 sin coautoria ni firma de herramienta.
+Actualizacion de autorizacion y bloqueo metodologico en el clon:
+`e7b1b7375a51322d99b7cc8087634cfb7a968603`, los mismos tres archivos;
+autor/committer DWeno, mensaje comprobado sin coautoria/firma y arbol limpio.
 La cuenta GitHub autenticada es `DanielWueno`; el mensaje escribio `DanielWeno`.
 La aclaracion de propietario/destino no obtuvo respuesta. **No se creo un
 repositorio remoto ni se hizo push**. No se agregaron colaboradores ni se afirma
@@ -138,8 +152,9 @@ variable es cambio visible que debe decidirse, no introducirse silenciosamente.
 pesos y escalas, manejo de umbrales, pools y contrato de entradas no representables.
 O bien ampliar explicitamente el contrato necesario dentro del alcance autorizado,
 o aceptar una estrategia remota distinta con rechazo visible de entradas no
-soportadas y criterio de calidad acordado. Esta preparacion no elige una variante
-en ausencia de autorizacion/oraculo, ni ejecuta otra ficha para resolverla.
+soportadas y criterio de calidad acordado. La implementacion ya esta autorizada,
+pero esta preparacion no elige una variante sin resolver ese oraculo,
+ni ejecuta otra ficha para resolverla.
 
 ### Restricciones ya decididas
 
@@ -191,9 +206,25 @@ La conversion **solo en memoria** CRLF -> LF da respectivamente:
 | tickets-microservice | `2ae380bb02df6c0fb28aaa3cb3101973a126ba3c1c8b970d0802ad104709bf0c` |
 
 Los ultimos tres prefijos coinciden con `provenance.eval_set_hash` de 5.e.
-El de bsuite-repo NO: 5.e declara `5c0b6532ac78` y 55 preguntas (47+8);
-el actual agrega 20 de salto y 9 salto-negativo. Las 55 preguntas de 5.e
-siguen presentes por texto, pero eso no demuestra identidad de sus anclas.
+El del archivo completo bsuite-repo NO: 5.e declara `5c0b6532ac78` y
+55 preguntas (47+8); el actual agrega 20 de salto y 9 salto-negativo.
+La primera preparacion solo habia comprobado presencia de las preguntas
+por texto, no identidad de sus anclas.
+
+**Hallazgo posterior, comprobado sin escribir archivos:** seleccionar los
+objetos completos actuales por `Question`, en el orden de `results[].question`
+del baseline, recupera exactamente los primeros 55 objetos del eval-set de 84.
+Serializar con `json.dumps(cohort, ensure_ascii=False, indent=2) + "\n"`,
+codificar UTF-8 y calcular SHA256 produce:
+
+`5c0b6532ac7826f4afd7cbdeefd590a94e44b0cf284614b298b017ce9bc3c08a`.
+
+Coincide con el prefijo historico `5c0b6532ac78`; el baseline no guarda un
+hash historico completo. Es evidencia de reconstruccion del instrumento de
+55 objetos/anclas, no recuperacion de corpus, indice, modelos o respuestas ask.
+No se sustituyeron las 55 preguntas por las 84 ni se editaron anclas/archivos.
+La diferencia 55-vs-84 ya no justifica afirmar que la cohorte sea irrecuperable.
+
 `git show 9a6e005:docs/eval/bsuite-auditorias.eval-set.json` fallo:
 objeto `9a6e005` inexistente en este checkout, que NO es shallow. No se hizo fetch
 ni se asumio que otro commit reproduce ese arbol sucio.
@@ -212,7 +243,7 @@ ni se han elegido umbrales despues de medir.
 
 | Puerta | Oraculo obligatorio y evidencia que debe fallar si falta |
 |---|---|
-| P0, autorizacion | Consentimiento de composicion/activacion en el clon, recursos aislados concretos y rollback. Estado bloqueado hasta entonces; tiempo ya aprobado. |
+| P0, autorizacion | Implementacion e ingestas/pruebas aisladas en el clon YA aprobadas; tiempo tambien. Concretar recursos aislados y rollback antes de ejecutarlos. El bloqueo actual es metodologico, no falta de esos consentimientos. |
 | P1, procedencia | Manifestar ambos commits/builds, archivos sucios permitidos, hashes completos del corpus y de cada documento, anclas/IDs de preguntas, n efectivo, contratos de chunking, imagen/version/esquema de Qdrant, embeddings codigo/resumen, prompts/modelos LLM, reranker/binario/tokenizer, pesos/pools/umbrales/gates y configuracion efectiva sin secretos. Identificar toda diferencia intencional; no exigir igualdad falsa entre MiniLM y arctic. |
 | P2, composicion real | Arrancar API mediante su composicion real con Empresarial+remoto: rechazo antes de HTTP/catalogo/consulta, embeddings, reranker y LLM; contadores cero y ningun fallback. Ejercitar tambien CLI/puerto y cada Authorized, incluso admin/sin claims; tenant activo en Local se rechaza. Los tests aislados del traductor no sustituyen esto. |
 | P3, filtros/consumo | Positivos L/N/M y ANY de simbolos; negativos de otros lenguajes, namespace ausente/ruta coincidente, fronteras alpha/alpha-private/Alpha, conjuncion imposible; falsos candidatos de mayor score. Mismos filtros en todas las peticiones/saltos; ningun candidato ajeno llega a semillas, reranker, LLM o fuentes. Version/esquema iguales al oraculo textual. |
@@ -224,17 +255,42 @@ ni se han elegido umbrales despues de medir.
 **Bloqueo de oraculo, responsable usuario + ejecutor de 1.12:** el criterio literal
 de la ficha pide paridad con eval-set/baseline 5.e, pero no fija un margen numerico
 para el cambio de algoritmo ni una adjudicacion de ask; 5.e no tiene esas respuestas.
-Antes de producto, acordar referencia reconstruible (conservar 5.e como historia,
-resolver sus 55 preguntas frente a 84 actuales), procedimiento de control aislado
+Antes de producto, acordar referencia reconstruible (conservar 5.e como historia
+y las 55 preguntas recuperadas), procedimiento de control aislado
 y criterio de paridad por pregunta/total/categoria. No importar automaticamente
 el +/-1 de olas 5/6 ni el comparador de calibracion 12.10.
 
-Como propuesta a ratificar, no criterio ya aprobado: reportar hit_any/hit_full
-@1/3/5/10 y perdidas individuales; requerir cobertura completa, ninguna fabricacion
-nueva por pregunta y correctas de ask no inferiores al control, con adjudicacion
-de respuestas, no solo score. Fijar margen de recall y replicas antes de medir.
-Los 29 casos adicionales y el labeled-set de abstencion pueden ser suplementarios,
-pero nunca reemplazar silenciosamente los casos y referencia exigidos.
+### Propuesta concreta consultada tras la autorizacion
+
+**Sin respuesta; no aprobada ni ejecutada.** La consulta no volvio a pedir
+implementacion ni tiempo: pidio resolver el cambio algoritmico y la referencia.
+
+- Conservar los cinco JSON 5.e intactos. Cohorte principal de 116 preguntas:
+  55 bsuite-repo, 16 auditorias, 26 docs y 19 tickets. Son 104 con anclas textuales
+  y 12 negativos, aun no n efectivo validado; repro2 es una replica, no otra cohorte.
+  Los 29 casos posteriores serian suplementarios, nunca sustitutos.
+- Construir control local aislado desde el original y candidato remoto sobre
+  el mismo snapshot. Registrar referencia pareada nueva de search/ask con
+  procedencia completa. No presentar 5.e como comparable automaticamente
+  ni reemplazarlo sin decision expresa.
+- Dos corridas pareadas completas; cero perdidas por pregunta de hit_any@10
+  e hit_full@10 frente al control. Ninguna fabricacion nueva ni transicion
+  de respuesta correcta a incorrecta/abstencion en ask, con adjudicacion sustentada.
+  Reportar tambien @1/3/5/10, categorias y perdidas individuales. Negativos,
+  filtros, composicion, errores parciales y rollback obligatorios.
+- Candidato inicial propuesto: codigo Denso y resumen separado donde corresponda;
+  RRF de esos dos rankings en Rag, pesos 1/1 y k=60 como hipotesis no calibrada;
+  pool remoto de 100 por espacio y pool primario de 100. TopK publico 1..100;
+  salto por simbolos y reranking en Rag. No equivale a tres ramas y cambia pools.
+  MinScore incompatible con el piso configurado del servidor se rechaza,
+  no se ignora. Si no supera el criterio, no se activa ni se bajan umbrales.
+
+La alternativa consultada fue preparar explicitamente la ampliacion contractual
+si se exige equivalencia algoritmica. Antes de producto siguen pendientes la
+resolucion de esta eleccion, escalas/desempates/presupuesto exacto de saltos,
+orden de las corridas, rubricado verificable de ask, configuracion y congelacion
+de corpus/anclas. Esta propuesta concreta **no es todavia un oraculo completo**.
+El labeled-set de abstencion podria ser suplemento, nunca reemplazo silencioso.
 
 Un futuro runner debe fallar con evidencia/corpus/infra ausentes, cero tests,
 skips o casos requeridos omitidos, identidad de instrumento distinta y parejas
@@ -244,11 +300,28 @@ esta fase documental.
 
 ## Corpus, misses y horas de maquina
 
-Inventario completado: artefactos de evaluacion anteriores. **No inventario
-completo del corpus**: faltan snapshots/rutas autorizadas y huellas de las cuatro
-fuentes a reconstruir; nombres de colecciones y rutas historicas no son evidencia
-de disponibilidad actual. No se inspeccionan otros repositorios corporativos,
-ni colecciones servidas, para llenar esa ausencia sin alcance.
+Inventario completado: artefactos de evaluacion anteriores. Tras la autorizacion
+se comprobo solo existencia de las tres carpetas locales siguientes, sin leer
+sus fuentes, crear snapshots ni consultar red/indices:
+
+| Corpus local | Uso historico, no ingesta ejecutada |
+|---|---|
+| `D:\Git\BusinessSuite.Xaf` | bsuite-repo completo y tres subcarpetas para auditorias |
+| `D:\Git\docs-bsute-innovapp-plan` | innovapp-docs |
+| `D:\Git\Reyma.TI.Tickets.Microservice` | micro-repo, eval-set tickets-microservice |
+
+`replicate-env\scripts\04-ingest-collections.sh` del original identifica para
+auditorias las subcarpetas `src\Modules\REYMA.XAFR1PV.Compras\Auditorias`,
+`src\Modules\REYMA.XAFR1PV.Compras\Compras\Utils` y
+`src\Modules\REYMA.XAFR1PV.Base`. Se leyo el procedimiento historico,
+**no se ejecuto** ni se comprobaron aun esas subcarpetas. Historial con resumen
+en ambos corpus bsuite y sin resumen en docs/tickets: no autoriza omitirlo
+del control/candidato donde corresponda.
+
+**No hay inventario completo del corpus:** faltan revisiones/snapshots,
+documentos elegibles, hashes, anclas comprobadas y conteos de ambos contratos.
+La presencia de carpetas no prueba identidad con 5.e ni cobertura del indice.
+No se accedio a otros repositorios corporativos por red ni a colecciones servidas.
 
 Se encontro por nombre la cache heredada y archivos WAL/SHM en
 `R\replicate-env\data\`; no se abrio, copio ni conto su contenido. Su presencia
@@ -265,6 +338,7 @@ No existe un conteo de misses realizado en esta conversacion.
 | Partida | Estimacion/conteo actual |
 |---|---|
 | Preparacion documental y separacion Git | 0.25 h estimadas, no cronometraje de maquina |
+| Continuacion documental tras aprobacion de implementacion | 0.1 h adicionales estimadas, no cronometraje ni consumo de tokens medido |
 | Reserva tecnica historica | 4 h numericas provisionales: 1 pruebas + 1.42 embedding/upsert candidato + 1 eval + 0.58 margen; incompleta |
 | Reconstruccion y embeddings del control | Pendiente de corpus/modelos/configuracion; NO cero |
 | Embeddings codigo/resumen del candidato | Recontar por contrato y ambas bandas; 1.42 h es referencia historica, no medida vigente |
@@ -290,8 +364,9 @@ composicion y restaurar configuracion/perfiles del control como unidad.
 Un error remoto nunca selecciona local automaticamente. Revertir codigo no
 revierte puntos ya escritos; no modificar/eliminar colecciones servidas.
 
-Reentrada: confirmar implementacion/activacion en el clon; cerrar elecciones
-de ranking/contrato y oraculo pareado; obtener corpus/snapshots y contar misses;
+Reentrada: NO volver a pedir implementacion/activacion ni tiempo; resolver
+la propuesta metodologica sin respuesta, cerrar ranking/contrato y oraculo
+pareado; inventariar/congelar los corpus locales y contar misses;
 congelar ambos brazos y recursos aislados antes de marcar en_curso. Publicacion
 GitHub requiere propietario/destino confirmados y autorizacion separada; sin push.
 `1.21.5-definir-tenencia-del-cliente` y

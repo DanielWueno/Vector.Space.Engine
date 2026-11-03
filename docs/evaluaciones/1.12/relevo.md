@@ -19,6 +19,9 @@ REPOSITORIOS
   Rama feature/vectorspace-client; no worktree, no alternates, sin remote/push.
   Preparacion documental commiteada en
   4e328bc7765033ea2f04a96d163dd1b534a5e017 (sin cambios de producto).
+  Autorizacion expresa y bloqueo metodologico registrados despues en
+  e7b1b7375a51322d99b7cc8087634cfb7a968603, tambien solo documentacion.
+  Consultar status/log actual y el resultado del ledger rector.
   Ledger heredado: docs\analisis-futuro\ejecucion-plan.estado.json.
   La nota _bifurcacion_1_12 conserva procedencia; las 162 fichas heredadas no
   son una agenda nueva. La unica fuente de avance de 1.12 sigue en VectorSpace.
@@ -27,6 +30,10 @@ Lee las instrucciones de los tres repositorios, ambos ledgers de origen
 completos y la nota del clon. Lee completa 1.12 y sus fuentes, incluidas
 _decision_alcance_2026_11_03, _decision_compatibilidad_2026_11_03,
 _solicitud_aprobacion_2026_11_03 y las actualizaciones posteriores a 122755f.
+En particular, leer _autorizacion_implementacion_posterior_b50eb6b,
+_propuesta_oraculo_posterior_b50eb6b y
+_instrumento_recuperado_posterior_b50eb6b. Las solicitudes anteriores sin
+respuesta son historia; NO describen la autorizacion actual.
 Lee docs\evaluaciones\1.12\preparacion.md de VectorSpace; sus propuestas no
 son un protocolo experimental completamente congelado ni aceptacion funcional.
 Comprueba status/diff y staged de los tres repositorios, preservando cambios ajenos.
@@ -54,13 +61,15 @@ No volver a pedir aprobacion solo por duracion. Mantener estimacion numerica,
 inventario, misses, horas/tokens reales de ambas ramas. Las 4 h del ledger
 son una estimacion historica incompleta, no limite ni bloqueo.
 
-Alcance: SIGUE SIN APROBACION expresa para IMPLEMENTAR el cambio de
-composicion y ACTIVAR pruebas aisladas. La consulta no obtuvo respuesta.
-Los mensajes posteriores solo pidieron/autorizaron Git aparte.
-Solicita ahora ese alcance para D:\Git\Rag.VectorSpace.Client, describiendo
-archivos/componentes, ingesta/busqueda HTTP autenticadas, recursos aislados,
-impacto/errores parciales y rollback. Sin respuesta: solo preparacion
-documental, conservar bloqueado y terminar. No marcar en_curso antes.
+Alcance YA APROBADO, 2026-11-03 a las 12:21, posterior a b50eb6b:
+"Autorizo implementar 1.12 en D:\Git\Rag.VectorSpace.Client y ejecutar ingestas
+y pruebas aisladas, conservando el original y sin tocar colecciones servidas,
+credenciales, despliegues ni hacer push."
+No volver a pedir esta autorizacion. No se implemento todavia: se consulto
+una propuesta concreta para resolver el ranking diferente y la referencia
+pareada nueva, y el usuario no estuvo disponible. El bloqueo restante es
+metodologico, NO presupuestario ni ausencia de aprobacion de implementacion.
+Resolver ese oraculo y la preparacion antes de marcar en_curso/tocar producto.
 
 GitHub: no se creo repositorio remoto. El usuario pidio titularidad personal
 unica y escribio DanielWeno; gh api user mostro DanielWueno. La aclaracion
@@ -127,12 +136,40 @@ PREPARACION PENDIENTE, ANTES DE PRODUCTO
    sin fallback. Los tests existentes del traductor no acreditan esto.
 5. Resolver oraculo y baseline: 5.e contiene recall, NO respuestas ask.
    bsuite-repo 5.e tiene 55 preguntas (47+8); actual 84 (76+8).
+   Las 55 se reconstruyeron EN MEMORIA por Question, en el orden de
+   results[].question del baseline, con objetos/anclas completos:
+   son los primeros 55 del eval-set actual. json.dumps(cohort,
+   ensure_ascii=False, indent=2) + "\n", UTF-8, da SHA256
+   5c0b6532ac7826f4afd7cbdeefd590a94e44b0cf284614b298b017ce9bc3c08a.
+   Coincide con el prefijo historico 5c0b6532ac78; no se dispone del
+   SHA256 historico completo. No afirmar que la cohorte es irrecuperable.
+   No se editaron datasets/baselines ni se recupero corpus/indice/modelos.
    9a6e005 no existe como objeto local y el repo no es shallow.
    En los otros tres datasets el hash LF coincide con el prefijo historico;
    los bytes Windows CRLF difieren, registrado sin editar los archivos.
    No sustituir por 6.c/nightly ni importar +/-1 de otras olas.
    Acordar criterio de paridad, referencia reconstruible y adjudicacion ask;
    si no es inequivoco, seguir preparando sin implementar.
+   PROPUESTA CONSULTADA SIN RESPUESTA, no decision aprobada:
+   - 116 preguntas principales de 5.e: 55/16/26/19, 104 con anclas
+     textuales y 12 negativos; repro2 no duplica casos. Las 29 posteriores
+     son suplemento, no sustitucion.
+   - Control local aislado del original y candidato sobre mismo snapshot;
+     nueva referencia pareada search/ask, conservando 5.e historico sin
+     afirmar comparabilidad automatica ni sustituirlo silenciosamente.
+   - Dos corridas completas; cero perdidas POR PREGUNTA de hit_any@10 y
+     hit_full@10; ninguna fabricacion nueva ni correcta -> incorrecta/
+     abstencion en ask. Adjudicacion sustentada, no solo scores; negativos,
+     riesgos, filtros, composicion, parciales y rollback obligatorios.
+   - Denso codigo y resumen separado, RRF de dos rankings pesos 1/1,
+     k=60, pool remoto 100 por espacio y primario 100; TopK publico
+     1..100, saltos y reranking Rag. Hipotesis no calibrada y NO equivalente
+     a tres ramas. Rechazo visible de MinScore incompatible con piso
+     servidor. Si falla, no bajar umbrales ni activar.
+   Alternativa consultada: preparar ampliacion contractual si se exige
+   equivalencia. Faltan resolver eleccion, escalas/desempates/presupuesto
+   de saltos, orden de corridas, rubricado ask y congelacion de entradas.
+   No presentar esta propuesta como oraculo completo o ya aceptado.
 6. Congelar corpus/hash por documento, anclas/n efectivo, modelos/binarios,
    prompts, versiones/esquemas y configuracion de ambos brazos. Datos
    ausentes no son evidencia. El inventario documental tiene 145 preguntas,
@@ -142,6 +179,12 @@ PREPARACION PENDIENTE, ANTES DE PRODUCTO
    heredada ni se abrio su WAL. Cache remota es en memoria e incluye modelo;
    no asumir reutilizacion de SQLite. Presupuestar embeddings, resumenes,
    reconstruccion del control y evaluacion de ambos brazos por separado.
+   Existen D:\Git\BusinessSuite.Xaf, D:\Git\docs-bsute-innovapp-plan y
+   D:\Git\Reyma.TI.Tickets.Microservice (solo Test-Path, no lectura de fuentes).
+   El script historico replicate-env\scripts\04-ingest-collections.sh
+   identifica las tres subcarpetas de auditorias; NO ejecutarlo contra
+   nombres servidos. Faltan snapshot/hash/anclas/chunks/misses: existencia
+   no prueba disponibilidad de las anclas ni identidad con 5.e.
 
 ACEPTACION Y ROLLBACK
 Parear /api/search y /api/ask reales con mismo eval-set/baseline acordados,
