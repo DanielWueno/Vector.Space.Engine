@@ -1,11 +1,233 @@
 # 1.12 - Preparacion del cliente completo y bifurcacion local
 
-Fecha: 2026-11-03, continuaciones posteriores a `122755f` y `b50eb6b`.
-**Resultado parcial. Producto y aceptacion funcional pendientes.**
+Fecha: 2026-11-03, continuaciones posteriores a `122755f`, `b50eb6b` y `832b31a`.
+**Resultado parcial. Cliente implementado opt-in; aceptacion rechazada, 1.12 bloqueado.**
 Fuente rectora: `docs\plan\ejecucion-plan.estado.json`, ficha
 `1.12-decidir-si-rag-context-engine-pasa-a-cliente`. No se ejecuta otra ficha.
 
-## Autorizaciones y repositorios
+## Implementacion y fixture real posteriores
+
+Se implemento solo en `D:\Git\Rag.VectorSpace.Client`: transporte/API tipada,
+retrieval remoto, perfiles/catalogo, brain para meta-intent, pipeline ZIP/estado,
+resumen remoto autoritativo y composicion real API/CLI. El backend local sigue
+seleccionable y predeterminado; un fallo remoto no activa fallback. No se cambio
+producto del original ni de VectorSpace.
+
+La combinacion Empresarial+VectorSpace falla desde la composicion real, antes
+del consumo; se rechazan Authorized y tenant activo. L/N textuales y modulo
+opcional se conservan en codigo, resumen y cada salto. Los metadatos/metricas
+que el servicio no expone permanecen ausentes. El cliente no abre cache SQLite
+de resumen ni estado de ingesta; el servidor usa su cache nativo en memoria.
+
+Comprobaciones manuales, separadas de edicion:
+
+- 110 pruebas enfocadas pasan, sin fallos ni omitidas, con comprobacion del TRX
+  para rechazar cero tests. Composicion API/CLI, transporte, contexto y pipeline.
+- Fixture sintetico real `1.12-live-fixture-r4`: ingesta de cuatro documentos,
+  idempotencia, JWT/401, filtros en requests REALES de codigo/resumen/simbolos,
+  respuestas search/ask de ambos brazos, 429/Retry-After, borrado de un documento
+  de prueba, 404 de operacion desconocida y control local explicito.
+- r3 y r4 completos: 18.49/18.50 segundos; 4 resumenes por brazo/corrida.
+  Tokens de resumen reportados por candidato: 1391/1407. El contrato no entrega
+  el total de tokens de resumen del control ni de ask: no inventar total facturado.
+- Las dos ejecuciones anteriores del fixture fallaron antes de ingesta por
+  registros faltantes del host de pruebas: accessor de identidad y reloj UTC.
+  Se usan registros existentes y reloj Business sin SQL, identidad corporativa
+  ni lectura/compilacion de la API/configuracion protegida.
+- Una ampliacion de pruebas de contexto encontro 18 fallos Windows. El mismo
+  conjunto de 18 se reprodujo en copia aislada de la revision original:
+  CRLF en goldens y archivos SQLite abiertos. No se modificaron goldens ni 19.6.
+
+Qdrant propio: `v112-qdrant-20261103`, volumen
+`v112-qdrant-20261103-data`, imagen Qdrant 1.19.2
+`sha256:b7b0444c4c351c970b98e90a6f89c2ee4287c65b44e52b4cb503fa5b2aa927ad`,
+loopback 26333/26334. El Qdrant del tunel 6333 queda intacto.
+Los hosts HTTP son efimeros, con JWT sintetico local validado; no cambian
+credenciales reales. Conservar volumen/indices para evidencia y rollback.
+
+Antes de la primera medicion primaria se registro protocolo v3: cohortes
+completas docs, tickets, bsuite-repo y auditorias, orden inverso en ronda 2.
+Si un par completo demuestra una perdida contra el criterio universal ya
+congelado, detener con error y conservar el rechazo; no consumir los 31880 misses
+restantes para demostrar de nuevo el incumplimiento. No cambiar documentos,
+anclas, umbrales, modelos ni flags de resumen; no aprobar trabajo no medido.
+`Fixture --paired` adquiere evidencia, pero NO certifica por si mismo
+adjudicacion semantica, cobertura de riesgos ni aceptacion completa.
+
+## Resultado pareado: rechazo temprano verificado
+
+La corrida `.artifacts\1.12-paired-r1` termino con error tras **124 respuestas
+HTTP 200, 31 pares completos**, todos de ronda 1: 26 docs y 5 tickets.
+Se ingirieron los corpus completos de esas dos cohortes, no un subconjunto
+favorable: 15/553 archivos, 743/1855 chunks del control y 629/1707 puntos
+del candidato. Los resumenes estaban deshabilitados en estas cohortes desde
+el protocolo original, no se omitieron para facilitar esta prueba.
+
+Contraejemplo: **`tickets-microservice-005`**, adjuntar documento/evidencia a ticket.
+
+| Evidencia @10 | Control | Candidato |
+|---|---|---|
+| Ancla `TicketDocumentoRequest request` | Rango 1 | Rango 1 |
+| Ancla `RegistroTicketDocumentoValidationMessages` | Rango 7, validator lineas 14-21 | Ausente; rango 10 trae otro chunk del validator, lineas 25-29 |
+| hit_any | true | true |
+| hit_full | **true** | **false** |
+
+Ocurre en ambas vistas, historica y corregida. La recomputacion independiente
+normaliza los dos separadores de ruta, usa basename y comparacion ordinal
+de anclas, confirma las cuatro respuestas HTTP del par y vuelve a comprobar
+los hashes de **todos** los bytes del corpus congelado. No es un fallo de
+infraestructura ni del nombre de archivo. No aisla causalmente sparse,
+chunking o pools: no atribuirlo a uno solo sin otro experimento.
+
+- SHA256 `evaluation.json`:
+  `9acd079abed96cd43d151d31ae6586aac1f94d9ff746cd951cdd1ce21ff4b511`.
+- SHA256 del protocolo medido, copiado antes de ejecutar:
+  `9a682d542c74096914caff1bc1ad62b5bc7f328a6dbac08258c612c889180232`.
+- `rejection-verification.json` conserva el contraejemplo independiente.
+  Configuracion, esquemas, hashes binarios, respuestas, tiempos y archivos
+  cegados permanecen bajo la salida de corrida, ignorada por Git.
+- Duracion primaria: **888.696 s**. Ingesta candidato docs/tickets:
+  44.651/101.938 s; control: 73.532/206.487 s.
+  Control: 2598 textos y **712096 tokens de embeddings de documentos**,
+  sin truncamiento. No es el total de tokens de consultas/generacion.
+- No se generaron los **31880 misses** de resumen restantes: el criterio ya
+  esta refutado. No equivale a declarar que esos brazos/cohortes pasaron.
+- Quedan sin completar resto de tickets, bsuite/auditorias, ronda 2, suplemento29,
+  adjudicacion semantica de ask y cobertura total de riesgos. Una lectura
+  parcial de respuestas cegadas no certifica ask.
+
+Comandos reales ejecutados en llamadas separadas de edicion:
+
+```powershell
+# Desde D:\Git\Rag.VectorSpace.Client. Evidencia parcial, NO cierre de 1.12.
+dotnet test tests\RagEngine.Core.Tests\RagEngine.Core.Tests.csproj --no-restore --filter "FullyQualifiedName~VectorSpace|FullyQualifiedName~TransportProfileTests|FullyQualifiedName~CollectionAuthorizationServiceTests" --logger "trx;LogFileName=remote-real-composition-r4.trx" --results-directory .artifacts\1.12-tests --verbosity minimal
+dotnet build src\RagEngine.Cli\RagEngine.Cli.csproj --no-restore --verbosity quiet
+dotnet build docs\eval\quality\1.12\Fixture\Fixture.csproj -p:VectorSpaceRoot=D:\Git\Vector.Space.Engine --no-restore --verbosity quiet
+dotnet run --project docs\eval\quality\1.12\Fixture\Fixture.csproj -p:VectorSpaceRoot=D:\Git\Vector.Space.Engine --no-restore -- .artifacts\1.12-live-fixture-r4
+dotnet run --project docs\eval\quality\1.12\Fixture\Fixture.csproj -p:VectorSpaceRoot=D:\Git\Vector.Space.Engine --no-restore -- --paired .artifacts\1.12-20261103-r3 .artifacts\1.12-paired-r1
+```
+
+Las salidas existentes no se sobreescriben: los dos ultimos comandos son la
+procedencia de lo ejecutado, no una invitacion a regenerarlo. El ultimo devolvio
+error por el criterio; no se cambio para hacerlo verde. Los comandos no son
+`verificacion_comando` de una aceptacion completa.
+
+Qdrant propio **detenido y comprobado `exited`**, volumen conservado; hosts HTTP
+detenidos en `finally`. Sin auxiliares de prueba que deban seguir ejecutandose.
+Rollback: backend Local explicito y eventual revert del commit de composicion,
+sin borrar indices ni el original. Otra medicion necesita hipotesis/protocolo
+previos, conservar el rechazo y reutilizar trabajo compatible. El runner actual
+exige salida nueva y no ofrece reanudacion ni certificacion de adjudicaciones:
+resolver esas limitaciones antes de una futura corrida larga. No hay otra ficha
+autorizada; no abrir 1.21.5/1.21.6.
+
+## Persistencia coordinada
+
+Cliente: `3bf19259a91756f14c27dbe500be2be98d71e0c6`, rama
+`feature/vectorspace-client`: 51 archivos del item, producto/pruebas/harness
+y nota del ledger juntos. Autor/committer DWeno, mensaje comprobado sin
+coautoria ni firma de herramienta; arbol limpio, sin remote/push.
+La medicion precede al commit y conserva sus hashes binarios/configuracion.
+El commit de VectorSpace que contiene este documento persiste unicamente
+la ficha 1.12, esta evidencia y el relevo; no es cierre funcional.
+
+## Historia del preflight: servicios remotos, no inferencia local
+
+La respuesta **"ok, realizalo"** de las 12:44 aprobo ranking distinto y nueva
+referencia pareada estricta. Implementacion y tiempo ilimitado tambien estaban
+aprobados. No volver a presentar esas consultas historicas como pendientes.
+
+Antes de producto o medicion, el usuario corrigio el banco: Snowflake por el
+tunel ya existente y AltheIA configurada, dejando Qdrant de pruebas aislado local.
+Ambos brazos usaran los mismos modelos remotos. El control sera una adaptacion
+aislada del pipeline original, NO su runtime intacto ni el baseline 5.e.
+El original no se modifica. No se toca el Qdrant del tunel ni se cambia el tunel.
+
+Comprobaciones reales, solo metadatos:
+
+- Los puertos indicados 6333/8081 estan escuchando en loopback. Cero requests a
+  Qdrant, ninguna coleccion listada, creada o modificada.
+- `/info` en 8081: `Snowflake/snowflake-arctic-embed-m-v2.0`, float32,
+  ventana 8192, lote 16384, TEI 1.8.3 y commit del servicio
+  `78502d8e61223d2c73d4bb7aeaea46787e90d596`.
+  No expone revision de pesos: ese commit NO es un hash del modelo.
+- AltheIA `/v1/models`: `bge-m3`, `qwen3.8-27b-deep`, `qwen3.8-27b-fast`.
+  Se selecciona `fast`, como en el ejemplo proporcionado. Esto prueba acceso al
+  catalogo, no inferencia ni cuota disponible. No se selecciona bge-m3 en lugar
+  del Snowflake indicado por el usuario.
+- El ejemplo PowerShell se inspecciono mediante AST, sin ejecutar sus funciones
+  que cambian credenciales/archivos de uso, ni mostrar valores secretos.
+  El probe reutiliza el cliente HTTP/TLS del motor con las variables existentes
+  `ALTHEIA_KEY`/`ALTHEIA_CERT`, sin desactivar validacion ni seguir redirecciones.
+  No lee el appsettings protegido ni imprime certificados o credenciales.
+
+Protocolo activo en el clon: `docs\eval\quality\1.12\protocol.json`.
+La propuesta de inferencia local se conserva, **sustituida antes de medir**, en
+`protocol-local.pre-altheia.json`. Dos rondas, mismo corpus y criterios estrictos;
+no se relajan anclas/umbrales por cambiar servicios.
+
+Preparacion real reproducible (`.artifacts\1.12-20261103-r2` y `-r3`, ignorados):
+
+| Cohorte | Archivos admitidos | Chunks control / candidato | Preguntas con anclas ausentes |
+|---|---:|---:|---:|
+| bsuite-repo | 2113 | 23221 / 17628 | 0 / 0 |
+| auditorias | 311 | 2081 / 1792 | 0 / 0 |
+| docs | 15 | 743 / 629 | 0 / 0 |
+| tickets | 553 | 1855 / 1707 | 0 / 0 |
+
+Son 116 preguntas: 104 ancladas y 12 negativas, con cobertura verificada tras
+los chunkers/reglas de admision REALES, no recall medido. Dos erratas verificadas
+antes de retrieval se conservan en copia derivada: elipsis no literal de docs-020
+y mayuscula inicial de tickets-008. Se deben reportar ambas vistas sobre ambos
+brazos; datasets originales y cinco JSON 5.e intactos. Las 29 preguntas posteriores
+de bsuite son suplemento, no sustitucion.
+
+- SHA256 instrumento: `19b9526fcb467b6dfe0470dddfe4a818e3deccd27932346c99cbd984145cf815`.
+- SHA256 manifiesto de fuentes: `32a535d48b489795b01b4810de7255c2159642315c492647b8b6371dc0863fd8`.
+- Cache original abierta solo lectura; backup SQLite consistente y separado,
+  hash `654bd7d7b724bc4b52fb8a1fc21a557072927580a53386fb692dbae956810c79`.
+  Ningun segundo escritor sobre su WAL.
+- Para `qwen3.8-27b-fast`: versiones de prompt `0879c221` / `d6778228`,
+  misses **18612 / 13268**, cero hits compatibles. Los prompts solo difieren
+  por CRLF/LF; no normalizar claves ni fingir reutilizacion de la cache historica.
+
+**Actualizacion posterior:** el usuario autoriza AltheIA **sin limite** y corpus
+completo si es necesario. La consulta de cuota sin respuesta queda como historia,
+NO como bloqueo. Primero fixtures pequenos; solo despues aceptacion completa.
+Registrar consumo y respetar limites reales, sin eludirlos. El ejemplo declara 1 M tokens diarios,
+no una reserva para esta ficha ni cuota disponible verificada. La referencia de
+1.7.3 (~670 tokens/chunk) extrapola **21.359.600 tokens solo para resumenes**:
+unas 22 ventanas de 1 M si estuvieran completamente disponibles, mas ask,
+reintentos y otras comprobaciones. Es estimacion, no consumo medido. No omitir
+resumenes/control, acaparar cuota o reutilizar presupuestos de otras fichas.
+Las **40 h de maquina** son provisionales y distintas del calendario por cuota;
+la aprobacion de tiempo ilimitado permanece, no hay que volver a pedirla.
+
+Herramientas de preparacion compiladas/ejecutadas manualmente en llamadas
+separadas de la edicion. No hay producto implementado, servicios iniciados,
+ingestas, embeddings/resumenes/generaciones ni aceptacion funcional.
+El rector volvio temporalmente a `bloqueado` antes de modificar producto y
+despues a `en_curso` con la autorizacion expresa de consumo sin limite.
+
+Comandos de preparacion (NO son `verificacion_comando` de 1.12):
+
+```powershell
+# Desde D:\Git\Rag.VectorSpace.Client. Cada salida debe ser nueva.
+python docs\eval\quality\1.12\prepare.py --source-parent D:\Git --output .artifacts\1.12-20261103-r3
+dotnet run --project docs\eval\quality\1.12\Preparation\Preparation.csproj -p:VectorSpaceRoot=D:\Git\Vector.Space.Engine --no-restore -- .artifacts\1.12-20261103-r3 .artifacts\1.12-20261103-r2\summary-seed.sqlite3 qwen3.8-27b-fast
+dotnet run --project docs\eval\quality\1.12\Preparation\Preparation.csproj -p:VectorSpaceRoot=D:\Git\Vector.Space.Engine --no-restore -- --remote-preflight .artifacts\1.12-20261103-r2\remote-preflight.json
+```
+
+`--remote-preflight` solo consulta metadatos autorizados; no ejecuta el script
+del usuario ni pruebas viejas que apuntan a otra instancia. El proyecto referencia
+Core/Infrastructure, NO compila la API de VectorSpace ni copia su appsettings.
+Corregir la configuracion del control y sellar su procedencia antes de medir;
+los hashes locales historicos no se transfieren al nuevo proveedor remoto.
+
+## Historial hasta 832b31a: autorizaciones y repositorios
+
+Lo que sigue conserva la preparacion anterior. Sus bloqueos/ausencias historicos
+quedan actualizados por la seccion vigente y el ledger, no se reabren.
 
 La decision TOTAL de `122755f` no se reabre: VectorSpace sera dueno de
 fragmentacion, embeddings, indice y resumen indexado; el cliente conserva API/CLI,
