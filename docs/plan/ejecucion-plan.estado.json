@@ -834,7 +834,8 @@
           "modelo": "opus",
           "esfuerzo": "high",
           "multiagente": false,
-          "estado": "pendiente",
+          "estado": "en_curso",
+          "fecha": "2026-11-04",
           "horas_maquina": 6,
           "por_que_este_modelo": "Requires identifying every material source condition and separating semantic review from mechanical citation validation.",
           "origen": "Existing missing acceptance evidence in 1.12, assigned to the experimental client after the README scope correction.",
@@ -842,6 +843,14 @@
           "verificacion": "Cover exactly 116 primary plus 29 supplementary questions, preserving each question/Note and source hash. Identify every mandatory condition using full relevant sources, not only anchors; include positive, negative, incomplete-evidence and contradictory-evidence scenarios. Preserve all known tickets011 conditions and the favorable docs011 evidence. Run the existing oracle validator; missing questions, conditions, citations or source mismatches must fail. Record substantive source review separately: a successful parser is not a second semantic reviewer, and known labels cannot be reviewed as newly blinded. Freeze the completed oracle before new primary acquisition.",
           "rollback": "Revert only this task's new oracle/review artifacts through a new commit; preserve frozen inputs and historical judgments. No services, inference or index writes are required.",
           "_working_repository": "D:\\Git\\Rag.VectorSpace.Client",
+          "_avance_2026_11_04": {
+            "_ejecucion": "Claude Code, claude-opus-5-5, effort high, main thread, no subagents (ledger opus; multiagente false). User approved the 6h estimate and will perform the independent semantic review. Actual machine time not measured.",
+            "client_commit": "b019a50a0c2503e29c53db5b8300ce450a76fa80 (base a63d752): Oracle/ specs + build_source_oracle.py, source-oracle.json, test_source_oracle.py, source-oracle-review.md and a scoped .gitattributes (-text) so the oracle bytes keep their SHA in every checkout. DWeno author/committer, no trailers, no push.",
+            "oracle": "source-oracle.json SHA256 664e4febad6c4bff84298ccc0b874bbf29cbe2f578ef56a976403f80ca3a8fde, frozen_at 2026-11-04T22:15:22+00:00; 145 questions (116 primary + 29 supplementary), 224 conditions, 271 literal citations resolved from frozen .artifacts\\1.12-20261103-r3 with the verifier's decoding. Frozen questions/Notes/anchors/sources/protocols unchanged.",
+            "checks_run": "verify_acceptance.py oracle -> {status: oracle-structure-and-citations-only-not-acceptance, questions: 145}, exit 0. test_source_oracle 7/7 (unmutated control passes; missing/foreign/duplicate question, edited question/Note/policy, missing scenario, missing condition/citation, changed quote/lines/hash/path/sources hash all rejected; byte-identical rebuild from specs; tickets011 guards 134-162 + ReymaTiTicketsTicketsReasignar policy + MesaAyuda/MesaDeAyuda distinction preserved; docs011 vigente condition preserved). Whole 1.12 Python suite 32/32. Mechanical only, not a semantic reviewer.",
+            "findings_for_review": "Frozen labels unsupported by frozen bsuite revision: supplement-057/058/077 anchors exist in no frozen file; supplement-081 premise false (single check; anchor message is the SolicitudServicio save rule). bsuite-repo-049 out-of-domain but corpus enables lockout without thresholds. Conditions follow the source and forbid presenting historical labels as source fact; the reviewer decides whether to keep them or record instrument defects in the parent. Four non-UTF-8 bsuite files are uncitable; no question depends on them.",
+            "pending": "Independent human semantic review (author review is same-author) and sign-off against the final SHA in source-oracle-review.md; any change re-freezes with a new SHA. Item stays en_curso until that review is recorded. 1.12.10 remains blocked by this item."
+          },
           "_condicion_de_reentrada": "Start in a new conversation with this complete ID and the rector ledger. The source oracle was already specified; creating it is work, not an infrastructure prerequisite. Existing 1.12 time authorization applies; six hours is an estimate, not measured consumption.",
           "_parallel_work": "Independent of 1.12.8 and 1.12.9 implementation. Own only oracle/review files; coordinate ledger updates through one integrator.",
           "_limits": "No product changes, fresh inference, model/prompt/threshold tuning, original repository edits, protected API configuration access, API project build, deployment or push."
