@@ -3,7 +3,97 @@
 Copia el primer bloque VIGENTE en una conversacion nueva. Los bloques anteriores
 se conservan despues como historia, no como instrucciones actuales.
 
-## VIGENTE: H3 search pasa; primaria rechazada por fabricacion nueva
+## VIGENTE: preparacion offline terminada; decidir alcance siguiente, no adquirir
+
+```text
+Retoma exclusivamente1.12-decidir-si-rag-context-engine-pasa-a-cliente,
+solo si hay una peticion nueva que concrete la ruta siguiente.
+Estado BLOQUEADO; esta preparacion NO acepta el cliente ni decide abandonar
+la migracion. Sin subagentes/otrasfichas/H4/retuning.
+
+ANTES de enumerar/status/diff/buscar: excluir absolutamente
+D:\Git\Vector.Space.Engine\src\Reyma.VectorSpace.Engine.Microservice.Api\appsettings.json.
+No leer/hashear/copiar/compilar API ni incluir esa ruta en Git.
+Usar allowlists explicitas; no gitadd-A ni status/diff general.
+Original D:\Git\Rag.Context.Engine SOLO LECTURA, sin leer/copiar
+src\RagEngine.Api\Properties\. No credenciales/tuneles/colecciones servidas.
+
+Leer AGENTS.md rector, ficha completa docs\plan\ejecucion-plan.estado.json
+y primer bloque VIGENTE de docs\evaluaciones\1.12\preparacion.md.
+Leer cliente D:\Git\Rag.VectorSpace.Client:
+docs\eval\quality\1.12\h3-primary-result.json,
+protocol-h3-acceptance.json y padres, evidencia local preservada.
+Bases comprobadas al iniciar preparacion: rector
+fcfead0cebb69290eb64f50e2c929b3fc900c64c, cliente
+1b57bf2c2eb3906df903d284d6d0948d90bf92b9.
+El commit rector que contiene este bloque solo persiste3archivos documentales;
+comprobar HEAD y diff real, no asumir que las bases siguen siendo HEAD.
+Original HEAD3c3972b90b74ee3d9cd7b86945e07d4775a9c965.
+
+Modelo de preparacion:gpt-6-astra efectivo;xhigh solicitado/esfuerzo efectivo
+no observable. Conservar opus/high plugin y registrar _ejecucion propia.
+0.75h fue estimacion offline,no consumo.42h es estimacion historica.
+Tiempo/AltheIA y alcances anteriores siguen autorizados,no volver a pedirlos.
+
+HECHOS INMUTABLES
+H3search paso. Primaria rechazada:45pares/180HTTP,cero perdidasretrieval,
+dos pares adjudicados. Tickets011 inventa excepcionSistemas al requisito de
+asignado/departamento fuera deMesaDeAyuda;guard161-162 no la permite.
+Ambosincorrectos porotrasomisiones:NOcontrolcorrecto->incorrecto.
+Docs011 favorece candidato por incluir encuesta vigente;conservarlo.
+Un revisor historico;revision actual de etiquetas conocidas NO es cegada,
+verificador mecanico NO es segundo revisor ni prueba causal deH3.
+No reanudar corrida ni retirar quality-rejection.json.
+
+DIAGNOSTICO OFFLINE
+Search de ambos casos:10fragmentos/contenido/orden iguales salvo scores.
+Ask recupera separadamente y ContextReady precede al empaquetado:
+sus SourceDto NO prueban que todo eso llego alLLM.
+En Simple,codigo se redacta de las fuentes publicas,NO necesariamente del prompt.
+Codigo medido vinculado por DLL/PDB/SHA256:assembler12000caracteres,
+omite enteros loschunks que no caben ycontinua. Simulacion sobre SEARCH
+(NO reconstruccion del prompt real):tickets011descarta rango9 enambosbrazos,
+con bajas/GUID;guard161-162delrango2 cabe. Eso no explica por si solo Sistemas.
+ScoresF2/repositorio en cabeceras difieren;no afirmar prompts iguales.
+No se guardaron contexto/mensajes efectivos,seleccion ni respuesta cruda LLM.
+No atribuir aRRF ni exclusivamente azar;posible defecto compartido de
+composicion,fallo generativo yvariabilidad siguen separados.
+Ver preparacion para referencias,hashes,oraculo COMPLETO y limites.
+
+RUTAS
+1) Aceptacion cliente:requiere version/alcance autorizado,procedencia compatible,
+representacion completa4cohortes,screenHTTP45,resumereal actual,116preguntas
+x2rondas=928HTTP NUEVAS,29extras,adjudicacion sustentada ytodoslosriesgos.
+Nueva version NO completa748 reutilizando180rechazadas.
+No hay verificadorintegral:construirlo yprobar negativos antesde registrarlo.
+Los verificadores de screen/rechazo yarnesvalidar noaceptan.
+2) Cierre documental conservando pipeline:decision EXPRESA del usuario con
+motivo/alcance que revise el destino cliente previamente elegido.
+No equivale aaceptacionfuncional. Localactual esrollback,no decision de abandono.
+Sin decision/aceptacion correspondiente,seguir bloqueado.
+
+PROPUESTA NO EJECUTADA
+Instrumentar opt-in ambosbrazos sin cambiar respuestas:retrieval real ask,
+resumenes/admisiones/contexto/mensajes finales permitidos,raw/final/terminacion,
+sellos ycampos cerrados sin secretos. Captura detallada y eventual cambio de
+empaquetado requieren alcance nuevo explicito,NO otra autorizacion de tiempo.
+Hipotesis falsable:fragmentos recuperados deuna regla se separan por presupuesto.
+Si todaslascondiciones llegan alLLM,refutar esaexplicacion paraeseturno.
+Solo si se confirma:propuesta general de agrupar unidades semanticas recuperadas
+para empaquetarlas atomicamente con mismo12000;no tratamiento especialtickets011,
+no corpus/anclas/modelos/prompts/umbrales modificados.
+Contraste causal y riesgos/coste estan preparados,no implementados.
+No confundir cambiar generacion compartida de ambosbrazos con aislar migracion;
+una nueva referencia necesita decision explicita.
+
+Esta fase no inicio servicios/ingestas/inferencias ni cambio producto.
+Conservar originales,indices,volumen,protocolos,rechazos ybinarios.
+Ultimo estadoQdrantexited eshistorico,no reconsultado aqui.
+Guardar solo docs y ficha juntas,DWeno autor/committer,sincoautoria/amend/push.
+Detenerse tras el alcance especificamente pedido;no ejecutar otra ficha.
+```
+
+## HISTORICO: H3 search pasa; primaria rechazada por fabricacion nueva
 
 ```text
 Retoma UNICAMENTE1.12-decidir-si-rag-context-engine-pasa-a-cliente de

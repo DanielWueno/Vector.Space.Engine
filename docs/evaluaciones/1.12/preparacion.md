@@ -5,7 +5,423 @@ Fecha: 2026-11-03, continuaciones posteriores a `122755f`, `b50eb6b` y `832b31a`
 Fuente rectora: `docs\plan\ejecucion-plan.estado.json`, ficha
 `1.12-decidir-si-rag-context-engine-pasa-a-cliente`. No se ejecuta otra ficha.
 
-## VIGENTE: proveedor recuperado; H3 primaria rechazada por fabricacion nueva
+## VIGENTE: diagnostico offline y rutas de cierre, sin nueva adquisicion
+
+Preparacion del 2026-11-04, posterior a `fcfead0cebb69290eb64f50e2c929b3fc900c64c`
+(rector) y `1b57bf2c2eb3906df903d284d6d0948d90bf92b9` (cliente).
+Ambos eran HEAD al entrar; ramas `feature/1.12-h2-ingestion-compatibility` y
+`feature/vectorspace-client`. Original HEAD `3c3972b90b74ee3d9cd7b86945e07d4775a9c965`,
+consultado solo como metadato Git, sin leer su `Properties`.
+Status/diff de entrada vacios en las rutas documentales permitidas; fuentes
+leidas del cliente sin diferencias contra su base. No se inspecciona el cambio
+ajeno del API rector: exclusion previa absoluta, incluso de enumeracion,
+hashes, status/diff, builds y staging. No se afirma limpieza de todo el rector.
+
+Solo esta ficha y estos documentos cambian. Modelo efectivo `gpt-6-astra`;
+solicitado `gpt-6-astra/xhigh`, esfuerzo efectivo no observable; `opus/high`
+del plugin intactos, sin subagentes. Estimacion de esta fase: **0.75 h maquina**,
+no consumo medido. Las **42 h son historia**, no estimacion de esta fase.
+Estado **bloqueado**, sin nueva corrida, inferencia, ingesta, servicio, cambio
+de producto, H4 o retuning. Permisos anteriores de tiempo/AltheIA vigentes.
+
+### Criterio literal y dos cierres que no son equivalentes
+
+La `verificacion` literal de la ficha dice:
+
+> Decision registrada (pasa a cliente o conserva pipeline propio, y con que alcance:
+> total o solo el brain de embeddings) con motivo. Si pasa a cliente con paridad
+> completa: /api/search y /api/ask de Rag.Context.Engine responden contra el servicio
+> remoto con el mismo eval-set y la baseline vigente de ese repo
+> (docs/eval/quality/5.e/), pareado, sin reingestar ni tocar colecciones servidas, y
+> sobre el contrato ya ampliado por 1.18 (y 1.20 si aplica). Si el alcance es parcial,
+> la paridad se mide solo sobre lo que efectivamente cambia de dueno (p. ej. los
+> vectores densos).
+
+La decision posterior de destino fue **cliente completo Local explicito** en la
+bifurcacion, conservando orquestacion/generacion. La referencia nueva pareada con
+modelos iguales fue autorizada; `protocol.json` conserva 5.e como historia, no
+como baseline ask ni runtime comparable. `protocol-compatibility.json` cambia
+representacion, `protocol-h3-search.json` cambia presupuesto nativo y
+`protocol-h3-acceptance.json` coordina su medicion: ninguno elimina el criterio
+semantico, los riesgos o la cobertura. Los parametros locales del protocolo
+`protocol-local.pre-altheia.json` quedaron sustituidos antes de medir; sus
+riesgos y reglas semanticas siguen heredados. No mezclar defaults Denso/1024 o
+MiniLM historicos con H3 FusionNativa/512 y Snowflake/AltheIA.
+
+| Ruta | Condicion concreta de cierre; ninguna se cumple en esta fase |
+|---|---|
+| Aceptar cliente completo | Version identificada y autorizada; todas las puertas y aceptacion integral de abajo. Registrar alcance Local y limites, evidencia, resultado y ledger juntos. No equivale a desplegar ni borrar el original. |
+| Decidir conservar pipeline propio | **Decision expresa del usuario**, con motivo y alcance, que revise la direccion de migracion ya elegida. Registrar que se cierra una decision, no que el cliente paso search/ask. Conservar rechazos, original y opcion futura sin inventar aceptacion. Preparar control documental especifico para esa ruta, sin disfrazarlo de verificador funcional. |
+
+Un cambio a solo embeddings seria otra decision expresa y requeriria medir esa
+parte; no es una salida automatica. "Conservar Local" en el rechazo significa
+**estado operativo/rollback mientras no hay aceptacion**, no abandono de la
+migracion decidido por el asistente. Las dependencias 1.4, 1.18, 1.19, 1.20,
+1.21/1.21.1/.2/.3/.4 y 1.22 estan hechas por lectura actual. El bloqueo es
+calidad/decision pendiente, no esas dependencias ni un nuevo permiso de coste.
+
+### Evidencia comprobada: caso completo y contraejemplo favorable
+
+Rutas de esta seccion relativas a `D:\Git\Rag.VectorSpace.Client`.
+Se leyeron los cuerpos search/ask de ambos brazos y ambos casos, los juicios
+y revelaciones originales y las fuentes congeladas; **etiquetas ya conocidas**.
+Esto es diagnostico posterior, no otra revision cegada ni segundo revisor.
+
+El verificador existente se ejecuto manualmente, offline, en invocacion separada:
+
+```powershell
+python -B docs\eval\quality\1.12\verify_h3_primary_rejection.py .artifacts\1.12-h3-primary-r1 .artifacts\1.12-20261103-r3 .artifacts\1.12-h3-representation-r6 .artifacts\1.12-h3-http-r2 .artifacts\1.12-h3-resume-r1
+```
+
+Resultado **exit 2 / NOT ACCEPTED**: 45 pares, 180 respuestas, cero perdidas
+retrieval, dos pares adjudicados, una fabricacion nueva y ninguna transicion
+control-correcto -> candidato-incorrecto en esos dos juicios. Comprueba
+integridad, mascaras y correspondencias, no semantica independiente ni causalidad.
+No se ejecuta adquisicion, ni se borra `quality-rejection.json`.
+
+**tickets011:** pregunta "Que condiciones deben cumplirse para poder reasignar un
+ticket?"; la Note pide las reglas ricas de `OnValidate`, no solo la unica ancla
+retrieval. Fuentes congeladas bajo `.artifacts\1.12-20261103-r3\corpus\tickets`:
+
+| Fuente | Hecho relevante |
+|---|---|
+| `src\Reyma.TI.Tickets.Microservice.Business\Commands\ServiciosTI\Tickets\ReasignarTicketCommandHandler.cs:134-162` | Todos los guards enumerados en el oraculo de abajo; SHA256 `fada19ed7a01cd22422c626d45c12638111fc981cb0dbc84fdacddcb469505a0`. |
+| Mismo handler:161-162 | Fuera de **estatus general MesaDeAyuda**, actor = asignado actual **o** departamento del actor = departamento del asignado actual. Pertenecer a Sistemas NO es una tercera alternativa. |
+| `docs\Guia-pruebas-envio-correos.md:62-85` | Prueba de reasignacion y negativos; "no es de Sistemas" describe indisponibilidad de la accion. No convierte ser de Sistemas en condicion suficiente para saltar los otros guards. |
+| `src\Reyma.TI.Tickets.Microservice.Api\Controllers\ServiciosTI\TicketsController.cs:214-219` | Accion protegida por politica de reasignacion. La fuente del controller no demuestra por si sola un override por grupo Sistemas. |
+| Handler:115-122,175-177 | El correo se intenta despues del commit; su fallo se registra. Efecto: nuevo responsable, estatus general Proceso e interno Enviado. No exigir entrega efectiva del correo como prerrequisito. |
+
+La respuesta candidata primero enuncia bien asignado/departamento, pero luego
+agrega literalmente:
+
+> Users from other departments (or those without the ticket assigned) generally
+> cannot perform this action unless they are part of the IT Systems team (as
+> implied by the negative test case where non-Systems users don't see the option).
+
+La contradiccion interna no cancela la excepcion inventada. El control no afirma
+esa excepcion. Ambos omiten area/departamento/centro de trabajo no dados de baja;
+el control omite ademas AutorizacionInvalida. La lectura completa observa tambien
+que ninguno explicita el GUID no vacio del nuevo asignado: **observacion
+diagnostica adicional**, no reescritura del juicio sellado. No basta eliminar
+"unless ... Systems" para obtener una respuesta completa. La candidata responde
+en ingles a una pregunta en espanol, pese a la regla de idioma: observacion de
+seguimiento de instrucciones, no nuevo umbral de rechazo inventado a posteriori.
+
+**docs011 favorable:** el control omitio que debe existir encuesta vigente;
+el candidato si lo incluyo. Fuente congelada
+`corpus\docs\Encuesta de Satisfacción al Cierre de Ticket.md`,
+RN-3.1:317 y negativo CA-3.1.7:363-366; SHA256
+`a6ae1d3da41c348d4577c2c284c04bfb501e08a80435269082c28000ae855ce4`.
+Se mantienen juicio y par: no compensan el contraejemplo universal de tickets011,
+pero impiden describir un deterioro generativo uniforme del candidato.
+
+### Traza del codigo medido: search no es el prompt de ask
+
+DLL preservadas en `.artifacts\1.12-h3-http-r2\measured-binaries`:
+`RagEngine.Core.dll` SHA256
+`92333ac199aedb813a5b2878aff1a58cf30bfde9fd649453a55dd9f67c13ab91`;
+`RagEngine.Api.dll`
+`f6bd883d952fe7d8c0cec42d11aa28888e6121bb0ba36f9229d926c3e026cdc5`.
+Ambas coinciden byte a byte con las dependencias actuales del Fixture. Lectura
+offline de PE/PDB: identificadores coinciden; SHA256 de los documentos PDB
+coincide con los **11 archivos** de la traza: RagGenerationService,
+GenerationContextAssembler, SystemPromptComposer, SimpleSystemPrompt,
+ConfidenceGate, ChatAnswerStreamer, ambos SemanticRetriever, RetrievedSummary,
+Program de Rag API y Contracts. No se recompilo ni cargo la API del rector.
+Esto liga codigo a binarios, **no recupera entradas runtime no registradas**.
+Fixture medido `022abe94...` y final `b26292ee...` siguen distintos.
+
+| Paso | Codigo y evidencia; alcance exacto |
+|---|---|
+| Adquisicion | `Fixture\PairedEvaluation.cs:245-263`: search y luego ask por brazo son requests separados; topK10, minScore.1, rerankfalse, Simple, historia vacia. H3 prefetch40/transporte100, sin resumen ni two-hop en docs/tickets. |
+| Retrieval | Local `QdrantSemanticRetriever.cs:140-187`: fusion nativa sin vector resumen. Remoto `VectorSpaceSemanticRetriever.cs:41-73`: fusion nativa recibida y RRF cliente de una rama `1/(60+rango)`, que conserva ese orden y cambia puntuaciones. |
+| Observacion real | En tickets011 y docs011 los diez SourceDto de search son identicos por contenido, archivo, seccion, lineas, resumen y orden, salvo score. No es solo igualdad del hit del ancla. |
+| Entrada de ask | `RagEngine.Api\Program.cs:794-887` y `RagGenerationService.cs:126-176`: valida, aplica meta-intent, recupera otra vez, evalua gate y emite ContextReady **antes** de ensamblar. No reusa el array search. |
+| Gate | `ConfidenceGate.cs:85-137`: RRF no se compara con bandas absolutas calibradas para rerank. Que el score candidato sea ~.016 no prueba baja confianza ni causa un fallback por .05. |
+| Resolucion de contexto | `GenerationContextAssembler.cs:56-133`, `RetrievedSummary.cs:8-15`: Simple usa resumen cuando existe; cobertura >=.5 y al menos uno cubierto excluye chunks sin resumen; cobertura cero conserva raw. Null remoto es autoritativo, no toma cache local. |
+| Orden y presupuesto | `GenerationContextAssembler.cs:145-212`: orden de entrada, cabeceras con score F2 y repositorio; limite **12.000 caracteres UTF-16**, no tokens. Omite entero un chunk que no cabe y sigue con menores; no corta su texto ni garantiza continuidad de una regla. |
+| Prompt | `SystemPromptComposer.cs:51-79`: Simple gana sobre familia codigo/docs. `SimpleSystemPrompt` exige fundamentacion, sintesis de todos los fragmentos e idioma de la pregunta; no contiene una excepcion para Sistemas. |
+| Generacion | `ChatAnswerStreamer.cs:50-80`: sistema + historia + pregunta, temperatura.1, top_p.95, max_tokens2048, sin seed. Mismo generador/proveedor declarado en ambos brazos; no es determinista por tener temperatura baja. |
+| Salida | `RagGenerationService.cs:247-282` aplica sanitizador de formato Simple. `SimpleAnswerSanitizer` transforma codigo/identificadores, no valida reglas de negocio. API publica fuentes de ContextReady, no lista de chunks realmente admitidos en el prompt. |
+
+En tickets011 search contiene, en ambos brazos:
+
+| Rango | Fuente abreviada / rango declarado del chunk | Significado |
+|---|---|---|
+| 1 | Guia:62-85 | Caso de correo, negativos y mencion de Sistemas. |
+| 2 | Reasignar handler:154-173, OnValidate | Guard asignado/departamento; raw incluye contexto previo. |
+| 3 | Handler:50-54 | Constructor. |
+| 4 | Guia:136-144 | Tabla y resumen de validaciones. |
+| 5 | ValidarReasignar handler:92-107 | Otra operacion, no reemplaza OnValidate de reasignar. |
+| 6 | TicketsController:149-151 | Otra accion. |
+| 7 | Handler:123-131, OnSave | Cola del envio de correo, no OnValidate. |
+| 8 | CustomContainer:18-36 | Composicion, no requisitos de reasignacion. |
+| 9 | Handler:132-157, OnValidate | Bajas, GUID vacio, estatus general e inicio del guard interno. |
+| 10 | TicketsController:214-220 | Accion y permiso de reasignar. |
+
+Los rangos del chunk no equivalen a recortar esas lineas del archivo: raw contiene
+solape/contexto padre. El oraculo cita el **archivo congelado**, no deduce reglas
+solo del rango anunciado. Raw del rango9 contiene las condiciones ausentes.
+
+**Simulacion condicional, NO captura de ask:** aplicar el algoritmo leido a los
+search preservados, con metadatos de sus snapshots, CRLF de cabeceras Windows,
+resumenes nulos y sin cambiar orden, da:
+
+| Caso/brazo | Longitud final UTF-16 | Chunks omitidos |
+|---|---:|---|
+| tickets011 control | 11337 | rango9: antes=10516, entrada=2104, separador=7; no cabe |
+| tickets011 candidato | 11274 | rango9: antes=10460, entrada=2097, separador=7; no cabe |
+| docs011 control | 11098 | rangos9 y10 |
+| docs011 candidato | 10906 | rangos9 y10 |
+
+En tickets011 el guard161-162 del rango2 SI cabe en esa simulacion: la omision
+del rango9 no explica por si sola la excepcion inventada para Sistemas. La
+cabecera tambien cambia: scores control .83/.50/... frente a candidato .02/...;
+repositorio `my-repo` frente a vacio, porque el mapper remoto no lo inventa.
+En docs011 cambia analogamente el nombre de repositorio.
+Por tanto **igual contenido/orden search no significa prompt byte-identico**.
+
+En los ask de tickets011 hay diez posiciones; solo las dos fuentes de prosa
+conservan contenido, las ocho de codigo tienen file/content/lineas nulos por
+`SourceDto.Redacted`, no por prueba de descarte del contexto. En docs011, todo
+prosa, contenido/archivo/orden de las diez fuentes ask coincide con search en
+ambos brazos; aun asi son fuentes anteriores al empaquetado. Resumenes visibles
+nulos, cohortes sin resumen e indices completos apoyan la simulacion, pero no
+sustituyen una captura del resultado de ResolveContextChunks de ese request.
+
+**No registrado en la evidencia revisada:** lista completa no redactada del
+retrieval de cada ask de tickets011, decisiones efectivas de admision, contexto
+final, mensajes/payload realmente enviados al proveedor, respuesta previa al
+sanitizador, finish_reason, usage, seed/fingerprint/revision de pesos y posibles
+transformaciones/truncamiento internos del proveedor. max_tokens2048 limita
+salida, no demuestra truncamiento efectivo; el limite local de contexto no es
+la ventana declarada del modelo. No reconstruir esos datos como certeza.
+
+### Hipotesis falsable y propuesta previa a cualquier cambio
+
+**Hipotesis de composicion a contrastar, no nueva hipotesis implementada:** el
+empaquetado compartido por chunk puede separar condiciones de una misma regla
+que SI fueron recuperadas. Prediccion: una futura captura de ask con estos
+fragmentos muestra el guard161-162 admitido y las bajas/GUID del rango9
+descartadas por presupuesto en ambos brazos. Se refuta para ese turno si todas
+esas condiciones llegan al mensaje efectivo, o si el retrieval de ask nunca
+las obtuvo (otro fallo de recuperacion, no de empaquetado).
+
+La fabricacion tiene una pregunta causal separada: transformar un negativo de
+la guia en excepcion suficiente puede ser un fallo de sintesis del generador
+compartido, una influencia de cabeceras diferentes, o variacion del muestreo/
+servicio. **No se ha aislado ninguna.** Si entradas efectivas identicas generan
+veredictos distintos, se demuestra variabilidad operacional condicionada a esa
+entrada, no automaticamente su causa estocastica exclusiva. Dos repeticiones
+no estiman una tasa fiable. Si cambian mensajes, scores, repositorio o revision
+del proveedor, no llamar a esa diferencia "solo azar". El resultado favorable
+docs011 debe entrar en el contraste, sin seleccionarlo o descartarlo segun convenga.
+
+**Primer cambio propuesto: instrumentacion opt-in de evaluacion, no solucion
+semantica.** En el cliente/harness, registrar por request/attempt:
+identidad de run/brazo/pregunta/ronda; retrieval no redactado (IDs, raw hashes,
+orden, escala y metadatos); resumen resuelto o null/origen; cada admision/descarte
+y presupuesto; contexto final; plantilla, opciones efectivas y mensajes finales
+del conector; respuesta cruda y final, terminacion/usage si el proveedor los
+expone. Sellar bytes, no solo nombres. Una lista cerrada de campos y almacenamiento
+local de evaluacion; **nunca headers auth, tokens, certificados, configuraciones
+completas o corpus enviado a otro servicio**. Capturar al borde del transporte
+permitido para distinguir lo armado por Semantic Kernel de lo realmente enviado;
+lo que haga internamente el proveedor seguira no observable.
+
+Sin captura nueva, no afirmar reproducido el turno historico. Probar primero
+offline que el observador no altera contenido/orden/payload y que missing trace
+falla; observar ambos brazos con el mismo instrumento. Propuesta de diagnostico
+acotado futuro: 45 preguntas completas docs/tickets, cuatro negativas, dos rondas
+y ambos endpoints/brazos = **360 respuestas HTTP nuevas**, no aceptacion primaria.
+Conservar todos los resultados y el orden del protocolo, sin reintentar un
+veredicto desfavorable. No ejecutar esta propuesta bajo la autorizacion de
+diagnostico **offline** de esta conversacion.
+
+**Unica intervencion de producto candidata si se confirma el descarte:** agrupar
+para el empaquetado los fragmentos ya recuperados de la misma unidad semantica
+(identidad por fuente/ruta, clase y metodo; seccion documental cuando exista),
+priorizar el grupo por su mejor rango original y ordenar sus fragmentos por
+linea con desempate estable. Admitir el grupo completo o registrar su descarte,
+sin cambiar 12.000, topK, corpus, anclas, modelos, prompts, scores ni retrieval.
+Sin identidad fiable, conservar comportamiento y marcar cobertura desconocida;
+no unir metodos homonimos de archivos/clases distintos ni asumir que el nombre
+distingue sobrecargas: la identidad de unidad debe ser verificable antes de
+implementar, no inventarse a partir del caso observado. "Grupo completo" solo
+significa todos sus fragmentos recuperados, NO todo el metodo original.
+No recuperar o insertar la fuente correcta por ID tickets011, nombre de handler
+o contenido esperado. Riesgo: un grupo grande desplaza otras evidencias o no
+cabe; debe medirse y poder refutar la propuesta, no esconderse con un presupuesto
+mayor. Esta propuesta NO garantiza impedir la fabricacion de Sistemas.
+
+El contraste causal seria 2x2: Local/remoto H3 x empaquetado vigente/agrupado;
+instrumentacion comun, mismo retrieval capturado por celda, mismos prompts y
+generador. Primero comparar cobertura offline sobre entradas capturadas; solo
+con alcance de producto autorizado medir respuestas. Otra variante completa de
+45x2x4 supondria **otras 360 HTTP**, no repetir hasta obtener verde. Informar
+efecto de empaquetado dentro de cada backend, no atribuirlo a H3. Para la
+**aceptacion de migracion**, el control sigue sin ese cambio de comportamiento
+y el candidato lleva su version declarada: no mejorar ambos silenciosamente.
+Si se optara por arreglar generacion comun en ambos brazos, se necesita decision
+explicita de nueva referencia y protocolo distinto, no contabilizarla como
+aislamiento del efecto de migrar. Ninguna de estas variantes se implementa aqui.
+
+### Oraculo previo del eventual cambio, incluidos negativos
+
+Se conserva el criterio de veredictos de los protocolos. Una respuesta
+"correcta" a tickets011 debe cubrir **todas** las condiciones materiales de
+OnValidate, no solo el ancla:
+
+| Condicion obligatoria | Positivo / negativo aislado, con las demas satisfechas |
+|---|---|
+| Area, departamento y centro del ticket no Baja (134-141) | Tres activos / cada uno Baja por separado: rechazar. No sustituir por estado del departamento destino. |
+| Nuevo PersonalAsignadoId no vacio (143-144) | GUID valido / GUID.Empty: rechazar. |
+| Estatus general no Cancelado, Atendido ni AutorizacionInvalida (146-147) | General permitido / cada excluido: rechazar. |
+| Estatus interno Recibido o MesaAyuda (149-150) | Cada permitido / Enviado o Activo: rechazar. No confundir interno con general. |
+| Asignado nuevo distinto del actual (152-153) | Distinto / mismo: rechazar. |
+| Empleado destino existe y pertenece al departamento elegido (155-157) | Coincide / inexistente o otro departamento: rechazar. |
+| Fuera de general MesaDeAyuda, actor asignado actual O de su departamento (159-162) | Cada alternativa valida; actor distinto y departamento distinto: rechazar **aunque sea de Sistemas**. |
+| Excepcion exacta MesaDeAyuda | Exime solo el ultimo guard; no exime bajas, GUID, estados, distinto asignado ni pertenencia del destino. |
+| Permiso de la accion (controller214-219) | Permiso presente / ausente: no afirmar autorizacion por cumplir reglas de datos. No inventar reglas de la clase base no examinada. |
+
+Para docs011: positivos Ticket Atendido y Solicitud Proyecto/Equipo Entregado
+con encuesta vigente; negativos terminal sin encuesta vigente y no terminal con
+encuesta vigente. Debe conservar esa condicion y no compensar tickets011.
+En todas las preguntas, aplicar Question/Note y fuentes completas requeridas:
+un hit de ancla o respuesta fluida no acredita las condiciones restantes.
+
+Riesgos previos del instrumento/intervencion: evidencia de reglas partida entre
+chunks; fragmento obligatorio fuera de presupuesto; grupo demasiado grande;
+solapes o huecos que impiden declarar exhaustividad; guia parcial junto a guard
+explicito; fuentes realmente contradictorias sin prioridad documentada; resumen
+que omite una condicion; null remoto y cache local contradictoria; ausencia de
+contexto. No inferir el reciproco de un negativo ni resolver una contradiccion
+inventando una excepcion. Si falta evidencia, declarar limite/abstencion, no
+afirmar regla completa; **abstenerse no cuenta como correcto** en una pregunta
+contestable. Una mera eliminacion de la frase Sistemas, dejando bajas/GUID u
+otras omisiones, no demuestra que la intervencion soluciono el defecto propuesto.
+Los fixtures de estos riesgos son suplemento diagnostico, nunca sustituyen o
+modifican las 116 preguntas, anclas, 29 suplementos o umbrales congelados.
+
+### Aceptacion integral preparada, NO ejecutada
+
+1. Fijar objetivo de la siguiente sesion y alcance nuevo; conservar esta corrida
+   rechazada con su marcador. Nueva version/nueva identidad y directorio, sin
+   migrar sellos. Guardar binarios/deps/runtimeconfig y hashes de codigo, protocolos,
+   instrumentos, corpus, configuracion permitida, prompts, modelos y proveedores.
+   Revisiones de pesos no expuestas siguen desconocidas, no equivalen al commit TEI.
+2. Repetir representacion **completa en cuatro cohortes** con los binarios que se
+   mediran: documentos/chunks 2113/23221, 311/2081, 15/743, 553/1855 en la evidencia
+   vigente; auditorias solapa bsuite. Exigir todos los bytes/path/raw/enriched/
+   lineas/ID y nombres logicos/fisicos, no aceptar solo esos conteos.
+3. Antes de inferir, comprobar procedencia de indices y finalizacion de ingesta/
+   resumen, payload/vectores/esquema completos. Reusar indices compatibles no
+   autoriza reutilizar respuestas. Docs/tickets sin resumen; bsuite/auditorias
+   con resumen en ambos brazos. Contar misses reales por brazo antes de consumir,
+   caches aisladas; memoria candidata no durable, un escritor por WAL.
+4. Diagnostico HTTP H3 vigente: 45 preguntas/4 negativas/90 search nuevas, ambas
+   vistas, cortes1/3/5/10 y verificador; cualquier perdida any/full@10 rechaza.
+   Nueva DLL, incluso la de guarda final, exige nueva representacion/screen.
+   Probar reanudacion **real** con binarios actuales: ingesta resumida1/2,
+   interrupcion3/4, reacquisicion atomica4/4 y posterior reuso sin HTTP;
+   lock exclusivo, identidades independientes, negativos de sello/ausencia/
+   corrupcion/404/parcial. No usar la corrida rechazada para esa prueba.
+5. Primaria nueva: **116 preguntas (104 ancladas+12 negativas), dos rondas,
+   232 pares de cuatro respuestas = 928 HTTP**; 55 bsuite,16 auditorias,26 docs,
+   19 tickets. Ronda1 docs/tickets/bsuite/auditorias, control-candidato;
+   ronda2 inversa, candidato-control; search-ask por brazo. Preservar cada
+   intento/latencia/error. Cero perdidas any/full@10 por pregunta/ronda/vista;
+   reportar tambien1/3/5/10/categorias. Nunca compensar una perdida con promedios.
+6. Adjudicar las **464 respuestas ask / 232 pares** con afirmaciones, omisiones,
+   contradicciones, abstencion, fabricacion y citas completas antes de revelar
+   etiquetas nuevas. Una revision de estas etiquetas reveladas no se vuelve
+   cegada al ocultarlas otra vez: declarar exposicion y, para afirmar nueva
+   ceguera, separar un revisor no expuesto a esos mapeos. No prometer segundo
+   revisor semantico si solo se corre un verificador. Toda regresion o nueva
+   fabricacion rechaza; faltantes/indeterminados impiden aceptar.
+7. Las **29 suplementarias**, two-hop y negativas, se congelan/revisan por ID,
+   peticion, expectativa y evidencia por brazo, separadas del denominador116.
+   Si el ejecutor no tiene un manifiesto/verificador de esa cobertura, debe
+   construirlo antes de adquirir; no inventar que 928 ya las incluye.
+8. Exigir evidencia compatible para **cada** riesgo obligatorio de los padres:
+
+| Riesgo heredado | Evidencia necesaria para cierre |
+|---|---|
+| Composicion real API y CLI/core | Empresarial+remoto rechazado antes de catalogo/query/embeddings/rerank/LLM, sin reemplazar el retriever probado por fake; contadores cero y no fallback. |
+| Contextos no soportados | Todos los Authorized, incluso admin/claims vacios, y tenant activo rechazados antes de consumo. |
+| Filtros en toda rama/salto | L/N textuales y modulo exacto; conjuncion imposible, namespace ausente, ruta sola, mayusculas/tokens/fronteras, candidatos ajenos de mayor score fuera de semillas, reranker, LLM y fuentes. |
+| Autenticacion HTTP | VectorSpace autenticado; no quitar JWT ni usar credenciales corporativas adicionales. |
+| Resumen y presentacion | Remoto autoritativo incluso null/cache vacia o contradictoria; modos Simple/Technical/prosa y streaming/fuentes. |
+| Ranking y limites | TopK1/100, pools/MinScore incompatibles, desempates, escalas, rerank y two-hop; no convertir RRF en coseno. |
+| Ingesta/estado | Idempotencia, cambio/borrado de documento de prueba, omitidos, pendientes, fallo, cancelacion,429/Retry-After y reinicio/404, sin parciales exitosos. |
+| Errores de transporte | Red y400/401/403/409/503 visibles, no exito vacio ni fallback. |
+| Rollback real | Seleccion explicita del backend Local retenido, sin afirmar que revierte puntos indexados. |
+| Suplemento | Los29 casos presentes y separados, sin sustituir primarios ni riesgos. |
+
+**748 no es el trabajo reutilizable de una version corregida.** Es solamente la
+diferencia aritmetica928-180 del run rechazado. Otra version debe adquirir sus
+**928 respuestas primarias completas nuevas**, incluidos los45 pares anteriores.
+Tampoco contar el screen, resume o diagnostico360 como primaria. Solo una corrida
+nueva no rechazada puede reanudar pares completos con identidad/binarios/
+protocolo exactamente compatibles; las interrupciones parciales conservan
+intentos pero no suman cobertura.
+
+**Falta verificador integral.** `PairedEvaluation` se niega a cerrar incluso al
+llegar a928; `verify_h3_search.py` solo screen y
+`verify_h3_primary_rejection.py` solo rechazo. No hay `verificacion_comando`
+integral en la ficha y no se agrega uno ficticio. Construir un agregador que:
+valide procedencia/cobertura exacta, ingestas/resumenes, representacion, screen
+y resume; recalcule mascaras desde HTTP; enlace cada juicio/cita/mapeo con sus
+respuestas; exija manifiestos completos de29 y de **todos** los riesgos y sus
+resultados ejecutados. No puede decidir semantica por existencia de un JSON.
+Debe fallar ante duplicados, mezcla de builds, tamper, missing, cero tests,
+skips requeridos, estado ambiguo, pares/adjudicaciones incompletos y cualquier
+rechazo. Probar esos negativos antes de registrarlo como comando real. Su salida
+debe distinguir evidencia parcial/rechazo/aceptacion, nunca tratar exit0 de un
+subverificador o de `arnes validar` como aceptacion del conjunto.
+
+### Coste, autorizacion, rollback y entrega de esta fase
+
+Estimacion propuesta, no consumo: instrumentacion/fixtures offline **1-2 h**;
+diagnostico nuevo acotado **1-2 h por variante de360HTTP**, mas preflights/screen/
+resume que correspondan. Una eventual intervencion general de empaquetado y sus
+tests: **2-4 h**, condicionada al hallazgo y autorizacion de alcance. No son
+limites ni reservas ejecutadas. Aceptacion integral: reestimar con misses y
+throughput reales de ambos brazos; las40/42h y18612misses previos no son coste
+actual probado. Registrar consumo real disponible y desconocidos por separado.
+
+Permiso genuinamente nuevo: captura local detallada opt-in de contexto/payload
+permitido y eventual cambio de empaquetado del cliente, con finalidad, datos,
+ambos brazos y rollback descritos; esta conversacion autoriza **prepararlos,
+no ejecutarlos**. No requiere ampliar servidor ni modelo; cualquier ampliacion
+distinta se decide aparte. No pedir otra vez tiempo, AltheIA, H3 o las ingestas
+aisladas ya autorizadas. Una decision de conservar pipeline requiere decision
+del usuario, no consentimiento presupuestario.
+
+Rollback de la preparacion: nuevo commit que revierta solo sus adiciones
+documentales si se solicita; no borrar historia. Eventual instrumentacion/
+empaquetado: opt-in desactivado y reversion por nuevo commit, Local explicito,
+sin fallback. Preservar indices, volumen, caches, artefactos, protocolos y
+`quality-rejection.json`; codigo no revierte puntos. No hubo conexiones nuevas
+ni comprobacion viva de Qdrant en esta fase: su estado `exited` es el ultimo
+recibo historico, no observacion renovada. Consumo de proveedor de esta fase:
+**cero nuevas llamadas**; consumo/horas del asistente no observables.
+
+La entrega es esta preparacion y ficha bloqueada juntas en commit documental,
+DWeno autor/committer, sin coautoria, amend o push. No es cierre funcional ni
+decision de abandonar la migracion.
+
+Control documental manual separado: comparacion JSON contra `fcfead0` conserva
+las otras37 fichas, campos de raiz e historia completa de1.12; resultado anterior
+solo recibe un apendice. Los documentos historicos se conservan salvo rotulo
+VIGENTE->HISTORICO. Marcador de rechazo, checkpoint, evaluation y resultado H3
+mantienen sus SHA256; documentos/protocolos/ledger del cliente sin cambios.
+`git diff --check` acotado pasa. `arnes 1.17.4 validar` pasa38fichas y
+`--al-cerrar` informa **bloqueado, no cerro**; no ejecuta aceptacion. Una coma
+JSON ausente se corrigio antes de repetir satisfactoriamente estos controles;
+avisos preexistentes del wrapper Windows no se alteraron.
+
+## HISTORICO: proveedor recuperado; H3 primaria rechazada por fabricacion nueva
 
 Continuacion 2026-11-04 tras el reintento solicitado por el usuario. Bases:
 rector `0407d270`, clon `de578473`. Solo1.12, sin subagentes. Modelo efectivo
