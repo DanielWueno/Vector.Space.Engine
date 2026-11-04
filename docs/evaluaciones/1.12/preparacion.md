@@ -5,7 +5,46 @@ Fecha: 2026-11-03, continuaciones posteriores a `122755f`, `b50eb6b` y `832b31a`
 Fuente rectora: `docs\plan\ejecucion-plan.estado.json`, ficha
 `1.12-decidir-si-rag-context-engine-pasa-a-cliente`. No se ejecuta otra ficha.
 
-## VIGENTE: H3 autorizada e implementada; diagnostico real bloqueado por proveedor
+## VIGENTE: reentrada de metadatos sin respuesta; bloqueo conservado
+
+Continuacion 2026-11-04, bases rector `1875aa21` y clon `4cd0916e`.
+Solo1.12, sin subagentes ni cambios de producto. Una consulta acotada a
+`GET http://127.0.0.1:8081/info`, iniciada a las `16:30:07.746603Z`,
+termino con `TimeoutError` tras **15.016s**, exit1, sin respuesta HTTP.
+Sin reintentos, redirecciones, reparacion de tunel ni sustitucion de modelo.
+No se repitio `--h3-search-diagnose`: el prerrequisito sigue ausente.
+
+Coinciden siete SHA256 del relevo: propuesta, protocolo ejecutable, manifiesto
+de representacion, DLL actual y preservada, recibo de indices y bloqueo anterior.
+Las diez dependencias/insumos siguen hechos. Qdrant propio se inspecciono solo
+por identidad, imagen, volumen y puertos: coinciden y sigue `exited`.
+No se arranco ni consulto; no se repitieron comparaciones de indices en vivo,
+builds, representacion o tests de producto. **0 nuevas respuestas search/ask,
+embeddings, llamadas LLM o AltheIA. H3 sigue sin medicion ni veredicto de calidad.**
+
+Recibo nuevo, sin alterar los resultados anteriores:
+`D:\Git\Rag.VectorSpace.Client\docs\eval\quality\1.12\h3-search-result.json`,
+campo `metadata_reentry_20261104`. Ambos ledgers conservan **bloqueado**.
+Modelo efectivo gpt-6-astra, xhigh solicitado pero esfuerzo no observable;
+opus/high intactos.42h restantes estimadas ya autorizadas, no consumo ni limite.
+Reentrada solo tras restauracion independiente del proveedor existente por via
+autorizada; no sondeos en bucle. Las puertas y comandos completos siguen debajo.
+
+Incidencia registrada: el primer status/diff--stat se lanzo en paralelo a la
+lectura inicial del relevo e incluyo la ruta protegida y avisoLF/CRLF antes de
+conocer la exclusion. No se mostro su contenido ni hash explicito; no se copio,
+compilo la API, preparo ni incluyo ese archivo en un commit. Operaciones
+posteriores con allowlist y exclusion explicita. No afirmar exclusion total
+de aquella enumeracion. Original y cambios ajenos preservados.
+
+Clon persistido en `de578473591c97bd99850df91845e18f53de7b92`: solo el
+resultado H3 con recibo nuevo y la nota/resultado del ledger, DWeno autor y
+committer, sin coautoria ni push. El commit rector contenedor coordina
+preparacion, relevo y ficha; no es cierre funcional. `arnes validar` con rutas
+explicitas paso en ambos ledgers; avisos heredados Windows/esquema intactos.
+Comparaciones JSON y diff acotado conservan historia, otras fichas y original.
+
+## HISTORICO: H3 autorizada e implementada; diagnostico real bloqueado por proveedor
 
 Continuacion 2026-11-04, bases rector `c6d5b87` y clon `b7944b3`.
 Commit coordinado del clon: `4cd0916e19eb91db6dfd705d554059719b32aecd`.
