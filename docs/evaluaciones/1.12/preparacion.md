@@ -5,7 +5,79 @@ Fecha: 2026-11-03, continuaciones posteriores a `122755f`, `b50eb6b` y `832b31a`
 Fuente rectora: `docs\plan\ejecucion-plan.estado.json`, ficha
 `1.12-decidir-si-rag-context-engine-pasa-a-cliente`. No se ejecuta otra ficha.
 
-## VIGENTE: instrumentacion autorizada y puerta integral offline
+## VIGENTE: pendientes de migracion para trabajo paralelo
+
+Peticion del 2026-11-04T14:59:59-06:00: explicar que motor sigue en el cliente y
+dejar el trabajo desglosado. **Solo planificacion; no se ejecuta la migracion.**
+Bases comprobadas: rector `2da4c5d`, cliente `9722d66`, fuentes consultadas y
+documentos permitidos sin cambios ajenos. Modelo efectivo `gpt-6-astra`, esfuerzo
+efectivo no observable (`xhigh` solicitado); fase documental estimada **0.5 h**,
+no consumo medido. Sin subagentes. Contrato del padre `opus/high` intacto.
+
+**Ya en VectorSpace:** fragmentacion, embeddings, ingesta, indice, resumenes
+indexados y busqueda nativa, incluida fusion denso/sparse. **Todavia en el
+cliente:** fusion final codigo/resumen, salto por simbolos, reranking/calibracion,
+meta-intent, confidence gate, seleccion/packing del contexto, prompts, llamada
+al LLM, streaming/resiliencia y sanitizacion de la respuesta. No confundir
+fusion nativa con fusion final ni embeddings remotos con decisiones remotas.
+La tabla de fuentes del apartado de frontera mas abajo sigue siendo evidencia;
+se releyeron las implementaciones actuales, no solo las notas.
+
+Se registran **seis subfichas reales del ledger rector**, no una lista privada ni
+notas que el arnes deba interpretar como trabajo ya realizado:
+
+| ID corto | Entregable y propietario | Dependencias |
+|---|---|---|
+| 1.12.1 | Contrato versionado, puertos/DTO comunes, oraculo de porte y propiedad exacta de archivos. Un responsable. | Preparacion pendiente; concretar/aprobar alcance antes de producto. |
+| 1.12.2 | Recuperacion compuesta en VectorSpace: fusion final, saltos, rerank y calibracion. | 1.12.1. |
+| 1.12.3 | Grounding/contexto en VectorSpace: meta-intent, gate, resumenes/contexto y prompts. | 1.12.1. |
+| 1.12.4 | Generacion en VectorSpace: LLM, historial, stream, resiliencia y sanitizacion. | 1.12.1. |
+| 1.12.5 | Adaptador del cliente: HTTP/eventos/fuentes, sin volver a ejecutar motor; UI/CLI permanece. | 1.12.1. |
+| 1.12.6 | Integracion de composicion real, observacion y contratos en ambos repositorios. Un integrador. | **Todos** 1.12.2, 1.12.3, 1.12.4 y 1.12.5. |
+
+**Paralelismo viable:** terminado el contrato, 1.12.2/3/4/5 se desarrollan contra
+sus puertos y fixtures congelados, sin esperar la implementacion de otro frente.
+Cada ficha contiene su criterio literal de positivos, negativos y riesgos,
+rollback y limites; no inventar el oraculo despues de ver resultados. El porte
+mantiene comportamiento incluso donde la version actual es insuficiente:
+**migrar no equivale a corregir la fabricacion ni a mejorar recall**.
+Una correccion semantica o un cambio de referencia necesita su propuesta propia.
+
+Arnes **1.17.4**, comprobado en el lector instalado, admite un ID literal en
+`bloqueado_por`, no una lista ni un DAG. Por eso 1.12.2..5 quedan `bloqueado`
+hasta cerrar el contrato; 1.12.6 tambien queda `bloqueado`. Su arista a 1.12.5
+es solo una de cuatro: las otras constan en `_dependencias_adicionales` y
+**requieren comprobacion manual de todos los estados/evidencias antes de
+desbloquear**. Las notas no instalan esa puerta. 1.12.1 es la unica nueva ficha
+`pendiente`; no se autoejecuta. El padre queda despues, `bloqueado` por 1.12.6
+y por su rechazo de calidad. Ninguna dependencia va hacia delante.
+
+La peticion no lanza agentes ni cambia `multiagente:false`: paralelismo entre
+sesiones independientes, una subficha por conversacion. Antes de editar en
+paralelo, preparar ramas/areas aisladas **sin copiar la configuracion excluida**;
+no crear clones/worktrees completos del rector que la reproduzcan. Si no hay
+aislamiento revisado, serializar. Los frentes no editan simultaneamente contratos,
+DI/endpoints, Fixture/PairedEvaluation ni ledger: contrato pertenece a 1.12.1,
+composicion/instrumento a 1.12.6 y avance del ledger a un coordinador. Integrar
+commits por ficha, sin mezclar cambios ajenos; ninguna escritura concurrente en
+indices/cache/WAL. No se crean ramas, worktrees o servicios en esta preparacion.
+
+Estimacion inicial de contrato/porte/integracion: **16 h sumadas**, no tiempo de
+pared al paralelizar ni presupuesto de aceptacion. No repedir autorizaciones de
+tiempo/AltheIA existentes; concretar solo alcance nuevo de API/composicion.
+Mantener exclusion absoluta del appsettings protegido y prohibicion de compilar
+el proyecto API rector. El futuro camino de comprobacion debe usar composicion
+real permitida y aislada; si no puede hacerlo, registrar bloqueo, no omitirla.
+
+**Cierre de 1.12:** integrar los seis frentes no satisface la puerta funcional.
+Siguen pendientes los oraculos116+29, screen/resume/diagnostico compatibles,
+productores y evidencia de46 riesgos/29 suplementarias,928 respuestas nuevas y
+464 juicios sustentados. Version migrada no completa748 con180 de la rechazada.
+Conservar control Local, indices, volumen, artefactos, protocolos, juicios y
+`quality-rejection.json`. No se reescribe ningun resultado historico ni otra
+ficha existente; se agregan solo las subfichas de este trabajo.
+
+## HISTORICO: instrumentacion autorizada y puerta integral offline
 
 Continuacion autorizada el 2026-11-04T12:41:47-06:00, sobre rector `abc9bb9`
 y cliente `1b57bf2`. El usuario confirma **destino cliente; motor en VectorSpace**,

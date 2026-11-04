@@ -3,7 +3,69 @@
 Copia el primer bloque VIGENTE en una conversacion nueva. Los bloques anteriores
 se conservan despues como historia, no como instrucciones actuales.
 
-## VIGENTE: instrumentos implementados; rechazo intacto y aceptacion pendiente
+## VIGENTE: subfichas de migracion preparadas, no ejecutadas
+
+```text
+Retoma UNA subficha de1.12 en una conversacion nueva y con alcance concreto.
+La peticion2026-11-04T14:59:59-06:00 dejo pendientes paralelizables; no ejecuto
+la migracion ni lanzo agentes. No retomar automaticamente la corrida rechazada.
+
+ANTES de enumerar/status/diff/buscar excluir absolutamente:
+D:\Git\Vector.Space.Engine\src\Reyma.VectorSpace.Engine.Microservice.Api\appsettings.json.
+No leer/copiar/hashear/stage ni compilar el proyecto API rector.
+D:\Git\Rag.Context.Engine solo lectura, sin src\RagEngine.Api\Properties\.
+Cliente experimental:D:\Git\Rag.VectorSpace.Client. Rutas permitidas explicitas.
+
+Leer AGENTS.md y guias de capas, ledger rector docs\plan\ejecucion-plan.estado.json
+y primer VIGENTE de preparacion.md. Bases de planificacion rector2da4c5d y
+cliente9722d66; comprobar HEAD/diff real, no asumir que siguen vigentes.
+Declarar modelo/esfuerzo efectivos y registrar _ejecucion de la ficha elegida.
+Padre opus/high intacto; esta preparacion uso gpt-6-astra/esfuerzo no observable,
+0.5h estimadas, no consumo. Tiempo/AltheIA de1.12 ya autorizados.
+
+IDs completos:
+1.12.1-fijar-contrato-del-motor-rag
+1.12.2-migrar-recuperacion-compuesta-a-vectorspace
+1.12.3-migrar-grounding-y-contexto-a-vectorspace
+1.12.4-migrar-generacion-y-streaming-a-vectorspace
+1.12.5-adaptar-cliente-al-motor-rag
+1.12.6-integrar-motor-rag-y-cliente-delgado
+
+Solo1.12.1 esta pendiente para preparar el contrato; las otras estan bloqueadas.
+Cerrar1.12.1 con contrato/oraculo/puertos comunes y alcance concreto aprobado
+antes de liberar2/3/4/5. Estos cuatro pueden ejecutarse en paralelo en sesiones
+independientes contra interfaces congeladas. Una ficha por conversacion,
+sin fan-out/subagentes ni cambios concurrentes en archivos compartidos.
+
+1.12.6 requiere TODOS2/3/4/5 hechos con evidencia y commits compatibles.
+Arnes1.17.4 NO interpreta listas de dependencias: bloqueado_por apunta a5,
+_dependencias_adicionales documenta2/3/4 pero no es una puerta automatica.
+No cambiar6 a pendiente/en_curso al cerrar solo5; comprobar los cuatro.
+El padre1.12 queda bloqueado por6 y por calidad; no aceptar por cerrar el porte.
+
+Un responsable del ledger; contratos comunes solo1, composicion/DI/endpoints
+e instrumentos comunes solo6. Antes de paralelizar escrituras, aislar ramas/
+areas sin clonar/copiar la configuracion prohibida; si no es viable, serializar.
+No iniciar servicios ni compartir escritores de indices o WAL por defecto.
+Sin nuevo alcance API aprobado, preparar contrato pero no activar endpoints.
+
+Ya en VectorSpace: ingesta/chunking/embeddings/indices/resumen/busqueda nativa.
+Todavia cliente: fusion final/saltos/rerank, meta-intent/gate, contexto/prompts,
+LLM/stream/sanitizacion. UI/CLI/transporte/presentacion permanecen cliente.
+No cambiar corpus/anclas/modelos/umbrales ni retocar comportamiento al portarlo.
+Migrar no demuestra resolver tickets011: ambos eran incorrectos, no regresion
+control-correcto; docs011 favorable al candidato tambien se conserva.
+
+Quedan en el padre oraculos116+29, diagnostico causal y puertas compatibles,
+928HTTP nuevas/464juicios,29extras y46riesgos reales/productores. No748+180,
+no eliminar quality-rejection.json, no nueva revision cegada de etiquetas vistas.
+Conservar Local/indices/volumen/protocolos/binarios; no confundir verificador
+con segundo revisor ni arnes validar con aceptacion.
+Guardar resultado/ledger/cambios propios juntos;DWeno,sincoautoria/amend/push.
+Detenerse al terminar la subficha o preparacion solicitada.
+```
+
+## HISTORICO: instrumentos implementados; rechazo intacto y aceptacion pendiente
 
 ```text
 Retoma exclusivamente1.12-decidir-si-rag-context-engine-pasa-a-cliente en una
