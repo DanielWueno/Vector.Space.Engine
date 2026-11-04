@@ -1,11 +1,122 @@
-# 1.12 - Preparacion del cliente completo y bifurcacion local
+# 1.12 - Scope alignment and client acceptance
 
-Fecha: 2026-11-03, continuaciones posteriores a `122755f`, `b50eb6b` y `832b31a`.
-**Resultado parcial. H3 pasa busqueda, pero falla aceptacion por fabricacion nueva. 1.12 bloqueado por calidad; conservar Local.**
-Fuente rectora: `docs\plan\ejecucion-plan.estado.json`, ficha
-`1.12-decidir-si-rag-context-engine-pasa-a-cliente`. No se ejecuta otra ficha.
+Authoritative plan: `docs\plan\ejecucion-plan.estado.json`, parent
+`1.12-decidir-si-rag-context-engine-pasa-a-cliente`.
+**Quality remains blocked. H3 search passed; primary answer acceptance did not.**
 
-## VIGENTE: pendientes de migracion para trabajo paralelo
+## CURRENT: README-aligned ownership and remaining work
+
+This documentation-only correction follows the user's scope question and
+English-language request on 2026-11-04. Entry commits were rector `41b0833` and
+client `9722d66`; permitted paths were clean. Effective model: `gpt-6-astra`;
+requested effort: `xhigh`, effective effort not observable. Estimated phase
+cost: **0.75 machine-hours**, not measured consumption. No subagents, product
+changes, new acquisition, services or deployment.
+
+Client documentation and its coordination note are committed together in
+`a63d752fd53315618f072c5883979bc2c1ce9cf7`. This is a documentation-only commit,
+not a new measured product version. DWeno author/committer and the trailer-free
+message were verified; no amend or push.
+
+### Scope correction
+
+The prior breakdown incorrectly treated a VectorSpace service client as a
+presentation-only application. The original README/client contract retains RAG
+orchestration in the client. **Items1.12.1 through1.12.6 are now discarded,
+unexecuted expansion proposals**, not completed migration work. Their contents
+and estimates remain historical; the parent no longer depends on1.12.6.
+Future expansion is not prohibited forever, but requires its own explicit
+architecture decision. This is not a decision to abandon the existing remote
+ingestion/search client.
+
+| Owner | Responsibilities under the current contract |
+|---|---|
+| VectorSpace | Ingestion, chunking, embeddings, Qdrant/index lifecycle, indexed business summaries and native code/summary search with filters. |
+| Rag.VectorSpace.Client | Final fusion, symbol-hop orchestration, reranking/calibration, meta-intent, confidence gate, context/prompts, answer generation/history/streaming/sanitization, API/CLI and presentation. |
+
+Native dense/sparse fusion is not the client's final fusion. Summary generation
+during ingestion is not conversational answer generation. Both READMEs now
+make these distinctions. No new engine migration is required merely because
+the client still implements its intended RAG responsibilities.
+
+### Client-owned pending tasks, tracked only in the rector ledger
+
+| ID | Deliverable | State and dependency |
+|---|---|---|
+| `1.12.7-complete-source-oracles` | Complete116+29 source-grounded oracles, including every material condition and positive/negative/incomplete/contradictory scenarios. | Pending; no dependency on the discarded migration. |
+| `1.12.8-implement-acceptance-risk-evidence` | Implement and substantiate the46 real risk cases and compatible evidence producer. | Pending; parser tests do not satisfy these cases. |
+| `1.12.9-implement-supplementary-evaluation` | Implement the separate resumable29-question/two-round producer. | Pending; actual232-response supplementary acquisition belongs to acceptance. |
+| `1.12.10-diagnose-effective-ask-context` | Compatible representation/screen/resumption and observed-ask diagnosis,360 HTTP responses. | Blocked by1.12.7 and its real runtime/provenance gates. |
+
+Each task has a literal criterion, risks and rollback in the ledger. Task7
+requires substantive source review, not just a passing citation parser.
+Task8 must exercise actual composition, not replace the retriever or certify
+test names. Task9 must demonstrate the actual producer and interrupted/resumed
+behavior; synthetic checks are not supplementary quality evidence.
+
+Tasks7/8/9 can be prepared concurrently in separate owned files and isolated
+resources. Task10 can follow7 on a pinned immutable diagnostic build while
+independent development continues elsewhere. Serialize shared Fixture entry
+points, checkpoint/verifier changes and ledger integration; no concurrent index
+or WAL writers, automatic fan-out, or whole-worktree copies of excluded
+configuration. One eligible task per new conversation. The client's inherited
+162 items, including19.6, remain outside this work.
+
+The parent has a literal dependency on10, but closure also requires the other
+deliverables and **actual integral acceptance evidence**. Arnes does not enforce
+multiple dependencies through underscore notes. Keep the parent blocked until
+all requirements pass; no automatic closure after a diagnostic or producer.
+
+### Engine-side and cross-project pending work
+
+The existing engine capabilities required by the Local client are implemented,
+not globally quality-certified by this statement. Integration tests may expose
+an engine defect; record a scoped, evidence-backed fix if that happens rather
+than assuming another migration is necessary.
+
+The other existing pending items were read but not changed:
+
+- **1.7.2:** Azure DevOps ingestion automation, conditional on its separately
+  authorized deployment/pipeline access. Its old `ControlDeAcceso` entry
+  condition predates removal in1.14 and needs reconciliation before execution.
+- **1.21.5:** future tenant semantics, conditional on an explicit need and
+  document-assignment source.
+- **1.21.6:** future restricted-access design, conditional on explicit consumers,
+  identity and protection requirements.
+
+These do not block explicit Local1.12. Current HTTP authentication and rejection
+of unsupported tenant/Authorized/Empresarial requests remain unchanged.
+
+### Acceptance, provenance and limits
+
+1.12 still needs complete source oracles, compatible final binaries and full
+representation, search screening, real resumption,928 **new** primary HTTP
+responses/464 answer judgments,29 supplementary questions/232 separate
+responses, and all46 genuine risk receipts. After integration, old producer or
+diagnostic build receipts are not automatically evidence for the final build.
+Do not combine748 new responses with180 rejected-version responses.
+
+The rejection remains45 pairs/180 responses, zero retrieval losses and two
+adjudicated pairs. Tickets011 invented a Systems exception; both answers were
+incorrect, not a control-correct regression. Docs011 favored the candidate.
+No causal attribution to H3 is established. Preserve all known material source
+conditions, judgments and labels; no new-blind-review claim or mechanical
+verifier presented as a second semantic reviewer.
+
+Existing time/AltheIA authorizations remain valid. The new preparation-task
+estimates sum to18h, excluding final acquisition, not observed consumption or
+parallel wall time. Discarded16h and historical42h figures are not new budgets.
+Keep the original repository read-only, exclude its Properties, and absolutely
+exclude the protected rector API configuration from enumeration/read/hash/copy/
+staging/build. No build of the rector API project. Preserve Local rollback,
+indexes, volume, frozen inputs/protocols, binaries and `quality-rejection.json`.
+
+New active text is English. Required ledger keys/status values, stable IDs and
+historical records retain their original form. Client README/instructions/note
+are committed together; rector README/preparation/handoff/ledger together with
+the actual client commit reference. No coauthor, amend or push.
+
+## HISTORICAL: superseded full-RAG migration breakdown
 
 Peticion del 2026-11-04T14:59:59-06:00: explicar que motor sigue en el cliente y
 dejar el trabajo desglosado. **Solo planificacion; no se ejecuta la migracion.**

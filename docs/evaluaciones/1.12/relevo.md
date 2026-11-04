@@ -1,9 +1,75 @@
-# Prompt de relevo - solo VectorSpace/1.12
+# Handoff - VectorSpace / 1.12
 
-Copia el primer bloque VIGENTE en una conversacion nueva. Los bloques anteriores
-se conservan despues como historia, no como instrucciones actuales.
+Use the first CURRENT block in a new conversation. Older blocks are preserved
+as historical records, not current execution instructions.
 
-## VIGENTE: subfichas de migracion preparadas, no ejecutadas
+## CURRENT: README-aligned client quality work
+
+```text
+Work on one explicitly requested, eligible1.12 task in a new conversation.
+Use English for new active documentation/task descriptions. Preserve required
+ledger identifiers and frozen historical/source evidence without translation.
+
+BEFORE enumeration/status/diff/search, absolutely exclude:
+D:\Git\Vector.Space.Engine\src\Reyma.VectorSpace.Engine.Microservice.Api\appsettings.json.
+Do not read/hash/copy/stage it or build the rector API project.
+D:\Git\Rag.Context.Engine is read-only; exclude src\RagEngine.Api\Properties\.
+The experimental client is D:\Git\Rag.VectorSpace.Client. Use explicit allowlists.
+
+Read rector AGENTS.md, relevant layer guidance, the authoritative ledger
+docs\plan\ejecucion-plan.estado.json and the top CURRENT preparation section.
+Read client AGENTS.md and the selected task's frozen protocol/oracle before work.
+Entry bases for this alignment were rector41b0833/client9722d66; check current
+HEAD and permitted diffs. Record effective model/effort and _ejecucion.
+Client scope documentation is committed in a63d752fd53315618f072c5883979bc2c1ce9cf7.
+This documentation-only commit is not a new runtime measurement.
+This documentation phase used gpt-6-astra; xhigh requested, effort not observable;
+0.75h estimated, not consumption. Parent opus/high and cost authorizations remain.
+
+SCOPE: VectorSpace owns ingestion/embeddings/indexes/indexed summaries/native
+search. The client intentionally retains fusion/hops/reranking, grounding,
+context/prompts, answer generation/history/streaming and presentation.
+Do not relocate RAG because it remains in the client.
+Old1.12.1..6 are DISCARDED, never executed; preserve them as history.
+
+Current client-owned tasks, tracked ONLY in the rector ledger:
+1.12.7-complete-source-oracles
+1.12.8-implement-acceptance-risk-evidence
+1.12.9-implement-supplementary-evaluation
+1.12.10-diagnose-effective-ask-context
+
+7/8/9 are pending and can be prepared independently with isolated files/resources.
+10 is blocked by7 and requires compatible real representation/screen/resumption.
+Use immutable diagnostic binaries if independent development continues.
+Serialize shared Fixture/Program/checkpoint/verifier changes and ledger writes.
+No automatic fan-out, shared index/WAL writers, or full worktree copies of the
+excluded configuration. The inherited162 client items, including19.6, are not
+this fork's agenda. One task per conversation; mark it in progress before code.
+
+Parent1.12 remains quality-blocked. Its edge to10 is not the entire closure gate:
+all preparation deliverables and928 NEW primary HTTP responses/464 judgments,
+29 supplementary questions/232 separate responses and46 genuine risk receipts
+must satisfy the integral verifier on compatible final provenance. Underscore
+dependency notes are not executable guards. Do not mark done for parser success.
+
+The historical rejection remains45 pairs/180 responses, zero retrieval losses,
+two adjudications; tickets011 invented a Systems exception, both answers were
+incorrect, and docs011 favored the candidate. No causal proof against H3 ranking.
+Do not resume the rejected run, remove quality-rejection.json, reuse180 toward
+a changed version, relabel known judgments as newly blinded, retune, or invent
+special-case answers. A new behavior proposal needs evidence/oracle/scope first.
+
+Separate conditional work1.7.2/1.21.5/1.21.6 is not authorized or required here.
+1.7.2's obsolete ControlDeAcceso prerequisite needs reconciliation when that
+separate task resumes; no silent permission change. Keep current authentication
+and Local rejection guards.
+
+Preserve original code, controls/indexes/volume, frozen protocols and evidence.
+Commit each task's changes/result/ledger together, DWeno author/committer only.
+No coauthor/amend/push. Stop at the requested task or preparation boundary.
+```
+
+## HISTORICAL: superseded full-RAG migration handoff
 
 ```text
 Retoma UNA subficha de1.12 en una conversacion nueva y con alcance concreto.
