@@ -38,11 +38,12 @@ public interface IMotorDeBusqueda
     /// lenguaje (1.21.4): nombre canonico validado o null; Match.Text sobre language.
     /// namespace (1.21.4): blanco/null no filtra; texto literal en Match.Text solo sobre namespace.
     /// Ambos se combinan por AND con cada modulo y con el ANY de simbolos, antes del corte.
+    /// prefetchPorRama (1.12): 40..1200 solo codigo/FusionNativa; null conserva max(4*topK,40).
     /// </summary>
     Task<BusquedaResponse> BuscarAsync(
         string coleccion, string consulta, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos,
         EspacioDeBusqueda espacio, IReadOnlyList<string>? modulos, string? lenguaje, string? @namespace,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken, int? prefetchPorRama = null);
 }
 
 public interface IMotorDeIngesta

@@ -3,7 +3,198 @@
 Copia el primer bloque VIGENTE en una conversacion nueva. Los bloques anteriores
 se conservan despues como historia, no como instrucciones actuales.
 
-## VIGENTE: H3 causal sostenida; permiso de busqueda pendiente, no aceptacion
+## VIGENTE: H3 implementada; HTTP bloqueado por metadatos8081, no aceptacion
+
+```text
+Retoma UNICAMENTE 1.12-decidir-si-rag-context-engine-pasa-a-cliente de
+Vector.Space.Engine. Sin subagentes. Una conversacion, un item; no otra ficha.
+Objetivo: completar el diagnostico HTTP REAL H3 y, SOLO si pasa, TODA la
+aceptacion original. No parar por build/fixture/diagnostico favorable ni
+forzar cierre cuando falte evidencia. H3 esta implementada, NO medida/aceptada.
+
+AUTORIZACION VIGENTE E HISTORIA
+El usuario autorizo expresamente despues de la consulta historica sin respuesta
+la propuesta D:\Git\Rag.VectorSpace.Client\docs\eval\quality\1.12\
+protocol-h3-search.proposed.json, SHA256
+61967d0ee7a4fd8f121cf524fdc7fa68ca3f6a64a99642fba8614663e7ad29af.
+Registro posterior, sin borrar historia. No pedir otra vez H3, implementacion
+del clon, pruebas/ingestas aisladas, referencia pareada estricta ni tiempo y
+AltheIA sin limite exclusivamente1.12. Respetar limites efectivos y429.
+Alcance autorizado: prefetchPorRama opcional entero JSON estricto40..1200,
+solo codigo/FusionNativa, y dependientes DTO/query/puerto/controller/motor/
+clon/harness/tests/docs. UseRetrievalBudget defaultfalse; primaria codigo
+max(4*B,40), B=TopK sin reranking o3*TopK con reranking. Omitido/null exactos
+como antes; resumen/saltos no envian override. TopK publico1..100 y pool100
+intactos,40+40 permite MAXIMO80 distintos, no100 garantizados ni relleno.
+No otras ampliaciones, representacion, perfiles genericos, despliegues,
+credenciales/permisos/tuneles/colecciones servidas. Ante otro alcance,
+concretarlo y detener solamente ese cambio, sin asumir autorizacion.
+
+REPOSITORIOS Y ESTADO
+D:\Git\Vector.Space.Engine, rama feature/1.12-h2-ingestion-compatibility:
+ledger rector docs\plan\ejecucion-plan.estado.json. Estado1.12 bloqueado.
+La base de esta continuacion fue c6d5b87c94e45188480cff60ff360246868bd899;
+el commit que contiene ESTE primer bloque conserva el avance H3.
+D:\Git\Rag.VectorSpace.Client, rama feature/vectorspace-client, sin remoto:
+HEAD H3 coordinado4cd0916e19eb91db6dfd705d554059719b32aecd,
+base anterior b7944b3ee2db1021159c430c2a9f8afd1d6a1ff3.
+Solo _bifurcacion_1_12 del ledger docs\analisis-futuro\
+ejecucion-plan.estado.json corresponde a este trabajo. No162fichas heredadas.
+D:\git\Rag.Context.Engine ORIGINAL SOLO LECTURA, HEAD
+3c3972b90b74ee3d9cd7b86945e07d4775a9c965, rama integracion/local-en-main.
+Preservar src\RagEngine.Api\Properties\ sin seguimiento; no leer/copiarlo.
+Comprobar HEAD/ramas/status/diff/staged actuales antes de tocar nada, con
+allowlists positivas. No asumir arboles iguales al relevo; preservar ajenos.
+
+EXCLUSION ABSOLUTA
+En VectorSpace NO leer/buscar/hashear/modificar/copiar al build ni incluir
+en status/diff/staged/check/commit:
+src\Reyma.VectorSpace.Engine.Microservice.Api\appsettings.json.
+No enumerar sin filtrar. No compilar ese proyecto API. El harness aislado
+referencia Infrastructure y enlaza SOLO Controller,ExceptionFilter,
+MvcExtensions,CustomContainer revisados; comprobar esos enlaces.
+No original, Rag/19.6, goldens, CI, pruebas ajenas,1.21.5,1.21.6 u otra ficha.
+No git add -A,amend,push,preguntar.ps1,compose/config heredada,tuneles ni acceso
+corporativo adicional. Commits solo1.12+ledgers,DWeno autor/committer,
+sin trailers/coautoria/firmas de herramientas; verificar archivos/mensajes.
+Usar git commit --only con rutas explicitas para no incorporar staged ajeno.
+
+LECTURAS Y ENTRADA
+Leer instrucciones/ledgers completos,ficha1.12/fuentes/dependencias/resultado/
+rollback/reentrada; ESTE bloque completo y preparacion.md completo.
+Leer protocol-h3-search.json,h3-search-result.json y todo el harness Fixture
+del clon, verify_h3_search.py y test_h3_search.py. Tambien H2/H3 causal,
+protocol.json,protocol-local.pre-altheia.json,protocol-diagnosis.json,
+protocol-diagnosis-inventory.json,protocol-compatibility.json,
+protocol-compatibility.proposed.json,h2-result.json,verify_h2.py,
+protocol-h3-budget-diagnosis.json,diagnose_h3_budget.py,test_h3_budget.py,
+h3-budget-result.json,protocol-h3-search.proposed.json,diagnosis-result.json,
+las notas/contratos/filtros/compatibilidad citados en preparacion e historia.
+Modelo solicitado gpt-6-astra/xhigh, usar seleccion real; ultimo efectivo
+gpt-6-astra, esfuerzo no observable. Conservar opus/high plugin. Registrar
+_ejecucion real y marcar SOLO1.12 en_curso despues de comprobar puertas.
+Restante provisional42h=2h instrumentos/HTTP/runner+40h aceptacion condicional,
+no limite ni consumo. Totales reales maquina/tokens historicos desconocidos.
+Maximo3intentos mismo fallo. Oraculo ambiguo exige preparar antes de medir.
+
+BLOQUEO ACTUAL COMPROBADO
+H3 producto/guardas implementados y verificados, pero el servicio EXISTENTE
+loopback8081 acepta TCP y NO responde GET /info. El comando REAL
+--h3-search-diagnose agoto120.390704s antes de cualquier consulta/embedding.
+0/45 preguntas y0/90 respuestas search nuevas; NO hay veredicto de calidadH3.
+No se inicio aceptacion completa. No reparar/reconfigurar tuneles bajo este
+alcance ni sustituir modelos. Reentrada cuando el servicio existente vuelva
+a dar sus metadatos congelados por una via ya autorizada. No repetir sondeos
+en bucle: hubo tres intentos acotados de metadatos,15/60/120s, sin inferencias.
+
+EVIDENCIA ACTUAL (rutas relativas al clon)
+Protocolo previo docs\eval\quality\1.12\protocol-h3-search.json:
+512a6d89ce63e98e785e081ca42ab80bfbfa9b44d543c2f994c78db2c518304b.
+Resultado versionado docs\eval\quality\1.12\h3-search-result.json contiene
+todos los recibos, comandos, limites y dos fallos iniciales del harness.
+Buildaislado0warnings/errors;88testsclon;23HTTP+401 sin consumo dependencias;
+fixture HTTP/Qdrant sintetico40/1200/defaults/f32/UUID/retorno/filtros/saltos;
+540contrastesoffline;autopruebas23/8/10;3testsverificador. NOsonaceptacion.
+Representacion completa actual .artifacts\1.12-h3-representation-r4:
+bsuite2113doc/23221chunks,auditorias311/2081(solapan),docs15/743,tickets553/1855.
+ManifestSHA a7bed7d4bff27402809e66bd360ce77bc324f0bfc80ed8f01358e2d9a9e54eae.
+DLL Fixture105b41753dc1ce47c66eda768ebb0fa7ad1d75ecbc3450a24f4a52bc09cdadee,
+126recibosDLL/deps/runtimeconfig preservados en
+.artifacts\1.12-h3-http-r1\measured-binaries. No migrar sellos a otraDLL.
+Indices completos docs/tickets, ambos brazos, coinciden EXACTAMENTE en
+schema/payload/vectores/metadata/modelo/nombres/ingesta/resumen históricos:
+.artifacts\1.12-h3-http-r1\index-reuse.json SHA
+66296b95105b5e89ec092c3bcb05fc0482f8e0b9bd7bbaddfc21711361bcf11a.
+Bloqueo .artifacts\1.12-h3-http-r1\
+blocked-provider-40d378eed5fe4f67934dabd42875de7e.json SHA
+b5cee2b5c74097f41bb8192fb63f0518e079d568b536ef28f29ea309ebfecf46.
+No seal.json/result.json HTTP: verificador rechaza ausencia con exit1.
+0embeddingsproveedor/0LLM/0AltheIA nuevos; no reingesta de corpus,0misses
+resumen del diagnostico sin resumen. Fixture final11consultas de brain
+sintetico,no proveedor; no sumar como preguntas medidas.
+Preservar TODOS los artefactos nuevos, incluidos intentos fallidos,r1-r4,
+y los historicos1.12-paired-r1,diagnosis-r2,20261103-r3,h2-representation-r2,
+h2-resume-probe-r2,h2-fixture-r1,h2-diagnosis-r1,h3-budget-r1/r2/guard-r1.
+No borrar volumen,indices,controles,evidencias ni binarios históricos.
+
+CONTINUACION TECNICA
+1. Verificar recibos/servicios/bases. Si cambia un binario,repetir primero
+   representacion completa4cohortes con salida NUEVA, sin embeddings.
+   Reusar indices solo tras verificarlos completos; no reingestar por comodidad.
+2. Desde el clon, build SOLO Fixture.csproj con
+   -p:VectorSpaceRoot=D:\Git\Vector.Space.Engine --no-restore.
+   Entradas: --h3-contract <salida-nueva>,
+   --h3-ranking <representacion-actual> <salida-nueva> (sintetico),
+   --h2-representation .artifacts\1.12-20261103-r3 <salida-nueva>.
+   Clon: dotnet test tests\RagEngine.Core.Tests\RagEngine.Core.Tests.csproj
+   --no-restore --filter FullyQualifiedName~VectorSpace.
+3. Con proveedor real disponible:
+   dotnet docs\eval\quality\1.12\Fixture\bin\Debug\net10.0\Fixture.dll
+   --h3-search-diagnose .artifacts\1.12-20261103-r3
+   .artifacts\1.12-h3-representation-r4 .artifacts\1.12-h2-diagnosis-r1
+   .artifacts\1.12-h3-http-r1
+   Solo reutilizar estas salidas si recibos/binarios coinciden; si no,NUEVAS.
+   python docs\eval\quality\1.12\verify_h3_search.py
+   .artifacts\1.12-h3-http-r1 .artifacts\1.12-20261103-r3
+   .artifacts\1.12-h3-representation-r4
+   Preservar DLL medidas en directorio de corrida para verificacion.
+4. Completar45preguntas docs/tickets,4negativas,ambasvistas,@1/3/5/10.
+   Control original adaptado native40 intacto; candidato publicTopK10,
+   sinreranking,prefetch40,transporte/pool100. Respuestas HTTP NUEVAS;
+   eventos reales de cortes40 dense/sparse y union/retorno separados.
+   Cualquier perdida pareada any/full@10 en CUALQUIERvista RECHAZA H3:
+   terminarcohorte45,preservarcontraejemplos,pararaceptacion. No retune/H4.
+5. SOLO si pasa: TODA aceptacion116preguntas,2rondas,928HTTPsearch/ask,
+   29suplementarias,adjudicacionsemantica cegada sustentada ytodosriesgos.
+   El coordinador primario PairedEvaluation conserva gateH2 y aun NO se
+   habilito/adapto a H3. Adaptarlo dentro1.12 tras screenpositivo y comprobar
+   resumeREAL en binariosactuales: identidadpersistente,lock,procedencia,
+   ingesta/resumencompletos,checkpointatomico de4respuestas; parciales noexito.
+   No migrar selloshistóricos ni reutilizar respuestasdeotrosbinarios.
+   Ningunafabricacionnueva ni controlcorrecto->candidatoincorrecto/abstencion.
+   Verificadorfinal exige cobertura/adjudicacion/riesgos;ausencias/errores/
+   cerotests/omisionesfallan. Adquisicion sola no acepta.
+
+PROVEEDORES/AISLAMIENTO/INVARIANTES
+Solo Qdrant propio v112-qdrant-20261103, alrelevo DETENIDO/exited.
+ID de46bf35feb6fb5661da269e3d7a4238723a865059b69d704ca2fe0a562fc0db,
+imagen sha256:b7b0444c4c351c970b98e90a6f89c2ee4287c65b44e52b4cb503fa5b2aa927ad,
+volumen v112-qdrant-20261103-data, loopback26333/26334, nunca6333.
+Comprobar identidad/imagen/volumen/puertos antes dearrancar/reusar yreadiness.
+Ambos brazos Snowflake/snowflake-arctic-embed-m-v2.0,tunel8081existente,
+256dMatryoshka/L2,prefijo"query: ",TEI1.8.3,8192/16384,
+serviceSHA78502d8e61223d2c73d4bb7aeaea46787e90d596;pesosrevisiondesconocida.
+AltheIA qwen3.8-27b-fast para resumen/generacion, no modeloslocales.
+ALTHEIA_KEY/ALTHEIA_CERT existentes soloenproceso,nunca mostrar/persistir,
+TLSintacto,respetar429. Cachecandidata memoria NOdurable;contarmissesreales
+antesconsumo;SQLitecontrolaislada,un escritorWAL,nunca cacheoriginal.
+Cliente COMPLETO Local explicito;VectorSpacefragmenta/embebe/indexa/resume;
+RagAPI/CLI/fusion/simbolos/reranking/contexto/generacion/fuentes.
+No fallback silencioso ni fragmentacioncliente para fingircompatibilidad.
+H2rag-local-1.12 congelada,nombreslogicos,512/64/lote32/contexto5/cabeceras
+Windows;defaultsnativos intactos. Corpus/anclas/modelos/vistas/cortes/piso0.1/
+RRFf32/desempates sin retoques. Denso005/H1-010/H2-014 siguenrechazadas;
+H3causaloffline45 solo sostiene mecanismo, conserva residuales/limites.
+HTTPautenticado;L/Ntextuales/modulo antesdecandidatos ycada salto.
+Tenantactivo,todaAuthorized yEmpresarial+remoto rechazan antesconsumo.
+No quitarclaims/convertirEmpresarial. Resumenremoto inclusonullautoridad;
+nocachelocalsustituta,nocosenoaRRF,noparciales/404/429/metricasocultas.
+
+CIERRE
+Comprobaciones eninvocacionesseparadas de edicion. arnes1.17.4 reporto
+avisos del launcherWindows, pero validar con rutaexplicita delledger paso:
+38items,4bloqueados,1descartado,33hechos,exit0. No se cambio ese proyecto.
+No confundir validarJSON con ejecutar aceptacion ni afirmar hooksautomaticos.
+Solo hecho si criterioINTEGRO y evidenciareproducible, producto+resultado+
+ledgers encommits coordinados. Si falta infraestructura/evidencia,bloqueado
+o en_curso concondicionconcreta. Entregar resultado/limites/commits/estado
+exacto y promptcompleto derelevo sipendiente, sin ejecutarotra ficha.
+Rollback: UseRetrievalBudget=false,RetrievalBackend:Mode=Local explicito,
+detenerauxiliarespropios,preservaroriginal/indices/controles/volumen/evidencia.
+VolverH2 noaceptaH2;revertcodigo noreviertepuntos. Sinamend/push.
+```
+
+## HISTORICO: H3 causal sostenida; permiso entonces pendiente, no aceptacion
 
 ```text
 Retoma UNICAMENTE 1.12-decidir-si-rag-context-engine-pasa-a-cliente de

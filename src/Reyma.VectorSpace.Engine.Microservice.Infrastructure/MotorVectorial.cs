@@ -72,11 +72,11 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
     public Task<BusquedaResponse> BuscarAsync(
         string coleccion, string consulta, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos,
         EspacioDeBusqueda espacio, IReadOnlyList<string>? modulos, string? lenguaje, string? @namespace,
-        CancellationToken cancellationToken) =>
+        CancellationToken cancellationToken, int? prefetchPorRama = null) =>
         ConQdrantAsync(async () =>
         {
             var hits = await _retriever.SearchAsync(coleccion, consulta, topK, perfil, simbolosDefinidos, espacio, modulos,
-                lenguaje, @namespace, cancellationToken);
+                lenguaje, @namespace, cancellationToken, prefetchPorRama);
             return new BusquedaResponse(coleccion,
                 hits.Select(h => new ResultadoBusquedaResponse(
                     h.ChunkId, h.Score, h.RelativePath, h.Content,

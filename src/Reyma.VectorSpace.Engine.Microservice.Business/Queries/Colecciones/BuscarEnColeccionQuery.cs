@@ -18,7 +18,7 @@ namespace Reyma.VectorSpace.Engine.Microservice.Business.Queries.Colecciones;
 /// </summary>
 public sealed record BuscarEnColeccionQuery(
     string Coleccion, string? Consulta, int? TopK, string? Perfil, IReadOnlyList<string>? SimbolosDefinidos = null, string? Espacio = null,
-    IReadOnlyList<string>? Modulos = null, string? Lenguaje = null, string? Namespace = null)
+    IReadOnlyList<string>? Modulos = null, string? Lenguaje = null, string? Namespace = null, int? PrefetchPorRama = null)
     : IRequest<BusquedaResponse>, IValidable
 {
     public const string EspacioCodigo = "codigo";
@@ -32,6 +32,10 @@ public sealed record BuscarEnColeccionQuery(
             yield return $"Consulta admite como maximo {Limites.MaxCaracteresConsulta} caracteres.";
         if (TopK is < 1 or > Limites.MaxTopK)
             yield return $"TopK debe estar entre 1 y {Limites.MaxTopK}.";
+        if (PrefetchPorRama is < 40 or > 1200)
+            yield return "PrefetchPorRama debe estar entre 40 y 1200.";
+        if (PrefetchPorRama is not null && Espacio == EspacioResumen)
+            yield return "PrefetchPorRama solo se admite en el espacio 'codigo' con FusionNativa.";
 
         if (Perfil is not null && Perfil.Trim().Length == 0)
             yield return "Perfil no puede ser una cadena vacia si se especifica.";
@@ -73,6 +77,6 @@ public sealed record BuscarEnColeccionQuery(
                 request.Espacio == EspacioResumen ? EspacioDeBusqueda.Resumen : EspacioDeBusqueda.Codigo,
                 request.Modulos,
                 request.Lenguaje, request.Namespace,
-                cancellationToken);
+                cancellationToken, request.PrefetchPorRama);
     }
 }

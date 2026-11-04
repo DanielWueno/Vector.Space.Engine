@@ -70,8 +70,13 @@ public sealed class QdrantSemanticRetriever
     /// </summary>
     public async Task<IReadOnlyList<SearchHit>> SearchAsync(
         string collectionName, string query, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos,
-        EspacioDeBusqueda espacio, IReadOnlyList<string>? modulos, string? lenguaje, string? @namespace, CancellationToken ct)
+        EspacioDeBusqueda espacio, IReadOnlyList<string>? modulos, string? lenguaje, string? @namespace, CancellationToken ct,
+        int? prefetchPorRama = null)
     {
+        if (prefetchPorRama is not null &&
+            (prefetchPorRama is < 40 or > 1200 || espacio != EspacioDeBusqueda.Codigo || _options.Modo != ModoBusqueda.FusionNativa))
+            throw new BadRequestException("PrefetchPorRama admite enteros entre 40 y 1200 solo en codigo con FusionNativa.");
+
         // 1.20: sin perfil de resumen configurado es un 400 claro, antes de tocar Qdrant o el sidecar (mismo mensaje
         // y mismo criterio que pedir resumen en la ingesta, DocumentIngestionPipeline.IngestLockedAsync).
         if (espacio == EspacioDeBusqueda.Resumen && string.IsNullOrWhiteSpace(_perfilResumen))
@@ -133,7 +138,7 @@ public sealed class QdrantSemanticRetriever
         {
             // Pool de cada rama varias veces mas ancho que el corte final, como en el origen sin reranking.
             var finalLimit = (ulong)topK;
-            var prefetchLimit = Math.Max(finalLimit * 4, 40);
+            var prefetchLimit = prefetchPorRama is { } requested ? (ulong)requested : Math.Max(finalLimit * 4, 40);
 
             var sparseEntries = _sparseTokenizer.Tokenize(query);
             var sparseValues = new float[sparseEntries.Count];
@@ -149,7 +154,15 @@ public sealed class QdrantSemanticRetriever
             var sparse = QueryOrderedAsync(collectionName, (sparseValues, sparseIndices), QdrantVectorStore.SparseVectorName,
                 prefetchLimit, payload, filtro, ct);
             await Task.WhenAll(dense, sparse);
-            ranked = FuseNativeRanks(await dense, await sparse, finalLimit);
+            var denseHits = await dense;
+            var sparseHits = await sparse;
+            ranked = FuseNativeRanks(denseHits, sparseHits, finalLimit);
+            if (_logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug(new EventId(112, "NativeRetrievalBudget"),
+                    "Native fusion {Collection}: prefetch {PrefetchPerBranch}, dense {DenseCandidates}, sparse {SparseCandidates}, union {FusedCandidates}, returned {ReturnedCandidates}, topK {TopK}",
+                    collectionName, prefetchLimit, denseHits.Count, sparseHits.Count,
+                    denseHits.Concat(sparseHits).Select(DeterministicVectorQuery.ChunkId).Distinct(StringComparer.Ordinal).Count(),
+                    ranked.Count, topK);
         }
 
         return Mapear(ranked);

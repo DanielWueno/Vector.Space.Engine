@@ -127,6 +127,27 @@ Ver [preparacion y resultado de1.12](../evaluaciones/1.12/preparacion.md).
 Defaults nativos, autenticacion, filtros y resumenes no cambian.
 Revertir codigo o desactivar el opt-in no revierte puntos existentes.
 
+## Presupuesto opt-in de busqueda (H3, 1.12)
+
+`prefetchPorRama` es opcional, entero JSON estricto entre **40 y 1200**, solo
+para `codigo` con `Motor:Busqueda:Modo=FusionNativa`. Tipos/rangos invalidos,
+modo `Denso` o espacio `resumen` responden **400 antes de consultar colecciones
+o consumir embeddings**. Omitido o `null` conserva exactamente
+`max(4*topK,40)`; no cambia los defaults nativos.
+
+El presupuesto corta cada rama elegible; `topK` (1..100) limita por separado
+los resultados fusionados. Los filtros siguen aplicandose antes de cada corte,
+con piso denso 0.1, RRF f32 k=2, orden denso-luego-sparse y desempate UUID ordinal.
+Dos prefijos de40 ofrecen **como maximo80 candidatos distintos**, menos si hay
+solapamiento o menor elegibilidad: pedir100 no garantiza100. No hay relleno.
+Las consultas exactas pueden examinar mas puntos para resolver empates completos;
+ese trabajo no amplia el prefijo elegible solicitado.
+
+El cliente experimental activa `VectorSpace:UseRetrievalBudget` (defaultfalse)
+solo para su busqueda primaria: `max(4*B,40)`, con `B=TopK` o `3*TopK` si hay
+reranking. Resumen y saltos por simbolos no envian override. El ranking puede
+cambiar con el opt-in; implementar este contrato no acredita calidad ni cierra1.12.
+
 ## Cuerpos
 
 ```jsonc
@@ -146,6 +167,10 @@ Revertir codigo o desactivar el opt-in no revierte puntos existentes.
 //        "namespace", "clase", "metodo",                                        // item 1.18, null si el chunk no aplica
 //        "simbolosDefinidos", "simbolosConsumidos",                             // item 1.18, lista vacia, nunca null
 //        "resumen" }] }                                                         // item 1.20, null si el chunk no lo tiene
+
+// H3/1.12, solo codigo y Motor:Busqueda:Modo=FusionNativa:
+// campo opcional "prefetchPorRama": 40..1200, entero JSON estricto (no "40",40.0,4e1,true).
+// Omitido/null conserva max(4*topK,40); topK sigue limitando resultados, no cada rama.
 
 // POST .../ingestas     origen 'documentos': 1 a 100 documentos, ruta unica y contenido <= 1 MiB c/u
 { "origen": { "tipo": "documentos", "documentos": [{ "ruta": "docs/a.md", "contenido": "..." }] },

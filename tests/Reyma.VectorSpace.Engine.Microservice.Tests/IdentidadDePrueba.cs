@@ -128,7 +128,7 @@ public sealed class MotorDePrueba : IMotorDeEmbeddings, IMotorDeBusqueda, IMotor
     public Task<BusquedaResponse> BuscarAsync(
         string coleccion, string consulta, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos,
         EspacioDeBusqueda espacio, IReadOnlyList<string>? modulos, string? lenguaje, string? @namespace,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken, int? prefetchPorRama = null)
     {
         UltimoEspacio = espacio;
         UltimosModulos = modulos;

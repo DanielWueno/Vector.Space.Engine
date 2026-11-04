@@ -1,11 +1,86 @@
 # 1.12 - Preparacion del cliente completo y bifurcacion local
 
 Fecha: 2026-11-03, continuaciones posteriores a `122755f`, `b50eb6b` y `832b31a`.
-**Resultado parcial. Cliente implementado opt-in; aceptacion rechazada, 1.12 bloqueado.**
+**Resultado parcial. H3 implementada opt-in, diagnostico bloqueado; H2 sigue rechazada. 1.12 bloqueado.**
 Fuente rectora: `docs\plan\ejecucion-plan.estado.json`, ficha
 `1.12-decidir-si-rag-context-engine-pasa-a-cliente`. No se ejecuta otra ficha.
 
-## H3: diagnostico causal offline y permiso nuevo pendiente
+## VIGENTE: H3 autorizada e implementada; diagnostico real bloqueado por proveedor
+
+Continuacion 2026-11-04, bases rector `c6d5b87` y clon `b7944b3`.
+Commit coordinado del clon: `4cd0916e19eb91db6dfd705d554059719b32aecd`.
+La autorizacion expresa POSTERIOR del usuario resuelve exclusivamente el
+alcance de `protocol-h3-search.proposed.json`, SHA256
+`61967d0ee7a4fd8f121cf524fdc7fa68ca3f6a64a99642fba8614663e7ad29af`.
+Se conserva la consulta historica sin respuesta. Antes de producto se registro
+`protocol-h3-search.json`, SHA256
+`512a6d89ce63e98e785e081ca42ab80bfbfa9b44d543c2f994c78db2c518304b`,
+y solo1.12 paso a `en_curso`. Ahora vuelve a **bloqueado**, no hecho.
+
+Producto: `prefetchPorRama` opcional entero JSON estricto40..1200, solo
+codigo/FusionNativa; DTO/query/puerto/controller/motor. Omitido/null conserva
+`max(4*topK,40)`. Opt-in cliente `VectorSpace:UseRetrievalBudget=false`,
+solo primaria: `max(4*B,40)`, B=TopK o3*TopK con reranking. Resumen y saltos
+no envian override. Pool/transporte100 y TopK publico1..100 no garantizan100:
+dos prefijos40 permiten como maximo80 distintos. Sin relleno, cambio de escala,
+reduccion silenciosa de TopK ni modificacion del control.
+
+Comprobaciones manuales, no hooks: build aislado0warnings/errors,88tests de
+VectorSpace del clon,23casos HTTP mas401 con0consumo de dependencias, fixture
+autenticado HTTP/Qdrant sintetico con f32/UUID/40/1200/defaults/retorno/filtros
+antes de candidatos y cada salto,540contrastes offline del fusionador real,
+autopruebas23/8/10 y3tests del verificador HTTP. El fixture sintetico no usa
+Snowflake/AltheIA ni acredita calidad; dos fallos iniciales de su propio harness
+se corrigieron sin modificar producto, corpus, ranking ni umbrales.
+Los dos dobles de tests del servidor solo recibieron el parametro de puerto:
+no se compilo el proyecto API protegido ni se ejecuto su suite dependiente.
+
+Representacion completa actual antes de embeddings: bsuite2113/23221,
+auditorias311/2081 (solapan),docs15/743,tickets553/1855. Manifiesto
+`.artifacts\1.12-h3-representation-r4\representation.json`,
+SHA `a7bed7d4bff27402809e66bd360ce77bc324f0bfc80ed8f01358e2d9a9e54eae`.
+Los cuatro indices docs/tickets se compararon enteros con los snapshots
+historicos: esquema,payload,vectores,modelo,nombres e ingesta/resumen completos,
+no solo poblacion. Sin reingesta;0misses de resumen en ese diagnostico sin resumen.
+
+El comando REAL `--h3-search-diagnose` se ejecuto en otra invocacion:
+el puerto8081 acepta TCP, pero `GET /info` no responde y agoto120.390704s.
+Se detuvo antes de consultas/embeddings. **0/45 preguntas y0/90 respuestas
+search nuevas: H3 no medida, ni aprobada ni rechazada por perdida pareada.**
+No procede ejecutar la aceptacion116x2/928HTTP,29extras,adjudicacion/riesgos.
+El verificador independiente falla con exit1 por ausencia del sello HTTP.
+No se sustituyo modelo, modifico tunel ni solicito de nuevo permisos vigentes.
+
+Resultado reproducible completo del clon:
+`docs\eval\quality\1.12\h3-search-result.json`.
+Recibos: bloqueo `b5cee2b5c74097f41bb8192fb63f0518e079d568b536ef28f29ea309ebfecf46`;
+indices `66296b95105b5e89ec092c3bcb05fc0482f8e0b9bd7bbaddfc21711361bcf11a`;
+DLL `105b41753dc1ce47c66eda768ebb0fa7ad1d75ecbc3450a24f4a52bc09cdadee`.
+Binarios medidos preservados bajo `.artifacts\1.12-h3-http-r1\measured-binaries`.
+Evidencia local no versionada: conservarla; el JSON versionado no sustituye los
+snapshots, cuerpos HTTP ni DLL. Qdrant propio se verifico antes de arrancar y se
+detuvo despues (`exited`), conservando volumen, indices y fixtures sinteticos.
+
+Consumo nuevo conocido:0embeddings de proveedor,0LLM,0AltheIA. Total maquina
+real y total historico facturado desconocidos. Restante provisional42h:
+2h instrumentos/HTTP/runner mas40h aceptacion condicional, no limite ni consumo.
+Modelo efectivo gpt-6-astra; xhigh solicitado, esfuerzo efectivo no observable;
+opus/high del plugin intactos, sin subagentes.
+`arnes validar D:\Git\Vector.Space.Engine\docs\plan\ejecucion-plan.estado.json`
+paso con exit0:38items,4bloqueados,1descartado,33hechos. Version instalada1.17.4;
+el wrapper Windows emite avisos de parseo preexistentes y no se modifico.
+Esta validacion del ledger no ejecuta ni sustituye aceptacion funcional.
+
+Reentrada: disponibilidad del proveedor existente con metadatos congelados,
+sin arreglar tuneles dentro de este alcance. Verificar binarios/recibos y
+repetir representacion si cambian; completar45HTTP. Solo si pasan, adaptar la
+puerta del coordinador primario a H3 (sigue especifica de H2), demostrar resume
+real de cuatro respuestas con binarios actuales y ejecutar TODA la aceptacion.
+No activar cliente como aceptado ni H4. Rollback: opt-infalse,Local explicito,
+auxiliares propios detenidos, indices/controles/volumen/evidencias preservados.
+Volver a H2 no la acepta; revertir codigo no revierte puntos.
+
+## HISTORICO: H3 causal offline y permiso entonces pendiente
 
 **H3-C sostiene el mecanismo de presupuesto en la cohorte congelada; H3-P no
 esta implementada ni aceptada.** La consulta de permiso especifico de busqueda

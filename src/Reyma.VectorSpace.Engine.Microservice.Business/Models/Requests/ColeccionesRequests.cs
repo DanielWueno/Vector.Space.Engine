@@ -23,6 +23,10 @@ public sealed class BuscarRequest
     /// <summary>Por defecto 10; entre 1 y 100 (ver Limites).</summary>
     public int? TopK { get; set; }
 
+    /// <summary>Prefijo opcional por rama, 40..1200, solo codigo/FusionNativa; null conserva el presupuesto anterior.</summary>
+    [Newtonsoft.Json.JsonConverter(typeof(EnteroEstrictoConverter))]
+    public int? PrefetchPorRama { get; set; }
+
     /// <summary>Ver <see cref="CalcularEmbeddingsRequest.Perfil"/>.</summary>
     public string? Perfil { get; set; }
 
