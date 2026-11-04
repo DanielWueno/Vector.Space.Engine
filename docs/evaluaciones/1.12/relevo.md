@@ -3,7 +3,234 @@
 Copia el primer bloque VIGENTE en una conversacion nueva. Los bloques anteriores
 se conservan despues como historia, no como instrucciones actuales.
 
-## VIGENTE: H2 implementada y rechazada en tickets014; reanudacion probada
+## VIGENTE: H3 causal sostenida; permiso de busqueda pendiente, no aceptacion
+
+```text
+Retoma UNICAMENTE 1.12-decidir-si-rag-context-engine-pasa-a-cliente de
+Vector.Space.Engine. Sin subagentes. Una conversacion, un item; no otra ficha.
+H3-C causal ya fue prerregistrada y comprobada offline. H3-P de producto
+esta propuesta y congelada, pero NO autorizada ni implementada.
+La consulta especifica de ampliar busqueda servidor no tuvo respuesta:
+silencio NO autoriza. Este relevo tampoco concede ese permiso.
+Primero comprobar si existe una autorizacion posterior explicita del usuario
+para protocol-h3-search.proposed.json; si no, pedir solo ese alcance nuevo
+y detener producto/servicios. No repetir permisos ya vigentes ni abrir H4.
+
+MODELO Y COSTE
+Solicitado gpt-6-astra/xhigh en esta ventana; usar seleccion real disponible.
+Ultimo modelo efectivo gpt-6-astra; esfuerzo efectivo no expuesto, xhigh
+declarado por usuario, no comprobado por runtime. No simular seleccion.
+Conservar modelo:opus/esfuerzo:high del plugin; registrar _ejecucion real.
+Estimacion H3 especifica2h offline+4h implementacion condicional+40h
+aceptacion=46h, no limite ni consumo. Tiempo/AltheIA ya autorizados solo1.12.
+Comprobar puertas antes de marcar en_curso e implementar. Maximo3intentos
+mismo fallo; falta de oraculo exige preparar, no inventarlo tras resultado.
+
+REPOSITORIOS Y PERSISTENCIA
+D:\Git\Vector.Space.Engine: ledger rector docs\plan\ejecucion-plan.estado.json.
+Rama feature/1.12-h2-ingestion-compatibility, base de esta continuacion
+76764541b554620ec628d575623201893af5d483.
+D:\Git\Rag.VectorSpace.Client: Git independiente, rama feature/vectorspace-client,
+sin remoto; base2d8865aead9443aa1e0a7f77b6856da31a97c613.
+Solo _bifurcacion_1_12 del ledger docs\analisis-futuro\ejecucion-plan.estado.json
+pertenece al trabajo. No ejecutar las162fichas heredadas.
+La persistencia H3 esta en el commit que contiene este primer bloque y el
+commit coordinado del clon registrado en _continuacion_H3_presupuesto_2026_11_03.
+Clon H3:b7944b3ee2db1021159c430c2a9f8afd1d6a1ff3,8archivos yworktree
+limpio verificados;autor/committerDWeno,sincoautoria/firmas,sinremoto/push.
+Verificar esos commits, ramas, estado y diffs incluidos staged.
+D:\git\Rag.Context.Engine: ORIGINAL SOLO LECTURA,
+base3c3972b90b74ee3d9cd7b86945e07d4775a9c965, rama integracion/local-en-main.
+Preservar src\RagEngine.Api\Properties\ sin seguimiento; no copiarlo.
+
+LEER ANTES DE ACTUAR
+Instrucciones/ledgers completos; ficha1.12 completa, fuentes/dependencias,
+resultado/rollback/reentrada; PRIMER bloqueVIGENTE completo de relevo.md,
+preparacion.md y notas _continuacion_H3_presupuesto_2026_11_03,
+_continuacion_H2_2026_11_03,_implementacion_y_medicion_2026_11_03,
+_investigacion_calidad_posterior_355613f. Bloques posteriores son historicos.
+En clon docs\eval\quality\1.12:
+protocol.json,protocol-local.pre-altheia.json,protocol-diagnosis.json,
+protocol-diagnosis-inventory.json,diagnosis-result.json,
+protocol-compatibility.proposed.json,protocol-compatibility.json,h2-result.json,
+verify_h2.py,protocol-h3-budget-diagnosis.json,diagnose_h3_budget.py,
+test_h3_budget.py,h3-budget-result.json,protocol-h3-search.proposed.json
+y TODO el harness Fixture. Contratos HTTP/filtros/compatibilidad1.18/1.20/
+1.21.1/1.21.3/1.21.4; diez insumos/dependencias hechos, no abrir otra ficha.
+Este prompt no reemplaza ledger, contratos ni condiciones tecnicas.
+
+EXCLUSIONES ABSOLUTAS
+VectorSpace NO leer,buscar,hashear,modificar,copiar al build ni incluir en
+diff/commit src\Reyma.VectorSpace.Engine.Microservice.Api\appsettings.json:
+cambio ajeno protegido. Usar allowlist EXPLICITA incluso en diff--name-only/
+diff--check/staged/status; no comandos que recorran esa ruta.
+Incidencia previa: enumeracion inicial no filtrada nombro la ruta y emitio
+avisoLF/CRLF; no hubo contenido mostrado/hash explicito/buildAPI. Registrada,
+no repetir ni afirmar exclusion total retrospectiva.
+NO compilar proyecto API VectorSpace. Solo harness con enlaces explicitos
+revisados: controllerColecciones,ReymaExceptionFilter,MvcExtensions,
+CustomContainer; Infrastructure->Business->Domain, sin referencia API.
+No original/Rag19.6/goldens/CI/tests ajenos/1.21.5/1.21.6/otra ficha.
+No git add-A,amend,push,preguntar.ps1,compose/configuracion heredada.
+No colecciones servidas,credenciales nuevas/modificadas,permisos,despliegues,
+tuneles nuevos/modificados ni acceso corporativo adicional.
+
+DECISION Y AUTORIZACIONES
+Cliente COMPLETO en Local explicito,no solo brain. VectorSpace posee
+fragmentacion/embeddings/indice/resumen indexado; Rag conserva API/CLI,
+fusion/simbolos/reranking/contexto/generacion/fuentes. No chunking cliente.
+Original/backendLocal conservados; rollback expreso,nunca fallback silencioso.
+Implementacionclon,pruebas/ingestas aisladas,ranking distinto conreferencia
+pareada estricta,tiempo/AltheIA sinlimite/corpuscompleto YA autorizados.
+H2 autorizo especificamente perfilingesta opt-in servidor,nombrelogico,
+DTO/jobs/procedencia/rechazo mezcla. Es posterior a consultaH2historica
+sinrespuesta: preservar historia. NO extiende automaticamente permiso a
+busquedaH3. Pedir exclusivamente el alcance nuevo pendiente.
+Mantener defaults/perfiles nativos; no framework generico de perfiles.
+
+HISTORIA INMUTABLE
+Denso rechazado en005. H1 FusionNativa400 recupero005 pero perdiofull@10
+en010;native40 tampoco lo resolvio con aquella representacion. Diagnostico
+r2:45preguntas completas,62top10historicos exactos. Nombre fisico explica
+9hashes distintos,double replay sobre mismosbytes;no causaunicafragmentacion.
+H2rag-local-1.12/nombrelogico igualo completamente rawhash/raw/enriched/
+ruta/lineas/ID:bsuite2113/23221,auditorias311/2081,docs15/743,tickets553/1855.
+Auditorias solapa fuentes,no sumar unicos. Nativo1024 intacto;H2fijo512/64,
+lote32,contexto5,SplitWithOverlap,shortTypesfalse,cabecerasWindows.
+H2RECHAZADA:45preguntas/4negativas,ambasvistas,cortes1/3/5/10,
+candidato400/control40.014any/full@10true->false,ID
+2c679ab0-cfd8-5ffb-acff-ff045f9a8a79,rawSHA
+3a35bfc63a57bc47ef3dff079af25e30209605817ad66789dc08ae79c7182265,
+ValidarMesaAyudaTicketCommandHandler.cs73-77;native10/11,dense9/sparse9ambos.
+ResultadoH2 result-5d1257087a4443a7b30846e1082a8ccd.json
+SHA5a425137cb1911493aef938c6f3216c36af0ce6a7c9003d91010b7a62e9a8596.
+Verificacion7049a89910a867d151c3f60396660b14bb5a4be8213d05186387eb8628f1e751.
+DLLf0004d65c48bc47e93bb60fc0516c86f9ed285da26f7d67906d820f2ca16c220.
+No reinterpretarH2 comoaceptada ni modificar representacion duranteH3.
+
+H3-C YA COMPROBADA, NO PRODUCTO
+Prerregistro protocol-h3-budget-diagnosis.json SHA
+bfe40fda47953e9386ce064faa7866e0bf138f89b096d744edc67f200bb3768e.
+Presupuestos separados: prefijos dense/sparse,unionfusionada,retornados,
+poolcliente100,publicTopK1..100. Transporte100 deriva400enH2;
+controlK10 deriva40. RRFf32,k2,dense-luego-sparse,UUIDordinal,exactquery
+y prefijo completo de empates, piso dense0.1. No cosenosdouble para ranking.
+2x2contrafactuales40/400 prerregistrados,ningunbarrido. P1-P4pasan:
+H2reproducidaexactamente;igualpresupuesto top10/mascaras iguales45/45.
+31preguntas cambian orden top10 con40->400 en cada brazo.
+014:ancla mantiene score0.20000000298023224;competidor
+f36653e7-4135-5365-bdbb-79b925f36e8a,TicketAsignacionExtensions.cs81-100,
+dense270/sparse4,YA presentea40,suma densef32(1/271) y sube
+0.20000000298023224->0.2036900371313095,puesto11->9.
+A40 desempata despues delancla porUUID;a400 adelanta ancla yGuia136-144.
+Ancla10->11 ambosbrazos. Todospredecesores/contribuciones en derived.json.
+Con400 tambien013 pierde any/full@3 ambasvistas;no compensar promedios.
+Dense/sparsevectores iguales en2598puntos;ramas sparse score/orden difiere
+en21preguntas,orden8,prefijo40en3,sin cambiar top10igualpresupuesto.
+Causa residual numerica/ejecucion NO aislada;no afirmar igualdad plena
+de ramas ni extrapolar a filtros/resumen/reranking/ask.
+
+EVIDENCIA H3
+.artifacts\1.12-h3-budget-r1,r2,guard-r1 conservados;126binarios
+sellados medidos sinconfiguraciones y fuentes medidas en r1/r2.
+r2fortaleceP4porcada vista/metrica/corte,no soloIDs;inputs2873,filas yresumen
+identicosr1. No cambio de protocolo/parametros/corpus trasresultado.
+Derivador2SHA9d13b18c01fa8f84cb5b4216d43704f713779a10413610a72808ec54bace516f.
+ContrasteSHAe3c9db793319b96aac69d9789ca4d81111c33dc90ae41a334663cdab5f9b8949.
+DLL5454879735da3994a97d285a244cb027e36efd540663724773381cfbcccc9ad8.
+8tests focalizados/negativos,10aserciones,buildaislado0errores/0warnings,
+540comparaciones exactas conmetodorealservidor a limites10/100/800.
+Sinflag--evidence-only sale2 aun con evidencia completa. No acepta producto.
+Duraciones r1/r2:30.7654754/31.1885262s,guard26.9112065s;0redexperimental/
+embeddings/ingestas/LLM/servicios/escriturasindice-cache;totalesdesconocidos.
+Verificar hashes/procedencia antesdereusar;no reejecutar por rutina si basta
+evidencia sellada. Si se deriva nuevo analisis usar salida inexistente,nuevo
+instrumento/procedencia;jamás sobrescribir sellos ni llamar HTTP nuevo aloffline.
+
+ALTERNATIVA H3-P CONGELADA, PERMISO PENDIENTE
+protocol-h3-search.proposed.json SHA
+61967d0ee7a4fd8f121cf524fdc7fa68ca3f6a64a99642fba8614663e7ad29af.
+Campo opcional prefetchPorRama entero40..1200 solo codigo/FusionNativa:
+ausente/null conserva exactamente max(4*topK,40). Tipo/rango/modo/espacio
+incompatible400 antes delconsumo. topKservidor1..100 independiente.
+Cliente booleanopt-in VectorSpace:UseRetrievalBudget defaultfalse,
+soloFusionNativa;primariocodigo max(4*B,40),B=publicTopK o3*publicTopK
+conrerank. No constante40 ni ajuste a014. Resumen/saltos quedananteriores.
+PublicTopK1..100 ypoolconfigurado100 intactos,PERO40+40max80unicos:
+declarar menoscandidatos reales,no prometer100disponibles/recortarTopK/
+rellenar/fetchcolas con otraescala. No probar equivalencia rerank3*TopK.
+Alcance permiso:DTO/query/puerto/controller/motorbusqueda y dependientes
+clon/harness/tests/docs,solo1.12. Impacto opt-in ranking/prefijos y hasta
+1200porrama conrerankgrande;defaultintacto,sinescriturasindice/despliegues.
+Rollback desactivaropt-in yLocal explicito;H2 no se vuelveaceptada;
+conservar puntos/volumen/controles. Revertcodigo NO reviertepuntos.
+Si no hay permiso posterior afirmativo,no implementar ni arrancar servicios.
+
+TRAS AUTORIZACION ESPECIFICA
+1.Concretar protocolo ejecutable H3 autorizado ANTES de producto/medicion,
+mantener propuestas/rechazoshistoricos. Pruebasnegativas/filtros/escalas/
+riesgo:omisionmantienedefault,tipo/rango/modoespacioinvalidos400sinconsumo,
+40/1200,retornadosindependientes,f32/UUID,piso,extranjerosconscorealto fuera
+antesdeprefijos yencadasalto;JWT y restricciones abajo intactas.
+2.Reverificar representacion completa4cohortes antes de embeddings.
+Reusar indicesH2solo tras verificacion COMPLETA de schema/payload/vectores/
+modelo/nombresfisico-logico/ingesta/resumenes,NOsolopoblacion.
+Nueva procedenciabinarios;no reutilizar respuestasmedidas incompatibles.
+3.Diagnostico REAL45preguntascompletas docs/tickets,4negativas,ambasvistas,
+@1/3/5/10,controloriginalnative40,candidatoH3primaryK10/norerank
+prefetch40/transporte100/poolconfigurado100. Registrar presupuestos efectivos;
+endpoint/propagacionreal,no solo helperfusion ni contrafactual offline.
+Cualquierperdida any/full@10en cualquiera vistaRECHAZA:H3sinretune/H4.
+4.SOLO si pasa:aceptacionoriginal116preguntas,dosrondas,928respuestas
+search/ask ambosbrazos,29extras,adjudicacionsemanticacegada sustentada,
+sin nuevasfabricaciones ni degradacionesask y todosriesgos exigidos.
+Omisiones/evidenciaausente/coberturaincompleta/cerotests debenfallar.
+
+REANUDACION Y DATOS
+Runnerprincipal tiene identidadpersistente/lock/procedencia/ingesta-resumen/
+checkpointsatomicos4respuestas. ProbeH2r2interrumpio1/2documentos y3/4HTTP,
+reentro4/4yluego restaurosinHTTP. NOcertificaaceptacion ni resumehistorico
+r2que falloescapesJSON. GuardaCodeScoreFloor!=0.1FusionNativarechaza
+antesconsumo;binarios nuevos rechazan sellosH2antesred/salida. Nomigrarlos.
+Cachecandidata memoria NOdurable;contar misses reales(contenthash,promptversion).
+ControlSQLiteaislado,nuncadosescritoresWAL ni cacheoriginal.
+Conservar .artifacts\1.12-paired-r1,1.12-diagnosis-r2,1.12-20261103-r3,
+1.12-h2-representation-r2,1.12-h2-resume-probe-r2,1.12-h2-fixture-r1,
+1.12-h2-diagnosis-r1 y todosprotocolos/resultados/binariosH3.
+
+PROVEEDORES/AISLAMIENTO, SOLO CUANDO PROCEDA
+Ambosbrazos Snowflake/snowflake-arctic-embed-m-v2.0,tunel8081existente,
+256dMatryoshka/L2,prefijo"query: ",TEI1.8.3,8192/16384,
+SHAservicio78502d8e61223d2c73d4bb7aeaea46787e90d596;revisionpesosdesconocida.
+AltheIA qwen3.8-27b-fast resumen/generacion,sinmodeloslocales.
+ALTHEIA_KEY/ALTHEIA_CERT soloenproceso,sinmostrar/persistirvalores/
+certificados,TLSintacto,respetar429. Controladaptadoaislado,NOoriginal/5.e.
+Diagnosticooffline no necesita servicios. Qdrantpropio estaba detenido
+trasH2 y no fue iniciado enH3;NOse consulto estadoactualduranteoffline.
+Solo loopback26333/26334,NOtunel6333;verificaridentidad/imagen/volumen/
+puertosantesdereusar:
+contenedor v112-qdrant-20261103,
+IDde46bf35feb6fb5661da269e3d7a4238723a865059b69d704ca2fe0a562fc0db,
+imagenSHA b7b0444c4c351c970b98e90a6f89c2ee4287c65b44e52b4cb503fa5b2aa927ad,
+volumen v112-qdrant-20261103-data;no borrarvolumen/controles.
+Detener auxiliarespropios alterminar.
+
+INVARIANTES Y SALIDA
+JWT HTTP,L/Ntextuales/moduloopcional en codigo/resumen/cadasalto antes
+delconsumo. Rechazar tenant explicitoactivo,TODA Authorized yEmpresarial+
+remoto antes consultas/embeddings/rerank/LLM,sin quitarclaims/convertirLocal.
+Resumenremoto incluso null autoritativo,sincachelocal/fallback;no umbral
+cosenosobreRRF;incompatibles rechazanantesconsumo;parciales/404/429/metricas
+desconocidas explicitos. Noactivarcliente comosustitutoaceptado antescriterio.
+Comprobacionesseparadasdeedicion;arnesvalidar solo ficha,no ejecutaaceptacion.
+Resultados/consumoconocido/limites alledger;parcial en_cursoobloqueado,nohecho.
+Commitscoordinadossolo1.12+ledgers,autor/committerDWeno,sincoautoria/
+firmasdetool,noamend/push;verificarmensajes/archivos trascommit.
+Preservar cambiosajenos/historia;entregar resultado,evidencia,limites,commits
+y promptcompleto derelevo. Si permiso/calidadbloquea,parar sinotraficha.
+```
+
+## HISTORICO: H2 implementada y rechazada en tickets014; reanudacion probada
 
 ```text
 Retoma UNICAMENTE 1.12-decidir-si-rag-context-engine-pasa-a-cliente de

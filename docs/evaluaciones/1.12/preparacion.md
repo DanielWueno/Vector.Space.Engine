@@ -5,6 +5,127 @@ Fecha: 2026-11-03, continuaciones posteriores a `122755f`, `b50eb6b` y `832b31a`
 Fuente rectora: `docs\plan\ejecucion-plan.estado.json`, ficha
 `1.12-decidir-si-rag-context-engine-pasa-a-cliente`. No se ejecuta otra ficha.
 
+## H3: diagnostico causal offline y permiso nuevo pendiente
+
+**H3-C sostiene el mecanismo de presupuesto en la cohorte congelada; H3-P no
+esta implementada ni aceptada.** La consulta de permiso especifico de busqueda
+no obtuvo respuesta. 1.12 queda bloqueado por ese alcance nuevo y por calidad
+pendiente. H2 sigue RECHAZADA; las secciones posteriores conservan la historia.
+
+Antes del instrumento/medicion se registro en el clon
+`docs\eval\quality\1.12\protocol-h3-budget-diagnosis.json`, SHA256
+`bfe40fda47953e9386ce064faa7866e0bf138f89b096d744edc67f200bb3768e`.
+Se congelaron hipotesis, metodo2x2 (40/400 en ambos brazos), predicciones y
+refutaciones, criterio, representacion H2, corpus/anclas/modelos y rollback.
+No se busco un parametro ganador ni se retoco tickets014.
+
+El presupuesto por rama NO equivale a union fusionada, resultados devueltos,
+pool cliente o TopK publico. En H2, transporte100 deriva prefetch400 por rama;
+controlK10 deriva40. Aumentar solo el corte de una lista ya ordenada no cambia
+su top10; ampliar las ramas SI puede anadir contribuciones a miembros presentes.
+
+Tras comprobar2873recibos, cuatro representaciones completas y snapshots con
+schema/modelo/nombres/estado de ingesta/resumen, el contraste45preguntas,
+4negativas,ambasvistas,@1/3/5/10 reproduce H2 exactamente. Las cuatro
+predicciones pasan: a igual presupuesto coinciden los45top10 y todas las
+mascaras. El cambio40->400 altera el orden top10 en31preguntas de cada brazo.
+Con400, ambos brazos pierden014 any/full@10 y013 any/full@3; con40 el
+candidato no difiere en ninguna mascara del control40 original. No se
+sustituye el control de aceptacion por control400.
+
+### Explicacion de014, igual en ambos brazos
+
+Valores de score redondeados solo en esta tabla; el derivado conserva los
+bits y contribuciones exactas f32. Son todos los predecesores del ancla
+en cualquiera de los dos presupuestos, no una seleccion favorable.
+
+| Chunk | Rango denso/sparse | Rango40->400 | Score40->400 |
+|---|---|---|---|
+| Guia-pruebas-envio-correos.md7-17 | 3/1 | 1->1 | 0.750000000 |
+| Asignacion de permisos para usuarios APP Reyma TI.md96-112 | 1/40 | 2->2 | 0.524390221 |
+| Guia-pruebas-envio-correos.md111-118 | 2/10 | 3->3 | 0.424242437 |
+| MesaAyudaTicketCommandHandler.cs60-85 | 20/2 | 4->4 | 0.380952388 |
+| MesaAyudaTicketCommandHandler.cs82-107 | 10/3 | 5->5 | 0.340909094 |
+| Guia-pruebas-envio-correos.md62-85 | 8/5 | 6->6 | 0.277777791 |
+| TicketsController.cs112-114 | 4/16 | 7->7 | 0.258823544 |
+| TicketsController.cs121-123 | 5/17 | 8->8 | 0.222222224 |
+| Guia-pruebas-envio-correos.md136-144 | 16/6 | 9->10 | 0.201680675 |
+| TicketAsignacionExtensions.cs81-100 | 270/4 | 11->9 | 0.200000003->0.203690037 |
+| **Ancla ValidarMesaAyudaTicketCommandHandler.cs73-77** | **9/9** | **10->11** | **0.200000003 sin cambio** |
+
+El competidor `f36653e7-4135-5365-bdbb-79b925f36e8a` ya pertenece a la
+union40 por sparse4: NO es un nuevo miembro. En40 empata con el ancla
+`2c679ab0-cfd8-5ffb-acff-ff045f9a8a79`; UUID ordinal pone2c...antesf3....
+En400 suma denso270, `f32(1/271)=0.0036900369450449944`, y adelanta
+a ambos chunks en puestos9/10. El ancla conserva sus dos contribuciones
+`0.10000000149011612` y score `0.20000000298023224`.
+
+Los vectores de documentos dense/sparse son iguales en los2598puntos
+docs/tickets. Aun asi, las ramas sparse guardadas difieren en score/orden
+en21preguntas, orden en8 y prefijo40 en3; no cambian top10fusionado a
+igual presupuesto. La causa numerica/de ejecucion residual NO se aislo.
+No generalizar a todas las ramas, filtros, resumen, reranking, ask o corpus.
+
+### Instrumento, evidencia y limites
+
+`h3-budget-result.json` versiona resultado, hashes, comandos y consumo.
+`.artifacts\1.12-h3-budget-r1`, `1.12-h3-budget-guard-r1` y
+`1.12-h3-budget-r2` quedan conservados. r2 fortalece P4 de conjuntos de
+preguntas a cada vista/metrica/corte, sin cambiar el protocolo: filas,
+resumen y recibos de r1/r2 son identicos. Fuentes medidas conservadas.
+Derivado r2 SHA `9d13b18c01fa8f84cb5b4216d43704f713779a10413610a72808ec54bace516f`;
+contraste nativo `e3c9db793319b96aac69d9789ca4d81111c33dc90ae41a334663cdab5f9b8949`;
+DLL `5454879735da3994a97d285a244cb027e36efd540663724773381cfbcccc9ad8`.
+126binarios DLL/deps/runtimeconfig preservados sin configuraciones.
+
+Clon persistido en `b7944b3ee2db1021159c430c2a9f8afd1d6a1ff3`:
+8archivos de instrumento/protocolos/propuesta/resultado y nota de ledger
+juntos; autor/committerDWeno, mensaje sin coautoria/firmas, archivos y arbol
+limpio comprobados tras commit. Sin remoto/push. El commit rector contenedor
+coordina solo ficha/preparacion/relevo, no aceptacion funcional.
+
+Build aislado sin errores/advertencias;8tests focalizados incluidos
+ausencia/manipulacion/cobertura incompleta/atribucion exacta;10aserciones
+previas;540comparaciones con el metodo REAL de fusion servidor, IDs y bits
+f32 a limites10/100/800. Invocacion completa sin `--evidence-only` sale2.
+Nada de ello es aceptacion HTTP de producto ni reutilizacion de respuestas
+historicas con binarios nuevos. El original y los indices no se tocaron.
+
+Duraciones parciales r1/r2:30.7654754/31.1885262s,guarda26.9112065s.
+0servicios iniciados,0red experimental,0embeddings/ingestas/LLM.
+Estimaciones2h offline+4h implementacion condicional+40h aceptacion; no
+limites ni consumo total. Horas globales/tokens facturados desconocidos.
+Modelo efectivo gpt-6-astra; xhigh solicitado, esfuerzo no expuesto.
+Sin subagentes; opus/high del plugin se conserva.
+
+### Propuesta congelada y reentrada
+
+`protocol-h3-search.proposed.json`, SHA
+`61967d0ee7a4fd8f121cf524fdc7fa68ca3f6a64a99642fba8614663e7ad29af`:
+campo opcional `prefetchPorRama`40..1200 solo codigo/FusionNativa;
+ausente conserva default. Cliente opt-in calcula max(4*B,40), B=TopK
+o3*TopK con rerank: presupuesto por demanda logica, no constante40.
+PublicTopK1..100 y pool configurado100 permanecen; prefijos40 permiten
+MAXIMO80unicos, no prometer100disponibles ni rellenar/bajarTopK.
+Resumen/saltos mantienen comportamiento anterior; perfiles de ingesta
+intactos. Sin framework generico, datos, despliegues ni credenciales.
+
+Consulta especifica con impacto y rollback realizada: **usuario no disponible,
+sin respuesta afirmativa; NO autorizado por silencio**. No implementar esa
+ampliacion antes del permiso. No pedir de nuevo los permisos ya vigentes.
+Si se autoriza: protocolo ejecutable/guardas antes de medir, cambio minimo,
+pruebas negativas/filtros/escalas/riesgo, representacion/indices completos
+compatibles antes de embeddings y nueva procedencia. Primero45HTTP estricto;
+cualquier perdida@10 rechaza, sin retune/H4. Solo si pasa, aceptacion
+original116x2/928HTTP,29extras,adjudicacion cegada y todos los riesgos.
+Rollback explicito Local y desactivar opt-in, conservando indices/evidencia.
+
+Incidencia de exclusion registrada: la primera enumeracion
+`git diff --name-only` del rector incluyo la ruta protegida y avisoLF/CRLF;
+se excluyo antes de diff de contenido. No contenido mostrado, hash explicito
+ni build del proyecto API. Operaciones siguientes por allowlist explicita;
+no afirmar exclusion total de aquella enumeracion. Cambios ajenos preservados.
+
 ## Continuacion H2 autorizada posteriormente (2026-11-03,16:35)
 
 **Resultado: H2 implementada y RECHAZADA, ficha bloqueada por calidad.** El permiso
