@@ -1,11 +1,86 @@
 # 1.12 - Preparacion del cliente completo y bifurcacion local
 
 Fecha: 2026-11-03, continuaciones posteriores a `122755f`, `b50eb6b` y `832b31a`.
-**Resultado parcial. H3 implementada opt-in, diagnostico bloqueado; H2 sigue rechazada. 1.12 bloqueado.**
+**Resultado parcial. H3 pasa busqueda, pero falla aceptacion por fabricacion nueva. 1.12 bloqueado por calidad; conservar Local.**
 Fuente rectora: `docs\plan\ejecucion-plan.estado.json`, ficha
 `1.12-decidir-si-rag-context-engine-pasa-a-cliente`. No se ejecuta otra ficha.
 
-## VIGENTE: reentrada de metadatos sin respuesta; bloqueo conservado
+## VIGENTE: proveedor recuperado; H3 primaria rechazada por fabricacion nueva
+
+Continuacion 2026-11-04 tras el reintento solicitado por el usuario. Bases:
+rector `0407d270`, clon `de578473`. Solo1.12, sin subagentes. Modelo efectivo
+gpt-6-astra, xhigh solicitado y esfuerzo no observable; opus/high intactos.
+El GET8081/info respondio200 en0.016s con los cinco metadatos congelados.
+No se modificaron SSH, tuneles, credenciales ni modelos.
+
+El diagnostico H3 paso **45 preguntas/4 negativas/90 respuestas nuevas**,
+sin perdidas pareadas any/full@10, en ambas vistas y todos los cortes.
+Despues de prerregistrar `protocol-h3-acceptance.json`, se adapto el coordinador:
+gate H3, adopcion de identidades independientes de control/candidato y pruebas
+originales de ingesta/indices completos. El cambio de binarios obligo a nueva
+representacion completa r6 y nuevo screen HTTP r2, tambien45/90 sin perdidas.
+No se migraron respuestas ni sellos. La reanudacion real H3 resumida paso:
+ingesta1/2, interrupcion3/4, adquisicion atomica4/4 y reuso sin HTTP.
+
+La primaria produjo **45 pares/180 respuestas HTTP**, ronda1:
+26docs y19tickets, sin perdidas retrieval. No obstante, la revision cegada de
+**tickets-microservice-011** detecto una fabricacion nueva del candidato:
+afirma que pertenecer a Sistemas permite saltar el requisito de estar asignado
+al ticket o pertenecer al departamento del asignado. El guard literal de
+`ReasignarTicketCommandHandler.cs:161-162` no tiene esa excepcion fuera de
+MesaDeAyuda. El control no la inventa. **Ambas respuestas son incorrectas**
+por otras omisiones: el rechazo es por **fabricacion nueva**, NO por
+control-correcto -> candidato-incorrecto. Los juicios y citas se guardaron
+antes de revelar etiquetas; hashes/mapeos/cuerpos reales fueron comprobados.
+El otro par adjudicado, docs011, favorece al candidato y tambien se conserva.
+Un unico revisor sustentado; no revision semantica independiente ni causalidad
+atribuida al ranking H3.
+
+Se solicito detener el proceso tras el rechazo y se paro Qdrant propio.
+El primer recibo capturo scan1667/started; el runner posteriormente persistio
+scan2113/failed y finalizo a17:41:41.776268Z. **La herramienta de parada no
+demuestra terminacion inmediata del proceso hijo.** No hubo nuevos pares.
+BSuite candidato quedo404, sin coleccion creada;18612 misses se contaron antes
+del scan. No se acredita ingesta completa, regeneracion masiva ni consumo
+facturado total. Los cuatro indices docs/tickets se compararon enteros al
+final y permanecen intactos. Qdrant quedo `exited`, volumen conservado.
+
+Resultado versionado: clon `docs\eval\quality\1.12\h3-primary-result.json`.
+Commit coordinado del clon `1b57bf2c2eb3906df903d284d6d0948d90bf92b9`,
+10archivos de1.12 con instrumentos y ledger, autor/committerDWeno sintrailers.
+SHA256 del resultado localCRLF
+`6e0c6f06fab4fd97cecb699ad60b56bf33080e4da4328b325a194f273f67a397`;
+blobGitLF `6086d490fe0177680e302d8b5362825c187008ad99a71c67d5432f126bd46e59`.
+Comprobados identicos salvo normalizacion de finales de linea de Git.
+El commit rector que contiene este bloque preserva el rechazo, no acepta1.12.
+Artefactos completos: `.artifacts\1.12-h3-primary-r1`, incluidos revisiones,
+revelaciones, marcador de rechazo y reconciliacion de parada. Verificador:
+
+```powershell
+python docs\eval\quality\1.12\verify_h3_primary_rejection.py .artifacts\1.12-h3-primary-r1 .artifacts\1.12-20261103-r3 .artifacts\1.12-h3-representation-r6 .artifacts\1.12-h3-http-r2 .artifacts\1.12-h3-resume-r1
+```
+
+Invocacion real separada: exit2, rechazo explicito de aceptacion.
+`--evidence-only` verifica solo la evidencia del rechazo y sale0; ninguno de
+esos modos acredita928HTTP,29extras, adjudicacion completa o todos los riesgos.
+Build aislado,88tests de cliente sin skips,29+8 aserciones,15tests Python,
+23casos HTTP mas401 y negativos de entrada pasaron; no sustituyen ese criterio.
+Avisos heredados de tests conservados.
+
+La guarda final `quality-rejection.json` impide reentrar antes de red o cambios
+de salida; probada contra la corrida real sin alterar checkpoint.
+DLL medida `022abe940f64dee2078728c89f1531bc93df5cf5004c13dd13f808427e899c56`,
+126binarios preservados en HTTP-r2. DLL final de guarda
+`b26292ee07233510272fc7cd7ce295fbcf6a414cf53fed798a27d086f1454169`;
+125dependencias iguales. No se afirma medicion nueva con la DLL final.
+
+No reintentar para borrar el fallo, retocar criterio/corpus/anclas/modelos ni
+iniciar H4. Eventual investigacion causal requiere alcance e hipotesis/oraculo
+previos; conservar permisos existentes sin pedirlos otra vez y obtener solo
+los que exija alcance genuinamente nuevo. Original, otras fichas y archivo API
+protegido intactos; sin push/amend. Historial e incidencias anteriores debajo.
+
+## HISTORICO: reentrada de metadatos sin respuesta; bloqueo conservado
 
 Continuacion 2026-11-04, bases rector `1875aa21` y clon `4cd0916e`.
 Solo1.12, sin subagentes ni cambios de producto. Una consulta acotada a

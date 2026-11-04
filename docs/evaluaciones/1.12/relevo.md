@@ -3,7 +3,117 @@
 Copia el primer bloque VIGENTE en una conversacion nueva. Los bloques anteriores
 se conservan despues como historia, no como instrucciones actuales.
 
-## VIGENTE: reentrada comprobada; proveedor sigue sin responder, no aceptacion
+## VIGENTE: H3 search pasa; primaria rechazada por fabricacion nueva
+
+```text
+Retoma UNICAMENTE1.12-decidir-si-rag-context-engine-pasa-a-cliente de
+Vector.Space.Engine. Sin subagentes ni otra ficha. Estado BLOQUEADOporcalidad,
+NOhecho. H3busqueda PASA,peroaceptacionprimaria RECHAZADAporfabricacionnueva.
+No reanudar la corrida rechazada,no retune/H4 ni aceptar por tests/screen verdes.
+
+REPOSITORIOS Y EXCLUSION PREVIA
+D:\Git\Vector.Space.Engine,feature/1.12-h2-ingestion-compatibility:
+ledger rector docs\plan\ejecucion-plan.estado.json. Base0407d2708b563816785c814c5c0bf5bba4ed71a9;
+el commit contenedor de este bloque persiste la continuacion.
+D:\Git\Rag.VectorSpace.Client,feature/vectorspace-client,sin remoto:
+base de578473591c97bd99850df91845e18f53de7b92;commitcoordinadoclonnuevo
+1b57bf2c2eb3906df903d284d6d0948d90bf92b9,10archivos,DWeno,sintrailers.
+Resultadoh3-primary-result.jsonSHA256workingtreeCRLF
+6e0c6f06fab4fd97cecb699ad60b56bf33080e4da4328b325a194f273f67a397.
+BlobGitLF6086d490fe0177680e302d8b5362825c187008ad99a71c67d5432f126bd46e59;
+contenidoJSONybytesnormalizados iguales,comprobado.
+Solo _bifurcacion_1_12 delledger
+heredado perteneceaestetrabajo;NO ejecutar sus162fichas.
+D:\git\Rag.Context.Engine ORIGINAL SOLO LECTURA,
+HEAD3c3972b90b74ee3d9cd7b86945e07d4775a9c965,integracion/local-en-main.
+Preservar src\RagEngine.Api\Properties\ sin leer/copiar.
+Antes de toda enumeracion excluir:
+src\Reyma.VectorSpace.Engine.Microservice.Api\appsettings.json.
+NO leer/buscar/hashear/modificar/copiar albuild/incluir enstatus,diff,staged,
+check ocommit. No compilar API VectorSpace;Fixture solo Infrastructure y
+cuatrofuentesAPI revisadas. Git porallowlists,rutasexplicitas,--only.
+Sin gitadd-A,amend,push,otra ficha,19.6,goldens,CI,preguntar.ps1,
+compose/configheredada,tuneles nuevos,credenciales ni colecciones servidas.
+Incidencia inicial de enumeracion ya documentada permanece como historia.
+
+PUERTAS YA CUMPLIDAS Y BINARIOS
+Usuario detecto SSH desconectado y pidio reintento: GET8081/info200en0.016s
+a17:11:56.839645Z,cincometadatoscongeladoscoinciden;sin modificarSSH.
+HTTPH3r1:45preguntas/4negativas/90searchNUEVAS,0perdidasany/full@10.
+Protocolo coordinador protocol-h3-acceptance.json previoaadaptacion/primaria,
+SHA8b6442849661cc81fc00b13be86272210e38c3bd476cf28bd711e3b4d871764e.
+Coordinador adopta SOLOindicescompletos verificados y susidentidades
+independientes;no respuestasviejascomonuevas ni reingesta porcomodidad.
+Nueva representacion .artifacts\1.12-h3-representation-r6 completa4cohortes,
+SHA9fe15fdca11cda52d7d0d3aa6c983144dddfb3b5d035c3ff71155a8beec8f65e.
+NuevoHTTPH3r2:45/4negativas/90nuevas,ambasvistas/cortes1-3-5-10,0perdidas,
+resultadoSHAf6480949f3b94473f593156b814fac7d95a2ac67d9429a4d109ed4dd7d8b46d8.
+Resumenreal .artifacts\1.12-h3-resume-r1:ingesta1/2,par3/4->4/4atomico,
+reuso posterior sinHTTP,servidorobservadoprefetch40/TopK100;
+resultadoSHA12a0e9b07f96f8960810d931f0e2d099f90cca9795fbd7c54286c48e17890e40.
+DLL MEDIDA022abe940f64dee2078728c89f1531bc93df5cf5004c13dd13f808427e899c56;
+126binarios preservados en .artifacts\1.12-h3-http-r2\measured-binaries.
+DLL FINALb26292ee07233510272fc7cd7ce295fbcf6a414cf53fed798a27d086f1454169:
+solo guarda de reentradarechazada,125dependenciasiguales,NO nueva medicion.
+Cualquier cambio futuro deDLL requiere nuevarepresentacion/screen/resume
+antesinferencia. No migrar sellos ni reutilizar respuestas incompatibles.
+
+RECHAZO Y LIMITE
+Leer h3-primary-result.json,protocol-h3-acceptance.json y protocolos padres,
+preparacion.md y evidencia primaria .artifacts\1.12-h3-primary-r1.
+45pares/180HTTP,ronda1:26docs+19tickets,0perdidasretrieval. Solo2pares
+adjudicados;faltan187pares/748HTTP,29extras,adjudicacion y riesgos.
+Rechazo tickets-microservice-011/ronda1 porfabricacionNUEVA:
+candidato inventa excepcion deperteneceraSistemas para saltar asignacion/
+departamento;guard literal ReasignarTicketCommandHandler.cs161-162no la tiene
+fuera deMesaDeAyuda. Ambosincorrectosporotrasomisiones;NO regresion desde
+controlcorrecto. Veredicto cegado antesdemapeo yfuenteSHA
+fada19ed7a01cd22422c626d45c12638111fc981cb0dbc84fdacddcb469505a0.
+RevisionSHA421ff1e43e8232e1853d9bca29623727f75630dc996826e0ed721c365b84765f.
+El otro par,docs011,favorecealcandidato yseconserva. Unrevisorsustentado;
+verificador mecanico NOesrevisorsemanticoindependiente ni prueba causalRRF.
+Desdeclon,comandoREAL de evidencia:
+python docs\eval\quality\1.12\verify_h3_primary_rejection.py
+.artifacts\1.12-h3-primary-r1 .artifacts\1.12-20261103-r3
+.artifacts\1.12-h3-representation-r6 .artifacts\1.12-h3-http-r2
+.artifacts\1.12-h3-resume-r1
+Sale2 porque NOACEPTADO. --evidence-only sale0SOLOpara evidencia derechazo.
+No registrar esto comoverificacioncompleta deaceptacion.
+quality-rejection.json impidereentradareal antesdered/salida,probado.
+CheckpointfinalSHA79c3eadac4f33489c2acc09bb83f2ea0e5c7478cc1731e2be7d5d4b334ef9afd.
+
+PARADA Y RECURSOS
+Se solicito parada despues delrechazo17:38:58Z y se detuvo Qdrant.
+Recibo inicial scan1667/started;runner finaliza17:41:41.776268Zscan2113/
+failed-incomplete. Noafirmarterminacioninmediata delhijo porstop_powershell.
+No maspares;BSuite candidato404/no creado,18612missesprevios,cachememoria
+no durable;sinpruebadeingesta/resumenmasivocompletos ni totalfacturado.
+Reconciliacion en post-stop-indices.json,4indicescompletosintactos17:49:38Z.
+Qdrantpropio v112-qdrant-20261103,IDde46bf35feb6fb5661da269e3d7a4238723a865059b69d704ca2fe0a562fc0db,
+imagenSHA256b7b0444c4c351c970b98e90a6f89c2ee4287c65b44e52b4cb503fa5b2aa927ad,
+volumen v112-qdrant-20261103-data,loopback26333/26334,finalexited,nunca6333.
+Conservar volumen/indices/cache/artefactos/recibos/binarios,incluidosfallos.
+Snowflake/TEI1.8.3,8192/16384,256d/L2,queryprefix"query: ",
+serviceSHA78502d8e61223d2c73d4bb7aeaea46787e90d596,pesosrevisiondesconocida.
+AltheIA qwen3.8-27b-fast;variablesexistentes soloenproceso,nunca imprimir.
+Respetar TLS/429. Sin escrituras host/contenedor simultaneas sobre SQLiteWAL.
+
+REENTRADA Y CIERRE
+Siguiente investigacion causal/revision dehipotesis requierealcanceyoraculo
+previos;NO reintentar para borrar una diferencia generativa estocastica,
+retocar corpus/anclas/modelos/umbrales ni ampliar silenciosamente servidor.
+Autorizaciones previasH3/clon/ingestas/controlestricto/tiempo/AltheIA vigentes;
+no repetirlas,pero alcancegenuinamentenuevo requiereautorizacionconcreta.
+Modelo efectivo gpt-6-astra,xhighsolicitado/esfuerzo noobservable;
+opus/high intactos.42h fueestimacion previa,no limite ni consumo real.
+Rollback:UseRetrievalBudget=false,Localexplicito;codigonoreviertepuntos.
+No cerrarhecho concriterioparcial. arnesvalidar NOejecutaaceptacion.
+Persistir resultado+instrumentos+ledger encommitscoordinadossolo1.12,
+autor/committerDWeno,sintrailers/firmasdetool;comprobarmensaje/archivos.
+Sinpush/amend,otrasfichas nicierre funcional falso.
+```
+
+## HISTORICO: reentrada comprobada; proveedor sigue sin responder, no aceptacion
 
 ```text
 Retoma UNICAMENTE1.12-decidir-si-rag-context-engine-pasa-a-cliente de
