@@ -3,7 +3,82 @@
 Copia el primer bloque VIGENTE en una conversacion nueva. Los bloques anteriores
 se conservan despues como historia, no como instrucciones actuales.
 
-## VIGENTE: preparacion offline terminada; decidir alcance siguiente, no adquirir
+## VIGENTE: instrumentos implementados; rechazo intacto y aceptacion pendiente
+
+```text
+Retoma exclusivamente1.12-decidir-si-rag-context-engine-pasa-a-cliente en una
+conversacion nueva con peticion concreta. Estado BLOQUEADO por calidad, no hecho.
+Usuario confirmo destino cliente/motor VectorSpace y autorizo captura, mecanismo
+de comprobacion y agregador integral; NO autoriza otra hipotesis/retuning ni
+migrar motor silenciosamente. Sin subagentes/otrasfichas/H4.
+
+ANTES de enumerar/status/diff/buscar: excluir absolutamente
+D:\Git\Vector.Space.Engine\src\Reyma.VectorSpace.Engine.Microservice.Api\appsettings.json.
+No leer/hashear/copiar/compilar API ni incluirla en Git. Allowlists explicitas.
+Original D:\Git\Rag.Context.Engine SOLO LECTURA, sin src\RagEngine.Api\Properties\.
+No credenciales/tuneles/colecciones servidas, amend ni push.
+
+Leer AGENTS.md rector, ficha completa docs\plan\ejecucion-plan.estado.json y
+primer VIGENTE de docs\evaluaciones\1.12\preparacion.md. En cliente:
+protocol-ask-observation.json, padres congelados, h3-primary-result.json,
+GenerationCapture/PairedEvaluation, verify_ask_observation y verify_acceptance.
+Comprobar HEAD/diffs permitidos; bases de esta fase rectorabc9bb9/cliente1b57bf2,
+no asumir que siguen siendo HEAD.
+Instrumentos ynota delledgercliente guardados juntos en
+9722d6662f4e4f22811d5d34f83fdbf55522ace6 (17archivos,DWeno,sintrailers/push).
+Rector guarda esterelevo/preparacion/ficha juntos yreferencia esecommit.
+
+Efectivo gpt-6-astra, solicitadoxhigh/esfuerzo efectivo noobservable. Opus/high
+plugin intactos. Fase6h estimadas,no consumo;42h historicas. Tiempo/AltheIA
+autorizados: no pedirlos de nuevo. Registrar _ejecucion propia.
+
+HISTORIA INTACTA: H3search paso;primaria45pares/180HTTP,0perdidasretrieval,
+2juicios. Tickets011 inventa excepcionSistemas;ambosincorrectos,
+NOcontrolcorrecto->incorrecto. Guard161-162 solo exime por MesaDeAyuda general.
+Docs011 favorececandidato. Rechazo no atribuye causalidad a rankingH3.
+No reanudar1.12-h3-primary-r1 ni retirarquality-rejection.json.
+
+IMPLEMENTADO: captura opt-in askreal/contexto/admisiones/mensajes/SSE/raw/final,
+scopeasync, correlacion por intento yfailcerrado. Defaultproducto sinobservador.
+CLI --ask-diagnose exige puertas actuales yacota360HTTP;NOse ejecuto.
+Verificadorintegral exige928HTTPNUEVAS,29extras,oraculos completos,juicios y46
+riesgos. Falta expediente real;parserverde NOacepta1.12.
+
+COMPROBADO OFFLINE:13testsCorefocalizados/25Python,0skips;Fixturebuild0warnings;
+selftestSDK/stream/cancelacion/nointerferencia contraDLLmedido;checkpoint29+
+recovery8. Selector amplio anterior18fallosLF/CRLF/hashplantillas/teardownSQLite
+documentados,no maquillados. Historiaverificadaexit2;integralrechaza marcador.
+Nueva representacion4cohortes .artifacts\1.12-ask-representation-r1
+SHA402a3bb04a93c14a61d5e82131ed2710ced4f1dbc3fda1e30cd73bc42028479b.
+Fixture2e599c25/Core1e99c011/APId374f80f;comprobarhashes completos enpreparacion.
+No nuevosLLM/embeddings/ingestas/servicios ni consultaindicesvivos enestafase.
+
+FALTA, NOFINGIR:
+- Oraculo116+29 completo previamente sellado;la puertaoraclecomprueba citas,
+  no identifica semanticamente todaslascondiciones por si sola.
+- ScreenHTTP45 yresumereal NUEVOS conbinarioscompatibles;viejosnoheredan.
+- Diagnostico360concontextoefectivo;oraculo/comparacion separanliteralidad
+  deparafrasis,packing deausenciaretrieval,variabilidad deatribucioncausal.
+- Productores/evidencia de46casos V112AcceptanceRiskTests.* y29extras separado.
+  Nombres/schema/TRX sinteticodeunit NOsonriesgosreales implementados/pasados.
+-928primarias y464juicios si procedeaceptacion;no748+180versionrechazada.
+No verificacion_comando parcial nihecho. No nuevarevisioncegada deetiquetas
+yaconocidas,ni verificadormecanico comosegundorevisor.
+
+DESTINO:clienteconfirmado;Localesrollback,noabandono. Preparacion inventaria
+motor queaunsigueencliente:fusion/saltos/rerank,meta-intent/gate,contexto,
+prompts/generacion/sanitizacion. VectorSpace yatieneingesta/chunking/embeddings/
+indice/resumennativo. Migraciondelresto SOLOANOTADA,requierecontrato yalcance
+propios;no otra ficha niAPI protegida tocados. No afirmeque yatodoestaalla.
+
+Preservar artefactos,indices,volumen,protocolos ybinariosmedidos. Estadoexited
+Qdrant es ultimaobservacion historica,no nueva inspeccion. Rollback opt-in
+desregistrado/Localexplicito;revertircodigono reviertepuntos.
+Guardar cambiosyledger delmismoitem juntos,DWeno autor/committer,
+sincoautoria/amend/push. Detenerse alalcance solicitado.
+```
+
+## HISTORICO: preparacion offline terminada; decidir alcance siguiente, no adquirir
 
 ```text
 Retoma exclusivamente1.12-decidir-si-rag-context-engine-pasa-a-cliente,

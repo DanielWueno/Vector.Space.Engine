@@ -5,7 +5,191 @@ Fecha: 2026-11-03, continuaciones posteriores a `122755f`, `b50eb6b` y `832b31a`
 Fuente rectora: `docs\plan\ejecucion-plan.estado.json`, ficha
 `1.12-decidir-si-rag-context-engine-pasa-a-cliente`. No se ejecuta otra ficha.
 
-## VIGENTE: diagnostico offline y rutas de cierre, sin nueva adquisicion
+## VIGENTE: instrumentacion autorizada y puerta integral offline
+
+Continuacion autorizada el 2026-11-04T12:41:47-06:00, sobre rector `abc9bb9`
+y cliente `1b57bf2`. El usuario confirma **destino cliente; motor en VectorSpace**,
+autoriza captura y mecanismo de comprobacion, y pide continuar el verificador
+integral. No se interpreta como permiso para retuning, otra hipotesis, corregir
+respuestas a medida, cambiar el control o migrar silenciosamente mas producto.
+`opus/high` sigue intacto; efectivo `gpt-6-astra`, esfuerzo efectivo no observable
+(`xhigh` solicitado). Sin subagentes. Estimacion de fase **6 h**, no consumo medido;
+tiempo/AltheIA previamente autorizados. No se reutiliza la estimacion historica42h.
+
+Instrumentos guardados en cliente
+`9722d6662f4e4f22811d5d34f83fdbf55522ace6`:17 archivos propios, incluida la nota
+del ledger cliente; autor/committer DWeno, mensaje sin trailers y allowlist limpia
+verificados. Estos dos documentos y el ledger rector se guardan juntos en su
+commit coordinado. Sin amend ni push.
+
+Esta fase implementa instrumentos y produce representacion offline nueva,
+**no adquiere nuevas respuestas ni resuelve el rechazo semantico**. La ficha
+vuelve a **bloqueado por calidad**, no a hecho. El destino cliente ya esta
+confirmado: conservar Local es rollback transitorio, no decision de abandonar.
+Otra decision documental de conservar pipeline requeriria que el usuario
+revise expresamente ese destino; no la toma el agente.
+
+### Instrumentos implementados en el cliente
+
+Rutas relativas a `D:\Git\Rag.VectorSpace.Client`.
+
+| Pieza | Comprobacion y limite |
+|---|---|
+| `IGenerationContextObserver` / `GenerationContextAssembler` | Puerto opt-in, ausente de la composicion normal. Observa entradas reales, resolucion de resumen y cada admision/descarte real, entrada con cabecera, conteos UTF16, contexto final y limite12000. No recompone contexto desde search ni cambia packing. |
+| `Fixture\GenerationCapture.cs` | Decora servicios reales de retrieval/generacion solo en hosts de evaluacion. Correlacion por intento; scope async por avance del stream. Guarda retrievalask no redactado, decision de grounding, contexto, cuerpo JSON permitido efectivamente enviado al SDK, SSE consumido, terminacion y respuesta final. Trace incompleta/error/cancelacion no se acredita. |
+| `OllamaHttpClientFactory` | Sobrecarga observadora que envuelve el transporte/TLS existente; conserva la firma anterior y la seleccion de credencial. No imprime headers, credenciales, CA, URLs ni configuracion completa. Resumenes conservan su propio Kernel. |
+| `PairedEvaluation` | `--ask-diagnose` acota45 preguntas/dos rondas/360HTTP; exige representacion, screen y resume actuales antes de inferir. Guarda enlace/hash de cada trace dentro del par atomico. Primaria exige oraculo precongelado y sella codigo de verificadores/protocolos. Marcador de rechazo se comprueba primero. |
+| `verify_ask_observation.py` | Recalcula packing, enlaza contexto real con mensajes enviados y respuesta HTTP, verifica SSE/budgets, compara brazos/repeticiones. `--oracle` permite comprobar citas literales en retrieval/resuelto/packing/mensajes. Una cita ausente NO demuestra ausencia de una parafrasis; declara preguntas sin oraculo. No es adjudicador semantico. |
+| `verify_acceptance.py` | Puerta offline de representacion4cohortes, fuentes/indices/resumenes, binarios/proveedores/configuracion, screen, resume real,232pares/928HTTP, trazas, cobertura de condiciones en juicios,29extras y46 casos de riesgo desglosados de los padres. Ausencia, cambio, duplicados, skips/cero tests o rechazo fallan. No registra aceptacion por existir JSON. |
+
+Prerregistro nuevo `protocol-ask-observation.json`; los padres permanecen
+intactos. La especificacion detallada se completo durante desarrollo, **antes
+de nueva medicion**, no se presenta como un nuevo ensayo cegado. Los bytes
+capturados se limitan a corpus evaluativo y mensajes permitidos; no a trafico
+general. La captura observa bytes consumidos por el SDK, no transformaciones
+internas del proveedor ni paquetes que el SDK no llegara a consumir.
+En prueba sintetica el SDK serializa el presupuesto2048 como
+`max_completion_tokens`; se admite tambien `max_tokens`, nunca ambos a la vez.
+Esto no cambia el valor ni reconstruye el payload historico.
+
+### Resultado mecanico y limites comprobados
+
+Comprobaciones manuales, separadas de edicion; no se atribuyen a hooks:
+
+* Build del **Fixture permitido**, con `VectorSpaceRoot`, sin compilar el
+  proyecto API rector:0 errores/advertencias.13 tests focalizados pasan,
+  cero skips;25 tests Python pasan. Selftests de checkpoint29 y recovery8 pasan.
+* `--observation-self-test` usa transporte sintetico en memoria: SDK real,
+  igualdad de bytes/payload/respuesta, exclusiones de campos/headers,
+  SSE fragmentado/cancelado, scope entre yields y captura completa/interrumpida.
+  Compara packing observado con el **DLL historico preservado**: igualdad exacta.
+  No acredita conectividad ni calidad de AltheIA.
+* El selector inicial mas amplio tuvo18 fallos: goldens LF frente a CRLF de
+  Windows, hashes de plantillas y teardown SQLite con archivo abierto. Se
+  inspeccionaron diferencias concretas; no se cambiaron goldens/prompts,
+  ni se presentan como una suite global verde. Comparacion con DLL medido
+  y pruebas nuevas de nointerferencia pasan. Warnings de `CiFixtures/WarningFixture`
+  siguen siendo los sinteticos preexistentes.
+* Los lectores nuevos verifican la representacion y el resume historicos,
+  **sin convertirlos en puertas de los DLL nuevos**. El verificador historico
+  sigue devolviendo exit2:45pares/180HTTP,0perdidas,2adjudicaciones,
+  fabricacion nueva tickets011, `regression=false`. La puerta integral devuelve
+  exit1 ante el mismo marcador; no modifica ni reabre esa corrida.
+* La entrada nueva `--ask-diagnose`, con representacion actual y screen/resume
+  antiguos, rechaza `Diagnostic representation drift` antes de proveedores/
+  adquisicion. No crea directorio de corrida; no se invoca la corrida rechazada.
+* Nueva representacion **sin red/inferencia**:
+  `.artifacts\1.12-ask-representation-r1`. Cuatro cohortes completas:
+  bsuite2113/23221, auditorias311/2081, docs15/743, tickets553/1855
+  documentos/chunks; igualdad de texto/enriquecido/lineas/IDs/nombre fisico.
+  Relector independiente verifica fuentes, inventario completo y126 binarios
+  actuales. Esto prueba representacion, **no recall ni aceptacion**.
+
+Sellos de esta representacion y build:
+
+```text
+representation.json 402a3bb04a93c14a61d5e82131ed2710ced4f1dbc3fda1e30cd73bc42028479b
+Fixture.dll         2e599c2537126149354644c6fd7ad0eb6db754cf00f9ee507711b33a24562e46
+RagEngine.Core.dll  1e99c011ab0d1fa28674ce281d8e71139053b23c3e8dd5de034d37df71758616
+RagEngine.Api.dll   d374f80fb649b13f4a51165af32f4caa38d07ac4ec316ade4a9b294659c9b9a7
+```
+
+No nuevas llamadas de embedding/LLM, ingestas, servicios, consultas a indices
+vivos o cambios de tuneles/credenciales. El estado exited del Qdrant es la ultima
+observacion historica, no una nueva comprobacion. Se conservan indices, volumen,
+respuestas, binarios medidos y protocolos anteriores. El original y la ruta
+protegida del API rector quedan fuera de lecturas/copias/build/staging.
+
+Comparacion documental contra las bases:37 otras fichas/root rector y162
+heredadas cliente intactas; resultado anterior conservado como prefijo y
+secciones anteriores conservadas salvo rotulo VIGENTE->HISTORICO. Cuatro hashes
+del rechazo permanecen iguales. `arnes validar` con rutas explicitas pasa
+38/162 fichas; `--al-cerrar` informa bloqueado/no cerrado, no ejecuta aceptacion.
+Avisos heredados del wrapper Windows/55 campos del clon quedan documentados.
+Una coma JSON ausente fue detectada, corregida y revalidada antes del commit;
+la consulta `--help` del wrapper no encontro ledger y no ejecuto un item.
+
+### Evidencia que aun falta; no simular un verificador ya satisfecho
+
+El agregador es ejecutable, pero **el expediente integral aun no existe**.
+No se agrega `verificacion_comando` de cierre parcial al ledger.
+
+1. Completar y revisar el oraculo estructurado de116+29 preguntas, contra
+   fuentes completas, no solo anclas. Formato en `verify_acceptance.oracle`:
+   pregunta/Note exactas, condiciones materiales con path/hash/lineas/cita,
+   escenarios positivo/negativo/incompleto/contradictorio y politica explicita.
+   `oracle` verifica estructura/citas; NO escribe ni certifica semanticamente
+   que todas las condiciones hayan sido identificadas.
+2. Obtener screenHTTP45 y **resume real nuevos** para el build instrumentado.
+   El ejemplo viejo de7respuestas no basta por tener el mismo nombre.
+   Despues diagnostico360HTTP separado, preservando todas sus respuestas y
+   fallos. El rechazo historico no se reanuda ni se borran etiquetas conocidas.
+3. Argumentar la causa con captura: condicion no recuperada, resuelta pero
+   descartada, enviada pero omitida/contradicha, y diferencias entre mensajes.
+   Mismos bytes/diferente salida solo muestran variabilidad operacional
+   condicionada; no prueban RNG exclusivo. Headers distintos impiden asumir
+   prompts iguales. **No se implemento agrupacion, H4 ni correccion generativa.**
+4. Antes de intentar aceptar una version, ejecutar928HTTP nuevas,464 juicios
+   de respuesta con todas las condiciones y enlaces ciegos/revelados. Si ambos
+   brazos fabrican, una comparacion de afirmaciones previa a etiquetas debe
+   distinguir fabricacion compartida de otra nueva; no basta dos booleanos.
+   El verificador no es segundo revisor ni prueba criptografica de cegamiento.
+5. Construir/adaptar productores de evidencia para los46 casos nombrados
+   `V112AcceptanceRiskTests.*` del agregador: **esos casos integrales no se
+   afirman implementados ni ejecutados**. Necesitan revision sustantiva de
+   su oraculo/codigo, composicion real sin sustituir el retriever, TRX real
+   no vacio/sin skips, binarios compatibles y evidencia cruda sellada.
+   Un manifest con `passed:true`, nombres de tests o ejemplos sinteticos
+   NO demuestra el riesgo; los tests del parser no son esos46 tests.
+6. Productor separado para29 suplementarias congeladas (posiciones56..84
+   del evalset bsuite, SHA fijado), two-hop activado en ambos brazos,
+   dos rondas/232HTTP aparte. El agregador exige enlace al checkpoint primario,
+   mismos indices/build y juicios completos. **No se ejecuta ni se acredita
+   ese productor en esta fase.** Ninguna respuesta suplementaria cuenta en928.
+
+Entradas reales implementadas, no comandos de cierre ya satisfechos
+(desde el cliente, sustituyendo argumentos por evidencia compatible):
+
+```text
+Fixture.dll --ask-diagnose PREPARED REPRESENTATION SCREEN RESUME NEW-DIAGNOSTIC
+verify_ask_observation.py RUN PREPARED [--oracle SOURCE-ORACLE]
+verify_acceptance.py oracle PREPARED FULL-ORACLE
+Fixture.dll --paired-h3 PREPARED REPRESENTATION SCREEN RESUME FULL-ORACLE NEW-PRIMARY
+verify_acceptance.py accept RUN PREPARED REPRESENTATION SCREEN RESUME --oracle FULL-ORACLE --risks RISK-EVIDENCE --supplement SUPPLEMENT-RUN
+```
+
+Los argumentos son rutas, no evidencia existente por escribirlos. La forma
+primaria antigua sin oraculo ahora falla antes de inferir; el marcador rechazado
+sigue teniendo precedencia. Reentrada de un par exige su trace original.
+No trasladar748 pendientes a una version nueva ni mezclar180 respuestas viejas.
+Rollback: observador desregistrado por defecto, Local explicito, revertir solo
+commits propios mediante commits nuevos; no revierte ni borra puntos indexados.
+
+### Frontera cliente/motor: deuda de migracion registrada, no ejecutada
+
+El protocolo historico llamaba "cliente completo" a delegar almacenamiento/
+ingesta/embeddings pero **dejaba motor RAG en Rag**. La aclaracion del usuario
+exige distinguir ese estado implementado del destino final, sin reescribir
+la medicion ni prometer que ya todo corre en VectorSpace.
+
+| Responsabilidad | Estado comprobado y migracion pendiente |
+|---|---|
+| Fragmentacion, embeddings, ingesta, indice/resumen indexado y busqueda nativa | Ya remotos: rector `Infrastructure\Ingestion\DocumentIngestionPipeline.cs:100,110,262`, `Vectorization\TeiVectorizationBrain.cs:20`, `VectorStore\QdrantSemanticRetriever.cs:71`. H3 presupuesto nativo esta alli. |
+| Fusion final codigo/resumen, saltos por simbolos, reranking y escalas | Siguen ejecutandose en cliente `Infrastructure\VectorSpace\VectorSpaceSemanticRetriever.cs:48-85`; trasladar comportamiento/contrato/perfiles a VectorSpace con filtros/autorizacion por rama y sin doble fusion accidental. No declararlos migrados por usar HTTP debajo. |
+| Meta-intent y confidence gate | Cliente `Services\Generation\SemanticMetaIntentDetector.cs:79-92` y `RagGenerationService.cs:126-176`; embeddings remotos no trasladan la decision. Migrar decision/calibracion/procedencia, sin retocar umbrales ahora. |
+| Resolucion de contexto, presupuesto/packing, prompts y generacion | Cliente `GenerationContextAssembler.cs`, `RagGenerationService.cs:217-282`, `Infrastructure\Generation\ChatAnswerStreamer.cs`. Candidatos claros a motor VectorSpace, incluidos mensajes/terminacion/uso y observacion opt-in. La captura nueva no hace esa migracion. |
+| Sanitizacion semantica de formato, resultado de grounding y fuentes | Hoy coordinados en Rag; separar politica de respuesta del renderer. Motor debe entregar resultado/fuentes/stream suficientes, cliente presenta/redacta segun contrato y no vuelve a recuperar para inventar fuentes. |
+| UI/CLI, transporte, seleccion explicita de perfil/coleccion, estado/presentacion | Frontera propia del cliente. Mantener rechazos de capacidades no soportadas y autenticacion, no usar migracion para retirar guardas. Pipeline Local permanece solo como control/rollback durante transicion. |
+
+La futura migracion necesita contrato de turno RAG, streaming/cancelacion/error,
+compatibilidad de fuentes y perfiles, configuracion de proveedores en el dueno
+correcto y medicion nueva sobre ambos endpoints. Cambia producto y potencialmente
+API rector: **esta fase solo la anota dentro de1.12**. No toca otras fichas,
+el archivo protegido, identidad corporativa ni despliegues. Exigir propuesta
+de alcance/rollback concreta antes de implementarla; no pedir otra vez tiempo/
+AltheIA ni confundir esta deuda con una aceptacion funcional.
+
+## HISTORICO: diagnostico offline y rutas de cierre, sin nueva adquisicion
 
 Preparacion del 2026-11-04, posterior a `fcfead0cebb69290eb64f50e2c929b3fc900c64c`
 (rector) y `1b57bf2c2eb3906df903d284d6d0948d90bf92b9` (cliente).
