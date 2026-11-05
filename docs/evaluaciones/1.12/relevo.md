@@ -5,6 +5,15 @@ as historical records, not current execution instructions.
 
 ## CURRENT: README-aligned client quality work
 
+Task8 update,2026-11-05: `1.12.8-implement-acceptance-risk-evidence` is complete
+with real46/46 risk execution, no skips/failures and verified receipts in client
+`.artifacts\1.12.8-risk-run-20261105-04`. See its ledger result and client
+`docs\eval\quality\1.12\RiskEvidence\RESULT.md`. No product/task7/shared fixture
+changes; no quality acquisition. Parent remains blocked; regenerate risk
+receipts for its exact final integrated build. This is not semantic acceptance.
+Client commit: `468520629fb2880ee597a20dbc8f143fa7f1ef47`
+(implementation, result and provenance note together; DWeno, no coauthor/push).
+
 ```text
 Work on one explicitly requested, eligible1.12 task in a new conversation.
 Use English for new active documentation/task descriptions. Preserve required
@@ -38,7 +47,8 @@ Current client-owned tasks, tracked ONLY in the rector ledger:
 1.12.9-implement-supplementary-evaluation
 1.12.10-diagnose-effective-ask-context
 
-7/8/9 are pending and can be prepared independently with isolated files/resources.
+Task8 is complete as described above; consult the ledger for7/9 states.
+Independent preparation still requires isolated files/resources.
 10 is blocked by7 and requires compatible real representation/screen/resumption.
 Use immutable diagnostic binaries if independent development continues.
 Serialize shared Fixture/Program/checkpoint/verifier changes and ledger writes.

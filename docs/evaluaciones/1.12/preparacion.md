@@ -6,6 +6,22 @@ Authoritative plan: `docs\plan\ejecucion-plan.estado.json`, parent
 
 ## CURRENT: README-aligned ownership and remaining work
 
+### Task8 completion update - 2026-11-05
+
+Only `1.12.8-implement-acceptance-risk-evidence` is now complete: actual isolated
+TRX46/46, zero failures/skips, compatible source/binary/raw receipts accepted by
+both risk verifiers, and14 negative receipt-parser tests passed. Evidence:
+client `.artifacts\1.12.8-risk-run-20261105-04`, receipt SHA256
+`92155e6a8784bc702db0746edc823113b69eae547f14c320c35c1e00f8d4c970`.
+See client `docs\eval\quality\1.12\RiskEvidence\RESULT.md` for commands, limits,
+development failures and retained/stopped resources. No product or task7 files
+changed. Synthetic integration is not quality acceptance; **parent remains
+blocked**, and its final integrated build must obtain new compatible receipts.
+Other task states are authoritative in the ledger, not this older task table.
+Client implementation/result/provenance commit:
+`468520629fb2880ee597a20dbc8f143fa7f1ef47`, DWeno author/committer,
+trailer-free; no amend or push. This rector integration records only task8.
+
 This documentation-only correction follows the user's scope question and
 English-language request on 2026-11-04. Entry commits were rector `41b0833` and
 client `9722d66`; permitted paths were clean. Effective model: `gpt-6-astra`;
@@ -44,7 +60,7 @@ the client still implements its intended RAG responsibilities.
 | ID | Deliverable | State and dependency |
 |---|---|---|
 | `1.12.7-complete-source-oracles` | Complete116+29 source-grounded oracles, including every material condition and positive/negative/incomplete/contradictory scenarios. | Pending; no dependency on the discarded migration. |
-| `1.12.8-implement-acceptance-risk-evidence` | Implement and substantiate the46 real risk cases and compatible evidence producer. | Pending; parser tests do not satisfy these cases. |
+| `1.12.8-implement-acceptance-risk-evidence` | Implement and substantiate the46 real risk cases and compatible evidence producer. | Done2026-11-05: real46/46 and verified receipts; final acceptance build must rerun. |
 | `1.12.9-implement-supplementary-evaluation` | Implement the separate resumable29-question/two-round producer. | Pending; actual232-response supplementary acquisition belongs to acceptance. |
 | `1.12.10-diagnose-effective-ask-context` | Compatible representation/screen/resumption and observed-ask diagnosis,360 HTTP responses. | Blocked by1.12.7 and its real runtime/provenance gates. |
 
