@@ -57,6 +57,18 @@ $env:VSE_LEGACY=1; .\py.ps1 ventana.py embeber w1024 w8192 c1024-w8192
 .\tei.ps1 Snowflake/snowflake-arctic-embed-m-v2.0 8192; .\py.ps1 ventana.py tei <brazo> http://127.0.0.1:18080
 ```
 
+## Expansión por cercanía en el archivo (1.23)
+
+Resultado: [docs/evaluaciones/1.23/resultado.md](../../docs/evaluaciones/1.23/resultado.md). `expansion.py` reproduce
+el ensamblador del cliente (12 000 caracteres) sobre el top-10 denso de `c1024-w8192` ya guardado y lo compara con tres
+variantes de expansión. No necesita Qdrant ni embeddings: lee los chunks `-c1024`, los eval-sets y las fuentes en
+`D:\Git` (para ubicar cada chunk por línea).
+
+```powershell
+uv run --system-certs --no-project --python 3.12 --with tokenizers python expansion.py           # simula y resume
+uv run --system-certs --no-project --python 3.12 --with tokenizers python expansion.py resumen   # solo la tabla
+```
+
 No lances dos `py.ps1` a la vez con distinto `VSE_LEGACY`: `uv` choca al preparar los entornos y el proceso
 termina con código 10.
 
