@@ -396,4 +396,71 @@ public sealed class ResumenOptions
 
     /// <summary>Chunks pendientes de resumen leidos por pagina de Qdrant (scroll) en cada corrida.</summary>
     public int TamanoPaginaPendientes { get; set; } = 64;
+
+    /// <summary>Que NO se resume (1.27): regla determinista aplicada antes de la cache y del LLM.</summary>
+    public FiltroPrevioOptions FiltroPrevio { get; set; } = new();
+}
+
+/// <summary>
+/// Seccion <c>Motor:Resumen:FiltroPrevio</c> (item 1.27): decide de forma determinista que chunks pendientes NO se mandan
+/// al LLM, separado de COMO se resumen. Un chunk excluido queda <c>resumen_pending=false</c> sin vector ni texto, con
+/// <c>resumen_modelo = "filtro-previo:v{Version}"</c>. No cambia chunks, vectores <c>dense</c> ni que se indexa
+/// (ChunkingContract no sube). Medido el 2026-11-11 (docs/evaluaciones/1.27): sobre la muestra de 100 chunks de
+/// reyoneweb con juicio de dos jueces excluye 8 de los 9 chunks tecnicos que deep resumio de mas y 0 de los 48 en los que
+/// ambos jueces vieron negocio.
+/// </summary>
+public sealed class FiltroPrevioOptions
+{
+    /// <summary>false = todo pendiente va al LLM, igual que antes de 1.27 (rollback sin desplegar codigo).</summary>
+    public bool Habilitado { get; set; } = true;
+
+    /// <summary>Subirla a mano cuando cambie la regla por defecto: va en <c>resumen_modelo</c> de cada punto excluido.</summary>
+    public int Version { get; set; } = 1;
+
+    /// <summary>
+    /// Expresiones regulares .NET sobre la ruta relativa con separador '/'. Null (sin configurar) =
+    /// <see cref="PatronesDeRutaPorDefecto"/>; configurarlas REEMPLAZA esa lista entera (no la extiende).
+    /// </summary>
+    public string[]? PatronesDeRuta { get; set; }
+
+    /// <summary>
+    /// Nombres de <c>ChunkType</c> excluidos en bloque. Null = <see cref="TiposDeChunkPorDefecto"/>. <c>Property</c> NO
+    /// esta: en la muestra, dos grupos de propiedades de entidades (Silos, CompraDirecta) tenian negocio para ambos
+    /// jueces; solo se excluyen las propiedades automaticas de una linea (<see cref="PropiedadesAutomaticasDeUnaLinea"/>).
+    /// No existe un tipo <c>Field</c>: los campos viajan en el chunk <c>Class</c>.
+    /// </summary>
+    public string[]? TiposDeChunk { get; set; }
+
+    /// <summary>
+    /// Excluir un chunk <c>Property</c> cuyo codigo (sin comentarios ni atributos) es UNA sola declaracion con accesores
+    /// automaticos (<c>{ get; set; }</c>, <c>{ get; init; }</c>...) y sin <c>=&gt;</c>.
+    /// </summary>
+    public bool PropiedadesAutomaticasDeUnaLinea { get; set; } = true;
+
+    /// <summary>Excluir un chunk con <c>&lt;auto-generated</c> en sus primeras 5 lineas (cabecera de codigo generado).</summary>
+    public bool CabeceraAutoGenerada { get; set; } = true;
+
+    /// <summary>
+    /// Codigo generado o de proyecto, mas los envoltorios de FastReport de reyoneweb. El ultimo patron no es generico:
+    /// sale del barrido de reyoneweb del 2026-11-11 (31 clases <c>RepocitorioReportes/Rpt*.cs</c>, 1737 de sus 5324
+    /// puntos; los 22 de la muestra, tecnicos para ambos jueces) y deja fuera las paginas <c>.aspx.cs</c> de esa
+    /// carpeta, que si tienen negocio.
+    /// </summary>
+    public static IReadOnlyList<string> PatronesDeRutaPorDefecto { get; } =
+    [
+        @"(?i)\.designer\.cs$",
+        @"(?i)\.g\.cs$",
+        @"(?i)\.generated\.cs$",
+        @"(?i)(^|/)AssemblyInfo\.cs$",
+        @"(?i)\.csproj$",
+        @"(?i)\.json$",
+        @"(?i)\.xml$",
+        @"(?i)(^|/)RepocitorioReportes/Rpt[^/]*(?<!\.aspx)(?<!\.aspx\.designer)\.cs$",
+    ];
+
+    public static IReadOnlyList<string> TiposDeChunkPorDefecto { get; } = ["Constructor"];
+
+    public IReadOnlyList<string> PatronesDeRutaEfectivos => PatronesDeRuta ?? PatronesDeRutaPorDefecto;
+
+    public IReadOnlyList<string> TiposDeChunkEfectivos => TiposDeChunk ?? TiposDeChunkPorDefecto;
 }

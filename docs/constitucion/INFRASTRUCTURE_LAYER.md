@@ -170,6 +170,15 @@ adicional **hereda** de `Motor:Llm` lo que deja vacio (`LlmOptions.Efectivo`): n
 AltheIA con la misma clave. `EnableThinking` no se hereda (depende del modelo). `PerfilLlmEfectivo` sobrescribe
 `ToString` para que la clave no termine en un log.
 
+- `Resumen/FiltroPrevioDeResumen.cs` (1.27): regla determinista que decide QUE no se resume, separada de COMO se
+  resume. `ResumenPipeline` la consulta antes de la cache y del LLM con ruta, `chunk_type` y contenido del punto
+  pendiente (por eso `ListarPendientesDeResumenAsync` trae `chunk_type`); un excluido se marca procesado sin vector
+  ni texto, con `resumen_modelo = filtro-previo:v{Version}`. Patrones y tipos viven en `Motor:Resumen:FiltroPrevio`
+  (los por defecto en `FiltroPrevioOptions`) y se validan al arrancar. Un patron nuevo se mide contra la muestra
+  juzgada (`FiltroPrevioMuestraTests`): no debe excluir ningun chunk con negocio para ambos jueces.
+- `LlmResumenBrain.PromptVersion` (1.26) es la identidad de la peticion: hash de modelo, `EnableThinking`,
+  `MaxTokens`, temperatura, `top_p` y prompt de sistema con LF. Agregar un parametro a la peticion obliga a agregarlo
+  al hash y a actualizar el golden de `LlmResumenBrainTests`.
 - `Resumen/LlmResumenBrainFactory.cs` (`ILlmResumenBrainFactory`): el por defecto devuelve el `ILlmResumenBrain`
   singleton (las pruebas lo sustituyen por DI); un nombre no registrado es `BadRequestException` con la lista.
 - `ResumenPipeline.ProcesarPendientesAsync` recibe el `ILlmResumenBrain` ya resuelto; `MotorVectorial` lo resuelve

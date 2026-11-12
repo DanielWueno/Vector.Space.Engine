@@ -64,6 +64,9 @@ public sealed record ResultadoBusquedaResponse(
 /// ingesta sobre la misma coleccion (no repite los ya resumidos).
 /// <see cref="MensajeError"/> (item 1.15): solo tiene valor cuando <see cref="Estado"/> es "error" (el mensaje de la
 /// excepcion que corto el procesamiento en segundo plano); null en cualquier otro estado.
+/// <see cref="ResumenesOmitidosPorFiltro"/> (item 1.27): chunks pendientes que el filtro previo determinista marco como
+/// procesados sin llamar al LLM (codigo generado, .csproj, constructores...); no cuentan en
+/// <see cref="ResumenesGenerados"/>. Siempre 0 en una coleccion sin resumen habilitado.
 /// </summary>
 public sealed record IngestaResponse(
     Guid IngestaId,
@@ -79,4 +82,5 @@ public sealed record IngestaResponse(
     int ResumenTokensConsumidos = 0,
     string? MensajeError = null,
     string? PerfilIngesta = null,
-    string? RepositorioLogico = null);
+    string? RepositorioLogico = null,
+    int ResumenesOmitidosPorFiltro = 0);

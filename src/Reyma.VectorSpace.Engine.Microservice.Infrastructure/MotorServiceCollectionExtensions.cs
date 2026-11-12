@@ -96,6 +96,9 @@ public static class MotorServiceCollectionExtensions
                 "Cada RutaCertificadoCA de Motor:Llm:Perfiles debe existir si se define.")
             .Validate(o => o.Resumen.TopeTokensPorCorrida > 0, "Motor:Resumen:TopeTokensPorCorrida debe ser positivo.")
             .Validate(o => o.Resumen.TamanoPaginaPendientes > 0, "Motor:Resumen:TamanoPaginaPendientes debe ser positivo.")
+            // 1.27: un patron o tipo invalido del filtro previo debe fallar al arrancar, no en la primera corrida de resumen.
+            .Validate(o => FiltroPrevioDeResumen.ErrorDeConfiguracion(o.Resumen.FiltroPrevio) is null,
+                "Motor:Resumen:FiltroPrevio es invalido: Version positiva, PatronesDeRuta como expresiones regulares .NET validas y TiposDeChunk de ChunkType.")
             .ValidateOnStart();
 
         services.AddSingleton(sp =>
@@ -237,6 +240,7 @@ public static class MotorServiceCollectionExtensions
             sp.GetRequiredService<ILoggerFactory>(),
             sp.GetRequiredService<ILlmResumenBrain>()));
         services.AddSingleton<ICacheDeResumenes, CacheDeResumenes>();
+        services.AddSingleton(sp => new FiltroPrevioDeResumen(sp.GetRequiredService<IOptions<MotorOptions>>().Value.Resumen.FiltroPrevio));
         services.AddSingleton<ResumenPipeline>();
 
         services.AddSingleton<ISparseTokenizer, SparseTokenizer>();

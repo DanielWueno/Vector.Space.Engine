@@ -79,12 +79,12 @@ public interface IMotorDeIngestaProyecto : IPerfilDeIngestaColeccion
 /// conoce de forma sincrona (a diferencia del .zip, que lo lee antes de admitir), asi que <c>IngerirProyectoGitCommand</c>
 /// crea el registro de estado con 0 y dependia de este campo para corregirlo al terminar; sin el, quedaba en 0 para
 /// siempre, rompiendo la invariante "Recibidos = Indexados + SinCambios + Omitidos". <see cref="ResumenesGenerados"/>/
-/// <see cref="ResumenesPendientes"/>/<see cref="ResumenTokensConsumidos"/> (1.7.7): siempre 0 en una coleccion sin
-/// resumen habilitado.
+/// <see cref="ResumenesPendientes"/>/<see cref="ResumenTokensConsumidos"/> (1.7.7) y <see cref="ResumenesOmitidosPorFiltro"/>
+/// (1.27): siempre 0 en una coleccion sin resumen habilitado.
 /// </summary>
 public sealed record ResultadoIngestaProyecto(
     int Recibidos, int Indexados, int SinCambios, int Omitidos, int DocumentosEliminados,
-    int ResumenesGenerados = 0, int ResumenesPendientes = 0, int ResumenTokensConsumidos = 0);
+    int ResumenesGenerados = 0, int ResumenesPendientes = 0, int ResumenTokensConsumidos = 0, int ResumenesOmitidosPorFiltro = 0);
 
 /// <summary>
 /// Origen 'proyecto' desde una URL Git (1.7.6, decidido en 1.7.3). Mismo patron de dos pasos que

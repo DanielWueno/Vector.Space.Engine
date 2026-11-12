@@ -102,7 +102,8 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
                 resultado.Received, resultado.Indexed, resultado.Unchanged, resultado.Omitted,
                 ResumenesGenerados: resumenResultado.Resumidos, ResumenesPendientes: resumenResultado.Pendientes,
                 ResumenTokensConsumidos: resumenResultado.TokensConsumidos,
-                PerfilIngesta: perfilIngesta?.Nombre, RepositorioLogico: perfilIngesta?.RepositorioLogico);
+                PerfilIngesta: perfilIngesta?.Nombre, RepositorioLogico: perfilIngesta?.RepositorioLogico,
+                ResumenesOmitidosPorFiltro: resumenResultado.OmitidosPorFiltro);
         });
 
     public Task VerificarPerfilDeIngestaAsync(string coleccion, PerfilDeIngesta? perfil, CancellationToken cancellationToken) =>
@@ -137,7 +138,7 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
                 barrerDocumentosAusentes: true, resumenSolicitado: resumen, perfilIngesta: perfilIngesta);
             var resumenResultado = await ResumirSiCorrespondeAsync(coleccion, resultado.ResumenHabilitado, llm, cancellationToken);
             return new ResultadoIngestaProyecto(resultado.Received, resultado.Indexed, resultado.Unchanged, resultado.Omitted, resultado.DocumentsSweptAway,
-                resumenResultado.Resumidos, resumenResultado.Pendientes, resumenResultado.TokensConsumidos);
+                resumenResultado.Resumidos, resumenResultado.Pendientes, resumenResultado.TokensConsumidos, resumenResultado.OmitidosPorFiltro);
         });
 
     /// <summary>
@@ -197,7 +198,7 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
                     barrerDocumentosAusentes: true, resumenSolicitado: resumen, perfilIngesta: perfilIngesta);
                 var resumenResultado = await ResumirSiCorrespondeAsync(coleccion, resultado.ResumenHabilitado, llm, cancellationToken);
                 return new ResultadoIngestaProyecto(resultado.Received, resultado.Indexed, resultado.Unchanged, resultado.Omitted, resultado.DocumentsSweptAway,
-                    resumenResultado.Resumidos, resumenResultado.Pendientes, resumenResultado.TokensConsumidos);
+                    resumenResultado.Resumidos, resumenResultado.Pendientes, resumenResultado.TokensConsumidos, resumenResultado.OmitidosPorFiltro);
             });
         }
         finally

@@ -186,6 +186,58 @@ public sealed class ResumenIntegracionTests(ApiFactory factory)
     }
 
     [RequiereMotorLocalFact]
+    public async Task UnChunkExcluidoPorElFiltroPrevioNoLlamaAlLlmYQuedaProcesadoSinVectorNiTexto()
+    {
+        // 1.27: el .csproj lo excluye el filtro previo por defecto; la nota de negocio sigue yendo al LLM.
+        const string csproj = """
+            <Project Sdk="Microsoft.NET.Sdk">
+              <PropertyGroup>
+                <TargetFramework>net10.0</TargetFramework>
+              </PropertyGroup>
+            </Project>
+            """;
+        var coleccion = NuevaColeccion();
+        var llm = new LlmDePrueba();
+        using var client = Api(llm, topeTokens: 100_000, coleccion).Cliente(TokenAna);
+        try
+        {
+            using var respuesta = await client.PostJson($"/api/colecciones/{coleccion}/ingestas", new
+            {
+                origen = new
+                {
+                    tipo = "documentos",
+                    documentos = new[] { new { ruta = "src/App/App.csproj", contenido = csproj }, new { ruta = "a.md", contenido = DocA } }
+                },
+                resumen = true
+            });
+            Assert.True(respuesta.IsSuccessStatusCode, $"{(int)respuesta.StatusCode}: {await respuesta.Content.ReadAsStringAsync()}");
+            var cuerpo = await respuesta.Leer<JObject>();
+            Assert.Equal(1, (int)cuerpo["resumenesGenerados"]!);
+            Assert.Equal(1, (int)cuerpo["resumenesOmitidosPorFiltro"]!);
+            Assert.Equal(0, (int)cuerpo["resumenesPendientes"]!);
+            Assert.Equal(1, llm.Llamadas); // solo a.md; el .csproj no gasto tokens
+
+            var puntos = await _qdrant.ScrollAsync(coleccion, limit: 10,
+                payloadSelector: new WithPayloadSelector { Enable = true },
+                vectorsSelector: new WithVectorsSelector { Enable = true });
+            var proyecto = Assert.Single(puntos.Result, p => p.Payload["relative_path"].StringValue.EndsWith(".csproj", StringComparison.Ordinal));
+            Assert.False(proyecto.Payload["resumen_pending"].BoolValue);
+            Assert.Equal("filtro-previo:v1", proyecto.Payload["resumen_modelo"].StringValue);
+            Assert.Matches("^[0-9a-f]{8}$", proyecto.Payload["resumen_prompt_version"].StringValue);
+            Assert.False(proyecto.Payload.ContainsKey("resumen_texto"));
+            Assert.False(proyecto.Vectors.Vectors.Vectors.ContainsKey("dense-resumen"));
+
+            var nota = Assert.Single(puntos.Result, p => p.Payload["relative_path"].StringValue == "a.md");
+            Assert.Equal("llm-prueba", nota.Payload["resumen_modelo"].StringValue);
+            Assert.True(nota.Vectors.Vectors.Vectors.ContainsKey("dense-resumen"));
+        }
+        finally
+        {
+            await Borrar(coleccion);
+        }
+    }
+
+    [RequiereMotorLocalFact]
     public async Task ColeccionCreadaConResumenGuardaDenseResumenEnLosChunksConContenidoDeNegocio()
     {
         var coleccion = NuevaColeccion();

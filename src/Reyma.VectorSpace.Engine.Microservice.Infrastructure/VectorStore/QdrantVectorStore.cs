@@ -708,7 +708,8 @@ public sealed class QdrantVectorStore
         var response = await _client.ScrollAsync(collectionName, filter, limit: (uint)limite, offset: offset,
             payloadSelector: new WithPayloadSelector
             {
-                Include = new PayloadIncludeSelector { Fields = { "content", "language", "relative_path", "content_hash" } }
+                // chunk_type desde 1.27: lo necesita el filtro previo determinista (FiltroPrevioDeResumen).
+                Include = new PayloadIncludeSelector { Fields = { "content", "language", "relative_path", "content_hash", "chunk_type" } }
             },
             vectorsSelector: new WithVectorsSelector { Enable = false },
             cancellationToken: ct);
@@ -718,7 +719,8 @@ public sealed class QdrantVectorStore
             p.Payload.TryGetValue("content", out var c) ? c.StringValue : "",
             p.Payload.TryGetValue("language", out var l) ? l.StringValue : "",
             p.Payload.TryGetValue("relative_path", out var r) ? r.StringValue : "",
-            p.Payload.TryGetValue("content_hash", out var h) ? h.StringValue : "")).ToList();
+            p.Payload.TryGetValue("content_hash", out var h) ? h.StringValue : "",
+            p.Payload.TryGetValue("chunk_type", out var t) ? t.StringValue : null)).ToList();
 
         var next = response.NextPageOffset;
         var siguiente = next is null || next.PointIdOptionsCase == PointId.PointIdOptionsOneofCase.None ? null : next;
@@ -793,5 +795,8 @@ public sealed record PerfilColeccion(string Perfil, string Modelo, int Dimension
 /// <summary>Una pagina de <see cref="QdrantVectorStore.ListarPendientesDeResumenAsync"/> (1.7.7).</summary>
 public sealed record PaginaPendientesDeResumen(IReadOnlyList<PendienteDeResumen> Puntos, PointId? SiguienteOffset);
 
-/// <summary>Un punto pendiente de resumen de negocio, con lo que necesita el prompt (1.7.7).</summary>
-public sealed record PendienteDeResumen(Guid Id, string Contenido, string Lenguaje, string RutaRelativa, string ContentHash);
+/// <summary>
+/// Un punto pendiente de resumen de negocio, con lo que necesita el prompt (1.7.7) y su <c>chunk_type</c> para el filtro
+/// previo (1.27; null si el punto no lo tiene).
+/// </summary>
+public sealed record PendienteDeResumen(Guid Id, string Contenido, string Lenguaje, string RutaRelativa, string ContentHash, string? TipoDeChunk = null);
