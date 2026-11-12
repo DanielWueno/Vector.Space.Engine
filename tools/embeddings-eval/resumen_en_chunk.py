@@ -219,13 +219,20 @@ def generar():
 
 # ---------------------------------------------------------------------------------------------- embeber
 
-def arctic_tei(textos):
-    vecs = []
-    for i in range(0, len(textos), 8):
-        http, j = post_json(f"{TEI}/embed", {"inputs": textos[i:i + 8], "truncate": True, "normalize": True}, {}, timeout=600)
+def arctic_tei(textos, parcial=None):
+    """Lotes de VSE_TEI_LOTE textos (4 por defecto: la memoria de TEI crece con textos largos). Con `parcial`, guarda un
+    punto de control cada 64 textos y retoma desde el si el proceso se corto (el orden de `textos` es determinista)."""
+    lote = int(os.environ.get("VSE_TEI_LOTE", "4"))
+    vecs = list(np.load(parcial)) if parcial is not None and parcial.exists() else []
+    if vecs:
+        print(f"  retoma {parcial.name}: {len(vecs)}/{len(textos)}", flush=True)
+    for i in range(len(vecs), len(textos), lote):
+        http, j = post_json(f"{TEI}/embed", {"inputs": textos[i:i + lote], "truncate": True, "normalize": True}, {}, timeout=600)
         if http != 200:
             sys.exit(f"TEI HTTP {http}")
-        vecs.extend(j)
+        vecs.extend(np.asarray(j, dtype=np.float32)[:, :DIMS])
+        if parcial is not None and (len(vecs) % 64 < lote or len(vecs) == len(textos)):
+            np.save(parcial, np.asarray(vecs, dtype=np.float32))
     return harness.normalizar(np.asarray(vecs, dtype=np.float32)[:, :DIMS])
 
 
@@ -244,13 +251,13 @@ def embeber():
         con = [i for i, c in enumerate(chunks) if resumen_util(res.get(c["id"]))]
         # B: espacio resumen con el modelo del perfil de diseno (arctic@256); las consultas son las mismas de A
         if not (EMB_B / f"{col}.npz").exists():
-            vb = arctic_tei([resumen_util(res[chunks[i]["id"]]) for i in con])
+            vb = arctic_tei([resumen_util(res[chunks[i]["id"]]) for i in con], EMB_B / f"{col}.parcial.npy")
             np.savez(EMB_B / f"{col}.npz", indices=np.array(con, dtype=int), docs=vb)
         # C: texto con resumen por TEI; resto = vector de A
         info = {"chunks": len(chunks), "con_resumen": len(con)}
         if not (EMB_C / f"{col}.npz").exists():
             t0 = time.perf_counter()
-            vc = arctic_tei([texto_c(chunks[i], resumen_util(res[chunks[i]["id"]])) for i in con])
+            vc = arctic_tei([texto_c(chunks[i], resumen_util(res[chunks[i]["id"]])) for i in con], EMB_C / f"{col}.parcial.npy")
             info["s_tei"] = round(time.perf_counter() - t0, 1)
             np.savez(EMB_C / f"{col}.npz", indices=np.array(con, dtype=int), docs=vc)
         # paridad: 64 chunks sin cambios re-embebidos por TEI frente a A

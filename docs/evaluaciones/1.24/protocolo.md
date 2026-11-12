@@ -60,6 +60,16 @@ consultas son las mismas de A. Además, esto aísla mejor la hipótesis: B y C/D
 resumen dentro del chunk, con el mismo modelo. Brazos A, C y D, métricas y criterio: sin cambios. La generación de
 resúmenes no depende de este cambio.
 
+## Enmienda 2 (2026-11-12, antes de evaluar)
+
+El primer intento de embeber con el TEI local se cortó por falta de memoria del equipo (el contenedor llegó a 10 GB).
+A pedido del usuario, B y C se embeben con el **TEI del servidor**, alcanzado por el túnel ya existente del usuario
+(`127.0.0.1:8081`, el mismo de `docker-compose.tunnel.yml`); solo se usa su `/embed`, ningún Qdrant servido.
+Verificado con `GET /info`: mismo modelo (`Snowflake/snowflake-arctic-embed-m-v2.0`), misma versión de TEI (1.8.3),
+float32. Los vectores de bsuite que llegaron a calcularse en local se descartaron y se recalculan en el servidor para
+que todo B/C tenga la misma procedencia. El control de paridad contra A se hace igual, ahora contra el servidor.
+El stack local de pruebas se retiró.
+
 ## Límites conocidos de antemano
 
 - 57 preguntas en tres corpus; A ya acierta 46 ES.
