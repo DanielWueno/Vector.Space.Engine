@@ -45,6 +45,8 @@ public sealed class ResumenAltheiaIntegracionTests(ApiFactory factory)
             ["Motor:Llm:Ruta"] = "v1/chat/completions",
             ["Motor:Llm:Modelo"] = "qwen3.8-27b-fast",
             ["Motor:Llm:MaxTokens"] = "160",
+            // El por defecto ahora es deep con enable_thinking=false; esta evidencia es la de fast, que no lo envia.
+            ["Motor:Llm:EnableThinking"] = "",
             ["Motor:Llm:ApiKey"] = Environment.GetEnvironmentVariable("ALTHEIA_KEY"),
             ["Motor:Llm:RutaCertificadoCA"] = Environment.GetEnvironmentVariable("ALTHEIA_CERT"),
             ["Motor:Resumen:PerfilEmbeddings"] = PerfilResumenEmbeddings,

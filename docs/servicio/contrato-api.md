@@ -20,6 +20,10 @@ Lenguaje y namespace estan disponibles desde 1.21.4; el adaptador de Rag sigue p
 | GET | `api/colecciones/ingestas` | `Consultar` | Lista las ingestas de proyecto, en cualquier estado; `?coleccion=` opcional filtra por una (items 1.15/1.16) |
 | GET | `api/colecciones` | `Consultar` | Lista las colecciones existentes en el vector store, con su perfil de embeddings si lo tiene (item 1.16) |
 | GET | `api/colecciones/{coleccion}/documentos` | `Consultar` | Lista los documentos indexados en la coleccion: ruta, huella y cantidad de puntos (item 1.19) |
+| GET | `api/catalogo/perfiles-embeddings` | `Consultar` | Valores validos de `perfil`, con su estado en vivo (ver "Catalogo de lo que acepta la instancia") |
+| GET | `api/catalogo/perfiles-llm` | `Consultar` | Valores validos de `perfilLlm`, con su estado en vivo |
+| GET | `api/catalogo/perfiles-ingesta` | `Consultar` | Valores validos de `perfilIngesta` |
+| GET | `api/catalogo/origenes-git` | `Consultar` | Origenes desde los que `ingestas/git` acepta clonar |
 
 Codigos comunes: **401** sin token valido (firma, emisor, audiencia y vigencia se validan como en
 la plantilla); **400** cuerpo invalido, incluido pedir un `perfil` de embeddings no registrado en el servicio o un modelo que el servidor remoto
@@ -175,7 +179,8 @@ cambiar con el opt-in; implementar este contrato no acredita calidad ni cierra1.
 // POST .../ingestas     origen 'documentos': 1 a 100 documentos, ruta unica y contenido <= 1 MiB c/u
 { "origen": { "tipo": "documentos", "documentos": [{ "ruta": "docs/a.md", "contenido": "..." }] },
   "perfil": "altheia-bge-m3-256",   // "perfil" opcional, ver abajo
-  "resumen": false }                // "resumen" opcional, item 1.7.7, ver seccion "Resumen de negocio" abajo
+  "resumen": false,                 // "resumen" opcional, item 1.7.7, ver seccion "Resumen de negocio" abajo
+  "perfilLlm": "altheia-qwen-fast" } // opcional; ausente = perfil de LLM por defecto (GET api/catalogo/perfiles-llm)
 // origen 'ruta': reservado para el item 1.7, hoy responde 501
 { "origen": { "tipo": "ruta", "ruta": "/ruta/accesible/al/servicio" } }
 // 200: { "ingestaId", "coleccion", "estado": "completada", "documentosRecibidos",
@@ -184,15 +189,21 @@ cambiar con el opt-in; implementar este contrato no acredita calidad ni cierra1.
 //        "perfilIngesta", "repositorioLogico" }  // binding1.12; null para nativo
 
 // POST .../ingestas/proyecto   origen 'proyecto' desde .zip (item 1.7.5); multipart/form-data, no JSON:
-//   zip          archivo .zip (campo de archivo), hasta 100 MiB, leido en memoria
-//   carpetaRaiz  opcional: quita el envoltorio "repo-rama/" de un "descargar como zip"
-//   perfil       opcional, igual que en los demas endpoints
-//   resumen      opcional (1.7.7), igual semantica que en 'documentos'
+//   zip               archivo .zip (campo de archivo), hasta 100 MiB, leido en memoria; es el proyecto entero:
+//                     lo que ya estaba en la coleccion y no viene en el .zip se borra
+//   carpetaRaiz       opcional: carpeta envoltorio a quitar de las rutas ("repo-rama/" de un "descargar como zip");
+//                     toda entrada debe estar debajo de ella (si no, 400). NO es lo mismo que en ingestas/git
+//   perfil            opcional, igual que en los demas endpoints
+//   resumen           opcional (1.7.7), igual semantica que en 'documentos'
+//   perfilLlm         opcional, igual que en 'documentos'
+//   perfilIngesta     opcional (1.12), junto con repositorioLogico
 // 202: { "ingestaId", "coleccion", "estado": "pendiente", "documentosRecibidos", ... } (conteos en 0)
 
 // POST .../ingestas/git   origen 'proyecto' desde URL Git (item 1.7.6); JSON, no multipart:
 { "url": "https://dev.azure.com/<organizacion-en-lista-blanca>/<proyecto>/_git/<repo>",
-  "carpetaRaiz": null, "perfil": null, "resumen": false }   // opcionales, igual que en el .zip ("resumen": 1.7.7)
+  "carpetaRaiz": null, "perfil": null, "resumen": false, "perfilLlm": null }   // opcionales ("resumen": 1.7.7)
+// carpetaRaiz aqui es la SUBCARPETA del repositorio a indexar (p. ej. "src"); lo de fuera no se indexa y se barre
+// de la coleccion. Origenes aceptados: GET api/catalogo/origenes-git
 // 202: { "ingestaId", "coleccion", "estado": "pendiente", "documentosRecibidos", ... } (conteos en 0)
 // 400 si la URL no esta en Motor:Git:OrigenesPermitidos (esquema, host, puerto y prefijo de ruta exactos),
 //     sin que el servicio abra ninguna conexion hacia ella
@@ -210,10 +221,11 @@ cambiar con el opt-in; implementar este contrato no acredita calidad ni cierra1.
 //      (nunca 404); sin orden garantizado
 
 // GET api/colecciones   lista las colecciones existentes en el vector store (item 1.16)
-// 200: [ { "coleccion", "perfilEmbeddings", "modelo", "dimension", "perfilIngesta", "repositorioLogico" }, ... ]
+// 200: [ { "coleccion", "perfilEmbeddings", "modelo", "dimension", "perfilIngesta", "repositorioLogico", "tieneResumen" }, ... ]
 //      perfilEmbeddings/modelo/dimension salen de la metadata de la coleccion (item 1.7.4); los tres null si la
 //      coleccion no la tiene (creada antes de 1.7.4 y nunca tocada desde entonces); lista vacia si no hay ninguna
 //      coleccion (nunca 404)
+//      tieneResumen indica si dense-resumen existe en config.params.vectors, no si todos los puntos estan resumidos
 
 // GET api/colecciones/{coleccion}/documentos   documentos indexados en la coleccion (item 1.19)
 // 200: [ { "ruta", "huella", "puntos" }, ... ]
@@ -548,6 +560,9 @@ la tabla de tenencia por usuario, no las colecciones reales de Qdrant, asi que n
   responde (mismo criterio que el resto del contrato, sin exponer host ni puerto).
   `perfilEmbeddings`/`modelo`/`dimension` son null si la coleccion no tiene esa metadata guardada (creada antes de
   1.7.4 y nunca tocada desde entonces).
+- `tieneResumen` se obtiene del esquema real de Qdrant en la misma lectura REST que la metadata. No se infiere
+  de `resumen_habilitado`, del nombre del perfil ni del contenido de los puntos. Si no se puede leer el esquema,
+  falla el catalogo: no se inventa `false`. El campo es aditivo para consumidores existentes.
 - No esta protegido por tenencia (item 1.14 retiro el control de acceso por coleccion): `[Authorize]` basta, igual
   que el resto del contrato.
 
@@ -588,11 +603,17 @@ chunking + `dense` + `sparse-code`, sin cambios).
   EXISTENTE que no tiene ese vector responde **409** con un mensaje claro ("no se puede activar el resumen sobre
   una coleccion existente"), nunca 500: Qdrant en si respondia 400 "Not existing vector name" al intentar
   agregarlo (medido en 1.7.3), y el servicio lo anticipa antes de llegar a Qdrant.
-- **Perfil de LLM** (`Motor:Llm`): modelo, `max_tokens` (160, igual que el origen), temperatura/top_p y, si el
-  modelo razona por defecto, `chat_template_kwargs.enable_thinking=false`. 1.7.3 midio contra AltheIA real:
-  `qwen3.8-27b-fast` responde 30/30 sin razonar; `qwen3.8-27b-deep` (el perfil de LLM de 1.13) gasta los 160
-  tokens razonando y responde VACIO en 0/30 si no se fuerza `enable_thinking=false` (con el, igual que `fast`).
-  El perfil por defecto de este servicio es `qwen3.8-27b-fast`.
+- **Perfiles de LLM** (`Motor:Llm`, seleccionables con `perfilLlm`): modelo, `max_tokens` (160, igual que el
+  origen), temperatura/top_p y, si el modelo razona por defecto, `chat_template_kwargs.enable_thinking=false`.
+  1.7.3 midio contra AltheIA real: `qwen3.8-27b-fast` responde 30/30 sin razonar; `qwen3.8-27b-deep` gasta los 160
+  tokens razonando y responde VACIO en 0/30 si no se fuerza `enable_thinking=false` (con el, 30/30).
+  El perfil por defecto es **`altheia-qwen-deep`**: `qwen3.8-27b-deep` con `enable_thinking=false` (decision del
+  usuario, 2026-11-09). `Motor:Llm:Perfiles` agrega otros (p. ej. `altheia-qwen-fast`); lo que dejan vacio
+  (servidor, ruta, clave, CA, max_tokens, temperatura, top_p, plazo) se hereda de `Motor:Llm`, salvo
+  `EnableThinking`, que es propio de cada modelo. Cambiar de modelo cambia la version de prompt: los chunks ya
+  resumidos no se repiten, pero la cache en memoria no se comparte entre modelos. Una coleccion puede tener chunks
+  resumidos por modelos distintos (`resumen_modelo` en el payload de cada punto): el vector `dense-resumen` lo
+  calcula siempre el mismo perfil de embeddings, asi que siguen siendo comparables.
 - **Perfil de embeddings del resumen** (`Motor:Resumen:PerfilEmbeddings`): un nombre de perfil YA declarado en
   `Motor:Embeddings` (el por defecto o uno de `Motor:Embeddings:Perfiles`, 1.7.4). 1.7.3: bge-m3 1024d via
   AltheIA, **sin truncar** (bge-m3 no es Matryoshka, a diferencia del perfil por defecto arctic@256). Vacio
@@ -618,6 +639,38 @@ chunking + `dense` + `sparse-code`, sin cambios).
   siguiente corrida, igual que el origen); un perfil de LLM mal configurado (modelo no permitido o de otra
   capacidad) responde 400 sin tocar el tope de tokens; cualquier otro fallo (conexion) corta la corrida completa
   dejando el resto pendiente, en vez de insistir contra una dependencia caida chunk a chunk.
+
+## Catalogo de lo que acepta la instancia
+
+Antes, saber que poner en `perfil`, `perfilLlm`, `perfilIngesta` o la URL de `ingestas/git` dependia de leer
+appsettings, el codigo o esta documentacion, y nada aseguraba que el valor existiera ni que su servidor respondiera.
+`GET api/catalogo/*` (token valido, como el resto) lo responde la propia instancia:
+
+```jsonc
+// GET api/catalogo/perfiles-embeddings   valores de "perfil"
+// 200: [ { "nombre", "modelo", "dimension", "esPorDefecto", "usadoPorResumen",
+//          "disponible", "modeloVerificado", "ventanaTokens", "detalle" }, ... ]   // el por defecto primero
+// GET api/catalogo/perfiles-llm          valores de "perfilLlm"
+// 200: [ { "nombre", "modelo", "maxTokens", "razonamiento", "esPorDefecto",
+//          "disponible", "modeloVerificado", "ventanaTokens", "detalle" }, ... ]
+// GET api/catalogo/perfiles-ingesta      valores de "perfilIngesta" (omitirlo = ingesta nativa)
+// 200: [ { "nombre", "descripcion", "requiereRepositorioLogico" } ]
+// GET api/catalogo/origenes-git          de donde acepta clonar ingestas/git
+// 200: [ { "esquema", "host", "puerto", "prefijoRuta", "ejemplo" } ]   // lista vacia = sin ingesta por Git
+```
+
+- **Sin mantenimiento**: perfiles y origenes salen de la misma `MotorOptions` con que las fabricas validan cada
+  solicitud; los perfiles de ingesta, de `PerfilDeIngesta.Catalogo`, la misma lista contra la que se valida
+  `perfilIngesta`. Agregar, quitar o cambiar un perfil en configuracion se refleja al reiniciar, sin tocar docs.
+- **Sondeo en vivo, sin gastar tokens** (solo GET, plazo de 5 s por perfil, en paralelo, con el mismo HttpClient,
+  clave y CA del perfil): `GET .../models` OpenAI-compatible (AltheIA/vLLM: confirma que el modelo esta habilitado
+  para la clave del servicio y da su ventana), si no `GET info` de TEI (confirma `model_id`), si no `GET health`
+  (solo responde, `modeloVerificado=false`). `disponible=false` con `detalle` dice por que: credencial rechazada,
+  modelo no ofrecido (lista los que si), sin respuesta en el plazo, caido. Sin resumen habilitado, todos los
+  perfiles de LLM salen `disponible=false` y no se llama al servidor.
+- **Nunca expone** URL de servidores, claves ni certificados; los mensajes no llevan host ni puerto.
+- `perfilLlm` desconocido, o pedido en una instancia sin resumen, responde **400** antes de admitir la ingesta
+  (tambien en `.zip` y Git), con los perfiles disponibles.
 
 ## Identidad
 

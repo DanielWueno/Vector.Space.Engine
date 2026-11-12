@@ -140,7 +140,7 @@ public sealed class ListadoDeIngestasTests(ApiFactory factory)
             Task.CompletedTask;
 
         public Task<ResultadoIngestaProyecto> ProcesarAsync(
-            string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken, PerfilDeIngesta? perfilIngesta = null) =>
+            string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken, PerfilDeIngesta? perfilIngesta = null, string? perfilLlm = null) =>
             falla
                 ? throw new InvalidOperationException(MensajeDeFallo)
                 : Task.FromResult(new ResultadoIngestaProyecto(documentos.Count, documentos.Count, 0, 0, 0));

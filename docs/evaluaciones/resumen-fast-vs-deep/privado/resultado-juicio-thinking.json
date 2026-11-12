@@ -1,0 +1,156 @@
+{
+  "j3": {
+    "fast": {
+      "afirmaciones": {
+        "fragmento": 136,
+        "codigo": 2,
+        "inventada": 8,
+        "contradice": 8
+      },
+      "clase_desconocida": 0,
+      "omisiones": 31,
+      "centinela_ok_false": 8,
+      "puntos": {
+        "fidelidad": 274.0,
+        "cobertura": 257.0,
+        "utilidad_negocio": 245.0,
+        "formato": 271.0
+      }
+    },
+    "deep": {
+      "afirmaciones": {
+        "fragmento": 170,
+        "codigo": 1,
+        "inventada": 3,
+        "contradice": 2
+      },
+      "clase_desconocida": 0,
+      "omisiones": 6,
+      "centinela_ok_false": 12,
+      "puntos": {
+        "fidelidad": 282.0,
+        "cobertura": 274.0,
+        "utilidad_negocio": 237.0,
+        "formato": 276.0
+      }
+    },
+    "preferido": {
+      "fast": 11,
+      "deep": 40,
+      "empate": 49
+    },
+    "pares_con_ganador": 51,
+    "deep_pct_entre_ganadores": 78.4,
+    "signos_p_unilateral_deep_mejor": 3E-05,
+    "signos_p_unilateral_fast_mejor": 0.99999
+  },
+  "j4": {
+    "fast": {
+      "afirmaciones": {
+        "fragmento": 211,
+        "codigo": 2,
+        "inventada": 5,
+        "contradice": 9
+      },
+      "clase_desconocida": 0,
+      "omisiones": 24,
+      "centinela_ok_false": 7,
+      "puntos": {
+        "fidelidad": 275.0,
+        "cobertura": 265.0,
+        "utilidad_negocio": 260.0,
+        "formato": 273.0
+      }
+    },
+    "deep": {
+      "afirmaciones": {
+        "fragmento": 284,
+        "codigo": 0,
+        "inventada": 0,
+        "contradice": 1
+      },
+      "clase_desconocida": 0,
+      "omisiones": 5,
+      "centinela_ok_false": 11,
+      "puntos": {
+        "fidelidad": 288.0,
+        "cobertura": 276.0,
+        "utilidad_negocio": 250.0,
+        "formato": 278.0
+      }
+    },
+    "preferido": {
+      "fast": 10,
+      "deep": 39,
+      "empate": 51
+    },
+    "pares_con_ganador": 49,
+    "deep_pct_entre_ganadores": 79.6,
+    "signos_p_unilateral_deep_mejor": 2E-05,
+    "signos_p_unilateral_fast_mejor": 1.0
+  },
+  "combinado": {
+    "fast": {
+      "afirmaciones": {
+        "fragmento": 347,
+        "codigo": 4,
+        "inventada": 13,
+        "contradice": 17
+      },
+      "puntos": {
+        "fidelidad": 549.0,
+        "cobertura": 522.0,
+        "utilidad_negocio": 505.0,
+        "formato": 544.0
+      },
+      "inventada_mas_contradice": 30,
+      "codigo": 4,
+      "centinela_ok_false": 15,
+      "omisiones": 55
+    },
+    "deep": {
+      "afirmaciones": {
+        "fragmento": 454,
+        "codigo": 1,
+        "inventada": 3,
+        "contradice": 3
+      },
+      "puntos": {
+        "fidelidad": 570.0,
+        "cobertura": 550.0,
+        "utilidad_negocio": 487.0,
+        "formato": 554.0
+      },
+      "inventada_mas_contradice": 6,
+      "codigo": 1,
+      "centinela_ok_false": 23,
+      "omisiones": 11
+    }
+  },
+  "acuerdo": {
+    "pares": 100,
+    "coinciden": 98,
+    "pct": 98.0,
+    "opuestos_fast_vs_deep": 0,
+    "discrepancias": [
+      {
+        "par": "Q008",
+        "ruta": "ReyOneWeb/Reyma.Datos.Trafico/DTarjetaSellos.cs",
+        "j3": "fast",
+        "j4": "empate"
+      },
+      {
+        "par": "Q097",
+        "ruta": "ReyOneWeb/ReyOneWeb/Trafico/JS/MonitorLicencias.js",
+        "j3": "deep",
+        "j4": "empate"
+      }
+    ]
+  },
+  "decision": {
+    "c1_deep_preferido_60pct_ambos": true,
+    "c2_menos_inventada_contradice": true,
+    "c3_utilidad_no_menor": false,
+    "modelo": "qwen3.8-27b-fast"
+  }
+}

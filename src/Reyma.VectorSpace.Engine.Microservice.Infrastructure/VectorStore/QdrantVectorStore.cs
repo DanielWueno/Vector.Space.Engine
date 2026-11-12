@@ -301,34 +301,53 @@ public sealed class QdrantVectorStore
     /// una es REST, una llamada por coleccion (mismo costo que <see cref="LeerPerfilAsync"/> en cualquier otro lado),
     /// aceptable para un catalogo de descubrimiento, no para una ruta caliente.
     /// </summary>
-    public async Task<IReadOnlyList<(string Nombre, PerfilColeccion? Perfil)>> ListarColeccionesAsync(CancellationToken ct)
+    public async Task<IReadOnlyList<(string Nombre, PerfilColeccion? Perfil, bool TieneResumen)>> ListarColeccionesAsync(CancellationToken ct)
     {
         var nombres = await _client.ListCollectionsAsync(ct);
-        var resultado = new List<(string, PerfilColeccion?)>(nombres.Count);
+        var resultado = new List<(string, PerfilColeccion?, bool)>(nombres.Count);
         foreach (var nombre in nombres)
-            resultado.Add((nombre, await LeerPerfilAsync(nombre, ct)));
+        {
+            var (perfil, resumen) = await LeerPerfilYEsquemaAsync(nombre, ct);
+            if (resumen is null)
+                throw new MotorNoDisponibleException("El vector store devolvio un esquema de coleccion incompleto.");
+            resultado.Add((nombre, perfil, resumen.Value));
+        }
         return resultado;
     }
 
     /// <summary>Perfil de embeddings guardado en la metadata de la coleccion (REST), o null si no la tiene (1.7.4).</summary>
-    public async Task<PerfilColeccion?> LeerPerfilAsync(string collectionName, CancellationToken ct)
+    public async Task<PerfilColeccion?> LeerPerfilAsync(string collectionName, CancellationToken ct) =>
+        (await LeerPerfilYEsquemaAsync(collectionName, ct)).Perfil;
+
+    /// <summary>Lee metadata y capacidad real de resumen en la misma solicitud REST, sin inferencia ni escrituras.</summary>
+    public async Task<(PerfilColeccion? Perfil, bool? TieneResumen)> LeerPerfilYEsquemaAsync(string collectionName, CancellationToken ct)
     {
         try
         {
             using var response = await _rest.GetAsync($"collections/{Uri.EscapeDataString(collectionName)}", ct);
-            if (!response.IsSuccessStatusCode)
-                return null;
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                return (null, null);
+            response.EnsureSuccessStatusCode();
 
             using var cuerpo = await response.Content.ReadFromJsonAsync<JsonDocument>(cancellationToken: ct);
             if (cuerpo is null ||
+                cuerpo.RootElement.ValueKind != JsonValueKind.Object ||
                 !cuerpo.RootElement.TryGetProperty("result", out var result) ||
-                !result.TryGetProperty("config", out var config) ||
-                !config.TryGetProperty("metadata", out var metadata) ||
-                metadata.ValueKind != JsonValueKind.Object)
-                return null;
+                result.ValueKind != JsonValueKind.Object ||
+                !result.TryGetProperty("config", out var config) || config.ValueKind != JsonValueKind.Object)
+                return (null, null);
+
+            bool? tieneResumen = config.TryGetProperty("params", out var parameters) &&
+                parameters.ValueKind == JsonValueKind.Object &&
+                parameters.TryGetProperty("vectors", out var vectors) && vectors.ValueKind == JsonValueKind.Object
+                ? vectors.TryGetProperty(ResumenDenseVectorName, out _)
+                : null;
+
+            if (!config.TryGetProperty("metadata", out var metadata) || metadata.ValueKind != JsonValueKind.Object)
+                return (null, tieneResumen);
 
             if (!metadata.TryGetProperty(PerfilEmbeddingsMetadataKey, out var perfilValue) || perfilValue.ValueKind != JsonValueKind.String)
-                return null;
+                return (null, tieneResumen);
 
             var modelo = metadata.TryGetProperty(ModeloMetadataKey, out var modeloValue) && modeloValue.ValueKind == JsonValueKind.String
                 ? modeloValue.GetString() ?? ""
@@ -343,7 +362,7 @@ public sealed class QdrantVectorStore
                 ? perfilResumenValue.GetString()
                 : null;
 
-            return new PerfilColeccion(perfilValue.GetString()!, modelo, dimension, resumenHabilitado, perfilResumen);
+            return (new PerfilColeccion(perfilValue.GetString()!, modelo, dimension, resumenHabilitado, perfilResumen), tieneResumen);
         }
         catch (HttpRequestException ex)
         {

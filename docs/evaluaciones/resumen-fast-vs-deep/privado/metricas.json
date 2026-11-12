@@ -1,0 +1,52 @@
+{
+  "fast": {
+    "chunks_con_registro_final": 100,
+    "llamadas_totales": 100,
+    "reintentos": 0,
+    "http_200": 100,
+    "vacios": 0,
+    "finish_length": 0,
+    "centinela_exacto": 46,
+    "centinela_prefijo_no_exacto": 0,
+    "resumenes_con_negocio": 54,
+    "palabras_media": 30.6,
+    "palabras_max": 55.0,
+    "palabras_mas_de_60": 0,
+    "oraciones_mas_de_3": 0,
+    "empieza_entidad_dos_puntos": 41,
+    "latencia_ms_mediana": 978.5,
+    "latencia_ms_p90": 1991,
+    "completion_tokens_medio": 28.1,
+    "tokens_totales_todas_las_llamadas": 62581.0,
+    "prompt_tokens_totales": 59770.0,
+    "completion_tokens_totales": 2811.0
+  },
+  "deep": {
+    "chunks_con_registro_final": 100,
+    "llamadas_totales": 100,
+    "reintentos": 0,
+    "http_200": 100,
+    "vacios": 0,
+    "finish_length": 0,
+    "centinela_exacto": 46,
+    "centinela_prefijo_no_exacto": 0,
+    "resumenes_con_negocio": 54,
+    "palabras_media": 32.3,
+    "palabras_max": 57.0,
+    "palabras_mas_de_60": 0,
+    "oraciones_mas_de_3": 0,
+    "empieza_entidad_dos_puntos": 41,
+    "latencia_ms_mediana": 970,
+    "latencia_ms_p90": 2134,
+    "completion_tokens_medio": 29.5,
+    "tokens_totales_todas_las_llamadas": 62716.0,
+    "prompt_tokens_totales": 59770.0,
+    "completion_tokens_totales": 2946.0
+  },
+  "comun": {
+    "textos_identicos_fast_deep": 48,
+    "ambos_centinela": 45,
+    "solo_fast_centinela": 1,
+    "solo_deep_centinela": 1
+  }
+}

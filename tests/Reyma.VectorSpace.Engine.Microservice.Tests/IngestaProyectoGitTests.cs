@@ -131,7 +131,7 @@ public sealed class IngestaProyectoGitTests(ApiFactory factory)
             Task.CompletedTask;
 
         public Task<ResultadoIngestaProyecto> ProcesarGitAsync(
-            string coleccion, Uri url, string? carpetaRaiz, string? perfil, bool resumen, CancellationToken cancellationToken, PerfilDeIngesta? perfilIngesta = null) =>
+            string coleccion, Uri url, string? carpetaRaiz, string? perfil, bool resumen, CancellationToken cancellationToken, PerfilDeIngesta? perfilIngesta = null, string? perfilLlm = null) =>
             Task.FromResult(new ResultadoIngestaProyecto(recibidos, indexados, sinCambios, Omitidos: 0, DocumentosEliminados: 0));
 
         public static Action<IServiceCollection> Registrar(MotorGitControlable motor) => services =>

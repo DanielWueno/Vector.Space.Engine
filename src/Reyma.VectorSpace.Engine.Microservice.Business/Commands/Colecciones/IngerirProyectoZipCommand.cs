@@ -15,7 +15,7 @@ namespace Reyma.VectorSpace.Engine.Microservice.Business.Commands.Colecciones;
 /// segundo plano y actualiza <see cref="IRegistroDeIngestasProyecto"/>, consultable por <c>GetEstadoIngestaQuery</c>.
 /// </summary>
 public sealed record IngerirProyectoZipCommand(string Coleccion, byte[]? Zip, string? CarpetaRaiz, string? Perfil, bool? Resumen = null,
-    string? PerfilIngesta = null, string? RepositorioLogico = null)
+    string? PerfilIngesta = null, string? RepositorioLogico = null, string? PerfilLlm = null)
     : IRequest<IngestaResponse>, IValidable
 {
     public IEnumerable<string> Errores()
@@ -34,17 +34,26 @@ public sealed record IngerirProyectoZipCommand(string Coleccion, byte[]? Zip, st
             yield return "Perfil no puede ser una cadena vacia si se especifica.";
         else if (Perfil is { Length: > 0 } && Perfil.Length > Limites.MaxCaracteresPerfil)
             yield return $"Perfil admite como maximo {Limites.MaxCaracteresPerfil} caracteres.";
+
+        if (PerfilLlm is not null && PerfilLlm.Trim().Length == 0)
+            yield return "PerfilLlm no puede ser una cadena vacia si se especifica.";
+        else if (PerfilLlm is { Length: > 0 } && PerfilLlm.Length > Limites.MaxCaracteresPerfil)
+            yield return $"PerfilLlm admite como maximo {Limites.MaxCaracteresPerfil} caracteres.";
     }
 
     public sealed class IngerirProyectoZipCommandHandler(
         IMotorDeIngestaProyecto motor,
         ILimiteDeIngestas limite,
         IRegistroDeIngestasProyecto registro,
+        IMotorDeCatalogo catalogo,
         ILogger<IngerirProyectoZipCommandHandler> logger)
         : IRequestHandler<IngerirProyectoZipCommand, IngestaResponse>
     {
         public async Task<IngestaResponse> Handle(IngerirProyectoZipCommand request, CancellationToken cancellationToken)
         {
+            // 0. Un perfil de LLM desconocido es 400 aqui, no un "error" del job minutos despues.
+            catalogo.ValidarPerfilLlm(request.PerfilLlm);
+
             // 1. Leer y validar el .zip: rapido (<0,1 s para un repo real, medido en 1.7.3) y sincrono. Un .zip
             // invalido o malicioso lanza BadRequestException (400) aqui, sin tocar el limite de admision ni crear
             // ningun registro de estado.
@@ -60,7 +69,8 @@ public sealed record IngerirProyectoZipCommand(string Coleccion, byte[]? Zip, st
 
             // 3. El trabajo pesado corre en segundo plano, fuera del ciclo de vida de esta solicitud HTTP (CancellationToken.None):
             // cerrar la conexion del cliente no debe abortar una ingesta que ya se admitio.
-            _ = ProcesarEnSegundoPlanoAsync(request.Coleccion, documentos, request.Perfil, request.Resumen == true, ingestaId, permiso, ingesta);
+            _ = ProcesarEnSegundoPlanoAsync(request.Coleccion, documentos, request.Perfil, request.Resumen == true, ingestaId, permiso, ingesta,
+                request.PerfilLlm);
 
             return new IngestaResponse(ingestaId, request.Coleccion, EstadosIngestaProyecto.Pendiente,
                 documentos.Count, DocumentosIndexados: 0, DocumentosSinCambios: 0,
@@ -69,12 +79,12 @@ public sealed record IngerirProyectoZipCommand(string Coleccion, byte[]? Zip, st
 
         private async Task ProcesarEnSegundoPlanoAsync(
             string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, Guid ingestaId, IDisposable permiso,
-            PerfilDeIngesta? perfilIngesta)
+            PerfilDeIngesta? perfilIngesta, string? perfilLlm)
         {
             try
             {
                 registro.MarcarProcesando(ingestaId);
-                var resultado = await motor.ProcesarAsync(coleccion, documentos, perfil, resumen, CancellationToken.None, perfilIngesta);
+                var resultado = await motor.ProcesarAsync(coleccion, documentos, perfil, resumen, CancellationToken.None, perfilIngesta, perfilLlm);
                 registro.MarcarCompletada(ingestaId, resultado);
             }
             catch (Exception ex)

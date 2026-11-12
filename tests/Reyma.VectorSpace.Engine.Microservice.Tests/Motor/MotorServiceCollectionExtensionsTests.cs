@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Reyma.Exceptions.Api;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Abstractions;
+using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Resumen;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Vectorization;
 
 namespace Reyma.VectorSpace.Engine.Microservice.Tests.Motor;
@@ -161,6 +162,68 @@ public sealed class MotorServiceCollectionExtensionsTests
             [$"Motor:Embeddings:Perfiles:{MotorOptions.PerfilEmbeddingsPorDefecto}:Modelo"] = "otro-modelo",
             [$"Motor:Embeddings:Perfiles:{MotorOptions.PerfilEmbeddingsPorDefecto}:Dimension"] = "256",
         });
+
+        Assert.Throws<OptionsValidationException>(() => sp.GetRequiredService<IOptions<MotorOptions>>().Value);
+    }
+
+    // Perfiles de LLM (perfilLlm de las ingestas): el por defecto lo describe Motor:Llm; los adicionales heredan de el
+    // servidor, clave y CA, para no repetir la clave de AltheIA por cada modelo.
+
+    private static ServiceProvider ConstruirConPerfilLlmAdicional() => Construir(new()
+    {
+        ["Motor:Llm:UrlBase"] = "https://altheia.invalid",
+        ["Motor:Llm:ApiKey"] = "clave-llm-de-prueba",
+        ["Motor:Llm:Perfiles:altheia-qwen-fast:Modelo"] = "qwen3.8-27b-fast",
+    });
+
+    [Fact]
+    public void ElPerfilDeLlmPorDefectoEsDeepSinRazonar()
+    {
+        using var sp = ConstruirConPerfilLlmAdicional();
+        var factory = sp.GetRequiredService<ILlmResumenBrainFactory>();
+        var opciones = sp.GetRequiredService<IOptions<MotorOptions>>().Value.Llm;
+
+        var resuelto = factory.Resolver(null);
+
+        Assert.Equal("altheia-qwen-deep", resuelto.Nombre);
+        Assert.Equal("qwen3.8-27b-deep", resuelto.Brain.ModelName);
+        Assert.False(opciones.EnableThinking); // 1.7.3: deep sin enable_thinking=false responde vacio (0/30)
+        Assert.Same(sp.GetRequiredService<ILlmResumenBrain>(), resuelto.Brain);
+    }
+
+    [Fact]
+    public void UnPerfilDeLlmAdicionalHeredaServidorYClaveDelPorDefecto()
+    {
+        using var sp = ConstruirConPerfilLlmAdicional();
+
+        var resuelto = sp.GetRequiredService<ILlmResumenBrainFactory>().Resolver("altheia-qwen-fast");
+        var cliente = sp.GetRequiredService<IHttpClientFactory>().CreateClient(LlmResumenBrainFactory.NombreCliente("altheia-qwen-fast"));
+
+        Assert.Equal("qwen3.8-27b-fast", resuelto.Brain.ModelName);
+        Assert.Equal(new Uri("https://altheia.invalid/"), cliente.BaseAddress);
+        Assert.Equal("clave-llm-de-prueba", cliente.DefaultRequestHeaders.Authorization!.Parameter);
+        // EnableThinking no se hereda: fast no lo necesita y el por defecto (deep) lo tiene en false.
+        Assert.Null(sp.GetRequiredService<IOptions<MotorOptions>>().Value.Llm.Efectivo("altheia-qwen-fast").EnableThinking);
+    }
+
+    [Fact]
+    public void UnPerfilDeLlmNoRegistradoLanzaBadRequestConLosPerfilesDisponibles()
+    {
+        using var sp = ConstruirConPerfilLlmAdicional();
+
+        var ex = Assert.Throws<BadRequestException>(() => sp.GetRequiredService<ILlmResumenBrainFactory>().Resolver("no-existe"));
+
+        Assert.Contains("no-existe", ex.Message);
+        Assert.Contains("altheia-qwen-deep", ex.Message);
+        Assert.Contains("altheia-qwen-fast", ex.Message);
+    }
+
+    [Theory]
+    [InlineData("Motor:Llm:Perfiles:altheia-qwen-deep:Modelo", "otro")]   // redefine el nombre del por defecto
+    [InlineData("Motor:Llm:Perfiles:sin-modelo:MaxTokens", "160")]        // perfil adicional sin Modelo
+    public void UnPerfilDeLlmMalDeclaradoImpideArrancar(string clave, string valor)
+    {
+        using var sp = Construir(new() { [clave] = valor });
 
         Assert.Throws<OptionsValidationException>(() => sp.GetRequiredService<IOptions<MotorOptions>>().Value);
     }

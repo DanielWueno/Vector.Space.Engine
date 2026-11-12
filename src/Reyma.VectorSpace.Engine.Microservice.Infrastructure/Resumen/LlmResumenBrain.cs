@@ -65,22 +65,31 @@ public sealed class LlmResumenBrain : ILlmResumenBrain
         """;
 
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly LlmOptions _options;
+    private readonly string _httpClientName;
+    private readonly IPerfilLlmConfig _options;
     private readonly ILogger<LlmResumenBrain> _logger;
     private HttpClient? _http;
 
     /// <summary>Perfil por defecto: resuelve el HttpClient de forma perezosa (ver <see cref="Http"/>).</summary>
     public LlmResumenBrain(IHttpClientFactory httpClientFactory, IOptions<MotorOptions> options, ILogger<LlmResumenBrain> logger)
+        : this(httpClientFactory, HttpClientName, options.Value.Llm, logger)
+    {
+    }
+
+    /// <summary>Un perfil cualquiera con su HttpClient nombrado (ver <see cref="LlmResumenBrainFactory"/>), tambien perezoso.</summary>
+    internal LlmResumenBrain(IHttpClientFactory httpClientFactory, string httpClientName, IPerfilLlmConfig options, ILogger<LlmResumenBrain> logger)
     {
         _httpClientFactory = httpClientFactory;
-        _options = options.Value.Llm;
+        _httpClientName = httpClientName;
+        _options = options;
         _logger = logger;
     }
 
     /// <summary>Puerta de prueba: HttpClient ya construido (sidecar simulado), igual patron que TeiVectorizationBrain.</summary>
-    internal LlmResumenBrain(HttpClient http, LlmOptions options, ILogger<LlmResumenBrain> logger)
+    internal LlmResumenBrain(HttpClient http, IPerfilLlmConfig options, ILogger<LlmResumenBrain> logger)
     {
         _httpClientFactory = null!;
+        _httpClientName = HttpClientName;
         _options = options;
         _logger = logger;
         _http = http;
@@ -93,7 +102,7 @@ public sealed class LlmResumenBrain : ILlmResumenBrain
     /// configuracion por defecto. Solo <see cref="ResumirAsync"/> -llamado unicamente cuando una coleccion ya tiene
     /// el resumen habilitado- fuerza la creacion real del HttpClient.
     /// </summary>
-    private HttpClient Http => _http ??= _httpClientFactory.CreateClient(HttpClientName);
+    private HttpClient Http => _http ??= _httpClientFactory.CreateClient(_httpClientName);
 
     public string ModelName => _options.Modelo;
 

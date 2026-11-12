@@ -956,6 +956,25 @@
           "_limits": "No H4, special-case answer, corpus/anchor/model/threshold change, rejected-run resumption, fresh-blind-review claim or functional acceptance claim. Two hours is an estimate, not consumption."
         },
         {
+          "id": "1.12.11-recalibrate-client-thresholds-for-current-models",
+          "titulo": "Measure and, only with evidence, recalibrate the client meta-intent and confidence-gate thresholds for the models it now actually uses.",
+          "modelo": "opus",
+          "esfuerzo": "high",
+          "multiagente": false,
+          "estado": "pendiente",
+          "fecha": "2026-11-09",
+          "horas_maquina": 3,
+          "por_que_este_modelo": "Calibration must preregister its selection rule and separate a real model mismatch from tuning toward a known quality failure.",
+          "origen": "User request 2026-11-09 after a client configuration review. MetaIntent:SimilarityThreshold=0.65 was calibrated on 2026-07-22 with paraphrase-multilingual-MiniLM-L12-v2 (384d), but in VectorSpace mode SemanticMetaIntentDetector embeds through VectorSpaceEmbeddingBrain with the trusted tei-arctic-256 profile (Snowflake/snowflake-arctic-embed-m-v2.0, 256d, 'query: ' prefix). RagGeneration Low/HighConfidenceThreshold (0.05/0.60, config/shared.appsettings.json) were calibrated in item 4.3 for the CrossEncoderStable score of mmarco-mMiniLMv2-L12-H384-v1, most likely the model_qint8_arm64.onnx binary of the retired Mac (unverified: check the recorded 4.3 identity). On x64, RagEnginePaths.SelectArchitectureBinary resolves that configured path to the unquantized model.onnx, the only binary present on the current Windows workstation, so the effective gate score may differ from the calibrated one. The reranker, meta-intent and gate remain client responsibilities (client_boundary); VectorSpace runs no cross-encoder.",
+          "archivos": "Rag.VectorSpace.Client: a calibration runner and evidence under docs\\eval\\quality\\1.12\\Calibration, MetaIntentOptions/SemanticMetaIntentDetector exemplars read-only, config/shared.appsettings.json and the host appsettings only in a separate approved adoption step. Do not read or build the protected VectorSpace API project or its configuration.",
+          "verificacion": "Before measuring, freeze inputs and the selection rule. Meta-intent: reuse the 2026-07-22 instrument (24 positive exemplars, 14 synthetic adversarial negatives, 18 real queries from logs/rag-api-2026072{1,2}.json: 8 meta, 10 business; on 2026-11-09 those logs were absent from both the client and the original checkout, so recover them from a preserved record or freeze a newly declared real-query set before measuring, never reconstruct them) embedded with the effective tei-arctic-256 profile; record per-query maximum similarity, the maximum negative and the minimum real meta score. Rule: adopt the midpoint of the observed gap only if the gap is at least 0.10; with overlap or a narrower gap record a null result, keep 0.65 flagged as uncalibrated for arctic and propose an alternative instead of forcing a number. Gate: record the SHA-256 of the effective reranker model/tokenizer per environment; if it differs from the 4.3 identity, rerun the 4.3 procedure and labeled set unchanged against that binary, bind the result through GateCalibration's CrossEncoderIdentity, and fail on any identity mismatch. Report both old and new thresholds over the same inputs. A green build or parser is not calibration evidence.",
+          "rollback": "Measurement changes no product configuration. Any adopted threshold is a separate commit reverting to 0.65 and 0.05/0.60; preserve the 2026-07-22 and 4.3 calibration records.",
+          "_working_repository": "D:\\Git\\Rag.VectorSpace.Client",
+          "_condicion_de_reentrada": "Measurement may run independently with isolated resources. Adoption needs explicit user approval and must not change binaries or configuration pinned for 1.12.10 or an in-flight acceptance run; the final integrated acceptance build then measures the adopted values with fresh evidence. If 1.12.10 attributes failures to meta-intent or gate decisions, record that link here without retuning to that failure.",
+          "_parallel_work": "Independent of 1.12.7 review. Serialize shared config/ledger edits with the integrator; never share an index or WAL writer.",
+          "_limits": "No threshold change to obtain 1.12 acceptance, no corpus/anchor/oracle/prompt change, no tuning against the rejected 180 responses, no VectorSpace server change, deployment or push. Three hours is an estimate, not consumption."
+        },
+        {
           "id": "1.12-decidir-si-rag-context-engine-pasa-a-cliente",
           "_scope_alignment_2026_11_04": {
             "client_commit": "a63d752fd53315618f072c5883979bc2c1ce9cf7: client README, AGENTS and coordination note committed together. Documentation only; DWeno author/committer and trailer-free message verified, permitted paths clean. No amend or push.",

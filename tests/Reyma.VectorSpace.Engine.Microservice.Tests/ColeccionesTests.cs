@@ -192,8 +192,8 @@ public sealed class ColeccionesTests(ApiFactory factory)
     {
         var colecciones = new[]
         {
-            new ColeccionInfoResponse("propia", "tei-arctic-256", "snowflake-arctic-embed-m-v2.0", 256),
-            new ColeccionInfoResponse("sin-metadata", null, null, null)
+            new ColeccionInfoResponse("propia", "tei-arctic-256", "snowflake-arctic-embed-m-v2.0", 256, TieneResumen: true),
+            new ColeccionInfoResponse("sin-metadata", null, null, null, TieneResumen: false)
         };
         using var client = factory.ConIdentidad(servicios: MotorDeColeccionesDePrueba.Registrar(colecciones)).Cliente(TokenAna);
         using var response = await client.GetAsync("/api/colecciones");
@@ -206,10 +206,12 @@ public sealed class ColeccionesTests(ApiFactory factory)
         Assert.Equal("tei-arctic-256", (string)lista[0]["perfilEmbeddings"]!);
         Assert.Equal("snowflake-arctic-embed-m-v2.0", (string)lista[0]["modelo"]!);
         Assert.Equal(256, (int)lista[0]["dimension"]!);
+        Assert.True((bool)lista[0]["tieneResumen"]!);
         Assert.Equal("sin-metadata", (string)lista[1]["coleccion"]!);
         Assert.Null(lista[1]["perfilEmbeddings"]);
         Assert.Null(lista[1]["modelo"]);
         Assert.Null(lista[1]["dimension"]);
+        Assert.False((bool)lista[1]["tieneResumen"]!);
     }
 
     [Fact]

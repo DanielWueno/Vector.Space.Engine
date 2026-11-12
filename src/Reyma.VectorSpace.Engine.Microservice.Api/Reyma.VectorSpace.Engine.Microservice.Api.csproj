@@ -38,6 +38,10 @@
     <!-- Item 1.13/1.7.7: User Secrets para ApiKey/RutaCertificadoCA de Motor:Llm y Motor:Embeddings:Perfiles en
          desarrollo local (ver .env.example); vive fuera del repo en %APPDATA%\Microsoft\UserSecrets\<id>\. -->
     <UserSecretsId>65d95ecc-aa78-4b13-851c-8d4da486e00b</UserSecretsId>
+    <!-- Swagger lee los <summary>/<param> de este XML (SwaggerExtensions.AddReymaSwagger); sin el, los campos de cada
+         endpoint salen sin descripcion. CS1591: no todo miembro publico necesita comentario. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

@@ -171,7 +171,7 @@ public sealed class LimiteDeIngestasTests(ApiFactory factory)
             CancellationToken cancellationToken, int? prefetchPorRama = null) =>
             Task.FromResult(new BusquedaResponse(coleccion, []));
 
-        public async Task<IngestaResponse> IngerirAsync(string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken, PerfilDeIngesta? perfilIngesta = null)
+        public async Task<IngestaResponse> IngerirAsync(string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken, PerfilDeIngesta? perfilIngesta = null, string? perfilLlm = null)
         {
             Interlocked.Increment(ref _ingestas);
             Entro.TrySetResult();

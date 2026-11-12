@@ -13,9 +13,10 @@ public sealed record BusquedaResponse(string Coleccion, IReadOnlyList<ResultadoB
 /// directo a Qdrant. <see cref="PerfilEmbeddings"/>/<see cref="Modelo"/>/<see cref="Dimension"/> salen de la
 /// metadata guardada en la coleccion (item 1.7.4); los tres null si la coleccion no la tiene (creada antes de
 /// 1.7.4 y nunca tocada desde entonces).
+/// <see cref="TieneResumen"/> indica la presencia real de dense-resumen en el esquema, no la metadata informativa.
 /// </summary>
 public sealed record ColeccionInfoResponse(string Coleccion, string? PerfilEmbeddings, string? Modelo, int? Dimension,
-    string? PerfilIngesta = null, string? RepositorioLogico = null);
+    string? PerfilIngesta = null, string? RepositorioLogico = null, bool? TieneResumen = null);
 
 /// <summary>
 /// Un documento indexado en una coleccion (item 1.19), agrupado por su clave de identidad (<c>file_path</c>, sin

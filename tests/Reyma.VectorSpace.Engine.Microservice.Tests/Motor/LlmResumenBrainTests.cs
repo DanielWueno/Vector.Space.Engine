@@ -29,7 +29,7 @@ public sealed class LlmResumenBrainTests
 
     private static LlmResumenBrain Brain(HttpMessageHandler handler, LlmOptions? options = null) =>
         new(new HttpClient(handler, disposeHandler: false) { BaseAddress = new Uri("http://sidecar-llm.invalid/") },
-            options ?? new LlmOptions { UrlBase = "http://sidecar-llm.invalid", Modelo = "qwen3.8-27b-fast", MaxTokens = 160 },
+            options ?? new LlmOptions { UrlBase = "http://sidecar-llm.invalid", Modelo = "qwen3.8-27b-fast", MaxTokens = 160, EnableThinking = null },
             NullLogger<LlmResumenBrain>.Instance);
 
     private static HttpResponseMessage RespuestaConTexto(string texto, int totalTokens = 670) => new(HttpStatusCode.OK)
@@ -97,6 +97,21 @@ public sealed class LlmResumenBrainTests
 
         var kwargs = sidecar.Peticiones[0].GetProperty("chat_template_kwargs");
         Assert.False(kwargs.GetProperty("enable_thinking").GetBoolean());
+    }
+
+    [Fact]
+    public async Task ElPerfilPorDefectoPideDeepSinRazonar()
+    {
+        // Sin tocar nada: deep con enable_thinking=false, la unica combinacion de deep que 1.7.3 midio 30/30 a 160 tokens.
+        var sidecar = new Sidecar(_ => RespuestaConTexto("Resumen."));
+        var brain = Brain(sidecar, new LlmOptions { UrlBase = "http://sidecar-llm.invalid" });
+
+        await brain.ResumirAsync("CSharp", "a.cs", "class A {}", CancellationToken.None);
+
+        var cuerpo = sidecar.Peticiones[0];
+        Assert.Equal("qwen3.8-27b-deep", cuerpo.GetProperty("model").GetString());
+        Assert.False(cuerpo.GetProperty("chat_template_kwargs").GetProperty("enable_thinking").GetBoolean());
+        Assert.Equal(160, cuerpo.GetProperty("max_tokens").GetInt32());
     }
 
     [Fact]

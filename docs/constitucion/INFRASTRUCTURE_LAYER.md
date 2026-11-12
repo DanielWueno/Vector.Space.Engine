@@ -161,6 +161,29 @@ de AltheIA, mismo patron que `TeiVectorizationBrain`.
   `proyecto` (asincrono) corre dentro de la misma tarea en segundo plano. `IngestaResponse`/`ResultadoIngestaProyecto`
   ganan `resumenesGenerados`/`resumenesPendientes`/`resumenTokensConsumidos` (siempre 0 sin resumen habilitado).
 
+### Perfiles de LLM por nombre
+
+Mismo patron que los perfiles de embeddings: `Motor:Llm` describe el perfil por defecto (`Nombre`, hoy
+`altheia-qwen-deep` = `qwen3.8-27b-deep` con `EnableThinking=false`) y `Motor:Llm:Perfiles` agrega otros, cada uno
+con su `HttpClient` nombrado (`LlmResumenBrainFactory.NombreCliente`). A diferencia de embeddings, un perfil
+adicional **hereda** de `Motor:Llm` lo que deja vacio (`LlmOptions.Efectivo`): normalmente es otro modelo del mismo
+AltheIA con la misma clave. `EnableThinking` no se hereda (depende del modelo). `PerfilLlmEfectivo` sobrescribe
+`ToString` para que la clave no termine en un log.
+
+- `Resumen/LlmResumenBrainFactory.cs` (`ILlmResumenBrainFactory`): el por defecto devuelve el `ILlmResumenBrain`
+  singleton (las pruebas lo sustituyen por DI); un nombre no registrado es `BadRequestException` con la lista.
+- `ResumenPipeline.ProcesarPendientesAsync` recibe el `ILlmResumenBrain` ya resuelto; `MotorVectorial` lo resuelve
+  con `perfilLlm` ANTES de escribir chunks, para que un nombre invalido no deje la ingesta a medias.
+
+## Catalogo de perfiles (GET api/catalogo/*)
+
+`Catalogo/CatalogoDelMotor.cs` implementa `IMotorDeCatalogo` leyendo la misma `MotorOptions` que las fabricas: no
+hay una segunda lista que mantener. `Catalogo/SondaDeServidor.cs` sondea cada perfil sin gastar tokens (solo GET:
+`.../models` -> `info` de TEI -> `health`), con el HttpClient nombrado del perfil y un plazo corto
+(`CatalogoDelMotor.PlazoSonda`, 5 s), en paralelo. Los mensajes nunca llevan host ni cuerpo de respuesta. Si
+`Motor:Resumen:PerfilEmbeddings` esta vacio no sondea los LLM (su HttpClient puede no tener `UrlBase`).
+`ValidarPerfilLlm` es la validacion sin red que usan los comandos antes de admitir una ingesta.
+
 ## Catalogo de colecciones (item 1.16)
 
 Nuevo puerto `IMotorDeColecciones` (`Business/Motor/IMotor.cs`), junto a los demas `IMotorDe*`: resuelve el hallazgo
@@ -169,11 +192,15 @@ de que ninguna superficie anterior permitia saber que colecciones existen sin ac
 - `QdrantVectorStore.ListarColeccionesAsync`: nombres de `_client.ListCollectionsAsync` (gRPC, igual que
   `GetEsquemaAsync`: las excepciones las traduce `MotorVectorial.ConQdrantAsync` del llamador, no un try/catch local),
   mas una llamada a `LeerPerfilAsync` (REST) por coleccion para su metadata de perfil (1.7.4). Devuelve tuplas
-  `(Nombre, PerfilColeccion?)`, no un response de Business: la composicion a `ColeccionInfoResponse` vive en
+  `(Nombre, PerfilColeccion?, TieneResumen)`, no un response de Business: la composicion a `ColeccionInfoResponse` vive en
   `MotorVectorial.ListarAsync` (`IMotorDeColecciones`), igual separacion que el resto del motor (`QdrantVectorStore`
   no conoce los tipos de `Business.Models.Responses`).
 - Una llamada REST por coleccion es aceptable para un catalogo de descubrimiento (no es una ruta caliente); no se
   optimizo a una sola llamada porque el cliente gRPC 1.19 no expone `metadata` en `ListCollectionsAsync`.
+- `LeerPerfilYEsquemaAsync` reutiliza esa lectura REST para observar `config.params.vectors`: `tieneResumen`
+  depende de la existencia real de `dense-resumen`, no de la metadata informativa ni del perfil de embeddings.
+  Un esquema ausente/incompleto hace fallar el catalogo; no equivale a una coleccion sin resumen. La lectura
+  separada del binding de ingesta se conserva. Los consumidores deben cachear el catalogo fuera de rutas calientes.
 - Registro DI igual que los demas puertos: `services.AddSingleton<IMotorDeColecciones>(sp =>
   sp.GetRequiredService<MotorVectorial>())` en `MotorServiceCollectionExtensions.AddMotorVectorial`.
 - Verificado contra Qdrant y TEI reales de `docker-compose.motor.yml` en `tests/.../Motor/ResumenIntegracionTests.cs`

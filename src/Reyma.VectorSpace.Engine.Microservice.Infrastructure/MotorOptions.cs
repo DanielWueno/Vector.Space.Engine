@@ -27,7 +27,7 @@ public sealed class MotorOptions
     /// <summary>Origen 'proyecto' desde URL Git (1.7.6): lista blanca y limites del clonado.</summary>
     public GitOptions Git { get; set; } = new();
 
-    /// <summary>Perfil de LLM para el resumen de negocio (1.7.7). Vacio/sin <see cref="LlmOptions.UrlBase"/> = resumen no disponible en esta instancia.</summary>
+    /// <summary>Perfiles de LLM para el resumen de negocio (1.7.7). Vacio/sin <see cref="LlmOptions.UrlBase"/> = resumen no disponible en esta instancia.</summary>
     public LlmOptions Llm { get; set; } = new();
 
     /// <summary>Fase 2 reanudable de resumen de negocio (1.7.7): perfil de embeddings del vector <c>dense-resumen</c> y tope de tokens por corrida.</summary>
@@ -236,23 +236,48 @@ public sealed class BusquedaOptions
     public float UmbralSimilitudResumen { get; set; }
 }
 
-/// <summary>
-/// Seccion <c>Motor:Llm</c> (1.7.7): perfil de LLM para el resumen de negocio de un chunk, por la misma ruta
-/// OpenAI-compatible de AltheIA que <see cref="EmbeddingsOptions"/>, pero para <c>chat/completions</c>. 1.7.3 midio
-/// contra AltheIA real: <c>qwen3.8-27b-fast</c> con <c>max_tokens</c> 160 responde 30/30; <c>qwen3.8-27b-deep</c> (el
-/// perfil de LLM por defecto de 1.13) razona por defecto y gasta los 160 tokens sin escribir el resumen (0/30) salvo
-/// que se envie <c>chat_template_kwargs.enable_thinking=false</c> (entonces 30/30, igual que <c>fast</c>).
-/// </summary>
-public sealed class LlmOptions
+/// <summary>Lo que necesita un perfil de LLM para llamar a chat-completions (AltheIA) e interpretar su respuesta.</summary>
+public interface IPerfilLlmConfig
 {
+    string Ruta { get; }
+
+    string Modelo { get; }
+
+    int MaxTokens { get; }
+
+    double Temperatura { get; }
+
+    double TopP { get; }
+
+    bool? EnableThinking { get; }
+}
+
+/// <summary>
+/// Seccion <c>Motor:Llm</c> (1.7.7): perfiles de LLM para el resumen de negocio de un chunk, por la misma ruta
+/// OpenAI-compatible de AltheIA que <see cref="EmbeddingsOptions"/>, pero para <c>chat/completions</c>. Igual que en
+/// embeddings, las propiedades de esta clase describen el perfil por defecto (<see cref="Nombre"/>) y
+/// <see cref="Perfiles"/> agrega otros, seleccionables por nombre en cada ingesta (<c>perfilLlm</c>).
+/// 1.7.3 midio contra AltheIA real: <c>qwen3.8-27b-fast</c> con <c>max_tokens</c> 160 responde 30/30;
+/// <c>qwen3.8-27b-deep</c> razona por defecto y gasta los 160 tokens sin escribir el resumen (0/30) salvo que se envie
+/// <c>chat_template_kwargs.enable_thinking=false</c> (entonces 30/30, igual que <c>fast</c>). El perfil por defecto es
+/// <c>deep</c> con ese <c>false</c> (decision del usuario, 2026-11-09).
+/// </summary>
+public sealed class LlmOptions : IPerfilLlmConfig
+{
+    /// <summary>
+    /// Nombre del perfil por defecto que describen las propiedades de esta clase: el que se usa cuando una ingesta no
+    /// pide <c>perfilLlm</c>. No puede repetirse como clave de <see cref="Perfiles"/>.
+    /// </summary>
+    public string Nombre { get; set; } = "altheia-qwen-deep";
+
     /// <summary>URL base del servidor de chat-completions (AltheIA). Vacio = resumen de negocio no disponible en esta instancia.</summary>
     public string? UrlBase { get; set; }
 
     /// <summary>Ruta OpenAI-compatible de chat-completions.</summary>
     public string Ruta { get; set; } = "v1/chat/completions";
 
-    /// <summary>1.7.3: modelo que responde sin razonar con el limite de tokens del prompt de resumen.</summary>
-    public string Modelo { get; set; } = "qwen3.8-27b-fast";
+    /// <summary>Modelo del perfil por defecto; con <c>deep</c>, <see cref="EnableThinking"/> debe ser <c>false</c> (1.7.3).</summary>
+    public string Modelo { get; set; } = "qwen3.8-27b-deep";
 
     /// <summary>Igual que el origen (OllamaBusinessSummaryGenerator): debe caber holgadamente el resumen (1 a 3 oraciones).</summary>
     public int MaxTokens { get; set; } = 160;
@@ -262,11 +287,11 @@ public sealed class LlmOptions
     public double TopP { get; set; } = 0.95;
 
     /// <summary>
-    /// Null (por defecto, perfil <c>fast</c>): no se envia el campo <c>chat_template_kwargs.enable_thinking</c>.
-    /// <c>false</c> (obligatorio con un modelo <c>deep</c>, 1.7.3): fuerza respuesta directa sin razonar; sin esto
-    /// <c>deep</c> gasta los <c>MaxTokens</c> razonando y devuelve una respuesta vacia (medido, 0/30).
+    /// Null: no se envia el campo <c>chat_template_kwargs.enable_thinking</c> (lo que necesita <c>fast</c>).
+    /// <c>false</c> (por defecto, obligatorio con un modelo <c>deep</c>, 1.7.3): fuerza respuesta directa sin razonar;
+    /// sin esto <c>deep</c> gasta los <c>MaxTokens</c> razonando y devuelve una respuesta vacia (medido, 0/30).
     /// </summary>
-    public bool? EnableThinking { get; set; }
+    public bool? EnableThinking { get; set; } = false;
 
     public int TiempoMaximoSegundos { get; set; } = 120;
 
@@ -275,6 +300,75 @@ public sealed class LlmOptions
 
     /// <summary>Opcional: igual que <see cref="EmbeddingsOptions.RutaCertificadoCA"/> pero para el perfil de LLM.</summary>
     public string? RutaCertificadoCA { get; set; }
+
+    /// <summary>
+    /// Perfiles adicionales de LLM, seleccionables por nombre (<c>perfilLlm</c> de las ingestas) junto con el por
+    /// defecto (<see cref="Nombre"/>). Clave = nombre del perfil (p. ej. <c>altheia-qwen-fast</c>).
+    /// </summary>
+    public Dictionary<string, PerfilLlmOptions> Perfiles { get; set; } = new();
+
+    /// <summary>Nombres de todos los perfiles de LLM declarados: el por defecto primero, luego los adicionales.</summary>
+    public IReadOnlyList<string> NombresDePerfiles() => [Nombre, .. Perfiles.Keys];
+
+    /// <summary>
+    /// Configuracion efectiva de un perfil adicional ya declarado: lo que el perfil deja vacio se hereda de este (el
+    /// por defecto), salvo <see cref="PerfilLlmOptions.EnableThinking"/>, que es propio del modelo y no se hereda.
+    /// </summary>
+    public PerfilLlmEfectivo Efectivo(string nombre)
+    {
+        var p = Perfiles[nombre];
+        return new PerfilLlmEfectivo(
+            nombre,
+            string.IsNullOrWhiteSpace(p.UrlBase) ? UrlBase : p.UrlBase,
+            string.IsNullOrWhiteSpace(p.Ruta) ? Ruta : p.Ruta,
+            p.Modelo,
+            p.MaxTokens ?? MaxTokens,
+            p.Temperatura ?? Temperatura,
+            p.TopP ?? TopP,
+            p.EnableThinking,
+            p.TiempoMaximoSegundos ?? TiempoMaximoSegundos,
+            string.IsNullOrWhiteSpace(p.ApiKey) ? ApiKey : p.ApiKey,
+            string.IsNullOrWhiteSpace(p.RutaCertificadoCA) ? RutaCertificadoCA : p.RutaCertificadoCA);
+    }
+}
+
+/// <summary>
+/// Un perfil de LLM adicional, registrado por nombre en <see cref="LlmOptions.Perfiles"/>. Todo es opcional salvo
+/// <see cref="Modelo"/>: lo vacio se hereda del perfil por defecto (mismo servidor y clave de AltheIA, normalmente).
+/// </summary>
+public sealed class PerfilLlmOptions
+{
+    public string? UrlBase { get; set; }
+
+    public string? Ruta { get; set; }
+
+    /// <summary>Obligatorio.</summary>
+    public string Modelo { get; set; } = "";
+
+    public int? MaxTokens { get; set; }
+
+    public double? Temperatura { get; set; }
+
+    public double? TopP { get; set; }
+
+    /// <summary>Propio de este perfil, no se hereda: ver <see cref="LlmOptions.EnableThinking"/>.</summary>
+    public bool? EnableThinking { get; set; }
+
+    public int? TiempoMaximoSegundos { get; set; }
+
+    /// <summary>Opcional. Va por variable de entorno o user-secrets, nunca en appsettings.</summary>
+    public string? ApiKey { get; set; }
+
+    public string? RutaCertificadoCA { get; set; }
+}
+
+/// <summary>Perfil de LLM adicional con la herencia del por defecto ya aplicada (<see cref="LlmOptions.Efectivo"/>).</summary>
+public sealed record PerfilLlmEfectivo(
+    string Nombre, string? UrlBase, string Ruta, string Modelo, int MaxTokens, double Temperatura, double TopP,
+    bool? EnableThinking, int TiempoMaximoSegundos, string? ApiKey, string? RutaCertificadoCA) : IPerfilLlmConfig
+{
+    /// <summary>Sin <see cref="ApiKey"/> ni <see cref="UrlBase"/>: el ToString generado del record los imprimiria en un log.</summary>
+    public override string ToString() => $"PerfilLlmEfectivo {{ Nombre = {Nombre}, Modelo = {Modelo} }}";
 }
 
 /// <summary>

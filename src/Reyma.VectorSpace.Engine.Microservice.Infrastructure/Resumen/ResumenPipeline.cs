@@ -29,7 +29,6 @@ public sealed class ResumenPipeline
 {
     private readonly QdrantVectorStore _store;
     private readonly IVectorizationBrainFactory _embeddingsFactory;
-    private readonly ILlmResumenBrain _llm;
     private readonly ICacheDeResumenes _cache;
     private readonly ResumenOptions _options;
     private readonly ILogger<ResumenPipeline> _logger;
@@ -37,27 +36,26 @@ public sealed class ResumenPipeline
     public ResumenPipeline(
         QdrantVectorStore store,
         IVectorizationBrainFactory embeddingsFactory,
-        ILlmResumenBrain llm,
         ICacheDeResumenes cache,
         IOptions<MotorOptions> options,
         ILogger<ResumenPipeline> logger)
     {
         _store = store;
         _embeddingsFactory = embeddingsFactory;
-        _llm = llm;
         _cache = cache;
         _options = options.Value.Resumen;
         _logger = logger;
     }
 
-    public async Task<ResumenResultado> ProcesarPendientesAsync(string coleccion, CancellationToken ct)
+    /// <param name="llm">Perfil de LLM que pidio la ingesta (o el por defecto), ya resuelto por <see cref="ILlmResumenBrainFactory"/>.</param>
+    public async Task<ResumenResultado> ProcesarPendientesAsync(string coleccion, ILlmResumenBrain llm, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(_options.PerfilEmbeddings))
             return ResumenResultado.Vacio; // el llamador ya deberia haber evitado esto (resumen no habilitado aqui)
 
         var resueltoEmbeddings = _embeddingsFactory.Resolver(_options.PerfilEmbeddings);
-        var promptVersion = _llm.PromptVersion;
-        var modelo = _llm.ModelName;
+        var promptVersion = llm.PromptVersion;
+        var modelo = llm.ModelName;
 
         var tokensGastados = 0;
         var resumidos = 0;
@@ -88,7 +86,7 @@ public sealed class ResumenPipeline
                     ResumenLlmResultado? resultado;
                     try
                     {
-                        resultado = await _llm.ResumirAsync(punto.Lenguaje, punto.RutaRelativa, punto.Contenido, ct);
+                        resultado = await llm.ResumirAsync(punto.Lenguaje, punto.RutaRelativa, punto.Contenido, ct);
                     }
                     catch (BadRequestException)
                     {

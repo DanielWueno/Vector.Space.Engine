@@ -14,7 +14,7 @@ namespace Reyma.VectorSpace.Engine.Microservice.Business.Commands.Colecciones;
 /// clonar, escanear y vectorizar corre en segundo plano porque un repo real tarda segundos a minutos (1.7.3).
 /// </summary>
 public sealed record IngerirProyectoGitCommand(string Coleccion, string? Url, string? CarpetaRaiz, string? Perfil, bool? Resumen = null,
-    string? PerfilIngesta = null, string? RepositorioLogico = null)
+    string? PerfilIngesta = null, string? RepositorioLogico = null, string? PerfilLlm = null)
     : IRequest<IngestaResponse>, IValidable
 {
     public IEnumerable<string> Errores()
@@ -33,12 +33,18 @@ public sealed record IngerirProyectoGitCommand(string Coleccion, string? Url, st
             yield return "Perfil no puede ser una cadena vacia si se especifica.";
         else if (Perfil is { Length: > 0 } && Perfil.Length > Limites.MaxCaracteresPerfil)
             yield return $"Perfil admite como maximo {Limites.MaxCaracteresPerfil} caracteres.";
+
+        if (PerfilLlm is not null && PerfilLlm.Trim().Length == 0)
+            yield return "PerfilLlm no puede ser una cadena vacia si se especifica.";
+        else if (PerfilLlm is { Length: > 0 } && PerfilLlm.Length > Limites.MaxCaracteresPerfil)
+            yield return $"PerfilLlm admite como maximo {Limites.MaxCaracteresPerfil} caracteres.";
     }
 
     public sealed class IngerirProyectoGitCommandHandler(
         IMotorDeIngestaProyectoGit motor,
         ILimiteDeIngestas limite,
         IRegistroDeIngestasProyecto registro,
+        IMotorDeCatalogo catalogo,
         ILogger<IngerirProyectoGitCommandHandler> logger)
         : IRequestHandler<IngerirProyectoGitCommand, IngestaResponse>
     {
@@ -47,7 +53,9 @@ public sealed record IngerirProyectoGitCommand(string Coleccion, string? Url, st
             // 1. Validar la URL contra la lista blanca ANTES de tocar la red o el limite de admision: una URL fuera
             // de la lista (u otro origen no permitido: localhost, IP interna, otro esquema, etc.) responde
             // BadRequestException (400) aqui, sin abrir ningun socket, sin crear registro de estado ni tocar el cupo.
+            // Lo mismo un perfil de LLM desconocido.
             var uri = motor.ValidarUrlGit(request.Url);
+            catalogo.ValidarPerfilLlm(request.PerfilLlm);
 
             // 2. Admision: mismo cupo global que 'documentos' y el .zip (ambos origenes compiten por el mismo
             // limite del sidecar de embeddings).
@@ -58,7 +66,8 @@ public sealed record IngerirProyectoGitCommand(string Coleccion, string? Url, st
 
             // 3. Clonar + escanear + vectorizar corre en segundo plano, fuera del ciclo de vida de esta solicitud HTTP
             // (CancellationToken.None): cerrar la conexion del cliente no debe abortar una ingesta ya admitida.
-            _ = ProcesarEnSegundoPlanoAsync(request.Coleccion, uri, request.CarpetaRaiz, request.Perfil, request.Resumen == true, ingestaId, permiso, ingesta);
+            _ = ProcesarEnSegundoPlanoAsync(request.Coleccion, uri, request.CarpetaRaiz, request.Perfil, request.Resumen == true, ingestaId, permiso, ingesta,
+                request.PerfilLlm);
 
             return new IngestaResponse(ingestaId, request.Coleccion, EstadosIngestaProyecto.Pendiente,
                 DocumentosRecibidos: 0, DocumentosIndexados: 0, DocumentosSinCambios: 0,
@@ -67,12 +76,12 @@ public sealed record IngerirProyectoGitCommand(string Coleccion, string? Url, st
 
         private async Task ProcesarEnSegundoPlanoAsync(
             string coleccion, Uri uri, string? carpetaRaiz, string? perfil, bool resumen, Guid ingestaId, IDisposable permiso,
-            PerfilDeIngesta? perfilIngesta)
+            PerfilDeIngesta? perfilIngesta, string? perfilLlm)
         {
             try
             {
                 registro.MarcarProcesando(ingestaId);
-                var resultado = await motor.ProcesarGitAsync(coleccion, uri, carpetaRaiz, perfil, resumen, CancellationToken.None, perfilIngesta);
+                var resultado = await motor.ProcesarGitAsync(coleccion, uri, carpetaRaiz, perfil, resumen, CancellationToken.None, perfilIngesta, perfilLlm);
                 registro.MarcarCompletada(ingestaId, resultado);
             }
             catch (Exception ex)

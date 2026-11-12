@@ -8,6 +8,7 @@ namespace Reyma.VectorSpace.Engine.Microservice.Business.Motor;
 // Reciben la coleccion ya autorizada: no repiten el control de acceso.
 
 // perfil: nombre del perfil de embeddings a usar (1.7.4); null = perfil por defecto de la coleccion/instancia.
+// perfilLlm: nombre del perfil de LLM que resume esta ingesta (si la coleccion tiene resumen); null = el por defecto.
 
 public interface IMotorDeEmbeddings
 {
@@ -51,7 +52,7 @@ public interface IMotorDeIngesta
     /// <summary>resumen: opt-in del resumen de negocio (1.7.7); solo tiene efecto al crear la coleccion.</summary>
     Task<IngestaResponse> IngerirAsync(
         string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken,
-        PerfilDeIngesta? perfilIngesta = null);
+        PerfilDeIngesta? perfilIngesta = null, string? perfilLlm = null);
 }
 
 /// <summary>
@@ -70,7 +71,7 @@ public interface IMotorDeIngestaProyecto : IPerfilDeIngestaColeccion
     /// <param name="resumen">Ver <see cref="IMotorDeIngesta.IngerirAsync"/> (1.7.7).</param>
     Task<ResultadoIngestaProyecto> ProcesarAsync(
         string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken,
-        PerfilDeIngesta? perfilIngesta = null);
+        PerfilDeIngesta? perfilIngesta = null, string? perfilLlm = null);
 }
 
 /// <summary>
@@ -108,7 +109,31 @@ public interface IMotorDeIngestaProyectoGit : IPerfilDeIngestaColeccion
     /// <param name="resumen">Ver <see cref="IMotorDeIngesta.IngerirAsync"/> (1.7.7).</param>
     Task<ResultadoIngestaProyecto> ProcesarGitAsync(
         string coleccion, Uri url, string? carpetaRaiz, string? perfil, bool resumen, CancellationToken cancellationToken,
-        PerfilDeIngesta? perfilIngesta = null);
+        PerfilDeIngesta? perfilIngesta = null, string? perfilLlm = null);
+}
+
+/// <summary>
+/// Catalogo de lo que una ingesta o busqueda puede pedir en ESTA instancia: perfiles de embeddings, perfiles de LLM y
+/// origenes Git permitidos. Sale de la configuracion con la que arranco el servicio (la misma que valida cada
+/// solicitud), no de un listado mantenido a mano; los perfiles se sondean en vivo contra su servidor para decir si
+/// se pueden consumir ahora. Nunca expone URLs, claves ni certificados.
+/// </summary>
+public interface IMotorDeCatalogo
+{
+    /// <summary>Perfiles de embeddings declarados, con su estado en vivo. Nunca falla por un servidor caido: lo reporta.</summary>
+    Task<IReadOnlyList<PerfilEmbeddingsInfoResponse>> ListarPerfilesEmbeddingsAsync(CancellationToken cancellationToken);
+
+    /// <summary>Perfiles de LLM declarados, con su estado en vivo. Nunca falla por un servidor caido: lo reporta.</summary>
+    Task<IReadOnlyList<PerfilLlmInfoResponse>> ListarPerfilesLlmAsync(CancellationToken cancellationToken);
+
+    /// <summary>Origenes desde los que <c>POST {coleccion}/ingestas/git</c> acepta clonar.</summary>
+    IReadOnlyList<OrigenGitInfoResponse> ListarOrigenesGit();
+
+    /// <summary>
+    /// 400 si <paramref name="perfilLlm"/> viene y no esta registrado, o si esta instancia no tiene el resumen de
+    /// negocio habilitado. Null/ausente no valida nada (se usara el por defecto). Sin red: solo nombres.
+    /// </summary>
+    void ValidarPerfilLlm(string? perfilLlm);
 }
 
 /// <summary>
@@ -128,8 +153,8 @@ public interface IMotorDeColecciones
     /// <summary>
     /// Documentos indexados en una coleccion (item 1.19): ruta, huella (<c>document_fingerprint</c>) y cantidad de
     /// puntos (chunks) de cada uno, agrupados por su clave de identidad (<c>file_path</c>). Hallazgo al revisar
-    /// <see cref="ListarRutasDocumentadasAsync"/> (ese metodo solo trae rutas e ids, para el barrido de ausentes del
-    /// origen 'proyecto') y <see cref="GetDocumentPointsAsync"/> (trae la huella, pero solo de rutas pedidas
+    /// <c>QdrantVectorStore.ListarRutasDocumentadasAsync</c> (ese metodo solo trae rutas e ids, para el barrido de ausentes del
+    /// origen 'proyecto') y <c>QdrantVectorStore.GetDocumentPointsAsync</c> (trae la huella, pero solo de rutas pedidas
     /// explicitamente): ninguno de los dos expone un listado legible por coleccion. No es el "manifiesto" que el
     /// item 1.4 declaro no portado; es un listado de solo lectura, mas simple, sin paginar (catalogo de
     /// descubrimiento, no ruta caliente, igual criterio que <see cref="ListarAsync"/>). La huella de un documento es
