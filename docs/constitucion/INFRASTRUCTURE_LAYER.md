@@ -140,7 +140,8 @@ de AltheIA, mismo patron que `TeiVectorizationBrain`.
   del LLM para un chunk se salta (aislado); un `BadRequestException` (perfil mal configurado) se propaga; cualquier
   otro fallo corta la corrida ENTERA dejando el resto pendiente (no insiste contra una dependencia caida chunk a
   chunk). El vector de resumen usa un perfil de embeddings YA declarado (`Motor:Resumen:PerfilEmbeddings`,
-  resuelto via `IVectorizationBrainFactory`, 1.7.4): 1.7.3 midio bge-m3 1024d via AltheIA sin truncar.
+  resuelto via `IVectorizationBrainFactory`, 1.7.4). Por diseno es arctic@256 (1.6; 1.7.3 descarto bge-m3); 1.7.3 solo
+  probo el mecanismo del tercer vector con bge-m3 1024d via AltheIA, sin truncar.
 - `QdrantVectorStore`: `EnsureCollectionAsync` ahora decide ademas si la coleccion tiene (o debe crear) el vector
   `ResumenDenseVectorName` ("dense-resumen"). La verdad de si una coleccion tiene resumen es el ESQUEMA real de
   Qdrant (`GetEsquemaAsync`, si el vector existe), no la metadata (que es solo informativa): pedir `resumen` sobre

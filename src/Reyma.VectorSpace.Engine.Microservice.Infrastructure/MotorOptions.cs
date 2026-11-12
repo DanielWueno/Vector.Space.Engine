@@ -380,8 +380,9 @@ public sealed class ResumenOptions
 {
     /// <summary>
     /// Nombre de un perfil de embeddings YA declarado (<see cref="MotorOptions.PerfilEmbeddingsPorDefecto"/> o una
-    /// clave de <see cref="EmbeddingsOptions.Perfiles"/>) que sirve el vector <c>dense-resumen</c>. 1.7.3: bge-m3
-    /// 1024d via AltheIA, SIN truncar (no es Matryoshka). Vacio = resumen no disponible en esta instancia.
+    /// clave de <see cref="EmbeddingsOptions.Perfiles"/>) que sirve el vector <c>dense-resumen</c>. Por diseno es arctic@256
+    /// (1.6; 1.7.3 descarto bge-m3); 1.7.3 solo probo el mecanismo del tercer vector con bge-m3 1024d de AltheIA, sin
+    /// truncar porque no es Matryoshka. Vacio = resumen no disponible en esta instancia.
     /// </summary>
     public string? PerfilEmbeddings { get; set; }
 

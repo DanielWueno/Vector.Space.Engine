@@ -629,8 +629,10 @@ chunking + `dense` + `sparse-code`, sin cambios).
   coleccion puede tener ambas conviviendo, igual que puede tener dos modelos. Comparar resumenes entre versiones
   de prompt distintas no es directo.
 - **Perfil de embeddings del resumen** (`Motor:Resumen:PerfilEmbeddings`): un nombre de perfil YA declarado en
-  `Motor:Embeddings` (el por defecto o uno de `Motor:Embeddings:Perfiles`, 1.7.4). 1.7.3: bge-m3 1024d via
-  AltheIA, **sin truncar** (bge-m3 no es Matryoshka, a diferencia del perfil por defecto arctic@256). Vacio
+  `Motor:Embeddings` (el por defecto o uno de `Motor:Embeddings:Perfiles`, 1.7.4). Por diseno es **arctic@256**,
+  el mismo modelo que `dense` (1.6; en 1.7.3 el usuario fijo arctic y descarto bge-m3). 1.7.3 solo probo el
+  mecanismo del tercer vector con bge-m3 1024d de AltheIA, sin truncar porque no es Matryoshka; eso fue una prueba,
+  no el perfil elegido. Cada despliegue fija el valor en su configuracion. Vacio
   (por defecto) = el resumen de negocio no esta disponible en esta instancia; pedirlo responde **400** con un
   mensaje claro ("Motor:Resumen:PerfilEmbeddings"), nunca 500.
 - **Cache por `content_hash` + version de prompt + modelo**: antes de llamar al LLM, se busca en una cache en
