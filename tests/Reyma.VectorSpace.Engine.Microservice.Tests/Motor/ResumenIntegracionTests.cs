@@ -1,10 +1,14 @@
 using System.Net;
+using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json.Linq;
 using Qdrant.Client;
 using Qdrant.Client.Grpc;
 using Reyma.VectorSpace.Engine.Microservice.Api;
+using Reyma.VectorSpace.Engine.Microservice.Infrastructure;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Resumen;
 using static Reyma.VectorSpace.Engine.Microservice.Tests.IdentidadDePrueba;
 
@@ -44,7 +48,7 @@ public sealed class ResumenIntegracionTests(ApiFactory factory)
         using System.Threading.Tasks;
         """;
 
-    private WebApplicationFactory<Program> Api(LlmDePrueba llm, int topeTokens, params string[] colecciones)
+    private WebApplicationFactory<Program> Api(ILlmResumenBrain llm, int topeTokens, params string[] colecciones)
     {
         var config = new Dictionary<string, string?>
         {
@@ -89,6 +93,95 @@ public sealed class ResumenIntegracionTests(ApiFactory factory)
             var sinNegocio = contenido.Contains("using System", StringComparison.Ordinal);
             var texto = sinNegocio ? LlmResumenBrain.Sentinel : $"Resumen de prueba de {rutaRelativa}.";
             return Task.FromResult<ResumenLlmResultado?>(new ResumenLlmResultado(texto, sinNegocio, tokensPorLlamada));
+        }
+    }
+
+    /// <summary>Sidecar de chat simulado para el <see cref="LlmResumenBrain"/> real (1.26): cuenta llamadas, sin red.</summary>
+    private sealed class SidecarLlm : HttpMessageHandler
+    {
+        private int _llamadas;
+
+        public int Llamadas => Volatile.Read(ref _llamadas);
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            Interlocked.Increment(ref _llamadas);
+            var json = JsonSerializer.Serialize(new
+            {
+                choices = new[] { new { message = new { content = "Pantalla de prueba: registra una accion de negocio." } } },
+                usage = new { total_tokens = 300 }
+            });
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            });
+        }
+    }
+
+    /// <summary>Mismo modelo, solo cambia <paramref name="maxTokens"/>: el caso que PromptVersion v1 no distinguia.</summary>
+    private static LlmResumenBrain BrainReal(SidecarLlm sidecar, int maxTokens) =>
+        new(new HttpClient(sidecar, disposeHandler: false) { BaseAddress = new Uri("http://sidecar-llm.invalid/") },
+            new LlmOptions { UrlBase = "http://sidecar-llm.invalid", Modelo = "qwen3.8-27b-fast", MaxTokens = maxTokens, EnableThinking = null },
+            NullLogger<LlmResumenBrain>.Instance);
+
+    private async Task<Dictionary<string, string>> VersionesDePromptPorRuta(string coleccion)
+    {
+        var puntos = await _qdrant.ScrollAsync(coleccion, limit: 100,
+            payloadSelector: new WithPayloadSelector { Enable = true },
+            vectorsSelector: new WithVectorsSelector { Enable = false });
+        return puntos.Result.ToDictionary(
+            p => p.Payload["relative_path"].StringValue,
+            p => p.Payload.TryGetValue("resumen_prompt_version", out var v) ? v.StringValue : "");
+    }
+
+    [RequiereMotorLocalFact]
+    public async Task CambiarMaxTokensDelMismoModeloNoRepiteLoYaResumidoYLoNuevoLlevaLaVersionNueva()
+    {
+        // 1.26: resumir con el perfil A, cambiar a B (mismo modelo, otro MaxTokens) y reingerir.
+        var coleccion = NuevaColeccion();
+        var sidecarA = new SidecarLlm();
+        var sidecarB = new SidecarLlm();
+        var brainA = BrainReal(sidecarA, maxTokens: 160);
+        var brainB = BrainReal(sidecarB, maxTokens: 4096);
+        Assert.Equal(brainA.ModelName, brainB.ModelName);
+        Assert.NotEqual(brainA.PromptVersion, brainB.PromptVersion);
+        try
+        {
+            using (var clienteA = Api(brainA, topeTokens: 100_000, coleccion).Cliente(TokenAna))
+            {
+                using var primera = await clienteA.PostJson($"/api/colecciones/{coleccion}/ingestas", CuerpoIngesta("a.md", DocA, resumen: true));
+                Assert.True(primera.IsSuccessStatusCode, $"{(int)primera.StatusCode}: {await primera.Content.ReadAsStringAsync()}");
+                Assert.Equal(1, (int)(await primera.Leer<JObject>())["resumenesGenerados"]!);
+            }
+            Assert.Equal(1, sidecarA.Llamadas);
+
+            using var clienteB = Api(brainB, topeTokens: 100_000, coleccion).Cliente(TokenAna);
+            using var segunda = await clienteB.PostJson($"/api/colecciones/{coleccion}/ingestas", new
+            {
+                origen = new
+                {
+                    tipo = "documentos",
+                    documentos = new[] { new { ruta = "a.md", contenido = DocA }, new { ruta = "b.md", contenido = DocB } }
+                },
+                resumen = true
+            });
+            Assert.True(segunda.IsSuccessStatusCode, $"{(int)segunda.StatusCode}: {await segunda.Content.ReadAsStringAsync()}");
+            var cuerpo = await segunda.Leer<JObject>();
+            Assert.Equal(1, (int)cuerpo["documentosSinCambios"]!);
+            Assert.Equal(1, (int)cuerpo["resumenesGenerados"]!);
+            Assert.Equal(0, (int)cuerpo["resumenesPendientes"]!);
+
+            // El chunk sin cambios no se vuelve a resumir (0 llamadas extra a A ni a B por el); solo el nuevo llama a B.
+            Assert.Equal(1, sidecarA.Llamadas);
+            Assert.Equal(1, sidecarB.Llamadas);
+
+            var versiones = await VersionesDePromptPorRuta(coleccion);
+            Assert.Equal(brainA.PromptVersion, versiones["a.md"]);
+            Assert.Equal(brainB.PromptVersion, versiones["b.md"]);
+        }
+        finally
+        {
+            await Borrar(coleccion);
         }
     }
 

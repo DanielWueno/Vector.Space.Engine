@@ -618,6 +618,15 @@ chunking + `dense` + `sparse-code`, sin cambios).
   resumidos no se repiten, pero la cache en memoria no se comparte entre modelos. Una coleccion puede tener chunks
   resumidos por modelos distintos (`resumen_modelo` en el payload de cada punto): el vector `dense-resumen` lo
   calcula siempre el mismo perfil de embeddings, asi que siguen siendo comparables.
+- **Version de prompt** (`resumen_prompt_version`, item 1.26): identifica la peticion completa, no solo el texto del
+  prompt. Es el hash (8 hex) de `v2|modelo|EnableThinking|MaxTokens|Temperatura|TopP|prompt de sistema`, con
+  formato invariante de cultura, `EnableThinking` como `null`/`true`/`false` (no enviarlo es otra peticion que
+  `false`) y el prompt con finales de linea LF (el mismo valor en un checkout Windows y en la imagen Linux). Dos
+  perfiles del mismo modelo con otro `max_tokens` o razonamiento dan versiones distintas y ya no comparten cache.
+  Hasta 1.26 el hash era `v1|modelo|prompt`: los puntos resumidos antes conservan su version v1 (tienen
+  `resumen_pending=false` y no se regeneran, 0 tokens); los chunks nuevos o cambiados llevan la v2, asi que una
+  coleccion puede tener ambas conviviendo, igual que puede tener dos modelos. Comparar resumenes entre versiones
+  de prompt distintas no es directo.
 - **Perfil de embeddings del resumen** (`Motor:Resumen:PerfilEmbeddings`): un nombre de perfil YA declarado en
   `Motor:Embeddings` (el por defecto o uno de `Motor:Embeddings:Perfiles`, 1.7.4). 1.7.3: bge-m3 1024d via
   AltheIA, **sin truncar** (bge-m3 no es Matryoshka, a diferencia del perfil por defecto arctic@256). Vacio
@@ -636,7 +645,8 @@ chunking + `dense` + `sparse-code`, sin cambios).
 - **Sentinel `SIN_CONTENIDO_DE_NEGOCIO`**: un chunk puramente tecnico (imports, boilerplate) no lleva vector de
   resumen (como el origen); su `resumen_pending` igual se apaga (ya se proceso, no vuelve a intentarse).
 - **Nombres literales en Qdrant** (fijados en el ledger): vector `dense-resumen`; payload `resumen_pending`
-  (bool), `resumen_modelo` (string) y `resumen_prompt_version` (string, hash de prompt+modelo); desde 1.20 tambien
+  (bool), `resumen_modelo` (string) y `resumen_prompt_version` (string, hash de prompt, modelo y muestreo desde
+  1.26; ver "Version de prompt" arriba); desde 1.20 tambien
   `resumen_texto` (payload, solo en chunks con `dense-resumen`) y `perfil_resumen` (metadata de la coleccion).
 - **Buscar sobre el resumen**: item 1.20, ver "Busqueda en el espacio resumen" arriba.
 - **Aislamiento de fallos**: una respuesta vacia del LLM para UN chunk se salta (aislado, recuperable en la

@@ -55,7 +55,10 @@ public sealed class QdrantVectorStore
     /// <summary>Modelo de LLM con el que se genero el resumen de este punto (distingue la cache si cambia el perfil).</summary>
     public const string ResumenModeloPayloadKey = "resumen_modelo";
 
-    /// <summary>Version del prompt de resumen (hash de prompt+modelo) con la que se genero este punto.</summary>
+    /// <summary>
+    /// Version de la peticion de resumen con la que se genero este punto: hash de prompt, modelo y parametros de
+    /// muestreo desde 1.26 (ver <c>LlmResumenBrain.ComputePromptVersion</c>); los puntos anteriores conservan la v1.
+    /// </summary>
     public const string ResumenPromptVersionPayloadKey = "resumen_prompt_version";
 
     /// <summary>
