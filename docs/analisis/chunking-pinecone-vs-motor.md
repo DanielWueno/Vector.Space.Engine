@@ -1,6 +1,7 @@
 # Chunking: estrategias del artículo de Pinecone frente a Vector.Space.Engine + Rag.VectorSpace.Client
 
-Fecha: 2026-11-11. Estado: **plan de Fase 2 aprobado como documento; nada implementado. Las fichas 1.23-1.29 siguen fuera del ledger hasta aprobación expresa.**
+Fecha: 2026-11-11. Estado: **plan de Fase 2 aprobado como documento. Las fichas 1.23-1.29 entraron al ledger rector el
+2026-11-12 con aprobación expresa del usuario; su avance se sigue allí, no en este documento.**
 Fuente del artículo: https://www.pinecone.io/learn/chunking-strategies/ (leído el 2026-11-11; el resumen obtenido no
 menciona solapamiento ni "parent document retrieval", solo "chunk expansion" como post-proceso).
 Rutas: `VSE/` = `D:\git\Vector.Space.Engine`, `Infra/` = `VSE/src/Reyma.VectorSpace.Engine.Microservice.Infrastructure`,
@@ -295,7 +296,9 @@ sobre arctic c1024, no heredar esa evidencia.
 
 1. **Hecho (2026-11-11):** este documento vive en `VSE/docs/analisis/chunking-pinecone-vs-motor.md` (carpeta nueva prevista por `workflow-agentes-ia.md:47,64`).
 2. **Hecho (2026-11-11):** el experimento se movió a `VSE/docs/evaluaciones/resumen-fast-vs-deep/` con su estructura original (`privado/`, `jueces/`, `jueces2/`; 27 archivos). Verificado antes de copiar: ningún archivo contiene claves ni cabeceras de autenticación; los scripts 02/05/06 leen `ALTHEIA_KEY`/`ALTHEIA_CERT` del entorno y escriben la cabecera en un archivo temporal que borran en `finally`. Sin commit: el usuario decide cuándo.
-3. **Pendiente de aprobación:** añadir al ledger rector las siete fichas 1.23 a 1.29 tal cual, todas `pendiente`, ninguna `en_curso`. Orden sugerido de ejecución: 1.28 (texto), 1.26 y 1.27 (correcciones del resumen, sin reingesta), simulación de 1.23, luego 1.24 → 1.25; 1.29 y el cambio de cliente de 1.23 después de cerrar 1.12.
+3. **Hecho (2026-11-12, aprobado por el usuario):** las siete fichas 1.23 a 1.29 entraron al ledger rector tal cual,
+   todas `pendiente`; 1.25 con `bloqueado_por` 1.24 y 1.29 con `bloqueado_por` 1.12. El usuario corrigió el tope diario
+   de AltheIA a 10 M tokens (no 1 M) y aprobó ejecutar 1.24. Orden sugerido de ejecución: 1.28 (texto), 1.26 y 1.27 (correcciones del resumen, sin reingesta), simulación de 1.23, luego 1.24 → 1.25; 1.29 y el cambio de cliente de 1.23 después de cerrar 1.12.
 
 ## Estado
 
@@ -303,7 +306,7 @@ sobre arctic c1024, no heredar esa evidencia.
 Estado: completada. Documento y experimento persistidos; fichas pendientes de entrar al ledger.
 
 ### Actividad: alta de fichas 1.23-1.29 en el ledger rector
-Estado: pendiente (requiere aprobación expresa del usuario).
+Estado: completada el 2026-11-12 (aprobación expresa del usuario).
 
 ## Changelog
 
@@ -311,3 +314,4 @@ Estado: pendiente (requiere aprobación expresa del usuario).
 - 2026-11-11 — [análisis] — hallazgos H1, H2, H3/H4/H6/H9 y H8 convertidos en fichas 1.26-1.29 a pedido del usuario — sin pruebas (no aplica).
 - 2026-11-11 — [docs/evaluaciones/resumen-fast-vs-deep] — experimento movido desde la carpeta personal, verificado sin claves — hashes comparados origen/destino.
 - 2026-11-11 — [docs/analisis/chunking-pinecone-vs-motor.md] — documento guardado en el repo del motor — sin commit.
+- 2026-11-12 — [docs/plan/ejecucion-plan.estado.json] — alta de las fichas 1.23-1.29 con aprobación del usuario — JSON validado.
