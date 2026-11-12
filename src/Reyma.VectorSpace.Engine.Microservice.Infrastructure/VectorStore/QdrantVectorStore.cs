@@ -13,14 +13,27 @@ using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Model;
 namespace Reyma.VectorSpace.Engine.Microservice.Infrastructure.VectorStore;
 
 /// <summary>
-/// Adaptador Qdrant portado de Rag.Context.Engine (Infrastructure/VectorStore/QdrantVectorStore.cs): mismo esquema de
-/// coleccion (vectores <c>dense</c> coseno y <c>sparse-code</c>, indice keyword de <c>defined_symbols</c>) y mismo
-/// payload por chunk, para que un punto escrito aqui sea el que escribiria aquel pipeline.
+/// Adaptador Qdrant portado de Rag.Context.Engine (Infrastructure/VectorStore/QdrantVectorStore.cs). Un punto escrito
+/// aqui lleva el mismo payload por chunk que escribiria aquel pipeline, mas lo que agrego cada item de este servicio.
 ///
-/// Cambios del porte, todos por el contrato de 1.3 (documentos por HTTP, una coleccion por tenant):
-/// sin vector <c>dense-resumen</c> ni <c>resumen_pending</c> (la fase de resumen LLM no se porta), sin <c>tenant</c> en el
-/// payload (la coleccion ya es el tenant), sin manifiesto; se agrega <c>document_fingerprint</c> e indice keyword de
-/// <c>file_path</c> para decidir por documento si cambio y para barrer sus puntos obsoletos sin recorrer la coleccion.
+/// Esquema de coleccion vigente:
+/// <list type="bullet">
+/// <item>Vectores: <c>dense</c> (coseno, perfil de embeddings de la coleccion) y <c>sparse-code</c>, siempre; ademas
+/// <c>dense-resumen</c> (coseno, perfil de <c>Motor:Resumen:PerfilEmbeddings</c>) solo si la coleccion se creo con
+/// resumen de negocio (1.7.7: no se puede agregar despues).</item>
+/// <item>Indices de payload: keyword en <c>defined_symbols</c>, <c>file_path</c> y los prefijos de modulo (1.21.1), e
+/// integer en su version.</item>
+/// <item>Metadata de coleccion (REST): perfil, modelo y dimension de embeddings (1.7.4), <c>resumen_habilitado</c>
+/// (1.7.7), <c>perfil_resumen</c> (1.20) y, en el perfil opt-in 1.12, <c>perfil_ingesta</c> y
+/// <c>repositorio_logico</c>.</item>
+/// <item>Payload del resumen (fase 2, <c>ResumenPipeline</c>): <c>resumen_pending</c> mientras falta resumir;
+/// <c>resumen_modelo</c> y <c>resumen_prompt_version</c> al procesarlo; <c>resumen_texto</c> solo junto con
+/// <c>dense-resumen</c> (1.20).</item>
+/// </list>
+///
+/// Diferencias con el origen, por el contrato de 1.3 (documentos por HTTP, una coleccion por tenant): sin <c>tenant</c>
+/// en el payload (la coleccion ya es el tenant) y sin manifiesto; <c>document_fingerprint</c> y el indice de
+/// <c>file_path</c> deciden por documento si cambio y barren sus puntos obsoletos sin recorrer la coleccion.
 /// </summary>
 public sealed class QdrantVectorStore
 {

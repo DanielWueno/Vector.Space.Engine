@@ -20,8 +20,9 @@ public sealed record PerfilDeIngesta(string Nombre, string RepositorioLogico)
     public static IReadOnlyList<PerfilIngestaInfoResponse> Catalogo { get; } =
     [
         new(RagLocal112,
-            "Fragmenta igual que el control rag-local de 1.12: chunks de 512 tokens con solape de 64, 5 lineas de " +
-            "contexto padre y division con solape de los chunks grandes (la ingesta nativa usa 1024 tokens). Los " +
+            "Fragmenta igual que el control rag-local de 1.12: chunks de 512 tokens con solape de 64 (la ingesta " +
+            "nativa usa 1024 tokens). Las 5 lineas de contexto padre y la division con solape del control solo " +
+            "forman parte de la huella del documento: no cambian el corte. Los " +
             "documentos quedan identificados por repositorioLogico en vez de por el nombre de la coleccion. No cambia " +
             "el perfil de embeddings ni el ranking. Se fija al crear la coleccion: omitirlo o cambiarlo despues responde 409.",
             RequiereRepositorioLogico: true)

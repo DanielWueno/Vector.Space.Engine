@@ -111,8 +111,12 @@ No son el campo `perfil` de embeddings ni cambian el modo de busqueda.
 Un perfil desconocido, tipo no textual, nombre blanco, de mas de128 caracteres
 o con separadores/caracteres de control responde400; un nombre sin perfil tambien.
 
-El opt-in reutiliza los chunkers/admisiones del servidor con512/64 tokens,
-lote32, contexto padre5 y SplitWithOverlap, sin declaraciones cortas. La cabecera
+El opt-in reutiliza los chunkers/admisiones del servidor con 512/64 tokens,
+lote 32 y sin declaraciones cortas. `ParentContextLines=5` y `SplitWithOverlap`
+(los valores del control) solo entran en la huella del documento
+(`document_fingerprint`, identidad del perfil): ninguna estrategia de chunking los
+lee, asi que no cambian el corte (1.28). El unico contexto padre real es la
+cabecera semantica de clase/namespace de cada chunk. La cabecera
 de ruta usa `\` como el control Windows; la identidad normaliza separadores.
 El nombre logico, no la coleccion fisica, identifica repositorio/documentos/chunks.
 El cliente sigue enviando documentos completos, nunca fragmentos preparados.
