@@ -324,9 +324,9 @@ def evaluar():
                 codigo = harness.ranking(da, ids, POOL, harness.MIN_SCORE)
                 sb = zb["docs"] @ qb[n]
                 orden_b = sorted(range(len(sb)), key=lambda k: (-float(sb[k]), ids[zb["indices"][k]]))[:POOL]
-                resumen = [int(zb["indices"][k]) for k in orden_b]
-                rangos = [{i: r for r, i in enumerate(codigo, start=1)}, {i: r for r, i in enumerate(resumen, start=1)}]
-                candidatos = set(codigo) | set(resumen)
+                rama_resumen = [int(zb["indices"][k]) for k in orden_b]
+                rangos = [{i: r for r, i in enumerate(codigo, start=1)}, {i: r for r, i in enumerate(rama_resumen, start=1)}]
+                candidatos = set(codigo) | set(rama_resumen)
                 puntaje = {i: sum(1.0 / (RRF_K + rg[i]) for rg in rangos if i in rg) for i in candidatos}
                 top["B"] = sorted(candidatos, key=lambda i: (-puntaje[i], ids[i]))[:harness.TOP_K]
                 hit = {k: harness.evaluar_item(it, v, chunks) for k, v in top.items()}

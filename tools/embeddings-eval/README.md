@@ -69,6 +69,19 @@ uv run --system-certs --no-project --python 3.12 --with tokenizers python expans
 uv run --system-certs --no-project --python 3.12 --with tokenizers python expansion.py resumen   # solo la tabla
 ```
 
+## Resumen dentro del chunk frente a espacio resumen (1.24)
+
+Resultado: [docs/evaluaciones/1.24/resultado.md](../../docs/evaluaciones/1.24/resultado.md). `resumen_en_chunk.py`
+genera resúmenes con la petición de `LlmResumenBrain` (AltheIA, `ALTHEIA_KEY`/`ALTHEIA_CERT` solo del entorno; los
+textos quedan en `.cache/embeddings-eval/resumenes/`), embebe por TEI (`VSE_TEI`, p. ej. el del servidor por túnel;
+`VSE_TEI_LOTE`) con puntos de control, y evalúa los brazos A/B/C/D.
+
+```powershell
+uv run --system-certs --no-project --python 3.12 --with numpy --with tokenizers python resumen_en_chunk.py generar
+$env:VSE_TEI = "http://127.0.0.1:8081"; uv run ... python resumen_en_chunk.py embeber
+uv run ... python resumen_en_chunk.py evaluar      # o 'resumen' para reimprimir la tabla
+```
+
 No lances dos `py.ps1` a la vez con distinto `VSE_LEGACY`: `uv` choca al preparar los entornos y el proceso
 termina con código 10.
 
