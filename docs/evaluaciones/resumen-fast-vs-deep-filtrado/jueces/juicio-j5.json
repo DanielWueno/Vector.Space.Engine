@@ -1,0 +1,5626 @@
+[
+  {
+    "par": "R001",
+    "negocio_visible": true,
+    "motivo_centinela": "Mapeo de fila a RegistroSellosPlanta: sin regla ni accion, pero enumera datos de dominio (serie, folios, estatus, planta, personal que registra/cancela); limite con boilerplate, se acepta resumen descriptivo.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Convierte un registro guardado de sello de planta en su ficha",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DRegistroSellosPlanta.cs:305-307"
+        },
+        {
+          "texto": "Incluye serie, folios inicial y final, estatus y folios consumidos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DRegistroSellosPlanta.cs:313-317"
+        },
+        {
+          "texto": "Incluye fechas de registro, termino, cancelacion y modificacion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DRegistroSellosPlanta.cs:318-325"
+        },
+        {
+          "texto": "Incluye usuario, terminal y borrado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DRegistroSellosPlanta.cs:323; ReyOneWeb/Reyma.Datos.Produccion/DRegistroSellosPlanta.cs:326-327"
+        },
+        {
+          "texto": "Incluye requisicion de material",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DRegistroSellosPlanta.cs:328-329"
+        },
+        {
+          "texto": "Incluye planta y personal que registra o cancela cuando existen",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DRegistroSellosPlanta.cs:331-363"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Convierte los datos de una fila en un objeto",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DRegistroSellosPlanta.cs:305-307"
+        },
+        {
+          "texto": "Detalla serie, folios inicial y final y estatus",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DRegistroSellosPlanta.cs:313-316"
+        },
+        {
+          "texto": "Incluye fechas de registro y de consumo",
+          "clase": "inventada",
+          "evidencia": ""
+        },
+        {
+          "texto": "Incluye plantas y personal involucrados en el registro o cancelacion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DRegistroSellosPlanta.cs:331-363"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona folios consumidos, fecha de cancelacion ni requisicion de material",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DRegistroSellosPlanta.cs:317; ReyOneWeb/Reyma.Datos.Produccion/DRegistroSellosPlanta.cs:322; ReyOneWeb/Reyma.Datos.Produccion/DRegistroSellosPlanta.cs:328-329"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "A es completamente fiel; B inventa una fecha de consumo inexistente."
+  },
+  {
+    "par": "R002",
+    "negocio_visible": true,
+    "motivo_centinela": "Parte de un mapeo de embarque: sin regla, pero muestra que datos de personal que embarca, vehiculo y remolque acompanan al embarque y que solo se cargan si existen.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Arma un embarque con el personal de embarque, su nombre y planta",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DEmbarqueDI.cs:764-776"
+        },
+        {
+          "texto": "Incluye el vehiculo principal con siglas, numero economico, placas y tipo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DEmbarqueDI.cs:778-794"
+        },
+        {
+          "texto": "Incluye el remolque si esta presente",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DEmbarqueDI.cs:795-811"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Asocia al embarque la informacion del personal a bordo (nombre y planta)",
+          "clase": "inventada",
+          "evidencia": ""
+        },
+        {
+          "texto": "Asocia el vehiculo principal (siglas, numero economico, placas y tipo)",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DEmbarqueDI.cs:778-794"
+        },
+        {
+          "texto": "Asocia el remolque (siglas, numero economico, placas y tipo)",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DEmbarqueDI.cs:795-811"
+        },
+        {
+          "texto": "Solo cuando los datos estan disponibles",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DEmbarqueDI.cs:764; ReyOneWeb/Reyma.Datos.Produccion/DEmbarqueDI.cs:778; ReyOneWeb/Reyma.Datos.Produccion/DEmbarqueDI.cs:795"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "B reinterpreta al personal que embarca como personal a bordo, sin respaldo; A es fiel."
+  },
+  {
+    "par": "R003",
+    "negocio_visible": true,
+    "motivo_centinela": "Consulta de consumos de sellos por embarque con la regla de excluir borrados.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Obtiene los consumos de sellos de planta vinculados a un numero de embarque",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DConsumoSellosPlanta.cs:399; ReyOneWeb/Reyma.Datos.Produccion/DConsumoSellosPlanta.cs:407"
+        },
+        {
+          "texto": "Solo los no borrados",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DConsumoSellosPlanta.cs:406"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Recupera la lista de registros asociados a un numero de embarque especifico",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DConsumoSellosPlanta.cs:399; ReyOneWeb/Reyma.Datos.Produccion/DConsumoSellosPlanta.cs:407"
+        },
+        {
+          "texto": "Solo registros activos, excluyendo los marcados como eliminados",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DConsumoSellosPlanta.cs:406"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos dicen lo mismo con igual fidelidad."
+  },
+  {
+    "par": "R004",
+    "negocio_visible": true,
+    "motivo_centinela": "Actualiza el tipo de cambio de los detalles (facturas) de compra precargada en una transaccion con reversion ante error.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Actualiza el tipo de cambio de cada detalle de la lista",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DCompraPrecargada.cs:870-875"
+        },
+        {
+          "texto": "Registra usuario y fecha/hora de modificacion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DCompraPrecargada.cs:876-878"
+        },
+        {
+          "texto": "Si ocurre un error se revierten todos los cambios",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DCompraPrecargada.cs:891-893"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Actualiza el tipo de cambio de cada detalle de compra precargada",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DCompraPrecargada.cs:870-875"
+        },
+        {
+          "texto": "Registra usuario y fecha y hora de modificacion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DCompraPrecargada.cs:876-878"
+        },
+        {
+          "texto": "Si alguna actualizacion falla revierte todos los cambios",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DCompraPrecargada.cs:891-893"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Contenido equivalente y fiel."
+  },
+  {
+    "par": "R005",
+    "negocio_visible": true,
+    "motivo_centinela": "Busqueda de compras precargadas por criterios; contenido de negocio minimo (consulta filtrada).",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Obtiene compras precargadas que coinciden con los criterios de busqueda",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DCompraPrecargada.cs:641-656"
+        },
+        {
+          "texto": "Si no hay criterios no agrega filtros",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DCompraPrecargada.cs:647-650"
+        },
+        {
+          "texto": "Devuelve las compras encontradas",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DCompraPrecargada.cs:654-658"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Recupera compras precargadas que cumplan los criterios de busqueda",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DCompraPrecargada.cs:641-656"
+        },
+        {
+          "texto": "Asigna el usuario actual para registrar la consulta",
+          "clase": "inventada",
+          "evidencia": ""
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "B atribuye al usuario un proposito de registro no visible; A ademas cubre el caso sin criterios."
+  },
+  {
+    "par": "R006",
+    "negocio_visible": true,
+    "motivo_centinela": "Mapeo de RegistroEventos: datos de dominio visibles (turno, observaciones, salida/llegada tarde, viaje y conductor) sin regla explicita; limite con boilerplate, se acepta resumen.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Convierte una fila en un registro con fecha, hora, usuario y terminal",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRegistroEventos.cs:544-557"
+        },
+        {
+          "texto": "Indica si hubo salida tarde o llegada tarde",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRegistroEventos.cs:564-567"
+        },
+        {
+          "texto": "La salida o llegada tarde es del empleado",
+          "clase": "inventada",
+          "evidencia": ""
+        },
+        {
+          "texto": "Asocia opcionalmente el viaje y los datos del conductor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRegistroEventos.cs:570-588"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona turno ni observaciones",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRegistroEventos.cs:559-563"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Convierte una fila en un registro con fecha, hora, turno, observaciones y auditoria",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRegistroEventos.cs:552-563"
+        },
+        {
+          "texto": "Incluye salidas o llegadas tardias",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRegistroEventos.cs:564-567"
+        },
+        {
+          "texto": "Si hay viaje, agrega conductor con nombre y numero de nomina",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRegistroEventos.cs:570-587"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "B es fiel y mas completo; A atribuye la tardanza a un empleado sin respaldo."
+  },
+  {
+    "par": "R007",
+    "negocio_visible": true,
+    "motivo_centinela": "Consulta base que liga ventas con su CFD (documento fiscal); dato de negocio minimo (venta, pedido, serie y folio de factura).",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Prepara una consulta de ventas vinculando cada venta con su CFD",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRecepcionFacturas.cs:275-286"
+        },
+        {
+          "texto": "Devuelve clave de venta, pedido, CFD, serie y folio",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRecepcionFacturas.cs:278-282"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Recupera ventas junto con serie y folio del documento fiscal asociado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRecepcionFacturas.cs:275-286"
+        },
+        {
+          "texto": "Vincula ambos registros por su identificador",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRecepcionFacturas.cs:286"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona el pedido de venta",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRecepcionFacturas.cs:279"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "Ambos fieles; A cubre todos los datos (incluido el pedido), B es mas legible pero omite el pedido."
+  },
+  {
+    "par": "R008",
+    "negocio_visible": true,
+    "motivo_centinela": "Parte del mapeo de viaje: conductor con empresa asignada y vehiculo con tipo y sucursal, cada uno condicionado a existir.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Al cargar un viaje registra al conductor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViaje.cs:2060-2066"
+        },
+        {
+          "texto": "Si existe, la empresa asignada con razon social y abreviatura",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViaje.cs:2068-2078"
+        },
+        {
+          "texto": "Registra el vehiculo con estatus, numero economico y siglas",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViaje.cs:2083-2091"
+        },
+        {
+          "texto": "Si existen, tipo de vehiculo y sucursal asignada",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViaje.cs:2093-2110"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Recupera datos del conductor con nombre y empresa asignada con razon social",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViaje.cs:2060-2078"
+        },
+        {
+          "texto": "Carga el vehiculo con estatus, numero economico, siglas, tipo y sucursal asignada",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViaje.cs:2083-2110"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No indica que cada dato se carga solo si existe",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViaje.cs:2068; ReyOneWeb/Reyma.Datos.Trafico/DViaje.cs:2093; ReyOneWeb/Reyma.Datos.Trafico/DViaje.cs:2102"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 1
+      }
+    },
+    "preferido": "A",
+    "motivo": "Ambos fieles; A conserva las condiciones y B no empieza con entidad seguida de dos puntos."
+  },
+  {
+    "par": "R009",
+    "negocio_visible": true,
+    "motivo_centinela": "Alta de siniestro con reglas visibles: viaje/conductor/imagen opcionales, vehiculo pasa a SINIESTRADO, transaccion con reversion; el cambio de viaje a DETENIDO no se persiste (llamada comentada).",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Al registrar un siniestro guarda estado, ruta y viaje si aplica",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:131-139"
+        },
+        {
+          "texto": "Marca el vehiculo como siniestrado y actualiza su estatus",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:163-167"
+        },
+        {
+          "texto": "Si ocurre un error revierte los cambios",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:172-175"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona conductor ni imagen opcionales",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:141-149"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Registra un siniestro con estado, ruta y, si existen, viaje, conductor e imagen",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:131-149"
+        },
+        {
+          "texto": "Cuando el viaje no tiene identificador lo marca como detenido",
+          "clase": "contradice",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:154-160"
+        },
+        {
+          "texto": "Actualiza el vehiculo a siniestrado guardando terminal y usuario",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:164-167"
+        },
+        {
+          "texto": "Lo hace de forma transaccional",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:151; ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:169; ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:175"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "B afirma que el viaje queda detenido, pero la actualizacion esta comentada y no se guarda; A es fiel aunque omite conductor e imagen."
+  },
+  {
+    "par": "R010",
+    "negocio_visible": true,
+    "motivo_centinela": "Mapeo de viaje para bancos: estatus, tipo, carga, conductor y vehiculo con tipo, condicionados a existir.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Arma un registro de viaje-pedido con estatus, tipo, fecha y hora de carga",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:1964-1981"
+        },
+        {
+          "texto": "Agrega conductor y vehiculo solo si existen",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:1985; ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:1999"
+        },
+        {
+          "texto": "Agrega el tipo de vehiculo si esta indicado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:2008-2014"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Convierte registros en objetos con estatus, tipo y fechas de carga del viaje",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:1971-1981"
+        },
+        {
+          "texto": "Vincula al conductor y al vehiculo con numero economico, siglas y tipo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:1985-2014"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No indica que conductor y vehiculo son opcionales",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:1985; ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:1999"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 1
+      }
+    },
+    "preferido": "A",
+    "motivo": "Ambos fieles; A conserva las condiciones y B no sigue el formato entidad + dos puntos."
+  },
+  {
+    "par": "R011",
+    "negocio_visible": true,
+    "motivo_centinela": "Consulta de detalles de infraccion: datos de motivo, importes (total, conductor, empresa), estatus, quien registra y quien cancela.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Obtiene los detalles asociados a una infraccion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DInfracciones.cs:630-653"
+        },
+        {
+          "texto": "Muestra motivo, importe e importes de conductor y empresa",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DInfracciones.cs:640-643"
+        },
+        {
+          "texto": "Muestra estatus, borrado y datos de modificacion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DInfracciones.cs:633-637; ReyOneWeb/Reyma.Datos.Trafico/DInfracciones.cs:644"
+        },
+        {
+          "texto": "Muestra personal que registra y, si existe, personal que cancela",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DInfracciones.cs:645-657"
+        },
+        {
+          "texto": "Ordena por identificador de detalle descendente",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DInfracciones.cs:659"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Obtiene los detalles de una infraccion con motivo, importes y estado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DInfracciones.cs:630-644"
+        },
+        {
+          "texto": "Vincula al personal que registro y opcionalmente al que cancelo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DInfracciones.cs:645-657"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No distingue el importe a cargo del conductor y de la empresa",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DInfracciones.cs:642-643"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "Ambos fieles; A distingue los importes de conductor y empresa."
+  },
+  {
+    "par": "R012",
+    "negocio_visible": true,
+    "motivo_centinela": "Consulta de rendimiento de conductores: promedio km/litro real y Cummins por conductor a partir de liquidaciones.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Consulta el rendimiento de conductores vinculados a viajes, empresa y sucursal",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs:3380-3403"
+        },
+        {
+          "texto": "Calcula promedios de kilometros por litro consumido y por litro Cummins",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs:3390-3391"
+        },
+        {
+          "texto": "Incluye numero de nomina, fotografia y nombre completo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs:3385-3388"
+        },
+        {
+          "texto": "Agrupa por conductor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs:3405"
+        },
+        {
+          "texto": "Ordena por nombre segun el parametro de pagina recibido",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs:3406"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Consulta el rendimiento de cada conductor con promedio real y Cummins de km por litro",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs:3390-3391"
+        },
+        {
+          "texto": "Agrupa por sus datos personales",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs:3405"
+        },
+        {
+          "texto": "Ordena alfabeticamente",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs:3406"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "Ambos fieles; A es mas completo (datos del conductor y vinculos)."
+  },
+  {
+    "par": "R013",
+    "negocio_visible": true,
+    "motivo_centinela": "Consulta de rutas con la regla de excluir las borradas.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Recupera la lista de rutas no marcadas como eliminadas",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRutas.cs:174; ReyOneWeb/Reyma.Datos.Trafico/DRutas.cs:185"
+        },
+        {
+          "texto": "Registra el usuario que realiza la consulta",
+          "clase": "inventada",
+          "evidencia": ""
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Recupera la lista de rutas no marcadas como borradas",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRutas.cs:174; ReyOneWeb/Reyma.Datos.Trafico/DRutas.cs:185"
+        },
+        {
+          "texto": "Usa el usuario indicado para la consulta",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRutas.cs:180"
+        },
+        {
+          "texto": "Devuelve unicamente esas rutas",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRutas.cs:190-194"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "A atribuye un registro del usuario que no aparece; B es fiel."
+  },
+  {
+    "par": "R014",
+    "negocio_visible": true,
+    "motivo_centinela": "Consulta del seguimiento de siniestros: observaciones, fecha, estatus y personal que registra, del mas reciente al mas antiguo.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Recupera el historial de seguimientos realizados sobre un siniestro",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:762; ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:767; ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:784-785"
+        },
+        {
+          "texto": "Incluye quien lo registro, cuando y con que observaciones",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:776-780"
+        },
+        {
+          "texto": "Se vincula con el siniestro principal",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:784-785"
+        },
+        {
+          "texto": "Incluye datos completos del personal responsable",
+          "clase": "inventada",
+          "evidencia": ""
+        },
+        {
+          "texto": "Ordena por lo mas reciente",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:789"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona el estatus del seguimiento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:778"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 2,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Obtiene registros de seguimiento con usuario, terminal, fecha y hora de modificacion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:770-773"
+        },
+        {
+          "texto": "Incluye observaciones, estatus y nombre del personal que registra",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:776-780"
+        },
+        {
+          "texto": "Los vincula con el siniestro y con el personal que registra",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:784-787"
+        },
+        {
+          "texto": "Ordena del mas reciente al mas antiguo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs:789"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "B es fiel y completo; A afirma datos completos del personal cuando solo se trae el nombre."
+  },
+  {
+    "par": "R015",
+    "negocio_visible": true,
+    "motivo_centinela": "Parte del mapeo de evento: vehiculo con tipo, ruta con origen y destino, cada uno solo si existe.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Arma el viaje con vehiculo y su tipo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRegistroEventos.cs:590-607"
+        },
+        {
+          "texto": "Arma la ruta con ciudades de origen y destino",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRegistroEventos.cs:610-634"
+        },
+        {
+          "texto": "Solo cuando esos datos existen",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRegistroEventos.cs:590; ReyOneWeb/Reyma.Datos.Trafico/DRegistroEventos.cs:600; ReyOneWeb/Reyma.Datos.Trafico/DRegistroEventos.cs:610; ReyOneWeb/Reyma.Datos.Trafico/DRegistroEventos.cs:618; ReyOneWeb/Reyma.Datos.Trafico/DRegistroEventos.cs:627"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Asocia al viaje el vehiculo con siglas, numero economico y tipo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRegistroEventos.cs:590-607"
+        },
+        {
+          "texto": "Define la ruta con ciudades de origen y destino",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRegistroEventos.cs:610-634"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No indica que los datos se cargan solo si existen",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DRegistroEventos.cs:590; ReyOneWeb/Reyma.Datos.Trafico/DRegistroEventos.cs:610"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "Ambos fieles; A conserva la condicion de existencia."
+  },
+  {
+    "par": "R016",
+    "negocio_visible": true,
+    "motivo_centinela": "Parte del mapeo de viaje-pedido: remolque, remolque adicional y ruta con origen/destino, condicionados a existir.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Asigna al viaje, cuando existen, remolque y remolque adicional con identificacion, siglas y numero economico",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:1178-1199"
+        },
+        {
+          "texto": "Define la ruta con ciudad de origen y de destino",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:1204-1225"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Recupera remolque principal, remolque adicional y ruta",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:1178-1225"
+        },
+        {
+          "texto": "Para cada uno almacena identificador, siglas o numero economico y ciudades de origen y destino",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:1182-1224"
+        },
+        {
+          "texto": "Solo si la informacion existe",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:1178; ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:1191; ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:1204"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 1
+      }
+    },
+    "preferido": "A",
+    "motivo": "Contenido similar; B mezcla atributos de remolques y ruta de forma confusa y no inicia con entidad seguida de dos puntos."
+  },
+  {
+    "par": "R017",
+    "negocio_visible": true,
+    "motivo_centinela": "Alta de renglones de orden de compra con identificador unico, estatus 1 y cantidades, precios, impuestos, descuentos y referencias.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Asigna un identificador unico a cada linea",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DOrdenCompra.cs:186-188"
+        },
+        {
+          "texto": "Guarda cada linea con estatus activo",
+          "clase": "inventada",
+          "evidencia": ""
+        },
+        {
+          "texto": "Guarda cantidades solicitadas y surtidas, precios, impuestos y descuentos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DOrdenCompra.cs:200-221"
+        },
+        {
+          "texto": "Guarda referencias a producto, proveedor y centro de costo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DOrdenCompra.cs:216; ReyOneWeb/Reyma.Datos.Trafico/DOrdenCompra.cs:223-225"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Prepara los renglones de una orden de compra asignando identificador unico",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DOrdenCompra.cs:182-188"
+        },
+        {
+          "texto": "Asigna estatus 1",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DOrdenCompra.cs:195"
+        },
+        {
+          "texto": "Registra cantidades solicitadas, surtidas y compradas, precios, descuentos e impuestos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DOrdenCompra.cs:200-221"
+        },
+        {
+          "texto": "Registra producto, gestion de proveedor, area y centro de costo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DOrdenCompra.cs:216; ReyOneWeb/Reyma.Datos.Trafico/DOrdenCompra.cs:223-225"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "B es literal y fiel; A interpreta el estatus 1 como activo sin respaldo."
+  },
+  {
+    "par": "R018",
+    "negocio_visible": true,
+    "motivo_centinela": "Alta de recepciones de facturas al guardar una liquidacion: identificador por secuencia, personal que recepciona, pedido, CFD, estatus AC.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Al guardar una liquidacion agrega cada recepcion de factura de viajes preliquidados",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs:192; ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs:198-231"
+        },
+        {
+          "texto": "Asigna identificador unico",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs:208"
+        },
+        {
+          "texto": "Guarda usuario, terminal, personal que recibe, pedido de venta, factura, observaciones y estado AC",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs:214-228"
+        },
+        {
+          "texto": "Marca la recepcion como no borrada con fecha y hora actuales",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs:216-220"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Al guardar la liquidacion registra recepciones de facturas de viajes preliquidados",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs:192; ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs:198-231"
+        },
+        {
+          "texto": "Asigna identificador unico",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs:208"
+        },
+        {
+          "texto": "Marca su estatus como activo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs:228"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona pedido, factura ni personal que recepciona",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs:219; ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs:224-225"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "Ambos fieles; A cubre los datos registrados."
+  },
+  {
+    "par": "R019",
+    "negocio_visible": true,
+    "motivo_centinela": "Alta de concepto de check de conductor con identificador por secuencia, nombre, descripcion y auditoria, con reversion ante error.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Al crear un concepto se asigna un identificador unico",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DConceptosCheckConductor.cs:75"
+        },
+        {
+          "texto": "Se guarda nombre, descripcion y datos de auditoria",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DConceptosCheckConductor.cs:81-88"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona la reversion ante error",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DConceptosCheckConductor.cs:97-100"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Al registrar un concepto se asigna un identificador unico",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DConceptosCheckConductor.cs:75"
+        },
+        {
+          "texto": "Se guarda nombre, descripcion y datos de auditoria",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DConceptosCheckConductor.cs:81-88"
+        },
+        {
+          "texto": "Si falla se revierte la operacion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DConceptosCheckConductor.cs:97-100"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "Ambos fieles; B incluye la reversion ante error."
+  },
+  {
+    "par": "R020",
+    "negocio_visible": true,
+    "motivo_centinela": "Consulta de una caseta por su identificador; contenido de negocio minimo (devuelve la caseta o nada).",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Busca la caseta cuyo identificador coincide con el indicado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DCasetas.cs:163-169"
+        },
+        {
+          "texto": "La devuelve si existe; si no, no devuelve ninguna",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DCasetas.cs:172-179"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Recupera los detalles de una caseta por su identificador",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DCasetas.cs:163-169"
+        },
+        {
+          "texto": "Devuelve la informacion o indica que no existe si no hay coincidencia",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DCasetas.cs:172-179"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Contenido equivalente y fiel."
+  },
+  {
+    "par": "R021",
+    "negocio_visible": true,
+    "motivo_centinela": "Guarda detalles nuevos (identificador, tipo de evento, dia, hora, turno, colonia, km, estatus AC) y actualiza los modificados de un plan de ruta urbano dentro de una transaccion.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Asigna identificadores unicos a los detalles nuevos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DPlanesRutasUrbanos.cs:442-444"
+        },
+        {
+          "texto": "Actualiza la informacion de los detalles existentes modificados",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DPlanesRutasUrbanos.cs:475-483"
+        },
+        {
+          "texto": "Cada registro almacena tipo de evento, dia, hora, turno, colonia, descripcion y kilometraje",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DPlanesRutasUrbanos.cs:461-467"
+        },
+        {
+          "texto": "Lo vincula al plan principal",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DPlanesRutasUrbanos.cs:460"
+        },
+        {
+          "texto": "Lo marca como activo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DPlanesRutasUrbanos.cs:468"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona el personal que registra",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DPlanesRutasUrbanos.cs:457"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Guarda y actualiza los detalles de un plan de ruta urbano de forma conjunta",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DPlanesRutasUrbanos.cs:437-483"
+        },
+        {
+          "texto": "Para los nuevos asigna identificador y registra tipo de evento, dia, hora, turno, colonia, descripcion, kilometraje, estado AC y auditoria",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DPlanesRutasUrbanos.cs:442-468"
+        },
+        {
+          "texto": "Para los modificados actualiza su informacion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DPlanesRutasUrbanos.cs:475-483"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona el personal que registra",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DPlanesRutasUrbanos.cs:457"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "Contenido equivalente; A no empieza con entidad seguida de dos puntos."
+  },
+  {
+    "par": "R022",
+    "negocio_visible": false,
+    "motivo_centinela": "Solo define los campos de una consulta base (llaves de viaje y pedido, auditoria); no hay dato de negocio ni regla mas alla de la relacion, correspondia el centinela.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Define los campos recuperados de cada registro de viaje pedido",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:625-637"
+        },
+        {
+          "texto": "Incluye identificadores del viaje y de la venta",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:631-632"
+        },
+        {
+          "texto": "Incluye auditoria: fecha, hora, usuario, terminal y borrado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:633-637"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Define la consulta base del registro de viaje pedido",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:625-637"
+        },
+        {
+          "texto": "Incluye identificador, viaje asociado, pedido de venta y auditoria",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs:630-637"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos describen fielmente un fragmento tecnico que correspondia al centinela."
+  },
+  {
+    "par": "R023",
+    "negocio_visible": true,
+    "motivo_centinela": "Alta en lote de movimientos de prenomina: identificador, dias = fin - inicio + 1, concepto, conductor, personal, estatus; transaccion con reversion.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Guarda en lote nuevos movimientos de prenomina",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DMovimientosPrenomina.cs:175-207"
+        },
+        {
+          "texto": "Asigna identificador unico",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DMovimientosPrenomina.cs:184"
+        },
+        {
+          "texto": "Calcula los dias entre fechas inicial y final",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DMovimientosPrenomina.cs:194"
+        },
+        {
+          "texto": "Registra concepto, conductor, personal que registra, estatus y auditoria",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DMovimientosPrenomina.cs:190-202"
+        },
+        {
+          "texto": "Si falla revierte todo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DMovimientosPrenomina.cs:211-213"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Registra una lista de nuevos movimientos de prenomina",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DMovimientosPrenomina.cs:175-207"
+        },
+        {
+          "texto": "Asigna automaticamente identificador unico",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DMovimientosPrenomina.cs:184"
+        },
+        {
+          "texto": "Calcula la cantidad de dias entre inicio y termino",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DMovimientosPrenomina.cs:194"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona concepto, conductor, estatus ni la reversion ante error",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DMovimientosPrenomina.cs:190-197; ReyOneWeb/Reyma.Datos.Trafico/DMovimientosPrenomina.cs:211-213"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "Ambos fieles; A cubre los datos y la reversion."
+  },
+  {
+    "par": "R024",
+    "negocio_visible": false,
+    "motivo_centinela": "Metodo vacio que devuelve una lista sin consultar nada; no hay contenido de negocio.",
+    "A": {
+      "afirmaciones": [],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos usan correctamente el centinela."
+  },
+  {
+    "par": "R025",
+    "negocio_visible": false,
+    "motivo_centinela": "Solo declara un campo de persistencia y una constante de alias; boilerplate.",
+    "A": {
+      "afirmaciones": [],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos usan correctamente el centinela."
+  },
+  {
+    "par": "R026",
+    "negocio_visible": true,
+    "motivo_centinela": "Consulta de parametros de trafico con criterios y regla de solo activos y no borrados.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Recupera la lista de parametros de trafico activos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DParametros.cs:172"
+        },
+        {
+          "texto": "Excluye los eliminados",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DParametros.cs:173"
+        },
+        {
+          "texto": "Aplica los criterios de busqueda proporcionados",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DParametros.cs:169-170"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Obtiene los parametros que cumplen los criterios aplicados",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DParametros.cs:169-170"
+        },
+        {
+          "texto": "Se limita a los activos y no eliminados",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DParametros.cs:172-173"
+        },
+        {
+          "texto": "Para el usuario indicado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DParametros.cs:165"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Contenido equivalente y fiel."
+  },
+  {
+    "par": "R027",
+    "negocio_visible": true,
+    "motivo_centinela": "Entidad de embarque con datos de dominio (fechas de embarque/recepcion/cancelacion, pesos, kilos, viajes, compra, silo, planta, personal, vehiculo, conductor); sin regla, pero describe que datos tiene el embarque.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Registra estatus, fechas y horas de embarque, recepcion y cancelacion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Produccion/EmbarqueDI.cs:17-22"
+        },
+        {
+          "texto": "Registra pesos y kilos embarcados y recibidos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Produccion/EmbarqueDI.cs:23-27"
+        },
+        {
+          "texto": "Registra numero de viaje, usuario y terminal de modificacion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Produccion/EmbarqueDI.cs:28-33"
+        },
+        {
+          "texto": "Incluye vinculos a compra precargada, silo, planta destino, personal, vehiculo, remolque y conductor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Produccion/EmbarqueDI.cs:35-43"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Almacena estado, fechas y horas de embarque, recepcion y cancelacion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Produccion/EmbarqueDI.cs:17-22"
+        },
+        {
+          "texto": "Registra pesos bruto, neto y tara y kilos embarcados y recibidos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Produccion/EmbarqueDI.cs:23-27"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona los vinculos con compra, planta destino, vehiculo y conductor",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Produccion/EmbarqueDI.cs:35-43"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "Ambos fieles; A cubre tambien las relaciones del embarque."
+  },
+  {
+    "par": "R028",
+    "negocio_visible": true,
+    "motivo_centinela": "Entidad de detalle de compra precargada con datos de dominio (factura, hopper, importe, tipo de cambio, kilos facturados/recibidos, liberacion) y campos solo para reporte.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Detalla la recepcion de materia prima",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Produccion/CompraPrecargadaDetalle.cs:19; ReyOneWeb/Reyma.Entidades.Produccion/CompraPrecargadaDetalle.cs:32-33"
+        },
+        {
+          "texto": "Vincula factura, proveedor y hopper",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Produccion/CompraPrecargadaDetalle.cs:15-16; ReyOneWeb/Reyma.Entidades.Produccion/CompraPrecargadaDetalle.cs:45"
+        },
+        {
+          "texto": "Almacena kilos facturados versus recibidos, tipo de cambio, estatus y fechas de embarque y liberacion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Produccion/CompraPrecargadaDetalle.cs:18-25; ReyOneWeb/Reyma.Entidades.Produccion/CompraPrecargadaDetalle.cs:44"
+        },
+        {
+          "texto": "Sirve para el control logistico",
+          "clase": "inventada",
+          "evidencia": ""
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Guarda factura, hopper, importes, tipo de cambio, fechas de recepcion y liberacion, kilos facturados y recibidos, estatus y auditoria",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Produccion/CompraPrecargadaDetalle.cs:15-30"
+        },
+        {
+          "texto": "Relaciona compra, materia prima, personal, empresa y proveedor de transporte",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Produccion/CompraPrecargadaDetalle.cs:31-34; ReyOneWeb/Reyma.Entidades.Produccion/CompraPrecargadaDetalle.cs:45"
+        },
+        {
+          "texto": "Incluye campos para el reporte de compras de materia prima",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Produccion/CompraPrecargadaDetalle.cs:39-46"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "B es literal y completo; A agrega un proposito de control logistico no visible."
+  },
+  {
+    "par": "R029",
+    "negocio_visible": true,
+    "motivo_centinela": "Entidad de compra precargada: fechas de compra y precarga, estatus, proveedor, planta espuela y personal de precarga.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Almacena fecha de compra y precarga y estatus",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Produccion/CompraPrecargada.cs:12-14"
+        },
+        {
+          "texto": "Almacena datos de auditoria",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Produccion/CompraPrecargada.cs:15-19"
+        },
+        {
+          "texto": "Referencia proveedor, planta espuela y personal responsable de la precarga",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Produccion/CompraPrecargada.cs:20-22"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Guarda identificador, fechas de compra y precarga y estatus",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Produccion/CompraPrecargada.cs:11-14"
+        },
+        {
+          "texto": "Incluye auditoria, proveedor, planta espuela y personal de precarga",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Produccion/CompraPrecargada.cs:15-22"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Contenido equivalente y fiel."
+  },
+  {
+    "par": "R030",
+    "negocio_visible": true,
+    "motivo_centinela": "Entidad que relaciona ruta y caseta con una cantidad; contenido de negocio minimo.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Guarda la cantidad vinculada a una ruta y una caseta",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/RutasCasetas.cs:13-15"
+        },
+        {
+          "texto": "Guarda fecha, hora, usuario, terminal y borrado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/RutasCasetas.cs:16-20"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Define la estructura de la relacion entre ruta y caseta con la cantidad",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/RutasCasetas.cs:13-15"
+        },
+        {
+          "texto": "Incluye metadatos de auditoria",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/RutasCasetas.cs:16-20"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "Mismo contenido; A lo dice en lenguaje de negocio y B con terminos tecnicos (estructura, metadatos)."
+  },
+  {
+    "par": "R031",
+    "negocio_visible": false,
+    "motivo_centinela": "Solo propiedades genericas de catalogo (identificador, clave, nombre, estatus) y auditoria, sin relaciones ni reglas: getters/setters triviales, correspondia el centinela.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Define la estructura de un tipo de siniestro con identificador, clave, nombre y estatus",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/TipoSiniestro.cs:12-15"
+        },
+        {
+          "texto": "Incluye auditoria de quien, desde que terminal, cuando y si fue eliminado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/TipoSiniestro.cs:16-20"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Define el registro de un tipo de siniestro con identificador, clave, nombre y estatus",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/TipoSiniestro.cs:12-15"
+        },
+        {
+          "texto": "Incluye usuario, terminal, fecha y hora de modificacion y marca de borrado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/TipoSiniestro.cs:16-20"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos describen fielmente propiedades triviales que correspondian al centinela."
+  },
+  {
+    "par": "R032",
+    "negocio_visible": true,
+    "motivo_centinela": "Parte de la entidad de plan de ruta urbano: nombre, sucursal, estatus, personal y fechas de registro/cancelacion; kilometros y tiempo de recorrido quedan fuera del fragmento.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Ficha de plan de ruta urbana con identificacion, nombre, sucursal y estatus",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/PlanesRutasUrbanos.cs:12; ReyOneWeb/Reyma.Entidades.Trafico/PlanesRutasUrbanos.cs:24-26"
+        },
+        {
+          "texto": "Incluye kilometros y tiempo de recorrido",
+          "clase": "codigo",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/PlanesRutasUrbanos.cs:27-28"
+        },
+        {
+          "texto": "Registra auditoria, personal que registra o cancela y fechas de registro o cancelacion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/PlanesRutasUrbanos.cs:13-22"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Define la estructura de un plan de ruta urbana con su nombre",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/PlanesRutasUrbanos.cs:26"
+        },
+        {
+          "texto": "Incluye distancia en kilometros y tiempo estimado de recorrido",
+          "clase": "codigo",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/PlanesRutasUrbanos.cs:27-28"
+        },
+        {
+          "texto": "Incluye estado actual",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/PlanesRutasUrbanos.cs:25"
+        },
+        {
+          "texto": "Registra quien lo creo o cancelo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/PlanesRutasUrbanos.cs:19-20"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona sucursal ni fechas de registro y cancelacion",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/PlanesRutasUrbanos.cs:21-24"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 2,
+        "utilidad_negocio": 1,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "Ambos citan campos fuera del fragmento; A cubre mas (sucursal, fechas) y usa lenguaje menos tecnico."
+  },
+  {
+    "par": "R033",
+    "negocio_visible": true,
+    "motivo_centinela": "Entidad de seguimiento de siniestro: observaciones, estatus, personal y fecha de registro, siniestro, banderas de estado de edicion.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Almacena usuario, terminal, fecha y hora de modificacion y borrado logico",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/SeguimientoSiniestros.cs:13-17"
+        },
+        {
+          "texto": "Almacena observaciones y estatus",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/SeguimientoSiniestros.cs:21-22"
+        },
+        {
+          "texto": "Tiene banderas de nuevo, modificado o eliminado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/SeguimientoSiniestros.cs:23-25"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona el personal que registra ni la fecha de registro",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/SeguimientoSiniestros.cs:18-19"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Registro de seguimiento de un siniestro con observaciones y estatus",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/SeguimientoSiniestros.cs:20-22"
+        },
+        {
+          "texto": "Incluye auditoria y la persona que lo registra",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/SeguimientoSiniestros.cs:13-18"
+        },
+        {
+          "texto": "Indica si es nuevo, modificado o eliminado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/SeguimientoSiniestros.cs:23-25"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "Ambos fieles; B incluye a la persona que registra y la liga con el siniestro."
+  },
+  {
+    "par": "R034",
+    "negocio_visible": true,
+    "motivo_centinela": "Metodo de negocio que delega la actualizacion del tipo de cambio de detalles de compra precargada; accion visible minima.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Delega la actualizacion del tipo de cambio para una lista de detalles de compra",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Produccion/NCompraPrecargada.cs:195-199"
+        },
+        {
+          "texto": "Registra al usuario responsable",
+          "clase": "codigo",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Produccion/DCompraPrecargada.cs:876"
+        },
+        {
+          "texto": "Propaga cualquier error",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Produccion/NCompraPrecargada.cs:201-203"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Establece el tipo de cambio para los detalles de compra precargada usando el usuario indicado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Produccion/NCompraPrecargada.cs:195-199"
+        },
+        {
+          "texto": "Reenvia el mensaje de error si falla",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Produccion/NCompraPrecargada.cs:201-203"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "B se limita al fragmento; A afirma el registro del usuario, que ocurre en la capa de datos."
+  },
+  {
+    "par": "R035",
+    "negocio_visible": true,
+    "motivo_centinela": "Consulta de detalles de compras pendientes de confirmar (estatus PR) por planta.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Obtiene detalles de compras pendientes de confirmar en estatus PR",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Produccion/NCompraPrecargada.cs:167; ReyOneWeb/Reyma.Negocio.Produccion/NCompraPrecargada.cs:172-176"
+        },
+        {
+          "texto": "Para una planta y un usuario",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Produccion/NCompraPrecargada.cs:172"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Recupera detalles de compras pendientes de confirmar en estatus Precargadas (PR)",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Produccion/NCompraPrecargada.cs:167; ReyOneWeb/Reyma.Negocio.Produccion/NCompraPrecargada.cs:172-176"
+        },
+        {
+          "texto": "Para una planta y usuario especificos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Produccion/NCompraPrecargada.cs:172"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Contenido equivalente y fiel."
+  },
+  {
+    "par": "R036",
+    "negocio_visible": true,
+    "motivo_centinela": "Consulta para reporte de compras directas filtrada por criterios, plantas y proveedores; accion visible minima.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Recupera compras directas para un reporte filtrando por criterios, plantas y proveedores",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Produccion/NCompraDirecta.cs:99-103"
+        },
+        {
+          "texto": "Registra al usuario que realiza la consulta",
+          "clase": "inventada",
+          "evidencia": ""
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Obtiene los elementos del reporte de compras directas segun criterios, plantas, proveedores y usuario",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Produccion/NCompraDirecta.cs:99-103"
+        },
+        {
+          "texto": "Propaga cualquier error",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Produccion/NCompraDirecta.cs:105-107"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "A atribuye un registro del usuario sin respaldo; B es fiel."
+  },
+  {
+    "par": "R037",
+    "negocio_visible": true,
+    "motivo_centinela": "Regla de negocio clara: limite de liquidaciones pendientes por jurisdiccion de trafico de la sucursal del usuario (variable LIQPEN) y dias maximos para liquidar un viaje (DIASLIQ); la validacion falla si se alcanza el limite o hay viajes vencidos.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Valida si un conductor puede procesar nuevos gastos",
+          "clase": "inventada",
+          "evidencia": ""
+        },
+        {
+          "texto": "Verifica que no supere el limite de liquidaciones pendientes permitido por jurisdiccion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NViajesGastos.cs:206-213; ReyOneWeb/Reyma.Negocio.Trafico/NViajesGastos.cs:225-226"
+        },
+        {
+          "texto": "Verifica que ningun viaje exceda la antiguedad maxima configurada para su liquidacion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NViajesGastos.cs:222-233"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No indica que basta con alcanzar el limite para fallar ni lo que devuelve (folios que exceden)",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NViajesGastos.cs:225; ReyOneWeb/Reyma.Negocio.Trafico/NViajesGastos.cs:236"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 2,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Valida liquidaciones pendientes de un conductor con limite por jurisdiccion y dias maximos para liquidar",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NViajesGastos.cs:198-223"
+        },
+        {
+          "texto": "Si las pendientes alcanzan el limite o hay viajes con fecha anterior al limite, la validacion falla",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NViajesGastos.cs:225-233"
+        },
+        {
+          "texto": "Devuelve estado, limites, pendientes y folios que exceden",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NViajesGastos.cs:236"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "B es fiel y completo; A inventa que la validacion es para procesar gastos (se usa al programar embarques y modificar viajes)."
+  },
+  {
+    "par": "R038",
+    "negocio_visible": true,
+    "motivo_centinela": "Accion de negocio minima: modificar un concepto de nomina (delegacion).",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Modifica un concepto de nomina",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NConceptoNomina.cs:64-71"
+        },
+        {
+          "texto": "Si falla reporta el mismo mensaje de error",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NConceptoNomina.cs:73-75"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Permite actualizar un concepto de nomina existente",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NConceptoNomina.cs:64-71"
+        },
+        {
+          "texto": "Propaga cualquier error",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NConceptoNomina.cs:73-75"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Contenido equivalente y fiel."
+  },
+  {
+    "par": "R039",
+    "negocio_visible": true,
+    "motivo_centinela": "Delegacion con accion de negocio visible: consultar viajes por lista de estatus y jurisdiccion de trafico; no es boilerplate puro.",
+    "A": {
+      "afirmaciones": [],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 1,
+        "cobertura": 0,
+        "utilidad_negocio": 0,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Obtiene los viajes que coinciden con los estatus y la jurisdiccion de trafico solicitados para el usuario",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NViaje.cs:294-298"
+        },
+        {
+          "texto": "Si la consulta falla propaga el mensaje de error",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NViaje.cs:300-302"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "A usa el centinela aunque el fragmento expone un filtro de negocio (estatus y jurisdiccion); B lo describe fielmente."
+  },
+  {
+    "par": "R040",
+    "negocio_visible": true,
+    "motivo_centinela": "Accion de negocio minima: alta de ruta local con sus estaciones (delegacion).",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Agrega una ruta local con sus estaciones de detalle",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NRutaLocal.cs:83-87"
+        },
+        {
+          "texto": "Devuelve un numero",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NRutaLocal.cs:83; ReyOneWeb/Reyma.Negocio.Trafico/NRutaLocal.cs:87"
+        },
+        {
+          "texto": "Si ocurre un error lo propaga",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NRutaLocal.cs:89-91"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Registra una nueva ruta local con sus estaciones",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NRutaLocal.cs:83-87"
+        },
+        {
+          "texto": "Delega a la capa de datos y propaga cualquier error",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NRutaLocal.cs:87-91"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Contenido equivalente y fiel."
+  },
+  {
+    "par": "R041",
+    "negocio_visible": true,
+    "motivo_centinela": "Consulta de detalles de una liquidacion por su identificador (delegacion).",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Recupera la lista de detalles de una liquidacion a partir de su identificador y el usuario",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NLiquidacion.cs:186-195"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Recupera los detalles de una liquidacion mediante su identificador",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NLiquidacion.cs:186-195"
+        },
+        {
+          "texto": "Valida el acceso con el usuario indicado",
+          "clase": "inventada",
+          "evidencia": ""
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "B inventa una validacion de acceso; A es fiel."
+  },
+  {
+    "par": "R042",
+    "negocio_visible": true,
+    "motivo_centinela": "Consulta de registros de eventos por criterios (delegacion).",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Recupera los eventos que cumplen los criterios de busqueda",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NRegistroEventos.cs:120-129"
+        },
+        {
+          "texto": "Valida la operacion bajo el contexto del usuario",
+          "clase": "inventada",
+          "evidencia": ""
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Obtiene los registros de eventos que coinciden con los criterios para un usuario",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NRegistroEventos.cs:120-129"
+        },
+        {
+          "texto": "Si la consulta falla se detiene y reporta el error",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NRegistroEventos.cs:131-133"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "A inventa una validacion por usuario; B es fiel."
+  },
+  {
+    "par": "R043",
+    "negocio_visible": true,
+    "motivo_centinela": "Accion de negocio minima: eliminar una prenomina (delegacion; el comentario dice modificar pero el metodo elimina).",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Elimina un elemento de prenomina",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NPrenomina.cs:108-112"
+        },
+        {
+          "texto": "Detiene la operacion si hay un error",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NPrenomina.cs:114-116"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Elimina un elemento de la prenomina",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NPrenomina.cs:108-112"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos fieles; la propagacion del error que agrega A no aporta valor de negocio."
+  },
+  {
+    "par": "R044",
+    "negocio_visible": true,
+    "motivo_centinela": "Accion de negocio minima: carga masiva de polizas con la fecha actual (delegacion).",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Registra un lote de multiples polizas",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NPoliza.cs:40-44"
+        },
+        {
+          "texto": "Usa la fecha actual como referencia",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NPoliza.cs:40; ReyOneWeb/Reyma.Negocio.Trafico/NPoliza.cs:44"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Registra en masa varias polizas con la fecha actual",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NPoliza.cs:40-44"
+        },
+        {
+          "texto": "Si no puede completar la carga detiene y devuelve el mensaje de error",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NPoliza.cs:46-48"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Contenido equivalente y fiel."
+  },
+  {
+    "par": "R045",
+    "negocio_visible": true,
+    "motivo_centinela": "Accion de negocio minima: modificar ruta local con sus estaciones (delegacion).",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Actualiza una ruta local y sus estaciones",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NRutaLocal.cs:100-104"
+        },
+        {
+          "texto": "Si falla muestra el mensaje de error",
+          "clase": "inventada",
+          "evidencia": ""
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Permite actualizar una ruta y sus estaciones asociadas",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NRutaLocal.cs:100-104"
+        },
+        {
+          "texto": "Propaga cualquier error",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NRutaLocal.cs:106-108"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "El fragmento solo relanza el error; A afirma que se muestra."
+  },
+  {
+    "par": "R046",
+    "negocio_visible": true,
+    "motivo_centinela": "Accion de negocio minima: alta de recepciones de facturas de una liquidacion (delegacion); el bloque comentado no aplica.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Agrega elementos de recepcion de facturas para una liquidacion y un usuario",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NRecepcionFacturas.cs:74-78"
+        },
+        {
+          "texto": "Devuelve la lista resultante",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NRecepcionFacturas.cs:74; ReyOneWeb/Reyma.Negocio.Trafico/NRecepcionFacturas.cs:78"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Registra nuevos elementos de recepcion de facturas asociados a una liquidacion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NRecepcionFacturas.cs:74-78"
+        },
+        {
+          "texto": "Identifica al usuario responsable",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NRecepcionFacturas.cs:74"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Contenido equivalente y fiel."
+  },
+  {
+    "par": "R047",
+    "negocio_visible": true,
+    "motivo_centinela": "Accion de negocio minima: modificar un registro de eventos (delegacion).",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Actualiza la informacion de un evento registrado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NRegistroEventos.cs:86-94"
+        },
+        {
+          "texto": "Delega a la capa de datos y propaga errores",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NRegistroEventos.cs:94-98"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Actualiza el registro de eventos indicado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NRegistroEventos.cs:86-94"
+        },
+        {
+          "texto": "Si falla se detiene y reporta el error",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Negocio.Trafico/NRegistroEventos.cs:96-98"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Contenido equivalente y fiel."
+  },
+  {
+    "par": "R048",
+    "negocio_visible": false,
+    "motivo_centinela": "El fragmento solo declara la propiedad NombreCompleto de un DTO de respuesta (getter/setter trivial); FechaNacimiento esta fuera del fragmento.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Define la informacion personal devuelta con el nombre completo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Trafico.Negocio/Models/Responses/Backbone/PersonalResponse.cs:18-19"
+        },
+        {
+          "texto": "Incluye la fecha de nacimiento",
+          "clase": "codigo",
+          "evidencia": "ReyOneWeb/Reyma.Trafico.Negocio/Models/Responses/Backbone/PersonalResponse.cs:25"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Define el campo de nombre completo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Trafico.Negocio/Models/Responses/Backbone/PersonalResponse.cs:18-19"
+        },
+        {
+          "texto": "Define el campo de fecha de nacimiento",
+          "clase": "codigo",
+          "evidencia": "ReyOneWeb/Reyma.Trafico.Negocio/Models/Responses/Backbone/PersonalResponse.cs:25"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos resumen un DTO trivial e incluyen un campo fuera del fragmento."
+  },
+  {
+    "par": "R049",
+    "negocio_visible": false,
+    "motivo_centinela": "Propiedades triviales de un DTO de respuesta (observaciones y fecha de pedido); DomicilioEntrega esta fuera del fragmento.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Describe datos devueltos de un pedido de venta: observaciones y fecha del pedido",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Trafico.Negocio/Models/Responses/Procesos/Viajes/PedidoVentaResponse.cs:19-26"
+        },
+        {
+          "texto": "Incluye domicilio de entrega",
+          "clase": "codigo",
+          "evidencia": "ReyOneWeb/Reyma.Trafico.Negocio/Models/Responses/Procesos/Viajes/PedidoVentaResponse.cs:31"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Define observaciones y fecha del pedido asociados a una venta",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Trafico.Negocio/Models/Responses/Procesos/Viajes/PedidoVentaResponse.cs:19-26"
+        },
+        {
+          "texto": "Define el domicilio de entrega",
+          "clase": "codigo",
+          "evidencia": "ReyOneWeb/Reyma.Trafico.Negocio/Models/Responses/Procesos/Viajes/PedidoVentaResponse.cs:31"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos resumen un DTO trivial e incluyen un campo fuera del fragmento."
+  },
+  {
+    "par": "R050",
+    "negocio_visible": true,
+    "motivo_centinela": "Alta de incidencia de conductor con reglas explicitas: conductor obligatorio, fecha no futura, al menos una evidencia; registra fecha del servidor y persona que registra y guarda evidencias.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Valida que se haya seleccionado un conductor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Trafico.Negocio/Commands/Handlers/Procesos/Monitoreo/CreateIncidenciaCommandHandler.cs:49-50"
+        },
+        {
+          "texto": "Valida que la fecha no sea futura",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Trafico.Negocio/Commands/Handlers/Procesos/Monitoreo/CreateIncidenciaCommandHandler.cs:52-53"
+        },
+        {
+          "texto": "Valida que exista al menos una evidencia adjunta",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Trafico.Negocio/Commands/Handlers/Procesos/Monitoreo/CreateIncidenciaCommandHandler.cs:55-56"
+        },
+        {
+          "texto": "Guarda la incidencia con la fecha del servidor y el usuario registrado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Trafico.Negocio/Commands/Handlers/Procesos/Monitoreo/CreateIncidenciaCommandHandler.cs:58-63"
+        },
+        {
+          "texto": "Inserta cada archivo de evidencia asociado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Trafico.Negocio/Commands/Handlers/Procesos/Monitoreo/CreateIncidenciaCommandHandler.cs:65-69"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Exige un conductor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Trafico.Negocio/Commands/Handlers/Procesos/Monitoreo/CreateIncidenciaCommandHandler.cs:49-50"
+        },
+        {
+          "texto": "Exige una fecha no futura",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Trafico.Negocio/Commands/Handlers/Procesos/Monitoreo/CreateIncidenciaCommandHandler.cs:52-53"
+        },
+        {
+          "texto": "Exige al menos un archivo adjunto",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Trafico.Negocio/Commands/Handlers/Procesos/Monitoreo/CreateIncidenciaCommandHandler.cs:55-56"
+        },
+        {
+          "texto": "Registra la incidencia con la fecha actual y el usuario conectado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Trafico.Negocio/Commands/Handlers/Procesos/Monitoreo/CreateIncidenciaCommandHandler.cs:58-63"
+        },
+        {
+          "texto": "Guarda sus evidencias",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/Reyma.Trafico.Negocio/Commands/Handlers/Procesos/Monitoreo/CreateIncidenciaCommandHandler.cs:65-69"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Contenido equivalente, fiel y completo."
+  },
+  {
+    "par": "R051",
+    "negocio_visible": true,
+    "motivo_centinela": "Consulta de vehiculos de trafico con regla de exclusion por estatus (baja, robado, vendido, autofinanciamiento) y grupos de trabajo del usuario.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Consulta los vehiculos registrados en trafico",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPagosGPS.aspx.cs:437-461"
+        },
+        {
+          "texto": "Excluye estatus baja, robado, vendido o autofinanciamiento",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPagosGPS.aspx.cs:449-458"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona el filtrado por usuario y grupos de trabajo",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPagosGPS.aspx.cs:443-447; ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPagosGPS.aspx.cs:461"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 3,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Consulta los vehiculos registrados en trafico para el usuario",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPagosGPS.aspx.cs:443; ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPagosGPS.aspx.cs:461"
+        },
+        {
+          "texto": "Excluye estatus baja, robado, vendido o autofinanciamiento",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPagosGPS.aspx.cs:449-458"
+        },
+        {
+          "texto": "Considera sus grupos de trabajo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPagosGPS.aspx.cs:446-447; ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPagosGPS.aspx.cs:461"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "Ambos fieles; B cubre grupos de trabajo y respeta el formato (A no empieza con entidad seguida de dos puntos)."
+  },
+  {
+    "par": "R052",
+    "negocio_visible": true,
+    "motivo_centinela": "Carga de conductores con reglas: solo activos y de la jurisdiccion de trafico del usuario; destino filtro o selector.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Carga conductores activos de la jurisdiccion de trafico del usuario actual",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRolesMonitoreo.aspx.cs:986-1007"
+        },
+        {
+          "texto": "Los ordena alfabeticamente",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRolesMonitoreo.aspx.cs:1011"
+        },
+        {
+          "texto": "Los muestra en el filtro o en el campo de seleccion segun el contexto",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRolesMonitoreo.aspx.cs:1016-1032"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Carga conductores activos cuya jurisdiccion coincide con la del usuario",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRolesMonitoreo.aspx.cs:986-1007"
+        },
+        {
+          "texto": "Si es para el filtro los agrega al combo del filtro; si no, al selector de conductor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRolesMonitoreo.aspx.cs:1016-1032"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Contenido equivalente y fiel; la diferencia (orden alfabetico) es menor."
+  },
+  {
+    "par": "R053",
+    "negocio_visible": false,
+    "motivo_centinela": "Evento de UI que limpia, recarga y enlaza controles de una ventana emergente; no hay dato ni regla de negocio.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Al responder la ventana emergente limpia campos, carga elementos, inicializa datos y actualiza la grilla de detalle",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/LiquidacionRutaLocal.aspx.cs:60-65"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Al abrir la ventana emergente limpia campos, recarga elementos y actualiza la tabla de detalles",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/LiquidacionRutaLocal.aspx.cs:60-65"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos describen fielmente codigo de interfaz que correspondia al centinela."
+  },
+  {
+    "par": "R054",
+    "negocio_visible": false,
+    "motivo_centinela": "Solo la declaracion de una clase creadora de correos; boilerplate sin contenido de negocio.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Define el creador de correos para el calculo de prenomina con el modelo PrenominaModel",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Emails/Factory/ConcreteEmailsCreators/CalculoPrenominaCreator.cs:14"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Define la estructura base para generar correos del calculo de prenomina con un modelo de datos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Emails/Factory/ConcreteEmailsCreators/CalculoPrenominaCreator.cs:14"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos describen la declaracion, que correspondia al centinela."
+  },
+  {
+    "par": "R055",
+    "negocio_visible": true,
+    "motivo_centinela": "Guardado masivo que asigna la ruta local a cada rol-turno.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Al confirmar cambios masivos oculta el aviso",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRolesTurnos.aspx.cs:149-151"
+        },
+        {
+          "texto": "Actualiza la ruta local asignada a cada rol-turno con su identificador y el nuevo valor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRolesTurnos.aspx.cs:153-155"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Al guardar los cambios oculta cualquier alerta previa",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRolesTurnos.aspx.cs:149-151"
+        },
+        {
+          "texto": "Actualiza la ruta local asignada a cada rol de turno segun su identificador",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRolesTurnos.aspx.cs:153-155"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Contenido equivalente y fiel."
+  },
+  {
+    "par": "R056",
+    "negocio_visible": true,
+    "motivo_centinela": "Regla visible de semaforo de rendimiento: umbrales 3.3, 3.2, 3 y 1 para rendimiento, Cummins y conduccion.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Resalta con colores las celdas de Rendimiento, Rendimiento_Cummins y RendimientoConduccion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorRendimientos.aspx.cs:129-202"
+        },
+        {
+          "texto": "Verde si es 3.3 o mas, verde lima si 3.2 o mas, amarillo si 3 o mas, rojo si 1 o mas",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorRendimientos.aspx.cs:135-152"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Aplica codigo de colores a las celdas de rendimiento general, Cummins y conduccion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorRendimientos.aspx.cs:129-202"
+        },
+        {
+          "texto": "Verde >= 3.3, verde lima >= 3.2, amarillo >= 3, rojo >= 1",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorRendimientos.aspx.cs:135-152"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Contenido equivalente, fiel y completo."
+  },
+  {
+    "par": "R057",
+    "negocio_visible": true,
+    "motivo_centinela": "Actualizacion de verificaciones ambientales estatales del vehiculo por periodo y anio actual: si existe, modifica el folio o la elimina si no hay valor.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Actualiza las verificaciones ambientales estatales de un vehiculo para el anio actual segun el periodo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorVerificaciones.aspx.cs:465-475; ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorVerificaciones.aspx.cs:490-493"
+        },
+        {
+          "texto": "Si la verificacion existe la modifica con el nuevo valor o la elimina si no hay valor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorVerificaciones.aspx.cs:477-483; ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorVerificaciones.aspx.cs:495-498"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Actualiza el estatus de las verificaciones ambientales estatales del vehiculo",
+          "clase": "contradice",
+          "evidencia": "ReyOneWeb/Reyma.Datos.Trafico/DVerificacion.cs:166-177"
+        },
+        {
+          "texto": "Modifica o elimina segun existencia previa y valor ingresado para cada periodo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorVerificaciones.aspx.cs:472-483; ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorVerificaciones.aspx.cs:490-498"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona que aplica al anio actual",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorVerificaciones.aspx.cs:475"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "B dice que se actualiza el estatus, pero lo que se modifica es el folio de verificacion; A es fiel e incluye el anio actual."
+  },
+  {
+    "par": "R058",
+    "negocio_visible": true,
+    "motivo_centinela": "Sincroniza en edicion por lote el detalle de tarjeta de sellos (quita eliminados, agrega nuevos con fecha, turno, colonia, hora, descripcion, km, tipo de evento); dato de negocio visible, sin regla propia.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "En edicion por lote quita de la lista los registros marcados como eliminados",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/TarjetaSellos.aspx.cs:468-482"
+        },
+        {
+          "texto": "Agrega los nuevos registros",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/TarjetaSellos.aspx.cs:484-500"
+        },
+        {
+          "texto": "Cada nuevo incluye fecha, turno, colonia, hora, descripcion, kilometraje y tipo de evento",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/TarjetaSellos.aspx.cs:489-496"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Al procesar cambios en lote elimina las filas marcadas como eliminadas",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/TarjetaSellos.aspx.cs:468-482"
+        },
+        {
+          "texto": "Anade las nuevas con fecha, turno, colonia, hora, descripcion, kilometraje y tipo de evento",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/TarjetaSellos.aspx.cs:484-500"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 1
+      }
+    },
+    "preferido": "A",
+    "motivo": "Contenido equivalente; B no empieza con entidad seguida de dos puntos."
+  },
+  {
+    "par": "R059",
+    "negocio_visible": false,
+    "motivo_centinela": "Page_Load que enlaza la grilla solo en la primera carga; mecanica de interfaz sin dato ni regla de negocio.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Al abrir la pantalla por primera vez carga la lista de conceptos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoConceptos.aspx.cs:25-26"
+        },
+        {
+          "texto": "No la vuelve a cargar tras una accion del usuario",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoConceptos.aspx.cs:25"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Carga la lista de conceptos de gasto solo en la primera visita",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoConceptos.aspx.cs:23; ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoConceptos.aspx.cs:25-26"
+        },
+        {
+          "texto": "Evita recargar cuando el usuario interactua",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoConceptos.aspx.cs:25"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos describen fielmente codigo de interfaz que correspondia al centinela."
+  },
+  {
+    "par": "R060",
+    "negocio_visible": false,
+    "motivo_centinela": "Lista de nombres de columnas de una grilla; configuracion de interfaz sin regla de negocio.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Define las columnas de la tabla de vehiculos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/OrdenTrabajo.aspx.cs:184-202"
+        },
+        {
+          "texto": "Incluye tipo, sucursal, placas y los estados de mecanica, estatal y federal",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/OrdenTrabajo.aspx.cs:189-201"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "Omite economico, siglas y la columna Zero",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/OrdenTrabajo.aspx.cs:190-191; ReyOneWeb/ReyOneWeb/Trafico/Procesos/OrdenTrabajo.aspx.cs:194-195"
+        }
+      ],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Define columnas de identificacion, tipo, economico, siglas, sucursal y placas",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/OrdenTrabajo.aspx.cs:188-193"
+        },
+        {
+          "texto": "Incluye columnas de cero, mecanica, estatal y federal con sus indicadores",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/OrdenTrabajo.aspx.cs:194-201"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "B",
+    "motivo": "Ambos debieron usar el centinela; B describe las columnas de forma completa."
+  },
+  {
+    "par": "R061",
+    "negocio_visible": true,
+    "motivo_centinela": "Opciones de periodo para filtrar eventos: mes actual, dos meses, tres meses o anio actual, hasta la fecha del servidor.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Al elegir un periodo calcula la fecha inicial segun la opcion (mes actual, dos, tres meses o anio actual)",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRegistroEventos.aspx.cs:103-117"
+        },
+        {
+          "texto": "La fecha final es la fecha del servidor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRegistroEventos.aspx.cs:101"
+        },
+        {
+          "texto": "Devuelve ambas fechas separadas por coma",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRegistroEventos.aspx.cs:119"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Al seleccionar un rango calcula la fecha inicial (mes actual, dos, tres meses o anio actual)",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRegistroEventos.aspx.cs:103-117"
+        },
+        {
+          "texto": "Fija la fecha final en el dia de hoy",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRegistroEventos.aspx.cs:101"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Contenido equivalente y fiel."
+  },
+  {
+    "par": "R062",
+    "negocio_visible": false,
+    "motivo_centinela": "Funcion utilitaria de fechas (primer dia del mes de hace dos meses); calculo tecnico sin regla de negocio propia.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Calcula el primer dia del mes de dos meses antes de la fecha actual en formato dd/MM/yyyy",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRegistroEventos.aspx.cs:127-130"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Calcula el primer dia del mes de dos meses antes de la fecha indicada en formato dia/mes/anio",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRegistroEventos.aspx.cs:127-130"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos fieles y equivalentes; correspondia el centinela."
+  },
+  {
+    "par": "R063",
+    "negocio_visible": true,
+    "motivo_centinela": "Guardado masivo del catalogo de conceptos de nomina: alta de nuevos y actualizacion de existentes; accion visible minima.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Al confirmar cambios procesa en lote conceptos nuevos y modificados",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoConceptosNomina.aspx.cs:184-192"
+        },
+        {
+          "texto": "Inserta cada concepto nuevo y actualiza cada existente",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoConceptosNomina.aspx.cs:187-192"
+        },
+        {
+          "texto": "Marca la operacion como atendida",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoConceptosNomina.aspx.cs:194"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Procesa las modificaciones masivas de la interfaz",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoConceptosNomina.aspx.cs:184"
+        },
+        {
+          "texto": "Inserta nuevos conceptos y actualiza los existentes",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoConceptosNomina.aspx.cs:187-192"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Contenido equivalente y fiel."
+  },
+  {
+    "par": "R064",
+    "negocio_visible": false,
+    "motivo_centinela": "Generador de identificador temporal (ultimo + 1 o 1) para filas en memoria; logica tecnica sin contenido de negocio.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Genera un identificador temporal para nuevos registros del detalle",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/TarjetaSellos.aspx.cs:760-764"
+        },
+        {
+          "texto": "Asigna 1 si no hay entradas o incrementa en uno el ultimo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/TarjetaSellos.aspx.cs:767-774"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Asigna un numero provisional al siguiente detalle con el ultimo mas uno",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/TarjetaSellos.aspx.cs:767-771"
+        },
+        {
+          "texto": "Si no hay detalles inicia en uno",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/TarjetaSellos.aspx.cs:773-774"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos fieles y equivalentes; correspondia el centinela."
+  },
+  {
+    "par": "R065",
+    "negocio_visible": true,
+    "motivo_centinela": "Reglas de modificacion del tipo de siniestro: cambio solo de estatus permitido; cambio simultaneo de nombre y estatus bloqueado; cambio de nombre solo si no existe otro con esa clave o nombre.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Solo permite modificar el estatus si el nombre permanece igual",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoTipoSiniestro.aspx.cs:102-103"
+        },
+        {
+          "texto": "Si se intenta cambiar ambos campos bloquea y muestra error para evitar inconsistencias",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoTipoSiniestro.aspx.cs:105-106"
+        },
+        {
+          "texto": "Si el nuevo nombre ya existe en otro registro bloquea y muestra error",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoTipoSiniestro.aspx.cs:109-117"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Solo actualiza el estatus cuando el nombre permanece igual",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoTipoSiniestro.aspx.cs:102-103"
+        },
+        {
+          "texto": "Si se modifican nombre y estatus a la vez impide guardar por riesgo de inconsistencia",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoTipoSiniestro.aspx.cs:105-106"
+        },
+        {
+          "texto": "Si cambia solo el nombre comprueba que no exista otro con esa clave o nombre y, si no existe, aplica la modificacion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoTipoSiniestro.aspx.cs:109-115"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos fieles y completos; difieren solo en enfasis (A el error, B la ruta permitida)."
+  },
+  {
+    "par": "R066",
+    "negocio_visible": true,
+    "motivo_centinela": "Preparacion del formulario de documento de vehiculo: alta con fecha actual; edicion con datos del documento (fecha, titulo, descripcion, vehiculo); fecha de vigencia deshabilitada.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Al abrir limpia y carga los campos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoVehiculoDocumentos.aspx.cs:86-87"
+        },
+        {
+          "texto": "Si es alta fija la fecha actual",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoVehiculoDocumentos.aspx.cs:89-93"
+        },
+        {
+          "texto": "Si es edicion recupera el documento y completa fecha, titulo, descripcion y vehiculo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoVehiculoDocumentos.aspx.cs:95-108"
+        },
+        {
+          "texto": "Deshabilita la fecha de vigencia y valida los campos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoVehiculoDocumentos.aspx.cs:110-112"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Si la opcion es nuevo se limpia la tabla",
+          "clase": "contradice",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoVehiculoDocumentos.aspx.cs:86; ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoVehiculoDocumentos.aspx.cs:91"
+        },
+        {
+          "texto": "Si es nuevo se establece la fecha actual",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoVehiculoDocumentos.aspx.cs:92"
+        },
+        {
+          "texto": "Si es modificacion se carga la informacion del documento seleccionado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoVehiculoDocumentos.aspx.cs:95-108"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona la fecha de vigencia deshabilitada",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoVehiculoDocumentos.aspx.cs:110"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "B confunde quitar la seleccion de la grilla con limpiar la tabla; A es fiel y completo."
+  },
+  {
+    "par": "R067",
+    "negocio_visible": false,
+    "motivo_centinela": "Asignacion de origen de datos de una grilla desde sesion; mecanica de interfaz sin contenido de negocio.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Al mostrar la lista de conceptos de captura toma los conceptos de ruta guardados temporalmente",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoDetallesRuta.aspx.cs:212-214"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Vincula la lista de conceptos de la sesion como fuente de datos de la interfaz",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoDetallesRuta.aspx.cs:212-214"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos fieles; correspondia el centinela."
+  },
+  {
+    "par": "R068",
+    "negocio_visible": true,
+    "motivo_centinela": "Seleccion de prenominas: solo abiertas, de la jurisdiccion de trafico del usuario y cuyo ultimo calculo no exista o no este en estatus AC (activo).",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Al abrir la ventana limpia los campos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/CalculoPrenomina.aspx.cs:510"
+        },
+        {
+          "texto": "Carga las prenominas abiertas de la jurisdiccion de trafico del usuario",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/CalculoPrenomina.aspx.cs:514-529"
+        },
+        {
+          "texto": "Excluye las que tienen su ultimo calculo en estado AC",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/CalculoPrenomina.aspx.cs:540-541"
+        },
+        {
+          "texto": "Muestra sucursal y fechas",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/CalculoPrenomina.aspx.cs:544-550"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Carga en el selector las prenominas abiertas de la jurisdiccion del usuario",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/CalculoPrenomina.aspx.cs:514-529; ReyOneWeb/ReyOneWeb/Trafico/Procesos/CalculoPrenomina.aspx.cs:551-552"
+        },
+        {
+          "texto": "Excluye las que tienen su ultimo calculo ya aprobado",
+          "clase": "contradice",
+          "evidencia": "ReyOneWeb/Reyma.Entidades.Trafico/Enumeracion/EnumeracionTrafico.cs:299-302"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 1,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 1
+      }
+    },
+    "preferido": "A",
+    "motivo": "B interpreta AC como aprobado cuando es ACTIVO y no sigue el formato; A es fiel."
+  },
+  {
+    "par": "R069",
+    "negocio_visible": false,
+    "motivo_centinela": "Asignacion de origen de datos de una grilla desde sesion; mecanica de interfaz sin contenido de negocio.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Toma la informacion de viajes pedidos guardada durante la visita para llenar la tabla",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/Monitoreo.aspx.cs:1251-1255"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Vincula los datos de viajes y pedidos de la sesion con la tabla",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/Monitoreo.aspx.cs:1251-1255"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos fieles; correspondia el centinela."
+  },
+  {
+    "par": "R070",
+    "negocio_visible": true,
+    "motivo_centinela": "Alta y actualizacion de roles de ruta local: alta con vehiculo, conductor, sucursal y personal del usuario; actualizacion buscando el rol por vehiculo y fecha.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Gestiona la creacion y actualizacion de asignaciones de roles urbanos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRolesRutaLocal.aspx.cs:146-176"
+        },
+        {
+          "texto": "Al registrar vincula vehiculo y conductor a la sucursal del usuario actual",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRolesRutaLocal.aspx.cs:160-171"
+        },
+        {
+          "texto": "Al actualizar modifica los datos segun vehiculo y fecha",
+          "clase": "codigo",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRolesRutaLocal.aspx.cs:186-190; ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRolesRutaLocal.aspx.cs:201"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Al crear registra un rol con vehiculo, conductor, sucursal del usuario, usuario y terminal",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRolesRutaLocal.aspx.cs:160-171"
+        },
+        {
+          "texto": "Al actualizar consulta el rol por vehiculo y fecha",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRolesRutaLocal.aspx.cs:175-190"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "B se ciñe al fragmento y respeta el formato; A afirma la modificacion, que ocurre fuera del fragmento, y no empieza con entidad seguida de dos puntos."
+  },
+  {
+    "par": "R071",
+    "negocio_visible": true,
+    "motivo_centinela": "Al exportar el reporte de bonos traduce los codigos de estatus a Vigente, Cerrado o Cancelado; dato de negocio minimo (estatus del bono).",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Al exportar el reporte de bonos la columna Estatus convierte los codigos a Vigente, Cerrado o Cancelado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptBonos.aspx.cs:717-729"
+        },
+        {
+          "texto": "Solo aplica a filas de datos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptBonos.aspx.cs:719-720"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Al exportar convierte los codigos internos de estatus en Vigente, Cerrado o Cancelado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptBonos.aspx.cs:717-729"
+        },
+        {
+          "texto": "Para que aparezcan correctamente en el documento final",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptBonos.aspx.cs:717"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Contenido equivalente y fiel."
+  },
+  {
+    "par": "R072",
+    "negocio_visible": true,
+    "motivo_centinela": "Carga masiva de polizas con reglas: invalidas si vienen marcadas, si el anio de vencimiento no es mayor al de renovacion, si el vehiculo se repite en el lote o si ya existe registro; las validas se guardan con la fecha del servidor y las invalidas van a un libro de Excel.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Valida que la fecha de vencimiento sea posterior a la de renovacion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPolizas.aspx.cs:455-456"
+        },
+        {
+          "texto": "Elimina duplicados por vehiculo y registros repetidos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPolizas.aspx.cs:467-484"
+        },
+        {
+          "texto": "Las polizas validas se registran",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPolizas.aspx.cs:486-487"
+        },
+        {
+          "texto": "Las invalidas se exportan a un archivo de trabajo para revision",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPolizas.aspx.cs:490-491"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "La regla compara anios (vencimiento debe ser de un anio mayor), no fechas; omite las marcadas como invalidas",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPolizas.aspx.cs:452-456"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 2,
+        "utilidad_negocio": 3,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Separa validas e invalidas por estado, fechas de vencimiento y renovacion, vehiculos duplicados o registros repetidos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPolizas.aspx.cs:450-484"
+        },
+        {
+          "texto": "Las validas se cargan masivamente con la fecha del servidor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPolizas.aspx.cs:446; ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPolizas.aspx.cs:486-487"
+        },
+        {
+          "texto": "Las invalidas se generan en un archivo de trabajo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPolizas.aspx.cs:490-491"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "B cubre todos los motivos de invalidez sin simplificar la regla de fechas y respeta el formato."
+  },
+  {
+    "par": "R073",
+    "negocio_visible": false,
+    "motivo_centinela": "Formato de exportacion (fecha dd/MM y centrado de columnas); presentacion sin contenido de negocio.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Al exportar, la fecha se muestra en dia/mes/anio y centrada",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/CalculoPrenomina.aspx.cs:493-497"
+        },
+        {
+          "texto": "El conductor tambien se centra",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/CalculoPrenomina.aspx.cs:499-500"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Al exportar, la columna Fecha se muestra en dia/mes/anio y centrada",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/CalculoPrenomina.aspx.cs:493-497"
+        },
+        {
+          "texto": "La columna Conductor tambien se centra",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/CalculoPrenomina.aspx.cs:499-500"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos fieles y equivalentes; correspondia el centinela."
+  },
+  {
+    "par": "R074",
+    "negocio_visible": true,
+    "motivo_centinela": "Guardado de viaje manual: usuario, terminal, sucursal, ruta y vehiculo; consulta el tipo de transporte para saber si exige remolque adicional y asigna remolques.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Prepara el registro con usuario, terminal, sucursal, ruta y vehiculo seleccionados",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/AgregarViajeManual.aspx.Business.cs:148-174"
+        },
+        {
+          "texto": "Consulta si el tipo de transporte del vehiculo tiene informacion de remolques adicionales",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/AgregarViajeManual.aspx.Business.cs:176-185"
+        },
+        {
+          "texto": "Asigna el remolque y el remolque adicional indicados",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/AgregarViajeManual.aspx.Business.cs:187-188"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Asigna usuario y terminal actuales con sucursal, ruta y vehiculo seleccionados",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/AgregarViajeManual.aspx.Business.cs:148-174"
+        },
+        {
+          "texto": "Consulta el tipo de transporte para determinar si se requiere remolque adicional",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/AgregarViajeManual.aspx.Business.cs:176-185"
+        },
+        {
+          "texto": "Valida esa necesidad antes de continuar con el guardado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/AgregarViajeManual.aspx.Business.cs:191-193"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 1
+      }
+    },
+    "preferido": "B",
+    "motivo": "Igual de fieles; B explica la regla del remolque adicional en terminos de negocio, aunque no sigue el formato."
+  },
+  {
+    "par": "R075",
+    "negocio_visible": true,
+    "motivo_centinela": "Lista de clientes para ventas con regla: excluir estatus BAJA.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Recupera la lista de clientes excluyendo los de estatus baja",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/ProcesoVentas.aspx.cs:295-299"
+        },
+        {
+          "texto": "Para su uso en el flujo de ventas",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/ProcesoVentas.aspx.cs:292"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Obtiene la lista de clientes para el proceso de ventas excluyendo estatus BAJA",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/ProcesoVentas.aspx.cs:292-299"
+        },
+        {
+          "texto": "Usa la cuenta del usuario en curso",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/ProcesoVentas.aspx.cs:299"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Contenido equivalente y fiel."
+  },
+  {
+    "par": "R076",
+    "negocio_visible": false,
+    "motivo_centinela": "El fragmento esta dentro de un bloque comentado (/* ... */ entre lineas 159 y 230): no se ejecuta, no hay comportamiento de negocio vigente.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Al confirmar una fila guarda remolque, conductor y unidad adicional",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/FrmProgramacionUnidades.aspx.cs:203-221"
+        },
+        {
+          "texto": "Si el conductor existe consulta sus liquidaciones pendientes y las muestra en la fila",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/FrmProgramacionUnidades.aspx.cs:211-217"
+        },
+        {
+          "texto": "Actualiza la tabla de programacion y refresca la vista",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/FrmProgramacionUnidades.aspx.cs:223-227"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No advierte que todo el bloque esta comentado y no se ejecuta",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/FrmProgramacionUnidades.aspx.cs:159; ReyOneWeb/ReyOneWeb/Trafico/Procesos/FrmProgramacionUnidades.aspx.cs:230"
+        }
+      ],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Al guardar una fila registra remolque, conductor y unidad adicional",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/FrmProgramacionUnidades.aspx.cs:203-221"
+        },
+        {
+          "texto": "Si el conductor existe consulta sus liquidaciones pendientes",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/FrmProgramacionUnidades.aspx.cs:211-217"
+        },
+        {
+          "texto": "Actualiza la tabla y cancela la edicion pendiente",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/FrmProgramacionUnidades.aspx.cs:223-228"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No advierte que todo el bloque esta comentado y no se ejecuta",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/FrmProgramacionUnidades.aspx.cs:159; ReyOneWeb/ReyOneWeb/Trafico/Procesos/FrmProgramacionUnidades.aspx.cs:230"
+        }
+      ],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos describen fielmente codigo comentado sin advertirlo."
+  },
+  {
+    "par": "R077",
+    "negocio_visible": true,
+    "motivo_centinela": "Edicion de prenomina con reglas: solo si esta ABIERTO; sin conceptos no hace nada; cada conductor debe existir por nombre y estar ACTIVO; luego consulta el detalle del calculo.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Impide editar una nomina que no este en estatus ABIERTO",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/CalculoPrenomina.aspx.cs:252-257"
+        },
+        {
+          "texto": "Valida que cada conductor a actualizar exista y tenga estatus ACTIVO",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/CalculoPrenomina.aspx.cs:270-287"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona que sin conceptos nuevos no se hace nada",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/CalculoPrenomina.aspx.cs:262-264"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Solo permite editar una prenomina con estatus ABIERTO",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/CalculoPrenomina.aspx.cs:252-257"
+        },
+        {
+          "texto": "Si no hay conceptos nuevos no realiza cambios",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/CalculoPrenomina.aspx.cs:262-264"
+        },
+        {
+          "texto": "Para cada concepto valida que el conductor exista y este activo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/CalculoPrenomina.aspx.cs:267-287"
+        },
+        {
+          "texto": "Consulta el detalle del calculo de nomina asociado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/CalculoPrenomina.aspx.cs:289-298"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "Ambos fieles; B cubre tambien el caso sin conceptos y la consulta del detalle."
+  },
+  {
+    "par": "R078",
+    "negocio_visible": false,
+    "motivo_centinela": "Boton de exportacion a Excel con nombre fechado; funcionalidad tecnica de interfaz sin regla ni dato de negocio.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "El boton genera un archivo Excel con las facturas diarias",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RtpFacturasDiario.aspx.cs:112-116"
+        },
+        {
+          "texto": "Lo nombra con la fecha actual del servidor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RtpFacturasDiario.aspx.cs:116"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Permite exportar los datos visibles de la tabla a Excel",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RtpFacturasDiario.aspx.cs:116"
+        },
+        {
+          "texto": "Lo nombra con la fecha actual del servidor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RtpFacturasDiario.aspx.cs:116"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos fieles y equivalentes; correspondia el centinela."
+  },
+  {
+    "par": "R079",
+    "negocio_visible": true,
+    "motivo_centinela": "Reglas explicitas para definir la sucursal que absorbe el gasto: fuera de CORP la interplanta; en CORP fiscal configurado con ciudad distinta la que embarca, si no la que factura; en consignacion con vendedor de polietilenos la sucursal de gasto del cliente o la 9, si no la interplanta.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Define la sucursal responsable del gasto segun jurisdiccion y tipo de pedido",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Utils/ViaticHelper.cs:60-72; ReyOneWeb/ReyOneWeb/Trafico/Utils/ViaticHelper.cs:103"
+        },
+        {
+          "texto": "En pedidos fiscales asigna la sucursal que embarca si las ciudades difieren",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Utils/ViaticHelper.cs:82-89"
+        },
+        {
+          "texto": "Asigna la que factura si las ciudades coinciden o no hay configuracion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Utils/ViaticHelper.cs:90-99"
+        },
+        {
+          "texto": "En consignaciones con vendedor de polietilenos prioriza la sucursal de gasto del cliente",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Utils/ViaticHelper.cs:105-114"
+        },
+        {
+          "texto": "En otros casos usa la sucursal interplanta",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Utils/ViaticHelper.cs:121-130"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona la sucursal 9 por defecto ni que las reglas fiscales aplican solo a CORP",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Utils/ViaticHelper.cs:69; ReyOneWeb/ReyOneWeb/Trafico/Utils/ViaticHelper.cs:116-118"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 3,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Determina la sucursal que asume el gasto segun jurisdiccion, fiscal o consignacion, configuracion y ciudades",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Utils/ViaticHelper.cs:60-103"
+        },
+        {
+          "texto": "En consignacion con vendedor de polietilenos usa la sucursal de gasto del cliente o la sucursal 9",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Utils/ViaticHelper.cs:105-119"
+        },
+        {
+          "texto": "Si no, usa la sucursal del pedido interplanta o del cliente",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Utils/ViaticHelper.cs:85-99; ReyOneWeb/ReyOneWeb/Trafico/Utils/ViaticHelper.cs:121-130"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No explica que ciudad distinta lleva a la sucursal que embarca y misma ciudad o sin configuracion a la que factura",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Utils/ViaticHelper.cs:82-99"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "Igual de fieles y con omisiones parciales; A explica mejor la regla fiscal para el negocio, aunque incumple formato y longitud."
+  },
+  {
+    "par": "R080",
+    "negocio_visible": false,
+    "motivo_centinela": "Envoltorio de una funcion de relleno de texto del generador de reportes; codigo tecnico.",
+    "A": {
+      "afirmaciones": [],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos usan correctamente el centinela."
+  },
+  {
+    "par": "R081",
+    "negocio_visible": true,
+    "motivo_centinela": "Arma los peajes IAVE de la preliquidacion (tag, economico, cobro, clase, caseta, importe, aclaracion, duplicado) con auditoria y su detalle de liquidacion.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Procesa los registros de peaje IAVE con tag, numero economico, fecha y hora de cobro, clase, caseta e importe",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/PreliquidacionTrafico.aspx.cs:1424-1450"
+        },
+        {
+          "texto": "Cada registro se marca con usuario y terminal",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/PreliquidacionTrafico.aspx.cs:1456-1457"
+        },
+        {
+          "texto": "Se vincula a la liquidacion de detalle si aplica",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/PreliquidacionTrafico.aspx.cs:1462-1466"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Convierte los registros de peaje IAVE guardados temporalmente en objetos con datos de cobro, estado y auditoria",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/PreliquidacionTrafico.aspx.cs:1426-1457"
+        },
+        {
+          "texto": "Prepara el detalle de liquidacion asociado cuando corresponde",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/PreliquidacionTrafico.aspx.cs:1462-1466"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 1,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "Ambos fieles; A nombra los datos del peaje y B queda generico y tecnico."
+  },
+  {
+    "par": "R082",
+    "negocio_visible": false,
+    "motivo_centinela": "Boton de exportacion de la grilla a Excel con nombre fechado; funcionalidad tecnica sin regla ni dato de negocio.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Genera un archivo Excel con el contenido de la cuadricula",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/Incidencias.aspx.cs:451-455"
+        },
+        {
+          "texto": "Usa un nombre con la fecha del servidor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/Incidencias.aspx.cs:455"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Permite exportar la tabla visible a Excel",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/Incidencias.aspx.cs:455"
+        },
+        {
+          "texto": "Lo nombra con la fecha actual del servidor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/Incidencias.aspx.cs:455"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos fieles y equivalentes; correspondia el centinela."
+  },
+  {
+    "par": "R083",
+    "negocio_visible": false,
+    "motivo_centinela": "Carga de combos (periodos del catalogo BBPEVEVEHI, tipos, anios 2015-2050); configuracion de interfaz sin regla de negocio.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Carga las listas de periodo, tipo y anio de verificacion vehicular",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorVerificaciones.aspx.cs:121-142"
+        },
+        {
+          "texto": "El periodo viene del catalogo BBPEVEVEHI",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorVerificaciones.aspx.cs:122-130"
+        },
+        {
+          "texto": "El tipo viene de una lista fija",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorVerificaciones.aspx.cs:132-133"
+        },
+        {
+          "texto": "El anio va de 2015 a 2050",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorVerificaciones.aspx.cs:135-139"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Carga periodos del catalogo BBPEVEVEHI, tipos de verificacion y anios 2015 a 2050",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorVerificaciones.aspx.cs:121-142"
+        },
+        {
+          "texto": "Son para los filtros de la pantalla",
+          "clase": "inventada",
+          "evidencia": ""
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "A",
+    "motivo": "Ambos debieron usar el centinela; B agrega que son filtros sin respaldo."
+  },
+  {
+    "par": "R084",
+    "negocio_visible": false,
+    "motivo_centinela": "Carga de un combo desde el catalogo DCTOTRA no borrado; configuracion de interfaz sin regla de negocio propia.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Carga el desplegable de documento infraccionado con el catalogo DCTOTRA no borrado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/FrmInfracciones.aspx.cs:204-212"
+        },
+        {
+          "texto": "Usa el usuario actual",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/FrmInfracciones.aspx.cs:211"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Carga en el selector de documento las opciones no eliminadas del catalogo DCTOTRA",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/FrmInfracciones.aspx.cs:204-212"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos fieles y equivalentes; correspondia el centinela."
+  },
+  {
+    "par": "R085",
+    "negocio_visible": false,
+    "motivo_centinela": "Definicion de columnas de una tabla en memoria; estructura tecnica sin regla de negocio.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Define la estructura de los documentos de la liquidacion con fecha, titulo, descripcion, archivo y estado de creacion o eliminacion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/PreliquidacionTrafico.aspx.cs:3695-3708"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Define la estructura de documentos de liquidacion con identificacion, fecha, titulo, descripcion, archivo, extension e indicadores de nuevo o eliminado",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/PreliquidacionTrafico.aspx.cs:3695-3712"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "B",
+    "motivo": "Ambos debieron usar el centinela; B es mas completo."
+  },
+  {
+    "par": "R086",
+    "negocio_visible": false,
+    "motivo_centinela": "Page_Load con inicializacion de sesion, conexion y validacion de acciones; codigo tecnico de pagina.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Al cargar la pagina recupera los grupos de trabajo del usuario",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPagosGPS.aspx.cs:32-36"
+        },
+        {
+          "texto": "Limpia las sesiones de vehiculos y folios",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPagosGPS.aspx.cs:41-42"
+        },
+        {
+          "texto": "Para evitar datos obsoletos",
+          "clase": "inventada",
+          "evidencia": ""
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 2,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Al abrir por primera vez obtiene los grupos de trabajo del usuario",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPagosGPS.aspx.cs:32-36"
+        },
+        {
+          "texto": "Oculta la pestana de archivo en los filtros",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPagosGPS.aspx.cs:38"
+        },
+        {
+          "texto": "Prepara la pestana geografica",
+          "clase": "contradice",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPagosGPS.aspx.cs:39"
+        },
+        {
+          "texto": "Limpia vehiculos de trafico y folio guardados",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPagosGPS.aspx.cs:41-42"
+        },
+        {
+          "texto": "Luego valida todas las acciones",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPagosGPS.aspx.cs:45"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "B",
+    "motivo": "Ambos debieron usar el centinela y tienen un error; B es mas completo."
+  },
+  {
+    "par": "R087",
+    "negocio_visible": false,
+    "motivo_centinela": "Funcion auxiliar que arma un objeto con concepto y numero de nomina para el reporte; construccion tecnica sin regla.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Arma el detalle del calculo de prenomina vinculando un concepto con un conductor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/Factory/ConcreteReportsCreators/CalculoPrenominaReportCreator.cs:207-215"
+        },
+        {
+          "texto": "Solo conserva el numero de nomina del conductor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/Factory/ConcreteReportsCreators/CalculoPrenominaReportCreator.cs:212-215"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Crea un detalle de prenomina vinculando un concepto con el numero de nomina del conductor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/Factory/ConcreteReportsCreators/CalculoPrenominaReportCreator.cs:207-215"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos fieles y equivalentes; correspondia el centinela."
+  },
+  {
+    "par": "R088",
+    "negocio_visible": false,
+    "motivo_centinela": "Enumeracion tecnica con un solo tipo de reporte; sin contenido de negocio.",
+    "A": {
+      "afirmaciones": [],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Define los tipos de reporte; solo existe Calculo prenomina",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/Factory/Types/ReportTypes.cs:6-11"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "A",
+    "motivo": "A usa correctamente el centinela; B describe una enumeracion tecnica."
+  },
+  {
+    "par": "R089",
+    "negocio_visible": false,
+    "motivo_centinela": "Envoltorio de una funcion de conversion a palabras en ruso del generador de reportes; codigo tecnico.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Convierte un valor en palabras en ruso",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/FastReport/RptCalculoPrenominaCaratula.cs:576-578"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "B usa correctamente el centinela; A describe un envoltorio tecnico."
+  },
+  {
+    "par": "R090",
+    "negocio_visible": false,
+    "motivo_centinela": "Solo la declaracion de la clase de pagina; boilerplate.",
+    "A": {
+      "afirmaciones": [],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos usan correctamente el centinela."
+  },
+  {
+    "par": "R091",
+    "negocio_visible": false,
+    "motivo_centinela": "Carga la lista de ciudades para el usuario sin filtro ni regla; consulta tecnica.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Recupera la lista de ciudades para el usuario actual con su identificador de acceso",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/Monitoreo.aspx.cs:89-95"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Obtiene la lista de ciudades para el usuario autenticado con su login",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/Monitoreo.aspx.cs:89-95"
+        },
+        {
+          "texto": "El login se usa para filtrar los datos",
+          "clase": "inventada",
+          "evidencia": ""
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "A",
+    "motivo": "Ambos debieron usar el centinela; B agrega un filtrado no visible."
+  },
+  {
+    "par": "R092",
+    "negocio_visible": true,
+    "motivo_centinela": "Consulta de las placas de un vehiculo por su identificador; contenido de negocio minimo.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Recupera el numero de placas del vehiculo por su identificador",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorVerificaciones.aspx.cs:274-276"
+        },
+        {
+          "texto": "Devuelve vacio si no se encuentra",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorVerificaciones.aspx.cs:276"
+        },
+        {
+          "texto": "Devuelve vacio si el parametro es nulo",
+          "clase": "inventada",
+          "evidencia": ""
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Cuando se envia un identificador busca el vehiculo y devuelve sus placas",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorVerificaciones.aspx.cs:266-276"
+        },
+        {
+          "texto": "Si el identificador esta vacio o el vehiculo no existe devuelve texto vacio",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorVerificaciones.aspx.cs:268; ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorVerificaciones.aspx.cs:276"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "A habla de parametro nulo, caso no contemplado (un nulo fallaria); B es fiel."
+  },
+  {
+    "par": "R093",
+    "negocio_visible": false,
+    "motivo_centinela": "Page_Load que inicia la pagina con el anio del servidor; codigo tecnico.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Al cargar por primera vez inicia el proceso con el anio actual del servidor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorVerificaciones.aspx.cs:28-29"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Al abrir por primera vez inicia el proceso con el anio actual del servidor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorVerificaciones.aspx.cs:28-29"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Identicos en contenido; correspondia el centinela."
+  },
+  {
+    "par": "R094",
+    "negocio_visible": false,
+    "motivo_centinela": "Boton de exportacion a Excel (con nombre FacturasDiario copiado); funcionalidad tecnica sin regla de negocio.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Genera un Excel llamado FacturasDiario con la fecha del servidor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptRendimientoMonitoreo.aspx.cs:109"
+        },
+        {
+          "texto": "Lo entrega tal como se muestra en pantalla",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptRendimientoMonitoreo.aspx.cs:109"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Genera y descarga un Excel del reporte de rendimiento de monitoreo",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptRendimientoMonitoreo.aspx.cs:105-109"
+        },
+        {
+          "texto": "Lo nombra FacturasDiario con la fecha del servidor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptRendimientoMonitoreo.aspx.cs:109"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": false,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 1,
+        "formato": 1
+      }
+    },
+    "preferido": "empate",
+    "motivo": "Ambos fieles y equivalentes; correspondia el centinela."
+  },
+  {
+    "par": "R095",
+    "negocio_visible": true,
+    "motivo_centinela": "Regla de interfaz: no se permite editar un tipo de siniestro en estatus CA; campos requeridos obligatorios.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "No se puede editar un registro con estatus CA y se muestra un error",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/TipoSiniestro.js:52-60"
+        },
+        {
+          "texto": "Se valida que los campos obligatorios esten completos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/TipoSiniestro.js:91-96"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Impide la edicion masiva si el registro tiene estatus invalido y muestra error",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/TipoSiniestro.js:52-60"
+        },
+        {
+          "texto": "Exige que los campos requeridos esten completos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/TipoSiniestro.js:91-96"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No precisa que el estatus bloqueado es CA",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/TipoSiniestro.js:55"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 1
+      }
+    },
+    "preferido": "A",
+    "motivo": "Ambos fieles; A precisa el estatus CA y respeta el formato."
+  },
+  {
+    "par": "R096",
+    "negocio_visible": true,
+    "motivo_centinela": "Botones de conductores con reglas: la baja exige completar toda la lista de verificacion; el detalle exige un registro seleccionado.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "La pantalla permite actualizar datos, eliminar registros y ver detalles",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Content/Javascript/jsConductores.js:153-191"
+        },
+        {
+          "texto": "La eliminacion exige completar toda la lista de verificacion; si falta algo muestra error",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Content/Javascript/jsConductores.js:163-178"
+        },
+        {
+          "texto": "Para ver el detalle es obligatorio seleccionar un conductor",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Content/Javascript/jsConductores.js:187-195"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "El boton de actualizacion solicita recargar datos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Content/Javascript/jsConductores.js:149-155"
+        },
+        {
+          "texto": "La baja solo continua si todos los elementos de la lista de verificacion estan seleccionados; si no, muestra error",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Content/Javascript/jsConductores.js:163-178"
+        },
+        {
+          "texto": "El detalle abre el registro seleccionado o avisa si no hay ninguno",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Content/Javascript/jsConductores.js:187-195"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "preferido": "B",
+    "motivo": "Contenido equivalente y fiel; A no empieza con entidad seguida de dos puntos."
+  },
+  {
+    "par": "R097",
+    "negocio_visible": true,
+    "motivo_centinela": "Documentacion de preliquidacion: descarga de documento, guardado que exige archivo cargado y manejo de error si la carga no se procesa.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Al pulsar Archivo actualiza la lista de documentos del cliente",
+          "clase": "contradice",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/PreliquidacionTrafico.js:969-976"
+        },
+        {
+          "texto": "Al guardar, si no hay archivo muestra un error",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/PreliquidacionTrafico.js:985-995"
+        },
+        {
+          "texto": "Si la carga termina sin respuesta muestra error de procesamiento",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/PreliquidacionTrafico.js:1002-1006"
+        },
+        {
+          "texto": "Con respuesta guarda la informacion y continua",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/PreliquidacionTrafico.js:1008-1010"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 2,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Gestiona la documentacion del cliente permitiendo descargar archivos seleccionados y subir nuevos",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/PreliquidacionTrafico.js:969-976; ReyOneWeb/ReyOneWeb/Trafico/JS/PreliquidacionTrafico.js:989"
+        },
+        {
+          "texto": "Al guardar verifica que haya un archivo cargado; si no, muestra error",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/PreliquidacionTrafico.js:985-995"
+        },
+        {
+          "texto": "Inicia la carga y muestra alerta si el procesamiento falla",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/PreliquidacionTrafico.js:988-989; ReyOneWeb/ReyOneWeb/Trafico/JS/PreliquidacionTrafico.js:1002-1006"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 1
+      }
+    },
+    "preferido": "B",
+    "motivo": "A describe la descarga como actualizacion de la lista; B es fiel aunque no sigue el formato."
+  },
+  {
+    "par": "R098",
+    "negocio_visible": true,
+    "motivo_centinela": "Detalle de tarjeta de sellos: quita filas sin identificador, eliminacion de filas y marca de edicion por lote al terminar de editar.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Permite eliminar filas",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/TarjetaSellos.js:353-358"
+        },
+        {
+          "texto": "Si una fila no tiene identificador la retira de la lista",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/TarjetaSellos.js:339-341"
+        },
+        {
+          "texto": "Al terminar la edicion valida las filas y marca la tarjeta como lote",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/TarjetaSellos.js:367-372"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Al finalizar la edicion de una fila valida su integridad",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/TarjetaSellos.js:369"
+        },
+        {
+          "texto": "Marca la operacion como lote para recalcular las propiedades del registro principal",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/TarjetaSellos.js:361-363; ReyOneWeb/ReyOneWeb/Trafico/JS/TarjetaSellos.js:372"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona la eliminacion de filas",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/TarjetaSellos.js:339-358"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "Ambos fieles; A cubre tambien la eliminacion de filas."
+  },
+  {
+    "par": "R099",
+    "negocio_visible": true,
+    "motivo_centinela": "Infracciones: nuevo descarta cambios y abre la captura; guardar valida captura y detalle y decide alta o edicion segun exista identificador.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Valida los datos capturados y en guardar distingue entre nuevo registro o edicion",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/jsInfracciones.js:30-46"
+        },
+        {
+          "texto": "Al presionar nuevo limpia la edicion pendiente y muestra el formulario",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/jsInfracciones.js:18-22"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 3,
+        "formato": 1
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Ajusta el alto de la lista y oculta el desplazamiento",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/jsInfracciones.js:2-10"
+        },
+        {
+          "texto": "Al crear nueva oculta alertas, descarta cambios no guardados del detalle y abre la ventana",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/jsInfracciones.js:18-22"
+        },
+        {
+          "texto": "Al guardar valida captura y detalle; identificador vacio registra nuevo, si no actualiza",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/jsInfracciones.js:30-46"
+        }
+      ],
+      "omisiones": [],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 3,
+        "utilidad_negocio": 2,
+        "formato": 3
+      }
+    },
+    "preferido": "A",
+    "motivo": "Igual de fieles y completos en lo de negocio; A es mas util al omitir el ajuste de pantalla, aunque B respeta el formato."
+  },
+  {
+    "par": "R100",
+    "negocio_visible": true,
+    "motivo_centinela": "Siniestros: no se da seguimiento a registros en estatus BD (y error por perdida total al inicio del fragmento); eliminacion de filas de seguimiento.",
+    "A": {
+      "afirmaciones": [
+        {
+          "texto": "Si el estado del siniestro es BD muestra error y bloquea el seguimiento",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/jsSiniestros.js:542-549"
+        },
+        {
+          "texto": "En caso contrario abre el panel",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/jsSiniestros.js:550-553"
+        },
+        {
+          "texto": "Los botones de eliminar borran la fila de seguimiento seleccionada",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/jsSiniestros.js:561-573"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona el bloqueo por perdida total",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/jsSiniestros.js:529-530"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 3,
+        "formato": 3
+      }
+    },
+    "B": {
+      "afirmaciones": [
+        {
+          "texto": "Impide el seguimiento si el registro esta en estado BD con mensaje de error",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/jsSiniestros.js:542-549"
+        },
+        {
+          "texto": "Permite eliminar registros de la lista de seguimiento",
+          "clase": "fragmento",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/jsSiniestros.js:561-573"
+        }
+      ],
+      "omisiones": [
+        {
+          "texto": "No menciona el bloqueo por perdida total",
+          "evidencia": "ReyOneWeb/ReyOneWeb/Trafico/JS/jsSiniestros.js:529-530"
+        }
+      ],
+      "centinela_ok": true,
+      "puntos": {
+        "fidelidad": 3,
+        "cobertura": 2,
+        "utilidad_negocio": 3,
+        "formato": 1
+      }
+    },
+    "preferido": "A",
+    "motivo": "Contenido equivalente; B no empieza con entidad seguida de dos puntos."
+  }
+]
