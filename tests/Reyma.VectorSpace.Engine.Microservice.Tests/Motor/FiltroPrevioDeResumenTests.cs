@@ -20,13 +20,15 @@ public sealed class FiltroPrevioDeResumenTests
     [InlineData("ReyOneWeb/Reyma.Datos.Trafico/Reyma.Datos.Trafico.csproj")]
     [InlineData("web/package.json")]
     [InlineData("config/servicios.XML")]
-    [InlineData("ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptBono.cs")]
     [InlineData("ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptRendimientoMonitoreo.aspx.designer.cs")]
-    [InlineData(@"ReyOneWeb\ReyOneWeb\Trafico\RepocitorioReportes\RptVehiculosGeoTab.cs")]
+    [InlineData(@"ReyOneWeb\Trafico\Form1.Designer.cs")]
     public void ExcluyePorRuta(string ruta) =>
         Assert.Equal("ruta", PorDefecto.Motivo(ruta, "Method", Metodo));
 
     [Theory]
+    // v2: el motor es agnostico; los envoltorios de FastReport de reyoneweb van en el .ragignore de ese repo.
+    [InlineData("ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptBono.cs")]
+    [InlineData("ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/FastReport/RptCalculoPrenominaCaratula.cs")]
     [InlineData("ReyOneWeb/Reyma.Entidades.Produccion/Silos.cs")]
     [InlineData("src/Modelos/MyAssemblyInfo.cs")]
     [InlineData("src/Modelos/Designer.cs")]
@@ -35,7 +37,7 @@ public sealed class FiltroPrevioDeResumenTests
     [InlineData("ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptNewGastos.aspx.cs")]
     [InlineData("ReyOneWeb/ReyOneWeb/Trafico/Procesos/RptBono.cs")]
     [InlineData("ReyOneWeb/ReyOneWeb/Trafico/JS/jsPlanesRutasUrbanos.js")]
-    public void NoExcluyeRutasDeNegocioParecidas(string ruta) =>
+    public void NoExcluyeRutasDeNegocioNiPropiasDeUnRepo(string ruta) =>
         Assert.Null(PorDefecto.Motivo(ruta, "Method", Metodo));
 
     [Fact]
@@ -101,10 +103,10 @@ public sealed class FiltroPrevioDeResumenTests
     [Fact]
     public void ModeloEIdentidadDistinguenVersionYReglas()
     {
-        Assert.Equal("filtro-previo:v1", PorDefecto.Modelo);
+        Assert.Equal("filtro-previo:v2", PorDefecto.Modelo);
         Assert.Equal(PorDefecto.Identidad, new FiltroPrevioDeResumen(new FiltroPrevioOptions()).Identidad);
         Assert.NotEqual(PorDefecto.Identidad, new FiltroPrevioDeResumen(new FiltroPrevioOptions { TiposDeChunk = [] }).Identidad);
-        Assert.Equal("filtro-previo:v2", new FiltroPrevioDeResumen(new FiltroPrevioOptions { Version = 2 }).Modelo);
+        Assert.Equal("filtro-previo:v3", new FiltroPrevioDeResumen(new FiltroPrevioOptions { Version = 3 }).Modelo);
     }
 
     [Fact]

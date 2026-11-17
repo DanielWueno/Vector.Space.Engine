@@ -222,7 +222,7 @@ public sealed class ResumenIntegracionTests(ApiFactory factory)
                 vectorsSelector: new WithVectorsSelector { Enable = true });
             var proyecto = Assert.Single(puntos.Result, p => p.Payload["relative_path"].StringValue.EndsWith(".csproj", StringComparison.Ordinal));
             Assert.False(proyecto.Payload["resumen_pending"].BoolValue);
-            Assert.Equal("filtro-previo:v1", proyecto.Payload["resumen_modelo"].StringValue);
+            Assert.Equal("filtro-previo:v2", proyecto.Payload["resumen_modelo"].StringValue);
             Assert.Matches("^[0-9a-f]{8}$", proyecto.Payload["resumen_prompt_version"].StringValue);
             Assert.False(proyecto.Payload.ContainsKey("resumen_texto"));
             Assert.False(proyecto.Vectors.Vectors.Vectors.ContainsKey("dense-resumen"));

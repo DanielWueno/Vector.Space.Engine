@@ -101,9 +101,10 @@ public sealed class LlmResumenBrainTests
     }
 
     [Fact]
-    public async Task ElPerfilPorDefectoPideDeepSinRazonar()
+    public async Task ElPerfilPorDefectoPideDeepConRazonamientoYTopeHolgado()
     {
-        // Sin tocar nada: deep con enable_thinking=false, la unica combinacion de deep que 1.7.3 midio 30/30 a 160 tokens.
+        // Sin tocar nada (2026-11-17): deep con enable_thinking=true y max_tokens 4096. Con pensamiento y 160 tokens deep
+        // responde vacio (1.7.3, 0/30); con 4096, 100/100 sin cortes (docs/evaluaciones/resumen-fast-vs-deep-filtrado).
         var sidecar = new Sidecar(_ => RespuestaConTexto("Resumen."));
         var brain = Brain(sidecar, new LlmOptions { UrlBase = "http://sidecar-llm.invalid" });
 
@@ -111,8 +112,8 @@ public sealed class LlmResumenBrainTests
 
         var cuerpo = sidecar.Peticiones[0];
         Assert.Equal("qwen3.8-27b-deep", cuerpo.GetProperty("model").GetString());
-        Assert.False(cuerpo.GetProperty("chat_template_kwargs").GetProperty("enable_thinking").GetBoolean());
-        Assert.Equal(160, cuerpo.GetProperty("max_tokens").GetInt32());
+        Assert.True(cuerpo.GetProperty("chat_template_kwargs").GetProperty("enable_thinking").GetBoolean());
+        Assert.Equal(4096, cuerpo.GetProperty("max_tokens").GetInt32());
     }
 
     private static string Version(string modelo = "qwen3.8-27b-fast", bool? enableThinking = null, int maxTokens = 160,
@@ -180,10 +181,12 @@ public sealed class LlmResumenBrainTests
     public void PromptVersionDelPerfilPorDefectoQuedaFijadoEnUnGolden()
     {
         // Golden calculado FUERA de este codigo (PowerShell, SHA-256 de
-        // "v2|qwen3.8-27b-deep|false|160|0.15|0.95|" + el literal del prompt con LF, 8 primeros hex): si cambia sin
+        // "v2|qwen3.8-27b-deep|true|4096|0.15|0.95|" + el literal del prompt con LF, 8 primeros hex): si cambia sin
         // querer el prompt, el formato del hash o un default de LlmOptions, esta prueba falla. Si el cambio es
         // deliberado, actualizar el golden y declararlo (cambia resumen_prompt_version de los chunks nuevos).
-        Assert.Equal("bf05a271", LlmResumenBrain.ComputePromptVersion(new LlmOptions()));
+        // 2026-11-17: el por defecto paso de deep sin pensamiento a 160 (bf05a271) a deep con pensamiento a 4096.
+        Assert.Equal("dac52c3f", LlmResumenBrain.ComputePromptVersion(new LlmOptions()));
+        Assert.Equal("bf05a271", Version(modelo: "qwen3.8-27b-deep", enableThinking: false));
         Assert.Equal("60a4efa1", Version(modelo: "qwen3.8-27b-fast", enableThinking: null));
     }
 

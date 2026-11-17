@@ -177,7 +177,7 @@ public sealed class MotorServiceCollectionExtensionsTests
     });
 
     [Fact]
-    public void ElPerfilDeLlmPorDefectoEsDeepSinRazonar()
+    public void ElPerfilDeLlmPorDefectoEsDeepConRazonamiento()
     {
         using var sp = ConstruirConPerfilLlmAdicional();
         var factory = sp.GetRequiredService<ILlmResumenBrainFactory>();
@@ -187,7 +187,8 @@ public sealed class MotorServiceCollectionExtensionsTests
 
         Assert.Equal("altheia-qwen-deep", resuelto.Nombre);
         Assert.Equal("qwen3.8-27b-deep", resuelto.Brain.ModelName);
-        Assert.False(opciones.EnableThinking); // 1.7.3: deep sin enable_thinking=false responde vacio (0/30)
+        Assert.True(opciones.EnableThinking); // 2026-11-17; con pensamiento hace falta el tope holgado (1.7.3: 0/30 a 160)
+        Assert.Equal(4096, opciones.MaxTokens);
         Assert.Same(sp.GetRequiredService<ILlmResumenBrain>(), resuelto.Brain);
     }
 

@@ -259,8 +259,12 @@ public interface IPerfilLlmConfig
 /// <see cref="Perfiles"/> agrega otros, seleccionables por nombre en cada ingesta (<c>perfilLlm</c>).
 /// 1.7.3 midio contra AltheIA real: <c>qwen3.8-27b-fast</c> con <c>max_tokens</c> 160 responde 30/30;
 /// <c>qwen3.8-27b-deep</c> razona por defecto y gasta los 160 tokens sin escribir el resumen (0/30) salvo que se envie
-/// <c>chat_template_kwargs.enable_thinking=false</c> (entonces 30/30, igual que <c>fast</c>). El perfil por defecto es
-/// <c>deep</c> con ese <c>false</c> (decision del usuario, 2026-11-09).
+/// <c>chat_template_kwargs.enable_thinking=false</c> (entonces 30/30, igual que <c>fast</c>). El perfil por defecto fue
+/// <c>deep</c> con ese <c>false</c> (decision del usuario, 2026-11-09) y desde el 2026-11-17 es <c>deep</c> CON
+/// pensamiento y <c>max_tokens</c> 4096: con juicio ciego (docs/evaluaciones/resumen-fast-vs-deep-filtrado) escribe
+/// resumenes mas fieles (15 frente a 44 afirmaciones inventadas o contradictorias por cada 200 juicios, 6 frente a 58
+/// omisiones) a ~10x de latencia y ~2x de tokens. Decision del usuario por encima de la regla preregistrada, porque en
+/// modo simple el cliente sustituye el codigo por el resumen al generar la respuesta.
 /// </summary>
 public sealed class LlmOptions : IPerfilLlmConfig
 {
@@ -276,11 +280,18 @@ public sealed class LlmOptions : IPerfilLlmConfig
     /// <summary>Ruta OpenAI-compatible de chat-completions.</summary>
     public string Ruta { get; set; } = "v1/chat/completions";
 
-    /// <summary>Modelo del perfil por defecto; con <c>deep</c>, <see cref="EnableThinking"/> debe ser <c>false</c> (1.7.3).</summary>
+    /// <summary>
+    /// Modelo del perfil por defecto. Con <c>deep</c>, <see cref="EnableThinking"/> debe ir explicito: <c>true</c> con
+    /// <see cref="MaxTokens"/> holgado, o <c>false</c> (1.7.3).
+    /// </summary>
     public string Modelo { get; set; } = "qwen3.8-27b-deep";
 
-    /// <summary>Igual que el origen (OllamaBusinessSummaryGenerator): debe caber holgadamente el resumen (1 a 3 oraciones).</summary>
-    public int MaxTokens { get; set; } = 160;
+    /// <summary>
+    /// Tope de tokens de la respuesta, razonamiento incluido (AltheIA lo cuenta en <c>completion_tokens</c>). 4096 con
+    /// pensamiento: medido el 2026-11-17, mediana 633, p90 1249 y maximo 2084 sobre 100 chunks, ninguno cortado. Sin
+    /// pensamiento basta 160 (1 a 3 oraciones, como el origen OllamaBusinessSummaryGenerator).
+    /// </summary>
+    public int MaxTokens { get; set; } = 4096;
 
     public double Temperatura { get; set; } = 0.15;
 
@@ -288,12 +299,14 @@ public sealed class LlmOptions : IPerfilLlmConfig
 
     /// <summary>
     /// Null: no se envia el campo <c>chat_template_kwargs.enable_thinking</c> (lo que necesita <c>fast</c>).
-    /// <c>false</c> (por defecto, obligatorio con un modelo <c>deep</c>, 1.7.3): fuerza respuesta directa sin razonar;
-    /// sin esto <c>deep</c> gasta los <c>MaxTokens</c> razonando y devuelve una respuesta vacia (medido, 0/30).
+    /// <c>true</c> (por defecto desde el 2026-11-17): <c>deep</c> razona antes de resumir; solo se guarda
+    /// <c>message.content</c>, no el razonamiento. Exige <see cref="MaxTokens"/> holgado: con 160, <c>deep</c> gasta los
+    /// tokens razonando y devuelve una respuesta vacia (medido, 0/30). <c>false</c>: respuesta directa sin razonar (1.7.3).
     /// </summary>
-    public bool? EnableThinking { get; set; } = false;
+    public bool? EnableThinking { get; set; } = true;
 
-    public int TiempoMaximoSegundos { get; set; } = 120;
+    /// <summary>Por llamada. Con pensamiento se midio un maximo de 63 s (p90 37 s) con 4 llamadas simultaneas.</summary>
+    public int TiempoMaximoSegundos { get; set; } = 180;
 
     /// <summary>Opcional. Va por variable de entorno o user-secrets (Motor__Llm__ApiKey), nunca en appsettings.</summary>
     public string? ApiKey { get; set; }
@@ -408,15 +421,19 @@ public sealed class ResumenOptions
 /// <c>resumen_modelo = "filtro-previo:v{Version}"</c>. No cambia chunks, vectores <c>dense</c> ni que se indexa
 /// (ChunkingContract no sube). Medido el 2026-11-11 (docs/evaluaciones/1.27): sobre la muestra de 100 chunks de
 /// reyoneweb con juicio de dos jueces excluye 8 de los 9 chunks tecnicos que deep resumio de mas y 0 de los 48 en los que
-/// ambos jueces vieron negocio.
+/// ambos jueces vieron negocio. Desde la v2 eso lo logra junto con el <c>.ragignore</c> del repo: el filtro solo lleva
+/// reglas genericas (FiltroPrevioMuestraTests).
 /// </summary>
 public sealed class FiltroPrevioOptions
 {
     /// <summary>false = todo pendiente va al LLM, igual que antes de 1.27 (rollback sin desplegar codigo).</summary>
     public bool Habilitado { get; set; } = true;
 
-    /// <summary>Subirla a mano cuando cambie la regla por defecto: va en <c>resumen_modelo</c> de cada punto excluido.</summary>
-    public int Version { get; set; } = 1;
+    /// <summary>
+    /// Subirla a mano cuando cambie la regla por defecto: va en <c>resumen_modelo</c> de cada punto excluido. v2
+    /// (2026-11-17): se retiro el patron de los envoltorios de FastReport de reyoneweb, que era de un solo repo.
+    /// </summary>
+    public int Version { get; set; } = 2;
 
     /// <summary>
     /// Expresiones regulares .NET sobre la ruta relativa con separador '/'. Null (sin configurar) =
@@ -442,10 +459,10 @@ public sealed class FiltroPrevioOptions
     public bool CabeceraAutoGenerada { get; set; } = true;
 
     /// <summary>
-    /// Codigo generado o de proyecto, mas los envoltorios de FastReport de reyoneweb. El ultimo patron no es generico:
-    /// sale del barrido de reyoneweb del 2026-11-11 (31 clases <c>RepocitorioReportes/Rpt*.cs</c>, 1737 de sus 5324
-    /// puntos; los 22 de la muestra, tecnicos para ambos jueces) y deja fuera las paginas <c>.aspx.cs</c> de esa
-    /// carpeta, que si tienen negocio.
+    /// Solo convenciones genericas de codigo generado o de proyecto, validas para cualquier repo. El motor es agnostico:
+    /// lo que es propio de un repo o de sus herramientas (p. ej. los envoltorios de FastReport de reyoneweb, que v1
+    /// excluia aqui) va en el <c>.ragignore</c> de ese repo, que tambien lo saca del indice
+    /// (<see cref="Scanning.IgnoreRules"/>; propuesta para reyoneweb en docs/corpus/reyoneweb.ragignore).
     /// </summary>
     public static IReadOnlyList<string> PatronesDeRutaPorDefecto { get; } =
     [
@@ -456,7 +473,6 @@ public sealed class FiltroPrevioOptions
         @"(?i)\.csproj$",
         @"(?i)\.json$",
         @"(?i)\.xml$",
-        @"(?i)(^|/)RepocitorioReportes/Rpt[^/]*(?<!\.aspx)(?<!\.aspx\.designer)\.cs$",
     ];
 
     public static IReadOnlyList<string> TiposDeChunkPorDefecto { get; } = ["Constructor"];

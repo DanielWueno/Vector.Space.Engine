@@ -7,8 +7,12 @@ La muestra y los scripts están en e2dbebf y las generaciones y pares ciegos en 
 margen, pero vuelve a fallar la 3 (Σ utilidad_negocio 432 frente a 446). La regla no se cambia después de ver los
 datos.
 
-**Decisión del usuario (2026-11-17):** se queda fast. La mejora de calidad de deep con pensamiento no compensa su
-coste (~10× de latencia y ~2× de tokens) porque no se traduce en más utilidad de negocio.
+**Decisión del usuario (2026-11-17), por encima de la regla:** deep con pensamiento pasa a ser el perfil por defecto
+del motor. En un primer momento se mantuvo fast por coste. Se revisó al comprobar que, en modo simple, el cliente
+sustituye el código por el resumen al generar la respuesta (`GenerationContextAssembler`). Ahí la fidelidad
+(15 frente a 44 errores) importa más que una diferencia de utilidad del 3 %, que además depende mucho del juez. El
+coste extra (~10× de latencia, ~2× de tokens) se paga en la carga inicial; luego solo se resume lo que cambia. La
+regla preregistrada no se reescribe: esto es una decisión con motivo explícito, no un resultado de la regla.
 
 ## Muestra
 

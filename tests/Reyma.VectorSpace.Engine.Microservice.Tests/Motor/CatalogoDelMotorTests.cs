@@ -214,7 +214,7 @@ public sealed class CatalogoDelMotorTests
             {
                 Assert.Equal("altheia-qwen-deep", deep.Nombre);
                 Assert.Equal(DeepConfigurado, deep.Modelo);
-                Assert.False(deep.Razonamiento);
+                Assert.True(deep.Razonamiento);
                 Assert.True(deep.EsPorDefecto);
                 Assert.True(deep.Disponible);
                 Assert.True(deep.ModeloVerificado);
@@ -224,7 +224,7 @@ public sealed class CatalogoDelMotorTests
             {
                 Assert.Equal("altheia-qwen-fast", fast.Nombre);
                 Assert.Equal("qwen3.8-27b-fast", fast.Modelo);
-                Assert.Equal(160, fast.MaxTokens); // heredado del por defecto
+                Assert.Equal(4096, fast.MaxTokens); // heredado del por defecto (fast para solo, ~40 tokens)
                 Assert.Null(fast.Razonamiento);
                 Assert.False(fast.EsPorDefecto);
                 Assert.True(fast.Disponible);

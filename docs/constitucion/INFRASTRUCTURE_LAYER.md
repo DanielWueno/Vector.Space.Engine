@@ -165,7 +165,8 @@ de AltheIA, mismo patron que `TeiVectorizationBrain`.
 ### Perfiles de LLM por nombre
 
 Mismo patron que los perfiles de embeddings: `Motor:Llm` describe el perfil por defecto (`Nombre`, hoy
-`altheia-qwen-deep` = `qwen3.8-27b-deep` con `EnableThinking=false`) y `Motor:Llm:Perfiles` agrega otros, cada uno
+`altheia-qwen-deep` = `qwen3.8-27b-deep` con `EnableThinking=true` y `MaxTokens` 4096 desde el 2026-11-17) y
+`Motor:Llm:Perfiles` agrega otros, cada uno
 con su `HttpClient` nombrado (`LlmResumenBrainFactory.NombreCliente`). A diferencia de embeddings, un perfil
 adicional **hereda** de `Motor:Llm` lo que deja vacio (`LlmOptions.Efectivo`): normalmente es otro modelo del mismo
 AltheIA con la misma clave. `EnableThinking` no se hereda (depende del modelo). `PerfilLlmEfectivo` sobrescribe
@@ -175,8 +176,10 @@ AltheIA con la misma clave. `EnableThinking` no se hereda (depende del modelo). 
   resume. `ResumenPipeline` la consulta antes de la cache y del LLM con ruta, `chunk_type` y contenido del punto
   pendiente (por eso `ListarPendientesDeResumenAsync` trae `chunk_type`); un excluido se marca procesado sin vector
   ni texto, con `resumen_modelo = filtro-previo:v{Version}`. Patrones y tipos viven en `Motor:Resumen:FiltroPrevio`
-  (los por defecto en `FiltroPrevioOptions`) y se validan al arrancar. Un patron nuevo se mide contra la muestra
-  juzgada (`FiltroPrevioMuestraTests`): no debe excluir ningun chunk con negocio para ambos jueces.
+  (los por defecto en `FiltroPrevioOptions`) y se validan al arrancar. Los por defecto son solo convenciones
+  genericas: un patron propio de un repo o de una herramienta de ese repo va en su `.ragignore`, no en el motor
+  (v2, 2026-11-17). Un patron nuevo se mide contra la muestra juzgada (`FiltroPrevioMuestraTests`): no debe excluir
+  ningun chunk con negocio para ambos jueces.
 - `LlmResumenBrain.PromptVersion` (1.26) es la identidad de la peticion: hash de modelo, `EnableThinking`,
   `MaxTokens`, temperatura, `top_p` y prompt de sistema con LF. Agregar un parametro a la peticion obliga a agregarlo
   al hash y a actualizar el golden de `LlmResumenBrainTests`.
