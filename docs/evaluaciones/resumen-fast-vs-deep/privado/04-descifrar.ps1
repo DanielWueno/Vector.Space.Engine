@@ -2,9 +2,11 @@
 # Parametros con los valores de la corrida principal; la comparacion con pensamiento usa
 # -Jueces jueces2 -Nombres j3,j4 -ArchivoMapa mapa-thinking.json -Salida resultado-juicio-thinking.json
 # (alli la etiqueta 'deep' es deep-thinking; misma regla, ver regla-thinking.md).
-param([string]$Jueces = 'jueces', [string[]]$Nombres = @('j1', 'j2'), [string]$ArchivoMapa = 'mapa.json', [string]$Salida = 'resultado-juicio.json', [string]$EtiquetaDeep = 'qwen3.8-27b-deep')
+param([string]$Jueces = 'jueces', [string[]]$Nombres = @('j1', 'j2'), [string]$ArchivoMapa = 'mapa.json', [string]$Salida = 'resultado-juicio.json', [string]$EtiquetaDeep = 'qwen3.8-27b-deep', [string]$Raiz = 'C:\Users\dsoft03.corp\Experimentos\resumen-fast-vs-deep')
+# -Raiz se anadio el 2026-11-17 para la re-prueba con filtro (../../resumen-fast-vs-deep-filtrado); el valor por
+# defecto es el de las corridas originales.
 $ErrorActionPreference = 'Stop'
-$root = 'C:\Users\dsoft03.corp\Experimentos\resumen-fast-vs-deep'
+$root = $Raiz
 $mapa = Get-Content "$root\privado\$ArchivoMapa" -Raw -Encoding utf8 | ConvertFrom-Json -AsHashtable
 $pares = Get-Content "$root\$Jueces\pares-ciegos.json" -Raw -Encoding utf8 | ConvertFrom-Json
 $ruta = @{}; foreach ($p in $pares) { $ruta[$p.par] = $p.ruta }

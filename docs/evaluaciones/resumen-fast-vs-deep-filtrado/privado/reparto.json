@@ -1,0 +1,52 @@
+[
+  {
+    "estrato": "Reyma.Datos.Produccion|CSharp",
+    "tamano": 159,
+    "asignados": 5
+  },
+  {
+    "estrato": "Reyma.Datos.Trafico|CSharp",
+    "tamano": 741,
+    "asignados": 21
+  },
+  {
+    "estrato": "Reyma.Datos.Trafico|Sql",
+    "tamano": 2,
+    "asignados": 0
+  },
+  {
+    "estrato": "Reyma.Entidades.Produccion|CSharp",
+    "tamano": 12,
+    "asignados": 3
+  },
+  {
+    "estrato": "Reyma.Entidades.Trafico|CSharp",
+    "tamano": 124,
+    "asignados": 4
+  },
+  {
+    "estrato": "Reyma.Negocio.Produccion|CSharp",
+    "tamano": 90,
+    "asignados": 3
+  },
+  {
+    "estrato": "Reyma.Negocio.Trafico|CSharp",
+    "tamano": 393,
+    "asignados": 11
+  },
+  {
+    "estrato": "Reyma.Trafico.Negocio|CSharp",
+    "tamano": 64,
+    "asignados": 3
+  },
+  {
+    "estrato": "ReyOneWeb|CSharp",
+    "tamano": 1529,
+    "asignados": 44
+  },
+  {
+    "estrato": "ReyOneWeb|JavaScript",
+    "tamano": 224,
+    "asignados": 6
+  }
+]

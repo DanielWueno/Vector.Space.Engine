@@ -1,0 +1,11 @@
+{
+  "puntos": 5324,
+  "excluidos_por_filtro": 1931,
+  "excluidos_por_motivo": {
+    "propiedad-automatica": 21,
+    "ruta": 1809,
+    "tipo": 101
+  },
+  "muestra_anterior_que_pasa_el_filtro": 55,
+  "poblacion": 3338
+}
