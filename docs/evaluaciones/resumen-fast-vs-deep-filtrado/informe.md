@@ -7,6 +7,9 @@ La muestra y los scripts están en e2dbebf y las generaciones y pares ciegos en 
 margen, pero vuelve a fallar la 3 (Σ utilidad_negocio 432 frente a 446). La regla no se cambia después de ver los
 datos.
 
+**Decisión del usuario (2026-11-17):** se queda fast. La mejora de calidad de deep con pensamiento no compensa su
+coste (~10× de latencia y ~2× de tokens) porque no se traduce en más utilidad de negocio.
+
 ## Muestra
 
 Volcado completo de `reyoneweb` (5 324 puntos, solo lectura por el túnel). El `FiltroPrevioDeResumen` real
