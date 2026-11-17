@@ -1,0 +1,16 @@
+# Propuesta de .ragignore para el corpus reyoneweb (ReyOneWeb / Trafico / Produccion).
+# Va en la raiz de lo que se ingesta (checkout o .zip). Sintaxis .gitignore (Scanning/IgnoreRules.cs del motor):
+# gana la ultima regla que coincide. Excluir aqui saca el archivo del INDICE, no solo del resumen.
+#
+# Por que aqui y no en el motor: son convenciones de este repo y de su reporteador. El filtro previo del motor
+# (Motor:Resumen:FiltroPrevio) solo lleva reglas genericas desde su v2 (2026-11-17).
+#
+# Medido con jueces ciegos: docs/evaluaciones/1.27 y docs/evaluaciones/resumen-fast-vs-deep-filtrado (R080, R089).
+
+# Envoltorios generados de FastReport: clases Rpt*.cs colgadas de RepocitorioReportes/ (31 clases, 1737 de 5324
+# puntos en el barrido del 2026-11-11). Las paginas Rpt*.aspx.cs de esa carpeta SI tienen negocio y se conservan.
+**/RepocitorioReportes/Rpt*.cs
+!**/RepocitorioReportes/Rpt*.aspx.cs
+
+# Scripts de reporte de FastReport en su subcarpeta (124 puntos que pasaban el filtro v1 el 2026-11-17).
+**/RepocitorioReportes/FastReport/

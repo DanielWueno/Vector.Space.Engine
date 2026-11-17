@@ -6,15 +6,22 @@ using Reyma.VectorSpace.Engine.Microservice.Business.Validacion;
 
 namespace Reyma.VectorSpace.Engine.Microservice.Business.Commands.Colecciones;
 
-public sealed record IngerirCommand(string Coleccion, OrigenIngestaRequest? Origen, string? Perfil, bool? Resumen = null)
+public sealed record IngerirCommand(string Coleccion, OrigenIngestaRequest? Origen, string? Perfil, bool? Resumen = null,
+    string? PerfilIngesta = null, string? RepositorioLogico = null, string? PerfilLlm = null)
     : IRequest<IngestaResponse>, IValidable
 {
     public IEnumerable<string> Errores()
     {
+        foreach (var error in PerfilDeIngesta.Errores(PerfilIngesta, RepositorioLogico))
+            yield return error;
         if (Perfil is not null && Perfil.Trim().Length == 0)
             yield return "Perfil no puede ser una cadena vacia si se especifica.";
         else if (Perfil is { Length: > 0 } && Perfil.Length > Limites.MaxCaracteresPerfil)
             yield return $"Perfil admite como maximo {Limites.MaxCaracteresPerfil} caracteres.";
+        if (PerfilLlm is not null && PerfilLlm.Trim().Length == 0)
+            yield return "PerfilLlm no puede ser una cadena vacia si se especifica.";
+        else if (PerfilLlm is { Length: > 0 } && PerfilLlm.Length > Limites.MaxCaracteresPerfil)
+            yield return $"PerfilLlm admite como maximo {Limites.MaxCaracteresPerfil} caracteres.";
 
         if (Origen is null)
         {
@@ -66,7 +73,7 @@ public sealed record IngerirCommand(string Coleccion, OrigenIngestaRequest? Orig
             yield return $"Cada Contenido admite como maximo {Limites.MaxCaracteresPorDocumento} caracteres.";
     }
 
-    public sealed class IngerirCommandHandler(IMotorDeIngesta motor, ILimiteDeIngestas limite)
+    public sealed class IngerirCommandHandler(IMotorDeIngesta motor, ILimiteDeIngestas limite, IMotorDeCatalogo catalogo)
         : IRequestHandler<IngerirCommand, IngestaResponse>
     {
         public async Task<IngestaResponse> Handle(IngerirCommand request, CancellationToken cancellationToken)
@@ -76,9 +83,13 @@ public sealed record IngerirCommand(string Coleccion, OrigenIngestaRequest? Orig
             if (request.Origen!.Tipo == OrigenIngestaRequest.TipoRuta)
                 throw new NoImplementadoException("El origen 'ruta' esta reservado para el modelo de consumo de ingesta (item 1.7).");
 
+            // Un perfil de LLM desconocido es 400 antes de ocupar cupo o escribir chunks (el resumen corre al final).
+            catalogo.ValidarPerfilLlm(request.PerfilLlm);
+
             // 1.7: despues de autorizar y validar (behaviors), asi un 403 o un 400 no ocupan lugar en la cola.
             using var permiso = await limite.EntrarAsync(cancellationToken);
-            return await motor.IngerirAsync(request.Coleccion, request.Origen.Documentos!, request.Perfil, request.Resumen == true, cancellationToken);
+            return await motor.IngerirAsync(request.Coleccion, request.Origen.Documentos!, request.Perfil, request.Resumen == true, cancellationToken,
+                PerfilDeIngesta.Crear(request.PerfilIngesta, request.RepositorioLogico), request.PerfilLlm);
         }
     }
 }

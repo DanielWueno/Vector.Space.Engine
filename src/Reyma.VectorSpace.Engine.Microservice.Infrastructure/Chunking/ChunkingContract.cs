@@ -36,8 +36,11 @@ namespace Reyma.VectorSpace.Engine.Microservice.Infrastructure.Chunking;
 ///       el mismo código sobre un corpus con CRLF o con TypeScript sí produce chunks
 ///       distintos que en la versión 1.
 ///   3 — 2026-09-12: la ingesta permite conservar declaraciones cortas de tipos con
-///       IndexShortTypeDeclarations (opt-in, false por defecto), identificadas por
-///       DefinedSymbols y ClassName, sin eximir grupos de campos ni otros micro-chunks.
+///       IndexShortTypeDeclarations, identificadas por DefinedSymbols y ClassName, sin
+///       eximir grupos de campos ni otros micro-chunks. Nota (1.28, 2026-11-12): en este
+///       servicio NO es opt-in por configuracion sino una constante de compilacion,
+///       DocumentIngestionPipeline.IndexShortTypeDeclarations = false (tambien en los
+///       bancos de 1.6/1.11); activarla exige recompilar, subir esta version y reingestar.
 ///       Incluye la normalización explícita del espacio antes de ':'
 ///       en declaraciones C# introducida en 5.g. Requiere re-ingesta y nueva línea
 ///       base; los índices existentes no se migran al cambiar esta constante.

@@ -167,10 +167,11 @@ public sealed class LimiteDeIngestasTests(ApiFactory factory)
 
         public Task<BusquedaResponse> BuscarAsync(
             string coleccion, string consulta, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos,
-            EspacioDeBusqueda espacio, CancellationToken cancellationToken) =>
+            EspacioDeBusqueda espacio, IReadOnlyList<string>? modulos, string? lenguaje, string? @namespace,
+            CancellationToken cancellationToken, int? prefetchPorRama = null) =>
             Task.FromResult(new BusquedaResponse(coleccion, []));
 
-        public async Task<IngestaResponse> IngerirAsync(string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken)
+        public async Task<IngestaResponse> IngerirAsync(string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken, PerfilDeIngesta? perfilIngesta = null, string? perfilLlm = null)
         {
             Interlocked.Increment(ref _ingestas);
             Entro.TrySetResult();

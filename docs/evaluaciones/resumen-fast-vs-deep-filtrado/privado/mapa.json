@@ -1,0 +1,502 @@
+{
+  "R001": {
+    "id": "2c894f6c-bb09-5c5b-a40b-25715497fa7b",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R002": {
+    "id": "b4d799e6-5a8b-5292-8dff-c142bcfa5424",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R003": {
+    "id": "3b957b6f-343c-5bed-bc32-68a713632071",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R004": {
+    "id": "b3e5d56e-9bae-5654-b0fe-ca5be27d5d11",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R005": {
+    "id": "9191ea9d-5efa-5973-959a-0386132d4392",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R006": {
+    "id": "250cafde-6284-5fe0-ac3d-59bae310f9b6",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R007": {
+    "id": "c1a4b920-fefe-5363-9de0-c1763e47dd0f",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R008": {
+    "id": "3ce19474-cf18-5950-b853-2417d1d09d56",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R009": {
+    "id": "bdde12c4-c140-52fb-b500-9d78a3cebda0",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R010": {
+    "id": "976d56ac-f1bd-547d-b7c3-d022a42ada50",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R011": {
+    "id": "49f7bf47-bccc-570c-baea-447ddb9c5ed5",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R012": {
+    "id": "1615d779-9fbb-5d2b-a46e-90371065a288",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R013": {
+    "id": "d5a72016-7e4d-59aa-9bd9-44cf768d36b2",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R014": {
+    "id": "84776013-a32e-51c5-a35b-c710ea6f7d79",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R015": {
+    "id": "6c8b7084-129f-523a-a6bd-0d8d36b6dce0",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R016": {
+    "id": "b6e8e5a9-6db6-5f93-afcb-1f52ab4f05b4",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R017": {
+    "id": "37a6b790-e19f-57c1-96ec-1ef078476faf",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R018": {
+    "id": "f5da625e-d7fa-5867-8717-0a1ccb65b864",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R019": {
+    "id": "6297d5a0-aff3-5829-8b60-d37b4f77aa94",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R020": {
+    "id": "dc1b86da-c216-589c-8edd-7e6b558e95c4",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R021": {
+    "id": "f9137eb9-3085-5135-b737-c0add8756bc8",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R022": {
+    "id": "331ed97d-5c57-5efe-b430-70c558e36fc1",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R023": {
+    "id": "e56194a6-704f-53b8-87d2-8b45cdfd8d60",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R024": {
+    "id": "ef5d9aed-8bd3-587b-aca4-f3a96a834bfc",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R025": {
+    "id": "bdc994ab-5494-5627-b301-e18d0de189d2",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R026": {
+    "id": "61b8dc07-9bf5-57a8-94f9-3a0e0184df59",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R027": {
+    "id": "7bd289ec-1c3e-5440-9123-a5fce326ed5b",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R028": {
+    "id": "ed75e39b-1954-574b-b80b-640608622ae2",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R029": {
+    "id": "8c38110d-a3c0-50b9-b89d-48ec7c434f83",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R030": {
+    "id": "25a7b8f0-6c1f-5f50-829f-90839fe32590",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R031": {
+    "id": "bb869fb5-aa45-5719-895a-5944e798ce7b",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R032": {
+    "id": "447ab46b-cc65-5f78-916b-80505305ffa5",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R033": {
+    "id": "b90e0e0b-9042-5be4-b8c5-31c9cf1c4c59",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R034": {
+    "id": "3871559f-9000-54f5-bafc-5e53252aaf63",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R035": {
+    "id": "b6218013-0491-5034-b052-77eb5727246a",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R036": {
+    "id": "4c93e6a7-9ce7-5c3a-81b3-e695a9014091",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R037": {
+    "id": "28c1d51d-f5cc-5d16-983c-d4f5ab25c14f",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R038": {
+    "id": "bc49bb4c-0c39-57ab-acd5-912f259f4bdf",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R039": {
+    "id": "41d31c02-c38d-5864-924a-719a66fd5f14",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R040": {
+    "id": "b98a03fb-08ac-53ad-b7de-0cd993842947",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R041": {
+    "id": "94e35f3b-c4dd-5671-9396-6aa7a62700d3",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R042": {
+    "id": "48126d1a-a00f-5a5d-9d9b-4952a673010d",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R043": {
+    "id": "19795af8-e846-55c0-a33f-4de4b567dd91",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R044": {
+    "id": "ced71595-cf9f-530e-a8fb-f71eb0013488",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R045": {
+    "id": "836be583-233d-5c5e-88cb-649505303266",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R046": {
+    "id": "66ffe2b4-c344-511c-afda-0eb1c7163323",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R047": {
+    "id": "b1d70a3c-ee49-5b63-ba25-ea40001030e8",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R048": {
+    "id": "1a3fad26-3bac-5e14-bc7b-4479420c174d",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R049": {
+    "id": "c56852db-3553-5cb4-a435-062c61783494",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R050": {
+    "id": "34a8e52d-e1f7-5d55-919e-ccb97b9a22a2",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R051": {
+    "id": "28b8ac24-93ec-52c2-ad99-3ddf767177dd",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R052": {
+    "id": "c3688902-f257-5e31-af95-7d3bc6d49b8c",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R053": {
+    "id": "402e7505-8601-5281-8f74-99c13aa3f805",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R054": {
+    "id": "c0cae02b-e6be-5a3f-a0a2-e36d7617693d",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R055": {
+    "id": "9e51d946-c4d3-58b5-a4d9-c5ae85020e08",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R056": {
+    "id": "4b0b5c0c-fcb5-5df0-a755-34da26e8216f",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R057": {
+    "id": "177f246f-c955-5bf2-b413-83aa2c78128c",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R058": {
+    "id": "d553c390-21c7-5fa5-8e3a-099c4051d5fc",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R059": {
+    "id": "8c7fd249-f094-5ab7-950e-a977eb0a1c97",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R060": {
+    "id": "7014504d-8f02-5a9f-aeb0-8a27cf5357a9",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R061": {
+    "id": "b9cc4b96-5aad-5c22-a44f-2a56fe6d83d0",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R062": {
+    "id": "36eb1af0-3d7e-5e67-ac7b-2f272c78dca2",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R063": {
+    "id": "f957913f-dc8e-5020-9df0-475278fd2344",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R064": {
+    "id": "61751662-a1f4-5a97-afac-049c93dd4d62",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R065": {
+    "id": "dd59802a-9c9d-56be-8d2d-5bccc12a8cfe",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R066": {
+    "id": "fc205a33-ba1b-5482-a298-917d37042c58",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R067": {
+    "id": "311aaa5a-cbf4-578b-966d-edf0ab759caa",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R068": {
+    "id": "e9b721ca-a0ec-5195-9805-13e377746fb5",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R069": {
+    "id": "f351a5c2-2d57-5d52-a2ee-5828c1e01825",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R070": {
+    "id": "c02650a0-d94b-5ed8-9aac-df7454f6332e",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R071": {
+    "id": "5f4f28bb-ee95-5e9b-a8ad-c9bd4c255cc1",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R072": {
+    "id": "6a62e5fb-6418-5dc3-b5e1-d147668bd221",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R073": {
+    "id": "509f634a-c20b-523e-916c-09b33896dd19",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R074": {
+    "id": "c6a5215a-108f-5111-8787-761ab5a00e1e",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R075": {
+    "id": "ef4f45dc-10af-5baf-9cb4-58b6fbe68c12",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R076": {
+    "id": "c2fe5ebd-a507-5c1a-8db0-873272aef302",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R077": {
+    "id": "7ec723ce-d473-51b7-823a-1195c116081c",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R078": {
+    "id": "149adc40-ce36-5fd5-98fa-f2b24a3285f9",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R079": {
+    "id": "69485e5d-d601-568b-a845-823f4dbc944e",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R080": {
+    "id": "fadc04e3-5e9b-54d5-b6ca-65060d7739a5",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R081": {
+    "id": "a0ea3a5c-6911-515f-af76-1a49efaa2a7d",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R082": {
+    "id": "e816dc1b-4e41-5baa-84fa-d0e59a53dd9b",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R083": {
+    "id": "0d7cf201-8d82-5231-84fd-7ed5559b824a",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R084": {
+    "id": "d60a0091-8e2e-5d6c-93b4-ae8a26f2a5d8",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R085": {
+    "id": "9c9e44f3-5ac0-51c9-8340-616db39970b5",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R086": {
+    "id": "6d90209f-1cc3-5d0d-b9cf-454a65c480d0",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R087": {
+    "id": "47e8cd85-9d01-5345-ba23-1a400a02c9a2",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R088": {
+    "id": "b04dd32d-d598-5924-9061-13a8cf08f072",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R089": {
+    "id": "59581ccf-4002-5eb3-81a5-5f6a54ad2c2d",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R090": {
+    "id": "98690406-21b8-5d2a-a386-b0575d6ea131",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R091": {
+    "id": "e4a7e409-4804-5a51-bad3-ec83aedcade3",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R092": {
+    "id": "fe4faace-de40-58e8-a77e-5a18d7bc8180",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R093": {
+    "id": "5e38215f-0c41-5b22-911e-a71ca7bcf53b",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R094": {
+    "id": "60fa58a8-cfcf-5a6a-9ab2-a701c8913183",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R095": {
+    "id": "274c017f-0437-5a74-9157-529edc8d58c6",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R096": {
+    "id": "c94c3e6c-dc2d-5e9c-913e-10b380d4f6a0",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R097": {
+    "id": "3aea3a31-d29e-599a-baee-5f70b189a5a4",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R098": {
+    "id": "c6c61873-b132-5f86-b8c1-f2b7aa70c1a8",
+    "A": "deep",
+    "B": "fast"
+  },
+  "R099": {
+    "id": "a0f69c2f-3cc6-5656-949c-2f22a85ba4ce",
+    "A": "fast",
+    "B": "deep"
+  },
+  "R100": {
+    "id": "4c08d943-ce5c-56c4-8c42-7956d8584d8f",
+    "A": "deep",
+    "B": "fast"
+  }
+}

@@ -1,0 +1,802 @@
+[
+  {
+    "par": "P001",
+    "ruta": "ReyOneWeb/Reyma.Datos.Produccion/DSilos.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// Elimina logicamente el elemento Silos indicado\n        /// </summary>\n        /// <param name=\"elemento\"></param>\n        /// <param name=\"usuario\"></param>\n        public void EliminarElemento(Silos elemento)\n        {\n            try\n            {\n                _persistencia.Usuario = elemento.Au_Usuario;\n                _persistencia.BeginTrans();\n                Consulta consulta = new Consulta(\"PR_CT_SILOS\")\n                {\n                    CamposValor = new Dictionary<string, object>\n                    {\n                         {\"AU_USUARIO\", elemento.Au_Usuario},\n                         {\"AU_FECHA_MOD\", \"CURRENT DATE\"},\n                         {\"AU_HORA_MOD\", \"CURRENT TIME\"},\n                         {\"AU_TERMINAL\", elemento.Au_Terminal},\n                         {\"AU_BORRADO\", 1},\n                    },\n                    CondicionesWhere = new List<CondicionWhere> \n                    {\n                        new CondicionWhere(\"PK_SILO\", Operadores.IGUAL, elemento.Id.Pk_Silo, false)\n                    }\n                };\n\n                _persistencia.Modificar(consulta, _persistencia.Trans);\n                _persistencia.CommitTrans();\n            }\n            catch (Exception ex)\n            {\n                _persistencia.RollbackTrans();\n                throw new Exception(ex.Message);\n            }\n        }",
+    "A": "Registro de Silos: marca lógicamente como eliminado el silo específico, registrando la fecha, hora y terminal del usuario responsable.",
+    "B": "Registro de Silos: marca lógicamente como eliminado el silo específico indicado, actualizando sus metadatos de auditoría con el usuario, terminal y fecha/hora actuales, dentro de una transacción que se revierte si ocurre un error."
+  },
+  {
+    "par": "P002",
+    "ruta": "ReyOneWeb/Reyma.Datos.Produccion/DSilos.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// Obtiene la consulta generica para la tabla PR_CT_SILOS \n        /// </summary>\n        private static Consulta GetConsulta()\n        {\n            Consulta consulta = new Consulta(\"PR_CT_SILOS AS \" + _alias)\n            {\n                Campos = string.Format(@\"\n                    {0}.PK_SILO,\n                    {0}.FK_PLANTA,\n                    {0}.FK_MATERIA_PRIMA,\n                    {0}.CLAVE_CORTA,\n                    {0}.NOMBRE,\n                    {0}.AU_USUARIO,\n                    {0}.AU_FECHA_MOD,\n                    {0}.AU_HORA_MOD,\n                    {0}.AU_TERMINAL,\n                    {0}.AU_BORRADO,\n                    PLANTA.NOMBRE_PLANTA,\n                    MATPRI.DESCRIPCION\", _alias),\n                CondicionesJoin = new List<CondicionJoin> \n                {\n                    new CondicionJoin(TipoJoin.INNER, \"BB_CT_PLANTAS AS PLANTA\")\n                    {CamposCondicion = new List<CamposCondicion>{new CamposCondicion(_alias + \".FK_PLANTA\", Operadores.IGUAL, \"PLANTA.PK_PLANTA\", true) }},\n                    new CondicionJoin(TipoJoin.INNER, \"BB_CT_MATERIAS_PRIMAS AS MATPRI\")\n                    {CamposCondicion = new List<CamposCondicion>{new CamposCondicion(_alias + \".FK_MATERIA_PRIMA\", Operadores.IGUAL, \"MATPRI.PK_MATERIA_PRIMA\", true) }},\n                }\n            };\n\n            return consulta;\n        }",
+    "A": "DSilos: Define la estructura de datos para consultar silos, vinculando cada uno con su planta y materia prima asociada para obtener sus nombres descriptivos.",
+    "B": "DSilos: Define la consulta para obtener los silos, incluyendo su identificación, nombre y datos de auditoría, junto con el nombre de la planta asociada y la descripción de la materia prima que almacenan."
+  },
+  {
+    "par": "P003",
+    "ruta": "ReyOneWeb/Reyma.Datos.Produccion/DEspacioFerreo.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "#region ASIGNACIÓN/REASIGNACIÓN HOPPER'S\n        /// <summary>\n        /// \n        /// </summary>\n        /// <returns></returns>\n        private static Consulta GetEspaciosFerreos()\n        {\n            Consulta consulta = new Consulta(\"DI_CT_ESPACIOS_FERREOS AS \" + _alias)\n           {\n               Campos = string.Format(@\"{0}.PK_ESPACIO_FERREO,\n                {0}.FK_CT_NOMBRE_VIA_FERREA,\n                {0}.FK_COMPRA_PRECARGADA_DET,\n                {0}.FK_PLANTA_ESPUELA,\n                {0}.NUMERO_ESPACIO,\n                {0}.AU_USUARIO,\n                {0}.AU_FECHA_MOD,\n                {0}.AU_HORA_MOD,\n                {0}.AU_TERMINAL,\n                {0}.AU_BORRADO,\n                VIAFERREA.DESCRIPCION AS VIAFERREA_DESCRIPCION\", _alias),\n               CondicionesJoin = new List<CondicionJoin>\n                {\n                    new CondicionJoin(TipoJoin.INNER,\"BB_CF_CT_CONTENEDORES_CATALOGOS_DET AS VIAFERREA\")\n                    {CamposCondicion = new List<CamposCondicion>{new CamposCondicion(_alias+\".FK_CT_NOMBRE_VIA_FERREA\", Operadores.IGUAL,\"VIAFERREA.PK_CONTENEDOR_CATALOGO_DET\",true) }},\n                    \n                }\n           };\n\n            return consulta;\n        }",
+    "A": "Espacio Ferreo: recupera la lista de espacios disponibles para la asignación de hopper's, incluyendo su número, planta, usuario que lo modificó y la descripción de la vía ferrea asociada.",
+    "B": "Espacios Ferreos: recupera la lista de espacios disponibles para asignación o reasignación de hopper's, mostrando su número, planta y descripción de la vía ferrea asociada."
+  },
+  {
+    "par": "P004",
+    "ruta": "ReyOneWeb/Reyma.Datos.Trafico/DRolMonitoreoTurno.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// Consulta el rol de monitoreo.\n        /// </summary>\n        /// <param name=\"criterios\">Los criterios de la consulat.</param>\n        /// <param name=\"usuario\">El usuario que tiene sesión iniciada.</param>\n        /// <returns>DataRow.</returns>\n        public DataRow ConsultarRolPersonalMonitoreo(List<CriterioValor> criterios, string usuario)\n        {\n            _persistencia.Usuario = usuario;\n            Consulta consulta = ConsultaPersonalMonitoreo();\n\n            if (criterios != null && criterios.Count > 0)\n                consulta.CondicionesWhere = UtileriasBB.ObtenerCriteriosBusqueda(criterios, false, null);\n\n            if (consulta.CondicionesWhere is null)\n                consulta.CondicionesWhere = new List<CondicionWhere>();\n\n            // Se consultan los registros que no han sido eliminados ()\n            consulta.CondicionesWhere.Add(new CondicionWhere(\"tcr.AU_BORRADO\", Operadores.IGUAL, 0, true));\n\n            DataSet ds = _persistencia.Consultar(consulta);\n\n            if (ds.Tables[0].Rows.Count > 0)\n                return ds.Tables[0].Rows[0];\n\n            return null;\n        }",
+    "A": "El archivo de datos del rol de monitoreo de turno recupera la información del personal asignado, filtrando por los criterios de búsqueda proporcionados y excluyendo registros marcados como eliminados.",
+    "B": "El módulo de datos de tráfico recupera la información del rol de monitoreo personal, filtrando por los criterios de búsqueda proporcionados y excluyendo registros marcados como eliminados. Devuelve únicamente el primer registro encontrado o un valor nulo si no existe coincidencia."
+  },
+  {
+    "par": "P005",
+    "ruta": "ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "#endregion\n\n        #region Pedidos_Embarques\n\n        public List<ViajesPedidos> ConsultaElementosPedidosEmbarque(string usuario, string jurisdiccion, List<CriterioValor> criteriosAplicados = null)\n        {\n            _persistencia.Usuario = usuario;\n            List<ViajesPedidos> _lstViajesPedidos = new List<ViajesPedidos>();\n\n            Consulta consulta = new Consulta(string.Format(\"TABLE(TR_FN_CONSULTA_PEDIDOS_EMBARQUE('{0}')) AS FUNCION\", jurisdiccion))\n            {\n                Campos = string.Format(@\"\n                    FUNCION.*,\n                    SFAC.NOMBRE_SUCURSAL\"),\n                CondicionesJoin = new List<CondicionJoin>\n                {\n                    new CondicionJoin(TipoJoin.LEFT,\"BB_CT_SUCURSALES SFAC\")\n                        { CamposCondicion = new List<CamposCondicion> { new CamposCondicion(\"FUNCION.FK_SUCURSAL\", Operadores.IGUAL, \"SFAC.PK_SUCURSAL\", true) }},\n                }\n            };\n\n            if (criteriosAplicados != null && criteriosAplicados.Count > 0)\n            {\n                consulta.CondicionesWhere = UtileriasBB.ObtenerCriteriosBusqueda(criteriosAplicados, false, _alias);\n            }\n\n            DataSet ds = _persistencia.Consultar(consulta);\n\n            if (ds.Tables[0].Rows.Count > 0)\n                _lstViajesPedidos.AddRange(from DataRow row in ds.Tables[0].Rows select toobjectPedidoEmbarque(row));\n\n            return _lstViajesPedidos;\n        }",
+    "A": "El módulo de datos de tráfico recupera la lista de viajes asociados a pedidos de embarque para una jurisdicción específica, enriqueciendo cada registro con el nombre de la sucursal. Permite aplicar filtros adicionales opcionales y devuelve los resultados convertidos a objetos de viaje-pedido.",
+    "B": "El módulo de datos de viajes y pedidos recupera la lista de embarques asociados a una jurisdicción específica, enriqueciendo cada registro con el nombre de la sucursal correspondiente. Permite aplicar filtros adicionales dinámicamente para refinar los resultados antes de devolverlos."
+  },
+  {
+    "par": "P006",
+    "ruta": "ReyOneWeb/Reyma.Datos.Trafico/DEvento.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// Obtiene el objeto de tipo Evento que representa el DataRow indicado\n        /// </summary>\n        /// <param name=\"row\"></param>\n        /// <returns></returns>\n        private static Evento toObject(DataRow row)\n        {\n            Evento obj = new Evento\n            {\n                Id = new IDEvento \n                {\n                    Pk_Evento = Convert.ToInt32(row[\"PK_EVENTO\"]),\n                },\n                Clave_Corta = row[\"CLAVE_CORTA\"] != DBNull.Value ? row[\"CLAVE_CORTA\"].ToString() : String.Empty,\n                Tipo_Evento = row[\"TIPO_EVENTO\"] != DBNull.Value ? row[\"TIPO_EVENTO\"].ToString() : String.Empty,\n                Motivo_Evento = row[\"MOTIVO_EVENTO\"] != DBNull.Value ? row[\"MOTIVO_EVENTO\"].ToString() : String.Empty,\n                Au_Fecha_Mod = FormatoFecha.ObtenerFecha(row[\"AU_FECHA_MOD\"].ToString()),\n                Au_Hora_Mod = FormatoFecha.ObtenerFecha(row[\"AU_HORA_MOD\"].ToString()).TimeOfDay,\n                Au_Usuario = row[\"AU_USUARIO\"] != DBNull.Value ? row[\"AU_USUARIO\"].ToString() : String.Empty,\n                Au_Terminal = row[\"AU_TERMINAL\"] != DBNull.Value ? row[\"AU_TERMINAL\"].ToString() : String.Empty,\n                Au_Borrado = row[\"AU_BORRADO\"] != DBNull.Value ? Convert.ToInt32(row[\"AU_BORRADO\"]) : 0,\n                Solicitar_Observaciones = row[\"SOLICITAR_OBSERVACIONES\"] != DBNull.Value ? Convert.ToInt32(row[\"SOLICITAR_OBSERVACIONES\"]) : 0,\n                Dinamico = row[\"DINAMICO\"] != DBNull.Value ? Convert.ToInt32(row[\"DINAMICO\"]) : 0,\n                Estatus = row[\"ESTATUS\"] != DBNull.Value ? row[\"ESTATUS\"].ToString() : String.Empty,\n            };\n            return obj;\n        }",
+    "A": "Registro de Evento: convierte los datos de una fila en un objeto de evento, capturando su identificador, clave corta, tipo, motivo, estatus y metadatos de auditoría (fecha, hora, usuario, terminal, borrado), asignando valores predeterminados si la información no está disponible.",
+    "B": "Registro de Evento: convierte los datos crudos de la base en una ficha legible, asignando valores vacíos o cero a campos opcionales como motivo, usuario o estatus cuando no existen."
+  },
+  {
+    "par": "P007",
+    "ruta": "ReyOneWeb/Reyma.Datos.Trafico/DReportesAdministrativos.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// Obtiene el objeto de tipo ReporteDministrativo que representa el DataRow indicado\n        /// </summary>\n        /// <param name=\"row\"></param>\n        /// <returns></returns>\n        private static ReportesAdministrativos toObject(DataRow row)\n        {\n            ReportesAdministrativos obj = new ReportesAdministrativos\n            {\n                Id = new IDReporteAdministrativo { Pk_Reporte_Administrativo = Convert.ToInt32(row[\"PK_REPORTE_ADMINISTRATIVO\"]) },\n                Au_Fecha_Mod = FormatoFecha.ObtenerFecha(row[\"AU_FECHA_MOD\"].ToString()),\n                Au_Hora_Mod = FormatoFecha.ObtenerFecha(row[\"AU_HORA_MOD\"].ToString()).TimeOfDay,\n                Au_Usuario = row[\"AU_USUARIO\"] != DBNull.Value ? row[\"AU_USUARIO\"].ToString() : String.Empty,\n                Au_Terminal = row[\"AU_TERMINAL\"] != DBNull.Value ? row[\"AU_TERMINAL\"].ToString() : String.Empty,\n                Au_Borrado = row[\"AU_BORRADO\"] != DBNull.Value ? Convert.ToInt32(row[\"AU_BORRADO\"]) : 0,\n\n                Fecha_Registro = FormatoFecha.ObtenerFecha(row[\"FECHA_REGISTRO\"].ToString()),\n                Hora_Registro = FormatoFecha.ObtenerFecha(row[\"HORA_REGISTRO\"].ToString()).TimeOfDay,\n\n                Descripcion_Hechos = row[\"DESCRIPCION_HECHOS\"] != DBNull.Value ? row[\"DESCRIPCION_HECHOS\"].ToString() : string.Empty,\n                Justificacion_Conductor = row[\"JUSTIFICACION_CONDUCTOR\"] != DBNull.Value ? row[\"JUSTIFICACION_CONDUCTOR\"].ToString() : string.Empty,\n                Estatus = row[\"ESTATUS\"] != DBNull.Value ? row[\"ESTATUS\"].ToString() : string.Empty,\n            };\n\n            if (row[\"FK_PERSONAL_REGISTRA\"] != DBNull.Value)\n            {\n                obj.Personal_Registra = new Personal\n                {\n                    Id = new IDPersonal { Pk_personal = Convert.ToInt32(row[\"FK_PERSONAL_REGISTRA\"]) },\n                };\n            }\n\n            if (row[\"FK_CONDUCTOR\"] != DBNull.Value)\n            {\n                obj.Conductor = new Conductor\n                {\n                    Id = new IDConductor { Pk_Conductor = Convert.ToInt32(row[\"FK_CONDUCTOR\"]) },\n                };\n            }\n\n            return obj;\n        }",
+    "A": "El reporte administrativo se construye con su descripción de hechos, justificación del conductor y estatus. Se registra la fecha, hora, usuario y terminal de modificación, junto con el personal que lo registró y el conductor asociado.",
+    "B": "Reporte Administrativo: Convierte los datos de una fila de la base de datos en un objeto de reporte, capturando la descripción de los hechos, la justificación del conductor, el estatus y los metadatos de auditoría. Asocia al personal que registró el incidente y al conductor involucrado solo si sus identificadores existen en el registro."
+  },
+  {
+    "par": "P008",
+    "ruta": "ReyOneWeb/Reyma.Datos.Trafico/DTarjetaSellos.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "SucursalEmbarque = new Sucursal { Id = new IDSucursal { Pk_sucursal = elemento.Sucursal.Id.Pk_sucursal } },\n                        Estatus = StringEnum.GetStringValue(estatusViajes.TERMINADO),\n                        Tipo_Captura = StringEnum.GetStringValue(capturaViajes.AUTOMATICO),\n                        Tipo_Viaje = StringEnum.GetStringValue(TiposViajes.INTERNO),\n                        Monitoreado = 0,\n                        Ruta = new Rutas { Id = new IDRuta { Pk_Ruta = _pkRutaLocal } },\n                        Vehiculo = new Vehiculo { Id = new IDVehiculo { Pk_Vehiculo = elemento.Vehiculo.Id.Pk_Vehiculo } },\n                        Conductor = new Conductor { Id = new IDConductor { Pk_Conductor = elemento.Conductor.Id.Pk_Conductor } },\n                        Sucursal_Asignada_Vehiculo = new Sucursal { Id = new IDSucursal { Pk_sucursal =  elemento.Sucursal.Id.Pk_sucursal } },\n                        Fecha_Carga = elemento.FechaInicio,\n                        Hora_Carga = elemento.HoraInicio,\n                        Fecha_Termina = elemento.FechaTermino,\n                        Au_Usuario = elemento.Au_Usuario,\n                        Au_Terminal = elemento.Au_Terminal\n                    }, _persistencia.Trans);\n\n                #endregion\n\n                #region Reemplazo\n\n                if (elemento.EsReemplazo)\n                {\n                    foreach(var evento in detalles.Where(_i => (!_i.EsEliminado && !_i.EsNuevo) || (_i.EsPerdido)))\n                    {\n                        Consulta consultaDet = new Consulta(\"TR_TR_TARJETAS_SELLOS_URBANOS_DET\")\n                        {\n                            CamposValor = new Dictionary<string, object>\n                            {\n                                { \"FK_PERSONAL_CANCELA\", elemento.PersonalRegistra.Id.Pk_personal},\n                                { \"FECHA_HORA_CANCELA\", \"CURRENT TIMESTAMP\"},\n                                { \"ESTATUS\", \"CA\"},\n                                { \"AU_FECHA_MOD\", \"CURRENT DATE\" },\n                                { \"AU_HORA_MOD\", \"CURRENT TIME\" },\n                                { \"AU_USUARIO\", elemento.Au_Usuario },\n                                { \"AU_TERMINAL\", elemento.Au_Terminal },\n                                { \"AU_BORRADO\", 1 }\n                            },\n\n                            CondicionesWhere = new List<CondicionWhere>\n                            {\n                                new CondicionWhere(\"PK_TARJETA_SELLO_URBANO_DET\", Operadores.IGUAL, evento.Id.PkTarjetaSellosDet, true, OperadorLogico.AND),\n                                new CondicionWhere(\"FK_TARJETA_SELLO_URBANO\", Operadores.IGUAL, evento.TarjetaSellos.Id.PkTarjetaSellos, true)\n                            }\n                        };\n\n                        _persistencia.Modificar(consultaDet, _persistencia.Trans);\n                    }\n\n\n                    Consulta consulTarjetaOriginal = new Consulta(\"TR_TR_TARJETAS_SELLOS_URBANOS\")\n                    {",
+    "A": "La tarjeta de sellos urbanos se registra como viaje interno terminado y capturado automáticamente, vinculando la sucursal, vehículo, conductor y fechas de carga. Si el registro es un reemplazo, se cancelan los detalles no eliminados ni nuevos, marcándolos como cancelados y borrados con la información del usuario y terminal.",
+    "B": "Tarjeta de sellos urbanos: se registra un viaje interno terminado con captura automática, asignando sucursal, vehículo y conductor. Si es un reemplazo, se cancelan los detalles no eliminados ni nuevos marcándolos como anulados por el personal que registra."
+  },
+  {
+    "par": "P009",
+    "ruta": "ReyOneWeb/Reyma.Datos.Trafico/DPrestamo.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// \n        /// </summary>\n        /// <param name=\"criteriosAplicados\"></param>\n        /// <returns></returns>\n        public DataRow GeneraFolio(string _namespace) // TODO Pasar metodo a las utilerias\n        {\n            Consulta consulta = new Consulta($\"BB_FN_NEXT_FOLIO('{_namespace}')\")\n            {\n                Campos = string.Format(@\"*\"),\n            };\n\n            DataSet ds = _persistenciaDBPG.Consultar(consulta, _persistencia);\n\n            if (ds.Tables[0].Rows.Count > 0)\n                return ds.Tables[0].Rows[0];\n\n            return null;\n        }",
+    "A": "El archivo de datos de préstamos genera un folio único para un espacio de nombres específico mediante una consulta a la base de datos. Si la consulta devuelve al menos un resultado, se retorna la primera fila; de lo contrario, se devuelve un valor nulo.",
+    "B": "El archivo de datos del préstamo genera un folio único solicitando el siguiente número disponible para un espacio de nombres específico. Si la consulta al sistema devuelve resultados, entrega el primer registro; de lo contrario, no proporciona ningún valor."
+  },
+  {
+    "par": "P010",
+    "ruta": "ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "Id = new IDSucursal { Pk_sucursal = Convert.ToInt32(row[\"FK_SUCURSAL_EMBARQUE\"]) },\n                        Nombre_sucursal = row[\"SUCURSAL_EMBARQUE\"] != DBNull.Value ? row[\"SUCURSAL_EMBARQUE\"].ToString() : string.Empty,\n                        jurisdiccionTrafico = row[\"JUR_TRA_EMB\"] != DBNull.Value ? row[\"JUR_TRA_EMB\"].ToString() : string.Empty,\n                    };\n                }\n\n                if (row[\"FK_PERSONAL_REGISTRA\"] != DBNull.Value)\n                {\n                    _obj.Viaje.PersonalRegistra = new Personal\n                    {\n                        Id = new IDPersonal { Pk_personal = Convert.ToInt32(row[\"FK_PERSONAL_REGISTRA\"]) }                        \n                    };\n                }\n\n                if (row[\"PK_LIQUIDACION\"] != DBNull.Value)\n                {\n                    _obj.Viaje.Liquidacion = new Liquidacion\n                    {\n                        Id = new IDLiquidacion { Pk_Liquidacion = Convert.ToInt32(row[\"PK_LIQUIDACION\"]) },\n                        Litros_Consumidos_Cummins = row[\"LTS_CUMMINS\"] != DBNull.Value ? Convert.ToDecimal(row[\"LTS_CUMMINS\"]) : 0M,\n                        Kilometros_Recorridos_Cummins = row[\"KMS_CUMMINS\"] != DBNull.Value ? row[\"KMS_CUMMINS\"].ToString() : \"0.00\",\n                        Kilometraje_Real = row[\"KMS_REAL\"] != DBNull.Value ? Convert.ToDecimal(row[\"KMS_REAL\"]) : 0M,\n                        Litros_Calculados = row[\"LTS_REALES\"] != DBNull.Value ? Convert.ToDecimal(row[\"LTS_REALES\"]) : 0M,\n\n                        KilometrosConduccion = row[\"KMS_CONDUCCION\"] != DBNull.Value ? Convert.ToDecimal(row[\"KMS_CONDUCCION\"]) : 0M,\n                        LitrosConduccion = row[\"LTS_CONDUCCION\"] != DBNull.Value ? Convert.ToDecimal(row[\"LTS_CONDUCCION\"]) : 0M,\n                        RendimientoConduccion = row[\"RND_CONDUCCION\"] != DBNull.Value ? Convert.ToDecimal(row[\"RND_CONDUCCION\"]) : 0M,\n\n                        LitrosAdicional = (row[\"LTS_REALES\"] != DBNull.Value ? Convert.ToDecimal(row[\"LTS_REALES\"]) : 0M) - (row[\"LTS_CUMMINS\"] != DBNull.Value ? Convert.ToDecimal(row[\"LTS_CUMMINS\"]) : 0M)\n                    };\n\n                    //Rendimiento E.C.M\n                    _obj.Viaje.Liquidacion.Rendimiento_Cummins = Math.Round(Convert.ToDecimal(_obj.Viaje.Liquidacion.Kilometros_Recorridos_Cummins) / \n                                                                                                (_obj.Viaje.Liquidacion.Litros_Consumidos_Cummins == 0 ? 1 : _obj.Viaje.Liquidacion.Litros_Consumidos_Cummins), 4);\n\n                    //Rendimiento Real\n                    _obj.Viaje.Liquidacion.Rendimiento = Math.Round(_obj.Viaje.Liquidacion.Kilometraje_Real /\n                                                                        (_obj.Viaje.Liquidacion.Litros_Calculados == 0 ? 1 : _obj.Viaje.Liquidacion.Litros_Calculados),4);\n                }\n            }\n\n            #endregion\n\n            #region Pedidos\n\n            if (row[\"FK_PEDIDO_INT\"] != DBNull.Value)\n            {\n                _obj.PedidoVenta = new PedidoVenta\n                {\n                    Id = new IDPedidoVenta { Pk_Pedido_Venta = Convert.ToInt32(row[\"FK_PEDIDO_INT\"]) },\n                    IdConfigurado = new IDPedidoVenta { Pk_Pedido_Venta = Convert.ToInt32(row[\"FK_PEDIDO_CLIENTE\"]) },",
+    "A": "El registro de viajes y pedidos captura la sucursal de embarque, la jurisdicción de tráfico y el personal que registra el viaje. Además, detalla la liquidación de combustible, calculando rendimientos y litros adicionales, y vincula el viaje a un pedido de venta específico.",
+    "B": "El registro de viajes y pedidos captura la sucursal de embarque, el personal que lo registró y los detalles de liquidación del combustible. Calcula automáticamente el rendimiento del motor y real dividiendo kilómetros por litros consumidos, además de determinar los litros adicionales utilizados."
+  },
+  {
+    "par": "P011",
+    "ruta": "ReyOneWeb/Reyma.Datos.Trafico/DSiniestros.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "Id = new IDRuta { Pk_Ruta = Convert.ToInt32(row[\"FK_RUTA\"]) },\n                    Descripcion = row[\"RUTA\"] != DBNull.Value ? row[\"RUTA\"].ToString() : string.Empty,\n                };\n            }\n\n            #region Pedido\n\n            if (row[\"PK_PEDIDO_VENTA\"] != DBNull.Value)\n            {\n                obj.Pedido = new PedidoVenta\n                {\n                    Id = new IDPedidoVenta { Pk_Pedido_Venta = Convert.ToInt32(row[\"PK_PEDIDO_VENTA\"]) },\n                    Pedidos = row[\"PEDIDOS_CLIENTE\"] != DBNull.Value ? row[\"PEDIDOS_CLIENTE\"].ToString() : string.Empty,\n                };\n\n                if (row[\"FK_CLIENTE_DOMICILIO_ENTREGA\"] != DBNull.Value)\n                {\n                    obj.Pedido.ClienteDomicilioEntrega = new ClienteDomicilioEntrega\n                    {\n                        Id = new IDClienteDomicilioEntrega { Pk_cliente_domicilio_entrega = Convert.ToInt32(row[\"FK_CLIENTE_DOMICILIO_ENTREGA\"]) },\n                        Nombre_completo = row[\"CLIENTE\"] != DBNull.Value ? row[\"CLIENTE\"].ToString() : string.Empty,\n                    };\n                }\n            }\n            #endregion\n\n            return obj;\n        }",
+    "A": "El archivo de siniestros asigna la ruta y el pedido de venta asociados, incluyendo los pedidos del cliente. Si existe un domicilio de entrega vinculado al pedido, se registra también el nombre completo del cliente correspondiente.",
+    "B": "El archivo de siniestros asigna la ruta de transporte y sus detalles, vinculando además el pedido de venta asociado. Si existe un pedido, se registra la descripción del mismo y, opcionalmente, el nombre del cliente designado para la entrega en su domicilio."
+  },
+  {
+    "par": "P012",
+    "ruta": "ReyOneWeb/Reyma.Datos.Trafico/DLiquidacion.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "#endregion\n\n        #region ConsultaElementosReporteBancos\n        public List<ReporteNewGastos> ConsultarElementosRptNewGastos(string usuario, List<CriterioValor> criteriosBusqueda, List<int> listaConceptos)\n        {\n            _persistencia.Usuario = usuario;\n            Consulta consulta = GetConsultaRptGastosNewViaje(listaConceptos);\n            List<ReporteNewGastos> lstLiquidacion = new List<ReporteNewGastos>();\n\n            if (criteriosBusqueda.Count > 0)\n                consulta.CondicionesWhere = UtileriasBB.ObtenerCriteriosBusqueda(criteriosBusqueda, false, null);\n            consulta.CondicionesWhere.Add(new CondicionWhere(_alias + \".AU_BORRADO\", Operadores.IGUAL, 0, false));\n\n            DataSet ds = _persistencia.Consultar(consulta);\n\n            if (ds.Tables[0].Rows.Count > 0)\n                lstLiquidacion.AddRange(from DataRow row in ds.Tables[0].Rows select toObjectNewReporteGastos(row));\n\n            return lstLiquidacion;\n        }",
+    "A": "Liquidación de gastos: recupera la lista de gastos de viaje no eliminados para un usuario específico, aplicando filtros de búsqueda opcionales y una lista de conceptos definidos.",
+    "B": "Liquidación: recupera la lista de gastos nuevos para un usuario específico, aplicando los criterios de búsqueda proporcionados y excluyendo automáticamente cualquier registro marcado como borrado."
+  },
+  {
+    "par": "P013",
+    "ruta": "ReyOneWeb/Reyma.Datos.Trafico/DViajesPedidos.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "{\n                    obj.ClienteDomicilioEntrega = new ClienteDomicilioEntrega\n                    {\n                        Id = new IDClienteDomicilioEntrega { Pk_cliente_domicilio_entrega = Convert.ToInt32(row[\"FK_CLIENTE_DOMICILIO_ENTREGA\"]) },\n                        Nombre_completo = row[\"CLIENTE\"] != DBNull.Value ? row[\"CLIENTE\"].ToString() : string.Empty,\n                    };\n                }\n\n            }\n\n            #endregion\n\n            #region Pedido\n\n            //if (row[\"FK_PEDIDO_INT\"] != DBNull.Value)\n            //{\n            //    obj.PedidoVenta = new PedidoVenta\n            //    {\n            //        Id = new IDPedidoVenta { Pk_Pedido_Venta = Convert.ToInt32(row[\"FK_PEDIDO_INT\"]) },\n            //        IdConfigurado = new IDPedidoVenta { Pk_Pedido_Venta = Convert.ToInt32(row[\"FK_PEDIDO_CLIENTE\"]) },\n            //        Fecha_Programada_Carga = FormatoFecha.ObtenerFecha(row[\"FECHA_PROGRAMADA_CARGA\"].ToString()),\n            //        PedidosConfigurados = row[\"PEDIDOS_CLIENTE\"] != DBNull.Value ? row[\"PEDIDOS_CLIENTE\"].ToString() : string.Empty,\n            //    };\n\n            //    if (row[\"FK_CLIENTE_DOMICILIO_ENTREGA\"] != DBNull.Value)\n            //    {\n            //        obj.PedidoVenta.ClienteDomicilioEntrega = new ClienteDomicilioEntrega\n            //        {\n            //            Id = new IDClienteDomicilioEntrega { Pk_cliente_domicilio_entrega = Convert.ToInt32(row[\"FK_CLIENTE_DOMICILIO_ENTREGA\"]) },\n            //            Nombre_completo = row[\"CLIENTE\"] != DBNull.Value ? row[\"CLIENTE\"].ToString() : string.Empty,\n            //        };\n            //    }\n            //}\n\n            //if (row[\"FECHA_HORA_PROGRAMACION\"] != DBNull.Value)\n            //{\n            //    obj.Fecha_Hora_Programacion = FormatoFecha.ObtenerFecha(row[\"FECHA_HORA_PROGRAMACION\"].ToString());\n            //}\n\n            #endregion\n\n            return obj;\n        }",
+    "A": "DViajesPedidos: Asocia al viaje el domicilio de entrega del cliente, capturando su identificador único y nombre completo desde los datos fuente.",
+    "B": "DViajesPedidos: Asocia el domicilio de entrega del cliente al viaje, capturando su identificador único y nombre completo, siempre que la información no esté vacía."
+  },
+  {
+    "par": "P014",
+    "ruta": "ReyOneWeb/Reyma.Datos.Trafico/DRolUrbano.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// Modifica el Conductor del Rol elegido.\n        /// </summary>\n        /// <param name=\"elemento\"></param>\n        /// <param name=\"ModifyRolTurno\"></param>\n        public void ModificaConductorRol(RolUrbano elemento)\n        {\n            try\n            {\n                _persistencia.Usuario = elemento.Au_Usuario;\n                _persistencia.BeginTrans();\n\n                Consulta consulta = new Consulta(\"TR_CT_ROLES_URBANOS\")\n                {\n                    CamposValor = new Dictionary<string, object>\n                    {\n                        { \"FK_CONDUCTOR\", elemento.Conductor.Id.Pk_Conductor },\n                        { \"AU_FECHA_MOD\", \"CURRENT DATE\" },\n                        { \"AU_HORA_MOD\", \"CURRENT TIME\" },\n                        { \"AU_USUARIO\", elemento.Au_Usuario },\n                        { \"AU_TERMINAL\", elemento.Au_Terminal },\n                        { \"AU_BORRADO\", 0 }\n                    }\n                };\n\n                consulta.CondicionesWhere = new List<CondicionWhere>\n                {\n                    new CondicionWhere(\"PK_ROL_URBANO\", Operadores.IGUAL, elemento.Id.pkRolUrbano, true)\n                };\n\n                _persistencia.Modificar(consulta, _persistencia.Trans);\n                _persistencia.CommitTrans();\n            }\n            catch (Exception ex)\n            {\n                _persistencia.RollbackTrans();\n                throw new Exception(ex.Message);\n            }\n        }",
+    "A": "Rol Urbano: actualiza el conductor asignado a un rol urbano específico, registrando la fecha, hora, usuario y terminal de la modificación.",
+    "B": "Rol Urbano: actualiza la asignación del conductor vinculado a un rol específico, registrando la fecha, hora, usuario y terminal de la modificación, y marcando el registro como no borrado."
+  },
+  {
+    "par": "P015",
+    "ruta": "ReyOneWeb/Reyma.Datos.Trafico/DLiquidiacionIndicadorConduccion.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// Propiedad que administra las conexiones a la base de datos\n        /// </summary>\n        private readonly Persistencia _persistencia;",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P016",
+    "ruta": "ReyOneWeb/Reyma.Datos.Trafico/Reyma.Datos.Trafico.csproj",
+    "lenguaje": "PlainText",
+    "fragmento": "<ItemGroup>\n    <Compile Include=\"DAclaracionCapufe.cs\" />\n    <Compile Include=\"DBonos.cs\" />\n    <Compile Include=\"DCalculoIncidenciaDet.cs\" />\n    <Compile Include=\"DCalculoPrenomina.cs\" />\n    <Compile Include=\"DCalculoPrenominaDet.cs\" />\n    <Compile Include=\"DCasetas.cs\" />\n    <Compile Include=\"DConceptoNomina.cs\" />\n    <Compile Include=\"DConceptos.cs\" />\n    <Compile Include=\"DConceptosCheckConductor.cs\" />\n    <Compile Include=\"DContenedoresLigas.cs\" />\n    <Compile Include=\"DEvento.cs\" />\n    <Compile Include=\"DHistorial_Tripulaciones.cs\" />\n    <Compile Include=\"DIndicadorConduccion.cs\" />\n    <Compile Include=\"DInfracciones.cs\" />\n    <Compile Include=\"DLiquidacion.cs\" />\n    <Compile Include=\"DLiquidacionDocumento.cs\" />\n    <Compile Include=\"DLiquidacionRutaLocal.cs\" />\n    <Compile Include=\"DLiquidacionRutaLocalDet.cs\" />\n    <Compile Include=\"DLiquidiacionIndicadorConduccion.cs\" />\n    <Compile Include=\"DMonitoreoTurno.cs\" />\n    <Compile Include=\"DMovimientosPrenomina.cs\" />\n    <Compile Include=\"DOrdenCompra.cs\" />\n    <Compile Include=\"DPagoGPS.cs\" />\n    <Compile Include=\"DPagoGPSDet.cs\" />\n    <Compile Include=\"DParametros.cs\" />\n    <Compile Include=\"DParametrosVerificaciones.cs\" />\n    <Compile Include=\"DPeajeIave.cs\" />\n    <Compile Include=\"DPlanesRutasUrbanos.cs\" />\n    <Compile Include=\"DPrenomina.cs\" />\n    <Compile Include=\"DPrestamo.cs\" />\n    <Compile Include=\"DRecepcionFacturas.cs\" />\n    <Compile Include=\"DRegistroEventoDet.cs\" />\n    <Compile Include=\"DRegistroEventos.cs\" />\n    <Compile Include=\"DReportesAdministrativos.cs\" />\n    <Compile Include=\"DRevisionDispositivo.cs\" />\n    <Compile Include=\"DRolMonitoreoTurno.cs\" />\n    <Compile Include=\"DRolUrbano.cs\" />\n    <Compile Include=\"DRolTurno.cs\" />\n    <Compile Include=\"DRutaEstacion.cs\" />\n    <Compile Include=\"DRutaLocal.cs\" />\n    <Compile Include=\"DRutas.cs\" />\n    <Compile Include=\"DServicio.cs\" />\n    <Compile Include=\"DSiniestroDocumento.cs\" />\n    <Compile Include=\"DSiniestros.cs\" />\n    <Compile Include=\"DTarjetaSellos.cs\" />\n    <Compile Include=\"DTipoSiniestro.cs\" />\n    <Compile Include=\"DVerificacion.cs\" />\n    <Compile Include=\"DViaje.cs\" />\n    <Compile Include=\"DViajesGastos.cs\" />\n    <Compile Include=\"DViajesPedidos.cs\" />",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P017",
+    "ruta": "ReyOneWeb/Reyma.Datos.Trafico/Reyma.Datos.Trafico.csproj",
+    "lenguaje": "PlainText",
+    "fragmento": "</ItemGroup>\n  <ItemGroup>\n    <EmbeddedResource Include=\"Querys\\CalculoPrenomina.sql\" />\n  </ItemGroup>\n  <ItemGroup>\n    <EmbeddedResource Include=\"Querys\\ActualizarMovimientosPrenomina.sql\" />\n  </ItemGroup>\n  <ItemGroup />\n  <Import Project=\"$(MSBuildToolsPath)\\Microsoft.CSharp.targets\" />\n  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. \n       Other similar extension points exist, see Microsoft.Common.targets.\n  <Target Name=\"BeforeBuild\">\n  </Target>\n  <Target Name=\"AfterBuild\">\n  </Target>\n  -->\n</Project>",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P018",
+    "ruta": "ReyOneWeb/Reyma.Datos.Trafico/Reyma.Datos.Trafico.csproj",
+    "lenguaje": "PlainText",
+    "fragmento": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Project ToolsVersion=\"12.0\" DefaultTargets=\"Build\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">\n  <Import Project=\"$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props\" Condition=\"Exists('$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props')\" />\n  <PropertyGroup>\n    <Configuration Condition=\" '$(Configuration)' == '' \">Debug</Configuration>\n    <Platform Condition=\" '$(Platform)' == '' \">AnyCPU</Platform>\n    <ProjectGuid>{B0F65DD6-3EB8-4D61-83D5-FEBBA7AE9534}</ProjectGuid>\n    <OutputType>Library</OutputType>\n    <AppDesignerFolder>Properties</AppDesignerFolder>\n    <RootNamespace>Reyma.Datos.Trafico</RootNamespace>\n    <AssemblyName>Reyma.Datos.Trafico</AssemblyName>\n    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>\n    <FileAlignment>512</FileAlignment>\n    <TargetFrameworkProfile />\n    <SccProjectName>SAK</SccProjectName>\n    <SccLocalPath>SAK</SccLocalPath>\n    <SccAuxPath>SAK</SccAuxPath>\n    <SccProvider>SAK</SccProvider>\n  </PropertyGroup>\n  <PropertyGroup Condition=\" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' \">\n    <DebugSymbols>true</DebugSymbols>\n    <DebugType>full</DebugType>\n    <Optimize>false</Optimize>\n    <OutputPath>bin\\Debug\\</OutputPath>\n    <DefineConstants>DEBUG;TRACE</DefineConstants>\n    <ErrorReport>prompt</ErrorReport>\n    <WarningLevel>4</WarningLevel>\n    <Prefer32Bit>false</Prefer32Bit>\n    <LangVersion>7.3</LangVersion>\n  </PropertyGroup>\n  <PropertyGroup Condition=\" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' \">\n    <DebugType>pdbonly</DebugType>\n    <Optimize>true</Optimize>\n    <OutputPath>bin\\Release\\</OutputPath>\n    <DefineConstants>TRACE</DefineConstants>\n    <ErrorReport>prompt</ErrorReport>\n    <WarningLevel>4</WarningLevel>\n    <Prefer32Bit>false</Prefer32Bit>\n  </PropertyGroup>\n  <ItemGroup>\n    <Reference Include=\"System\" />\n    <Reference Include=\"System.Core\" />\n    <Reference Include=\"System.Xml.Linq\" />\n    <Reference Include=\"System.Data.DataSetExtensions\" />\n    <Reference Include=\"Microsoft.CSharp\" />\n    <Reference Include=\"System.Data\" />\n    <Reference Include=\"System.Xml\" />\n  </ItemGroup>\n  <ItemGroup>\n    <Compile Include=\"DAclaracionCapufe.cs\" />\n    <Compile Include=\"DBonos.cs\" />",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P019",
+    "ruta": "ReyOneWeb/Reyma.Entidades.Produccion/CompraDirecta.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "public IDCompraDirecta Id {get;set;}\npublic string Delivery {get;set;}\npublic string Factura {get;set;}\npublic string Folio_Pesada {get;set;}\npublic string Numero_Economico {get;set;}\npublic decimal Kilos_Facturados {get;set;}\npublic decimal Kilos_Recibidos {get;set;}\npublic string Estatus {get;set;}\npublic decimal Tipo_Cambio {get;set;}\npublic decimal Importe_Factura {get;set;}\npublic DateTime Fecha_Factura {get;set;}\npublic DateTime Fecha_Recepcion {get;set;}\npublic string Au_Usuario {get;set;}\npublic DateTime Au_Fecha_Mod {get;set;}\npublic TimeSpan Au_Hora_Mod {get;set;}\npublic string Au_Terminal {get;set;}\npublic int Au_Borrado {get;set;}\npublic Proveedor Proveedor {get;set;}\npublic Planta Planta {get;set;}\npublic MateriaPrima MateriaPrima {get;set;}\npublic Proveedor ProveedorTransporte {get;set;}\npublic Empresa EmpresaFactura { get; set; }",
+    "A": "CompraDirecta: registro de una compra directa que vincula proveedor, planta y materia prima, capturando datos de facturación, recepción de kilos, estatus y auditoría de modificación.",
+    "B": "CompraDirecta: Registro de una compra directa que vincula proveedor, planta y materia prima, capturando detalles logísticos como folio de pesada, kilos facturados y recibidos, estatus, tipo de cambio e importes."
+  },
+  {
+    "par": "P020",
+    "ruta": "ReyOneWeb/Reyma.Entidades.Produccion/Silos.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "public IDSilos Id {get;set;}\npublic Planta Planta {get;set;}\npublic MateriaPrima MateriaPrima {get;set;}\npublic string Clave_Corta {get;set;}\npublic string Nombre {get;set;}\npublic string Au_Usuario {get;set;}\npublic DateTime Au_Fecha_Mod {get;set;}\npublic TimeSpan Au_Hora_Mod {get;set;}\npublic string Au_Terminal {get;set;}\npublic int Au_Borrado {get;set;}",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P021",
+    "ruta": "ReyOneWeb/Reyma.Entidades.Produccion/Properties/AssemblyInfo.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "using System.Reflection;\nusing System.Runtime.CompilerServices;\nusing System.Runtime.InteropServices;\n\n// La información general sobre un ensamblado se controla mediante el siguiente \n// conjunto de atributos. Cambie estos atributos para modificar la información\n// asociada con un ensamblado.\n[assembly: AssemblyTitle(\"Reyma.Entidades.Produccion\")]\n[assembly: AssemblyDescription(\"\")]\n[assembly: AssemblyConfiguration(\"\")]\n[assembly: AssemblyCompany(\"\")]\n[assembly: AssemblyProduct(\"Reyma.Entidades.Produccion\")]\n[assembly: AssemblyCopyright(\"Copyright ©  2014\")]\n[assembly: AssemblyTrademark(\"\")]\n[assembly: AssemblyCulture(\"\")]\n\n// Si establece ComVisible como false, los tipos de este ensamblado no estarán visibles \n// para los componentes COM.  Si necesita obtener acceso a un tipo de este ensamblado desde \n// COM, establezca el atributo ComVisible como true en este tipo.\n[assembly: ComVisible(false)]\n\n// El siguiente GUID sirve como identificador de typelib si este proyecto se expone a COM\n[assembly: Guid(\"a878c0c8-d116-4acb-b15c-39a3d7e053ae\")]\n\n// La información de versión de un ensamblado consta de los cuatro valores siguientes:\n//\n//      Versión principal\n//      Versión secundaria \n//      Número de compilación\n//      Revisión\n//\n// Puede especificar todos los valores o establecer como predeterminados los números de compilación y de revisión \n// mediante el carácter '*', como se muestra a continuación:\n// [assembly: AssemblyVersion(\"1.0.*\")]\n[assembly: AssemblyVersion(\"1.0.0.0\")]\n[assembly: AssemblyFileVersion(\"1.0.0.0\")]",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P022",
+    "ruta": "ReyOneWeb/Reyma.Entidades.Trafico/Viaje.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "public bool InsertaViajesPedidos\n        {\n            get { return this._insertaViajesPedidos; }\n            set { this._insertaViajesPedidos = value; }\n        }",
+    "A": "Viaje: define una propiedad de solo lectura y escritura que controla si el sistema debe registrar los viajes solicitados.",
+    "B": "Viaje: define una propiedad de solo lectura y escritura que controla si se deben insertar los viajes solicitados."
+  },
+  {
+    "par": "P023",
+    "ruta": "ReyOneWeb/Reyma.Entidades.Trafico/RegistroEventos.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "public RegistroEventos()\n        {\n            Registro_Detalle_Eventos = new List<RegistroEventoDet>();\n        }",
+    "A": "RegistroEventos: inicializa la lista de detalles de eventos como vacía al crear una nueva instancia.",
+    "B": "RegistroEventos: Inicializa la lista de detalles de eventos vacía al crear una nueva instancia del registro."
+  },
+  {
+    "par": "P024",
+    "ruta": "ReyOneWeb/Reyma.Entidades.Trafico/CalculoPrenomina.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// Obtiene o asigna el Identificador de el cálculo de la pre-nómina.\n        /// </summary>\n        /// <value>La llave primaria de el cálculo de la pre-nómina.</value>\n        public int Pk_Calculo_Prenomina { get; set; }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P025",
+    "ruta": "ReyOneWeb/Reyma.Entidades.Trafico/Reyma.Entidades.Trafico.csproj",
+    "lenguaje": "PlainText",
+    "fragmento": "<Compile Include=\"AclaracionCapufe.cs\" />\n    <Compile Include=\"Backbone\\CiudadReyma.cs\" />\n    <Compile Include=\"Backbone\\ClienteReyma.cs\" />\n    <Compile Include=\"Backbone\\Operador.cs\" />\n    <Compile Include=\"Backbone\\PersonalReyma.cs\" />\n    <Compile Include=\"Backbone\\Planta.cs\" />\n    <Compile Include=\"Backbone\\Remolque.cs\" />\n    <Compile Include=\"Backbone\\RutaReyma.cs\" />\n    <Compile Include=\"Backbone\\SucursalReyma.cs\" />\n    <Compile Include=\"Backbone\\VehiculoReyma.cs\" />\n    <Compile Include=\"Bonos.cs\" />\n    <Compile Include=\"CalculoPrenomina.cs\" />\n    <Compile Include=\"CalculoPrenominaDet.cs\" />\n    <Compile Include=\"CalculoIncidenciaDet.cs\" />\n    <Compile Include=\"CalificacionConductorLiquidacion.cs\" />\n    <Compile Include=\"Callbacks\\JSONCallback.cs\" />\n    <Compile Include=\"Callbacks\\ModificacionViajes\\ModificacionViajesCallback.cs\" />\n    <Compile Include=\"Callbacks\\Monitoreo\\EventosViajesCallback.cs\" />\n    <Compile Include=\"Callbacks\\Monitoreo\\IncidenciasConductoresAutoCancCallback.cs\" />\n    <Compile Include=\"Callbacks\\Monitoreo\\IncidenciasConductoresCallback.cs\" />\n    <Compile Include=\"Callbacks\\ViajeManual\\ViajeManualCallback.cs\" />\n    <Compile Include=\"Casetas.cs\" />\n    <Compile Include=\"ConceptoNomina.cs\" />\n    <Compile Include=\"Conceptos.cs\" />\n    <Compile Include=\"ConceptosCheckConductor.cs\" />\n    <Compile Include=\"ContenedoresLigas.cs\" />\n    <Compile Include=\"Emails\\EmailTemplateInfo.cs\" />\n    <Compile Include=\"Emails\\ModificacionViaje.cs\" />\n    <Compile Include=\"Emails\\PrenominaModel.cs\" />\n    <Compile Include=\"EngineTripReport.cs\" />\n    <Compile Include=\"Enumeracion\\EnumeracionTrafico.cs\" />\n    <Compile Include=\"Evento.cs\" />\n    <Compile Include=\"Historial_Tripulaciones.cs\" />\n    <Compile Include=\"IndicadorConduccion.cs\" />\n    <Compile Include=\"Infracciones.cs\" />\n    <Compile Include=\"InfraccionesDetalle.cs\" />\n    <Compile Include=\"Interfaces\\TemplateInfo.cs\" />\n    <Compile Include=\"Liquidacion.cs\" />\n    <Compile Include=\"LiquidacionDetalle.cs\" />\n    <Compile Include=\"LiquidacionDocumento.cs\" />\n    <Compile Include=\"LiquidacionIndicadoresConduccion.cs\" />\n    <Compile Include=\"LiquidacionRutaLocal.cs\" />\n    <Compile Include=\"LiquidacionRutaLocalDet.cs\" />\n    <Compile Include=\"MonitoreoTurno.cs\" />\n    <Compile Include=\"MovimientoPrenomina.cs\" />\n    <Compile Include=\"OrdenCompra.cs\" />\n    <Compile Include=\"OrdenCompraDetalle.cs\" />\n    <Compile Include=\"PagoGPS.cs\" />\n    <Compile Include=\"PagoGPSDet.cs\" />\n    <Compile Include=\"Parametro.cs\" />\n    <Compile Include=\"ParametrosVerificaciones.cs\" />",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P026",
+    "ruta": "ReyOneWeb/Reyma.Entidades.Trafico/Reyma.Entidades.Trafico.csproj",
+    "lenguaje": "PlainText",
+    "fragmento": "<Compile Include=\"PagoGPSDet.cs\" />\n    <Compile Include=\"Parametro.cs\" />\n    <Compile Include=\"ParametrosVerificaciones.cs\" />\n    <Compile Include=\"PeajeIave.cs\" />\n    <Compile Include=\"PlanesRutasUrbanos.cs\" />\n    <Compile Include=\"PlanesRutasUrbanosDet.cs\" />\n    <Compile Include=\"Prenomina.cs\" />\n    <Compile Include=\"Prestamo.cs\" />\n    <Compile Include=\"PrestamoComprobaciones.cs\" />\n    <Compile Include=\"Procesos\\DomicilioEntregaReyma.cs\" />\n    <Compile Include=\"Procesos\\IncidenciaConductor.cs\" />\n    <Compile Include=\"Procesos\\IncidenciaConductorEvidencia.cs\" />\n    <Compile Include=\"Procesos\\PedidoVentaConfig.cs\" />\n    <Compile Include=\"Procesos\\PedidoVentaReyma.cs\" />\n    <Compile Include=\"Procesos\\ViajePedidoReyma.cs\" />\n    <Compile Include=\"Properties\\AssemblyInfo.cs\" />\n    <Compile Include=\"RecepcionFacturas.cs\" />\n    <Compile Include=\"RecepcionMaterial.cs\" />\n    <Compile Include=\"RecepcionMaterialDetalle.cs\" />\n    <Compile Include=\"RegistroEventoDet.cs\" />\n    <Compile Include=\"RegistroEventos.cs\" />\n    <Compile Include=\"ReporteNewGastos.cs\" />\n    <Compile Include=\"ReportesAdministrativos.cs\" />\n    <Compile Include=\"RevisionDispositivo.cs\" />\n    <Compile Include=\"RolMonitoreoTurno.cs\" />\n    <Compile Include=\"RolUrbano.cs\" />\n    <Compile Include=\"RutaLocal.cs\" />\n    <Compile Include=\"RutaLocalEstacion.cs\" />\n    <Compile Include=\"Rutas.cs\" />\n    <Compile Include=\"RutasCasetas.cs\" />\n    <Compile Include=\"RutasConceptos.cs\" />\n    <Compile Include=\"RutaTurno.cs\" />\n    <Compile Include=\"SeguimientoSiniestros.cs\" />\n    <Compile Include=\"Servicio.cs\" />\n    <Compile Include=\"SiniestroDocumento.cs\" />\n    <Compile Include=\"Siniestros.cs\" />\n    <Compile Include=\"TarjetaSellos.cs\" />\n    <Compile Include=\"TarjetaSellosDet.cs\" />\n    <Compile Include=\"TipoAmonestacion.cs\" />\n    <Compile Include=\"TipoIncidencia.cs\" />\n    <Compile Include=\"TipoSiniestro.cs\" />\n    <Compile Include=\"VehiculoGeoTab.cs\" />\n    <Compile Include=\"Verificacion.cs\" />\n    <Compile Include=\"VerificacionHistorico.cs\" />\n    <Compile Include=\"Viaje.cs\" />\n    <Compile Include=\"ViajesGastos.cs\" />\n    <Compile Include=\"ViajesPedidos.cs\" />\n  </ItemGroup>\n  <ItemGroup>\n    <ProjectReference Include=\"..\\..\\BibliotecaComponentes\\Implementacion\\REYMA.Biblioteca\\REYMA.Biblioteca.csproj\">\n      <Project>{7434ffe7-4c57-4b59-a3d4-72163b0e5842}</Project>",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P027",
+    "ruta": "ReyOneWeb/Reyma.Entidades.Trafico/Reyma.Entidades.Trafico.csproj",
+    "lenguaje": "PlainText",
+    "fragmento": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Project ToolsVersion=\"12.0\" DefaultTargets=\"Build\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">\n  <Import Project=\"$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props\" Condition=\"Exists('$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props')\" />\n  <PropertyGroup>\n    <Configuration Condition=\" '$(Configuration)' == '' \">Debug</Configuration>\n    <Platform Condition=\" '$(Platform)' == '' \">AnyCPU</Platform>\n    <ProjectGuid>{029E5C82-405D-4610-A49D-655A8CC7D6C7}</ProjectGuid>\n    <OutputType>Library</OutputType>\n    <AppDesignerFolder>Properties</AppDesignerFolder>\n    <RootNamespace>Reyma.Entidades.Trafico</RootNamespace>\n    <AssemblyName>Reyma.Entidades.Trafico</AssemblyName>\n    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>\n    <FileAlignment>512</FileAlignment>\n    <TargetFrameworkProfile />\n    <SccProjectName>SAK</SccProjectName>\n    <SccLocalPath>SAK</SccLocalPath>\n    <SccAuxPath>SAK</SccAuxPath>\n    <SccProvider>SAK</SccProvider>\n  </PropertyGroup>\n  <PropertyGroup Condition=\" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' \">\n    <DebugSymbols>true</DebugSymbols>\n    <DebugType>full</DebugType>\n    <Optimize>false</Optimize>\n    <OutputPath>bin\\Debug\\</OutputPath>\n    <DefineConstants>DEBUG;TRACE</DefineConstants>\n    <ErrorReport>prompt</ErrorReport>\n    <WarningLevel>4</WarningLevel>\n    <Prefer32Bit>false</Prefer32Bit>\n  </PropertyGroup>\n  <PropertyGroup Condition=\" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' \">\n    <DebugType>pdbonly</DebugType>\n    <Optimize>true</Optimize>\n    <OutputPath>bin\\Release\\</OutputPath>\n    <DefineConstants>TRACE</DefineConstants>\n    <ErrorReport>prompt</ErrorReport>\n    <WarningLevel>4</WarningLevel>\n    <Prefer32Bit>false</Prefer32Bit>\n  </PropertyGroup>\n  <ItemGroup>\n    <Reference Include=\"System\" />\n    <Reference Include=\"System.Core\" />\n    <Reference Include=\"System.Xml.Linq\" />\n    <Reference Include=\"System.Data.DataSetExtensions\" />\n    <Reference Include=\"Microsoft.CSharp\" />\n    <Reference Include=\"System.Data\" />\n    <Reference Include=\"System.Xml\" />\n  </ItemGroup>\n  <ItemGroup>\n    <Compile Include=\"AclaracionCapufe.cs\" />\n    <Compile Include=\"Backbone\\CiudadReyma.cs\" />\n    <Compile Include=\"Backbone\\ClienteReyma.cs\" />",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P028",
+    "ruta": "ReyOneWeb/Reyma.Negocio.Produccion/NRegistroSellosPlanta.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// Consulta los elementos RegistroSellosPlanta que coincidan con los criterios de busqueda \n        /// </summary>\n        /// <param name=\"criteriosAplicados\"></param>\n        /// <param name=\"usuario\"></param>\n        /// <returns></returns>\n        public List<RegistroSellosPlanta> ConsultarElementos(List<CriterioValor> criteriosAplicados, string usuario)\n        {\n            try\n            {\n                return DRegistroSellosPlanta.ConsultarElementos(criteriosAplicados, usuario);\n            }\n            catch (Exception ex)\n            {\n                throw new Exception(ex.Message);\n            }\n        }",
+    "A": "RegistroSellosPlanta: recupera la lista de registros de sellos de planta que cumplan con los criterios de búsqueda especificados, validando el usuario solicitante y propagando cualquier error encontrado durante la consulta.",
+    "B": "RegistroSellosPlanta: recupera la lista de registros de sellos de planta que cumplan con los criterios de búsqueda especificados, validando la operación bajo el contexto del usuario indicado."
+  },
+  {
+    "par": "P029",
+    "ruta": "ReyOneWeb/Reyma.Negocio.Produccion/NEmbarqueDI.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// Modifica el elemento indicado y su detalle\n        /// </summary>\n        /// <param name=\"elemento\"></param>\n        /// <param name=\"usuario\"></param>\n        public void ModificarElemento(EmbarqueDI elemento,List<ConsumoSellosPlanta> lstConsumoSellos)\n        {\n            try\n            {\n                DEmbarqueDI.ModificarElemento(elemento,lstConsumoSellos);\n            }\n            catch (Exception ex)\n            {\n                throw new Exception(ex.Message);\n            }\n        }",
+    "A": "EmbarqueDI: Permite modificar un embarque y su detalle asociado, incluyendo el consumo de sellos de planta, validando la operación y reportando cualquier error que ocurra durante el proceso.",
+    "B": "Reyma.Negocio.Produccion: Actualiza la información de un embarque y su detalle de consumo de sellos de planta, propagando cualquier error que ocurra durante el proceso."
+  },
+  {
+    "par": "P030",
+    "ruta": "ReyOneWeb/Reyma.Negocio.Produccion/NConsumoSellosPlanta.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// Consulta el elemento ConsumoSellosPlanta que coincidan con el id especificado\n        /// </summary>\n        /// <param name=\"id\"></param>\n        /// <param name=\"usuario\"></param>\n        /// <returns></returns>\n        public ConsumoSellosPlanta ConsultarElemento(IDConsumoSellosPlanta id, string usuario)\n        {\n            try\n            {\n                return DConsumoSellosPlanta.ConsultarElemento(id, usuario);\n            }\n            catch (Exception ex)\n            {\n                throw new Exception(ex.Message);\n            }\n        }",
+    "A": "ConsumoSellosPlanta: recupera los datos de un registro específico de consumo de sellos en planta mediante su identificador único, validando la operación con el usuario indicado.",
+    "B": "ConsumoSellosPlanta: recupera los datos de un registro específico de consumo de sellos en planta, identificándolo mediante su identificador único y el usuario solicitante."
+  },
+  {
+    "par": "P031",
+    "ruta": "ReyOneWeb/Reyma.Negocio.Produccion/Reyma.Negocio.Produccion.csproj",
+    "lenguaje": "PlainText",
+    "fragmento": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Project ToolsVersion=\"12.0\" DefaultTargets=\"Build\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">\n  <Import Project=\"$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props\" Condition=\"Exists('$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props')\" />\n  <PropertyGroup>\n    <Configuration Condition=\" '$(Configuration)' == '' \">Debug</Configuration>\n    <Platform Condition=\" '$(Platform)' == '' \">AnyCPU</Platform>\n    <ProjectGuid>{D01A1FB4-A7E1-41C8-8D0E-5C265D428F1E}</ProjectGuid>\n    <OutputType>Library</OutputType>\n    <AppDesignerFolder>Properties</AppDesignerFolder>\n    <RootNamespace>Reyma.Negocio.Produccion</RootNamespace>\n    <AssemblyName>Reyma.Negocio.Produccion</AssemblyName>\n    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>\n    <FileAlignment>512</FileAlignment>\n    <TargetFrameworkProfile />\n    <SccProjectName>SAK</SccProjectName>\n    <SccLocalPath>SAK</SccLocalPath>\n    <SccAuxPath>SAK</SccAuxPath>\n    <SccProvider>SAK</SccProvider>\n  </PropertyGroup>\n  <PropertyGroup Condition=\" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' \">\n    <DebugSymbols>true</DebugSymbols>\n    <DebugType>full</DebugType>\n    <Optimize>false</Optimize>\n    <OutputPath>bin\\Debug\\</OutputPath>\n    <DefineConstants>DEBUG;TRACE</DefineConstants>\n    <ErrorReport>prompt</ErrorReport>\n    <WarningLevel>4</WarningLevel>\n    <Prefer32Bit>false</Prefer32Bit>\n  </PropertyGroup>\n  <PropertyGroup Condition=\" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' \">\n    <DebugType>pdbonly</DebugType>\n    <Optimize>true</Optimize>\n    <OutputPath>bin\\Release\\</OutputPath>\n    <DefineConstants>TRACE</DefineConstants>\n    <ErrorReport>prompt</ErrorReport>\n    <WarningLevel>4</WarningLevel>\n    <Prefer32Bit>false</Prefer32Bit>\n  </PropertyGroup>\n  <ItemGroup>\n    <Reference Include=\"System\" />\n    <Reference Include=\"System.Core\" />\n    <Reference Include=\"System.Xml.Linq\" />\n    <Reference Include=\"System.Data.DataSetExtensions\" />\n    <Reference Include=\"Microsoft.CSharp\" />\n    <Reference Include=\"System.Data\" />\n    <Reference Include=\"System.Xml\" />\n  </ItemGroup>\n  <ItemGroup>\n    <Compile Include=\"NCompraDirecta.cs\" />\n    <Compile Include=\"NCompraPrecargada.cs\" />\n    <Compile Include=\"NConsumoSellosPlanta.cs\" />",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P032",
+    "ruta": "ReyOneWeb/Reyma.Negocio.Produccion/Reyma.Negiocio.Produccion.csproj",
+    "lenguaje": "PlainText",
+    "fragmento": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Project ToolsVersion=\"12.0\" DefaultTargets=\"Build\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">\n  <Import Project=\"$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props\" Condition=\"Exists('$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props')\" />\n  <PropertyGroup>\n    <Configuration Condition=\" '$(Configuration)' == '' \">Debug</Configuration>\n    <Platform Condition=\" '$(Platform)' == '' \">AnyCPU</Platform>\n    <ProjectGuid>{D01A1FB4-A7E1-41C8-8D0E-5C265D428F1E}</ProjectGuid>\n    <OutputType>Library</OutputType>\n    <AppDesignerFolder>Properties</AppDesignerFolder>\n    <RootNamespace>Reyma.Negiocio.Produccion</RootNamespace>\n    <AssemblyName>Reyma.Negiocio.Produccion</AssemblyName>\n    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>\n    <FileAlignment>512</FileAlignment>\n  </PropertyGroup>\n  <PropertyGroup Condition=\" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' \">\n    <DebugSymbols>true</DebugSymbols>\n    <DebugType>full</DebugType>\n    <Optimize>false</Optimize>\n    <OutputPath>bin\\Debug\\</OutputPath>\n    <DefineConstants>DEBUG;TRACE</DefineConstants>\n    <ErrorReport>prompt</ErrorReport>\n    <WarningLevel>4</WarningLevel>\n  </PropertyGroup>\n  <PropertyGroup Condition=\" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' \">\n    <DebugType>pdbonly</DebugType>\n    <Optimize>true</Optimize>\n    <OutputPath>bin\\Release\\</OutputPath>\n    <DefineConstants>TRACE</DefineConstants>\n    <ErrorReport>prompt</ErrorReport>\n    <WarningLevel>4</WarningLevel>\n  </PropertyGroup>\n  <ItemGroup>\n    <Reference Include=\"System\" />\n    <Reference Include=\"System.Core\" />\n    <Reference Include=\"System.Xml.Linq\" />\n    <Reference Include=\"System.Data.DataSetExtensions\" />\n    <Reference Include=\"Microsoft.CSharp\" />\n    <Reference Include=\"System.Data\" />\n    <Reference Include=\"System.Xml\" />\n  </ItemGroup>\n  <ItemGroup>\n    <Compile Include=\"Properties\\AssemblyInfo.cs\" />\n  </ItemGroup>\n  <Import Project=\"$(MSBuildToolsPath)\\Microsoft.CSharp.targets\" />\n  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. \n       Other similar extension points exist, see Microsoft.Common.targets.\n  <Target Name=\"BeforeBuild\">\n  </Target>\n  <Target Name=\"AfterBuild\">\n  </Target>\n  -->",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P033",
+    "ruta": "ReyOneWeb/Reyma.Negocio.Produccion/Reyma.Negocio.Produccion.csproj",
+    "lenguaje": "PlainText",
+    "fragmento": "<Compile Include=\"NCompraDirecta.cs\" />\n    <Compile Include=\"NCompraPrecargada.cs\" />\n    <Compile Include=\"NConsumoSellosPlanta.cs\" />\n    <Compile Include=\"NEmbarqueDI.cs\" />\n    <Compile Include=\"NEspacioFerreo.cs\" />\n    <Compile Include=\"NRegistroSellosPlanta.cs\" />\n    <Compile Include=\"NSilos.cs\" />\n    <Compile Include=\"NTripulacionesActuales.cs\" />\n    <Compile Include=\"Properties\\AssemblyInfo.cs\" />\n  </ItemGroup>\n  <ItemGroup>\n    <ProjectReference Include=\"..\\..\\EntidadesCorporativas\\Implementacion\\REYMA.Entidades.Backbone\\REYMA.Entidades.Backbone\\REYMA.Entidades.Backbone.csproj\">\n      <Project>{2f706b53-88c6-4515-8e12-68ab01bf41a6}</Project>\n      <Name>REYMA.Entidades.Backbone</Name>\n    </ProjectReference>\n    <ProjectReference Include=\"..\\Reyma.Datos.Produccion\\Reyma.Datos.Produccion.csproj\">\n      <Project>{bebe433f-d4a4-44a3-b1aa-5bfaebf7184f}</Project>\n      <Name>Reyma.Datos.Produccion</Name>\n    </ProjectReference>\n    <ProjectReference Include=\"..\\Reyma.Entidades.Produccion\\Reyma.Entidades.Produccion.csproj\">\n      <Project>{a8aa1006-670e-4c3f-a96d-d4d2c914cbba}</Project>\n      <Name>Reyma.Entidades.Produccion</Name>\n    </ProjectReference>\n  </ItemGroup>\n  <Import Project=\"$(MSBuildToolsPath)\\Microsoft.CSharp.targets\" />\n  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. \n       Other similar extension points exist, see Microsoft.Common.targets.\n  <Target Name=\"BeforeBuild\">\n  </Target>\n  <Target Name=\"AfterBuild\">\n  </Target>\n  -->\n</Project>",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P034",
+    "ruta": "ReyOneWeb/Reyma.Negocio.Trafico/NRevisionDispositivo.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// consulta los elementos \n        /// </summary>\n        /// <param name=\"criteriosAplicados\"></param>\n        /// <param name=\"usuario\"></param>\n        /// <returns></returns>\n        public List<RevisionDispositivo> ConsultarElementos(List<CriterioValor> criteriosAplicados, string usuario)\n        {\n            try\n            {\n                return DRevisionDispositivo.ConsultarElementos(criteriosAplicados, usuario);\n            }\n            catch (Exception ex)\n            {\n                throw new Exception(ex.Message);\n            }\n        }",
+    "A": "Revisión de dispositivo: recupera la lista de registros aplicando los criterios de búsqueda especificados y asociándolos al usuario que realiza la consulta.",
+    "B": "NRevisionDispositivo: recupera la lista de revisiones de dispositivos aplicando los criterios de búsqueda especificados y el usuario actual, propagando cualquier error que ocurra durante la consulta."
+  },
+  {
+    "par": "P035",
+    "ruta": "ReyOneWeb/Reyma.Negocio.Trafico/NMovimientosPrenomina.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// Elimina el movimiento de pre-nómina.\n        /// </summary>\n        /// <param name=\"movimientoPrenomina\">El movimiento de pre-nómina.</param>\n        public void EliminarElemento(MovimientoPrenomina movimientoPrenomina)\n        {\n            try\n            {\n                DMovimientosPrenomina.EliminarElemento(movimientoPrenomina);\n            }\n            catch (Exception e)\n            {\n                throw new Exception(e.Message);\n            }\n        }",
+    "A": "Movimiento de pre-nómina: elimina un registro específico de movimiento de pre-nómina del sistema, propagando cualquier error que ocurra durante la operación.",
+    "B": "Movimiento de pre-nómina: elimina un registro específico de pre-nómina del sistema, propagando cualquier error que ocurra durante la operación."
+  },
+  {
+    "par": "P036",
+    "ruta": "ReyOneWeb/Reyma.Negocio.Trafico/NRevisionDispositivo.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// Modifica los elementos.\n        /// </summary>\n        /// <param name=\"listaElementos\"></param>\n        /// <param name=\"usuario\"></param>\n        public void ModificaElementos(List<RevisionDispositivo> listaElementos, string usuario)\n        {\n            try\n            {\n                DRevisionDispositivo.ModificaElementos(listaElementos, usuario);\n            }\n            catch (Exception ex)\n            {\n                throw new Exception(ex.Message);\n            }\n        }",
+    "A": "Revisión de dispositivo: actualiza la información de una lista de registros de revisión, registrando el usuario responsable del cambio y propagando cualquier error que ocurra durante el proceso.",
+    "B": "Revisión de dispositivo: actualiza la información de una lista de registros de revisión, registrando el usuario responsable de la modificación."
+  },
+  {
+    "par": "P037",
+    "ruta": "ReyOneWeb/Reyma.Negocio.Trafico/NEvento.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// Modifica el elemento Evento indicado\n        /// </summary>\n        /// <param name=\"elemento\"></param>\n        /// <param name=\"usuario\"></param>\n        public void ModificarElemento(Evento elemento)\n        {\n            try\n            {\n                DEvento.ModificarElemento(elemento);\n            }\n            catch (Exception ex)\n            {\n                throw new Exception(ex.Message);\n            }\n        }",
+    "A": "Gestión de eventos de tráfico: permite actualizar la información de un evento específico, delegando la operación en la capa de datos y propagando cualquier error que ocurra durante el proceso.",
+    "B": "NEvento: Permite actualizar la información de un evento específico, delegando la operación en el módulo de datos y propagando cualquier error que ocurra durante el proceso."
+  },
+  {
+    "par": "P038",
+    "ruta": "ReyOneWeb/Reyma.Negocio.Trafico/NParametros.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// Agrega un nuevo parámetro\n        /// </summary>\n        /// <param name=\"parametro\">El parámetro.</param>\n        /// <exception cref=\"Exception\"></exception>\n        public void ModificarElemento(ParametroTrafico parametro)\n        {\n            try\n            {\n                DParametros.ModificarElemento(parametro);\n            }\n            catch (Exception e)\n            {\n                throw new Exception(e.Message);\n            }\n        }",
+    "A": "Parámetros de tráfico: permite modificar un parámetro existente, delegando la operación en la capa de datos y propagando cualquier error que ocurra durante el proceso.",
+    "B": "Parámetros de Tráfico: Permite actualizar la información de un parámetro existente, delegando la operación en la capa de datos y propagando cualquier error que ocurra durante el proceso."
+  },
+  {
+    "par": "P039",
+    "ruta": "ReyOneWeb/Reyma.Negocio.Trafico/NConceptosCheckConductor.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "public int AgregarElemento(ConceptosCheckConductor elemento)\n        {\n            try\n            {\n                return dConceptosCheckConductor.AgregarElemento(elemento);\n            }\n            catch(Exception ex)\n            {\n                throw new Exception(ex.Message);\n            }\n        }",
+    "A": "Reyma.Negocio.Trafico/NConceptosCheckConductor.cs: Registra un nuevo concepto de chequeo de conductor en el sistema, propagando cualquier error que ocurra durante el proceso de guardado.",
+    "B": "Reyma.Negocio.Trafico/NConceptosCheckConductor.cs: Registra un nuevo concepto de verificación del conductor en el sistema, delegando la operación a la capa de datos y propagando cualquier error que ocurra durante el proceso."
+  },
+  {
+    "par": "P040",
+    "ruta": "ReyOneWeb/Reyma.Negocio.Trafico/Reyma.Negocio.Trafico.csproj",
+    "lenguaje": "PlainText",
+    "fragmento": "<Reference Include=\"System.Xml\" />\n  </ItemGroup>\n  <ItemGroup>\n    <Compile Include=\"NAclaracionCapufe.cs\" />\n    <Compile Include=\"NBonos.cs\" />\n    <Compile Include=\"NCalculoIncidenciaDet.cs\" />\n    <Compile Include=\"NCalculoPrenomina.cs\" />\n    <Compile Include=\"NCalculoPrenominaDet.cs\" />\n    <Compile Include=\"NCasetas.cs\" />\n    <Compile Include=\"NConceptoNomina.cs\" />\n    <Compile Include=\"NConceptos.cs\" />\n    <Compile Include=\"NConceptosCheckConductor.cs\" />\n    <Compile Include=\"NContenedoresLigas.cs\" />\n    <Compile Include=\"NEvento.cs\" />\n    <Compile Include=\"NHistorial_Tripulaciones.cs\" />\n    <Compile Include=\"NIndicadorConduccion.cs\" />\n    <Compile Include=\"NInfracciones.cs\" />\n    <Compile Include=\"NLiquidacion.cs\" />\n    <Compile Include=\"NLiquidacionDocumento.cs\" />\n    <Compile Include=\"NLiquidacionRutaLocal.cs\" />\n    <Compile Include=\"NLiquidiacionIndicadorConduccion.cs\" />\n    <Compile Include=\"NMonitoreoTurno.cs\" />\n    <Compile Include=\"NMovimientosPrenomina.cs\" />\n    <Compile Include=\"NOrderCompra.cs\" />\n    <Compile Include=\"NPagoGPS.cs\" />\n    <Compile Include=\"NPagoGPSDet.cs\" />\n    <Compile Include=\"NParametros.cs\" />\n    <Compile Include=\"NParametrosVerificaciones.cs\" />\n    <Compile Include=\"NPeajeIave.cs\" />\n    <Compile Include=\"NPlanesRutasUrbanos.cs\" />\n    <Compile Include=\"NPrenomina.cs\" />\n    <Compile Include=\"NPrestamo.cs\" />\n    <Compile Include=\"NRecepcionFacturas.cs\" />\n    <Compile Include=\"NRegistroEventoDet.cs\" />\n    <Compile Include=\"NRegistroEventos.cs\" />\n    <Compile Include=\"NReportesAdministrativos.cs\" />\n    <Compile Include=\"NRevisionDispositivo.cs\" />\n    <Compile Include=\"NRolMonitoreoTurno.cs\" />\n    <Compile Include=\"NRolUrbano.cs\" />\n    <Compile Include=\"NRolTurno.cs\" />\n    <Compile Include=\"NRutaEstacion.cs\" />\n    <Compile Include=\"NRutaLocal.cs\" />\n    <Compile Include=\"NRutas.cs\" />\n    <Compile Include=\"NServicio.cs\" />\n    <Compile Include=\"NSiniestroDocumento.cs\" />\n    <Compile Include=\"NSiniestros.cs\" />\n    <Compile Include=\"NTarjetaSellos.cs\" />\n    <Compile Include=\"NTipoSiniestro.cs\" />\n    <Compile Include=\"NVerificacion.cs\" />\n    <Compile Include=\"NViaje.cs\" />\n    <Compile Include=\"NViajesGastos.cs\" />",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P041",
+    "ruta": "ReyOneWeb/Reyma.Negocio.Trafico/Reyma.Negocio.Trafico.csproj",
+    "lenguaje": "PlainText",
+    "fragmento": "<Project>{029e5c82-405d-4610-a49d-655a8cc7d6c7}</Project>\n      <Name>Reyma.Entidades.Trafico</Name>\n    </ProjectReference>\n    <ProjectReference Include=\"..\\Reyma.Trafico.Base\\Reyma.Trafico.Base.csproj\">\n      <Project>{5F2FA065-BAAA-4796-B9FD-6730F034B24B}</Project>\n      <Name>Reyma.Trafico.Base</Name>\n    </ProjectReference>\n  </ItemGroup>\n  <ItemGroup>\n    <None Include=\"packages.config\" />\n  </ItemGroup>\n  <ItemGroup>\n    <WCFMetadata Include=\"Connected Services\\\" />\n  </ItemGroup>\n  <Import Project=\"$(MSBuildToolsPath)\\Microsoft.CSharp.targets\" />\n  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. \n       Other similar extension points exist, see Microsoft.Common.targets.\n  <Target Name=\"BeforeBuild\">\n  </Target>\n  <Target Name=\"AfterBuild\">\n  </Target>\n  -->\n</Project>",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P042",
+    "ruta": "ReyOneWeb/Reyma.Negocio.Trafico/Reyma.Negocio.Trafico.csproj",
+    "lenguaje": "PlainText",
+    "fragmento": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Project ToolsVersion=\"12.0\" DefaultTargets=\"Build\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">\n  <Import Project=\"$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props\" Condition=\"Exists('$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props')\" />\n  <PropertyGroup>\n    <Configuration Condition=\" '$(Configuration)' == '' \">Debug</Configuration>\n    <Platform Condition=\" '$(Platform)' == '' \">AnyCPU</Platform>\n    <ProjectGuid>{B8F7FF7F-FAF6-4654-8E92-7DF52A09C94E}</ProjectGuid>\n    <OutputType>Library</OutputType>\n    <AppDesignerFolder>Properties</AppDesignerFolder>\n    <RootNamespace>Reyma.Negocio.Trafico</RootNamespace>\n    <AssemblyName>Reyma.Negocio.Trafico</AssemblyName>\n    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>\n    <FileAlignment>512</FileAlignment>\n    <TargetFrameworkProfile />\n    <SccProjectName>SAK</SccProjectName>\n    <SccLocalPath>SAK</SccLocalPath>\n    <SccAuxPath>SAK</SccAuxPath>\n    <SccProvider>SAK</SccProvider>\n  </PropertyGroup>\n  <PropertyGroup Condition=\" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' \">\n    <DebugSymbols>true</DebugSymbols>\n    <DebugType>full</DebugType>\n    <Optimize>false</Optimize>\n    <OutputPath>bin\\Debug\\</OutputPath>\n    <DefineConstants>DEBUG;TRACE</DefineConstants>\n    <ErrorReport>prompt</ErrorReport>\n    <WarningLevel>4</WarningLevel>\n    <Prefer32Bit>false</Prefer32Bit>\n  </PropertyGroup>\n  <PropertyGroup Condition=\" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' \">\n    <DebugType>pdbonly</DebugType>\n    <Optimize>true</Optimize>\n    <OutputPath>bin\\Release\\</OutputPath>\n    <DefineConstants>TRACE</DefineConstants>\n    <ErrorReport>prompt</ErrorReport>\n    <WarningLevel>4</WarningLevel>\n    <Prefer32Bit>false</Prefer32Bit>\n  </PropertyGroup>\n  <ItemGroup>\n    <Reference Include=\"System\" />\n    <Reference Include=\"System.Core\" />\n    <Reference Include=\"System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL\">\n      <HintPath>..\\packages\\System.ValueTuple.4.5.0\\lib\\net461\\System.ValueTuple.dll</HintPath>\n    </Reference>\n    <Reference Include=\"System.Xml.Linq\" />\n    <Reference Include=\"System.Data.DataSetExtensions\" />\n    <Reference Include=\"Microsoft.CSharp\" />\n    <Reference Include=\"System.Data\" />\n    <Reference Include=\"System.Xml\" />\n  </ItemGroup>\n  <ItemGroup>",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P043",
+    "ruta": "ReyOneWeb/Reyma.Trafico.Negocio/Queries/Backbone/GetTipoIncidenciaQuery.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// \n        /// </summary>\n        /// <param name=\"connection\"></param>\n        /// <param name=\"mediator\"></param>\n        /// <param name=\"mapper\"></param>\n        /// <param name=\"userAccessor\"></param>\n        public GetDuplicateTipoIncidenciaQueryHandler(IDataConnection connection, IMediator mediator, IMapper mapper, IUserAccessor userAccessor) : base(connection, mediator, mapper, userAccessor) { }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P044",
+    "ruta": "ReyOneWeb/Reyma.Trafico.Negocio/Models/Requests/Procesos/Monitoreo/IncidenciaConductorCancelarRequest.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// \n        /// </summary>\n        public string MotivoCancelacion { get; set; }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P045",
+    "ruta": "ReyOneWeb/Reyma.Trafico.Negocio/Queries/Backbone/GetTipoAmonestacionQuery.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "public sealed class GetTipoAmonestacionQueryHandler : GetDuplicateQueryHandler<GetTipoAmonestacionQuery, TipoAmonestacion>",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P046",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptRendimientoMonitoreo.aspx.designer.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// lp control.\n        /// </summary>\n        /// <remarks>\n        /// Auto-generated field.\n        /// To modify move field declaration from designer file to code-behind file.\n        /// </remarks>\n        protected global::DevExpress.Web.ASPxLoadingPanel lp;\n\n        /// <summary>\n        /// rbFiltros control.\n        /// </summary>\n        /// <remarks>\n        /// Auto-generated field.\n        /// To modify move field declaration from designer file to code-behind file.\n        /// </remarks>\n        protected global::DevExpress.Web.ASPxRibbon rbFiltros;\n\n        /// <summary>\n        /// dgvMonitor control.\n        /// </summary>\n        /// <remarks>\n        /// Auto-generated field.\n        /// To modify move field declaration from designer file to code-behind file.\n        /// </remarks>\n        protected global::DevExpress.Web.ASPxGridView dgvMonitor;\n\n        /// <summary>\n        /// geMonitor control.\n        /// </summary>\n        /// <remarks>\n        /// Auto-generated field.\n        /// To modify move field declaration from designer file to code-behind file.\n        /// </remarks>\n        protected global::DevExpress.Web.ASPxGridViewExporter geMonitor;\n\n        /// <summary>\n        /// btnExportacion control.\n        /// </summary>\n        /// <remarks>\n        /// Auto-generated field.\n        /// To modify move field declaration from designer file to code-behind file.\n        /// </remarks>\n        protected global::DevExpress.Web.ASPxButton btnExportacion;",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P047",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptLiquidaciones.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private SByte Abs(SByte value)\n    {\n      return System.Math.Abs(value);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P048",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/TarjetaSellos.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private void CleanMaster()\n        {\n            Session[\"ConductorTS\"] = string.Empty;\n            cbPlanRuta.SelectedIndex = -1;\n            cbConductor.SelectedIndex = -1;\n            deFechaInicio.Text = null;//txtFechaInicio.Value = null;\n            deFechaTermino.Text = null;//txtFechaTermino.Value = null;\n            \n            if (cbVehiculo.Value is null)\n                cbSucursal.Value = null;\n        }",
+    "A": "TarjetaSellos: Limpia los datos de la sesión y los campos de la interfaz, incluyendo el conductor, el plan de ruta, las fechas de inicio y término, y la sucursal si no hay un vehículo seleccionado.",
+    "B": "TarjetaSellos: Limpia los datos de la sesión y restablece los campos de selección de plan de ruta, conductor, fechas de inicio y término a su estado vacío."
+  },
+  {
+    "par": "P049",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptRolesMonitoreoConductores.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private String ToWordsRu(Object value, Boolean male, String one, String two, String many)\n    {\n      return FastReport.Functions.StdFunctions.ToWordsRu(value, male, one, two, many);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P050",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptValeGastos.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private String Trim(String s)\n    {\n      return FastReport.Functions.StdFunctions.Trim(s);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P051",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptOrdenCompra.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private Int32 Year(DateTime date)\n    {\n      return FastReport.Functions.StdFunctions.Year(date);\n    }",
+    "A": "RptOrdenCompra.cs: Obtiene el año correspondiente a una fecha específica mediante la función estándar de FastReport.",
+    "B": "RptOrdenCompra.cs: Obtiene el año completo de una fecha específica proporcionada."
+  },
+  {
+    "par": "P052",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptNewGastos.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "#endregion\n\n        #region Metodos\n\n        private bool ConceptosDatatable()\n        {\n            try\n            {\n                #region Conceptos\n                //Consulta Conceptos\n                NConceptosGastos objNConceptos = new NConceptosGastos();\n                List<ConceptosGastos> lstConceptos = objNConceptos.ConsultarElementos((Session[\"SessionR1\"] as Session).Usuario.Id.Login);\n                Session[\"listaConceptos\"] = lstConceptos;\n\n                #endregion\n\n                #region Conceptos_requeridos\n\n                List<ConceptosGastos> lstConceptosRequeridos = new List<ConceptosGastos>();\n\n                NVariableSistema NVarSis = new NVariableSistema();\n                VariableSistema varSis = NVarSis.ConsultarElemento(\"CONVALGAS\", \"INDICA LOS CONCEPTOS VALIDOS A MOSTRAR EN ASIGNACION GASTOS\", 0, \"1,2\", true, (Session[\"SessionR1\"] as Session).Usuario.Id.Login);\n\n                if (varSis.Valor_String != null && varSis.Valor_String != string.Empty)\n                {\n                    var filtro = (from item in varSis.Valor_String.Split(',')\n                                  select item).ToList();\n\n                    filtro.ForEach(item => {\n                        lstConceptosRequeridos.Add(new ConceptosGastos\n                        {\n                            Id = new IDTRConcepto { Pk_Concepto = Convert.ToInt32(item) },\n                            Descripcion = (from itemConcepto in lstConceptos\n                                           where itemConcepto.Id.Pk_Concepto == Convert.ToInt32(item)\n                                           select itemConcepto.Descripcion).FirstOrDefault(),\n                        });\n                    });\n                }\n\n                Session[\"listaConceptosRequeridos\"] = lstConceptosRequeridos;\n                #endregion\n\n                //Creacion columnas datatable\n                DataTable dtt = new DataTable();\n                //Estaticas\n                dtt.Columns.Add(new DataColumn { ColumnName = \"Id.Pk_Liquidacion\", DataType = System.Type.GetType(\"System.Int32\") });\n                dtt.Columns.Add(new DataColumn { ColumnName = \"TipoLiquidacion\", DataType = System.Type.GetType(\"System.String\") });\n                dtt.Columns.Add(new DataColumn { ColumnName = \"Estatus\", DataType = System.Type.GetType(\"System.String\") });\n                dtt.Columns.Add(new DataColumn { ColumnName = \"Viaje.Conductor.Nombre_Completo\", DataType = System.Type.GetType(\"System.String\") });\n                dtt.Columns.Add(new DataColumn { ColumnName = \"Viaje.Fecha_Inicia\", DataType = System.Type.GetType(\"System.DateTime\") });\n                dtt.Columns.Add(new DataColumn { ColumnName = \"Viaje.Fecha_Termina\", DataType = System.Type.GetType(\"System.DateTime\") });",
+    "A": "El reporte de nuevos gastos recupera la lista completa de conceptos disponibles y filtra los conceptos requeridos según una configuración del sistema. Luego, define la estructura de la tabla de datos para mostrar detalles de la liquidación, tipo, estatus, conductor y fechas del viaje.",
+    "B": "El reporte de nuevos gastos carga los conceptos disponibles y filtra los requeridos según la configuración del sistema. Luego, define la estructura de la tabla para mostrar el estado, tipo de liquidación, conductor y fechas del viaje asociado a cada gasto."
+  },
+  {
+    "par": "P053",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPersonasFisicas.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "protected void cbPopPFisicas_Callback(object source, CallbackEventArgs e)\n        {\n            NPersonaFisica _objNegocio = new NPersonaFisica();\n            string resultado = \"0\";\n            string _parametro = hfGeneral[\"opcion\"].ToString();\n\n            try\n            {\n                if(_parametro == \"1\" || _parametro == \"2\") //Nuevo y Modificación.\n                {\n                    PersonaFisica _objEntidad = new PersonaFisica()\n                    {\n                        Nombre_Completo = txtNombre.Text,\n                        Rfc = txtRFC.Text,\n                        Calle = txtCalle.Text,\n                        Numero = txtNumero.Text,\n                        Colonia = txtColonia.Text,\n                        Codigo_postal = txtCodigoPostal.Text,\n                        Telefono = txtTelefono.Text,\n                        Sucursal = cbSucursal.Value != null ? new Sucursal { Id = new IDSucursal {  Pk_sucursal = int.Parse(cbSucursal.Value.ToString()) } } : null,\n                        Departamento = cbDepartamento.Value != null ? new Departamento { Id = new IDDepartamento { Pk_Departamento = int.Parse(cbDepartamento.Value?.ToString())} } : null,\n                        Au_Terminal = Request.UserHostName,\n                        Au_Usuario = (ViewState[\"RowUsuario\"] as Usuario).Id.Login\n                    };\n\n                    if (cbCiudad.Value != null)\n                        _objEntidad.Ciudad = new Ciudad { Id = new IDCiudad { Pk_Ciudad = int.Parse(cbCiudad.Value.ToString()) } };\n\n                    if (_parametro == \"1\")\n                    {\n                        var pkPersonaFisica = _objNegocio.AgregarElemento(_objEntidad);\n                    }\n\n                    else\n                    {\n                        string pkPF = dgvPFisicas.GetRowValues(dgvPFisicas.FocusedRowIndex, \"PK_PERSONA_FISICA\").ToString();\n                        _objEntidad.Id = new IDPersonaFisica { Pk_Persona_Fisica = int.Parse(pkPF) };//txtPkPersonaFisica.Value.ToString()\n                        _objNegocio.ModificarElemento(_objEntidad);\n                    }\n                }\n\n                else if (_parametro == \"3\") //Eliminación.\n                {\n                    string pkPersonaFisica = dgvPFisicas.GetRowValues(dgvPFisicas.FocusedRowIndex, \"PK_PERSONA_FISICA\").ToString();\n                    PersonaFisica elemento = new PersonaFisica()\n                    {\n                        Id = new IDPersonaFisica { Pk_Persona_Fisica = int.Parse(pkPersonaFisica) },\n                        Au_Terminal = Request.UserHostName,\n                        Au_Usuario = (ViewState[\"RowUsuario\"] as Usuario).Id.Login,\n                    };\n\n                    _objNegocio.EliminarElemento(elemento);\n                    resultado = \"1\";\n                }\n\n                e.Result = resultado;\n            }\n            catch(Exception ex)\n            {\n                resultado = \"2\";\n                CatchError.saveLog(this, (ViewState[\"RowUsuario\"] as Usuario).Id.Login, ex);\n                throw new Exception(ex.Message);\n            }\n        }",
+    "A": "El catálogo de personas físicas permite crear, modificar o eliminar registros capturando datos como nombre, RFC, dirección y sucursal. Al guardar, el sistema registra la terminal y el usuario responsable de la acción. En caso de error, se registra el incidente y se notifica el fallo al usuario.",
+    "B": "El catálogo de personas físicas permite crear, modificar o eliminar registros capturando datos como nombre, RFC y dirección. Al guardar, el sistema registra la terminal y el usuario responsable de la acción, mientras que los errores se registran en un log para su seguimiento."
+  },
+  {
+    "par": "P054",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptLiquidaciones.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private Double Sin(Double a)\n    {\n      return System.Math.Sin(a);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P055",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptVehiculosGeoTab.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private String FormatDateTime(DateTime value)\n    {\n      return FastReport.Functions.StdFunctions.FormatDateTime(value);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P056",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoAmonestaciones.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// \n        /// </summary>\n        /// <returns></returns>\n        protected override IEnumerable<IEntity<int>> ConfigDataSource() =>\n            Mediator.RymSend(new GetAllQueryGeneric { RequestType = typeof(TipoAmonestacion), ResponseType = typeof(TipoAmonestacionResponse), IncludeAll = true });",
+    "A": "Catálogo de amonestaciones: recupera la lista completa de tipos de amonestación disponibles para su visualización.",
+    "B": "Catálogo de amonestaciones: recupera la lista completa de tipos de amonestación disponibles para su visualización."
+  },
+  {
+    "par": "P057",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorGastos.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "var _prestamo = _servicePrestamo.ConsultaElemento(_lstCriteriosPrestamo);\n                                if (_prestamo != null)\n                                {\n                                    var _saldoLiquidacion = decimal.Parse(valores[2]);\n                                    var _comprobacion = CrearPrestamoComprobacion(_prestamo, _saldoLiquidacion);\n                                    var _prestamoUpdated = UpdatePrestamo(_prestamo, 0, _comprobacion);\n\n                                    _servicePrestamo.AgregarElementoDetalle(_prestamoUpdated, _comprobacion);\n                                }\n                            }\n                        }\n\n                        //Liquidación-Viaje\n                        NLiquidacion objNLiquidacion = new NLiquidacion();\n                        objNLiquidacion.LiquidacionViaje(_objLiquidacion, _objViaje);\n\n                        InformacionGrid();\n\n                        _resultado += \"0|\";\n\n                        #endregion\n                        break;\n                    default:\n                        break;\n                }\n            }\n            catch (Exception ex)\n            {\n                _resultado += \"1|Error, Proceso terminado incorrectamente. Intente nuevamente o contacte a sistemas.\" + ex.Message;\n            }\n\n            e.Result = _resultado;\n        }",
+    "A": "El proceso de monitoreo de gastos liquida un préstamo asociado a un viaje al registrar su saldo de liquidación, creando una comprobación y actualizando el estado del préstamo. Tras completar la liquidación del viaje, se actualiza la información de la cuadrícula y se devuelve un código de éxito o un mensaje de error si el proceso falla.",
+    "B": "El proceso de monitoreo de gastos verifica la existencia de un préstamo asociado; si existe, registra su liquidación con el saldo indicado y actualiza sus detalles. Finalmente, procesa la liquidación del viaje, refresca la información en pantalla y devuelve un código de éxito o un mensaje de error general ante cualquier fallo."
+  },
+  {
+    "par": "P058",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptVehiculosGeoTab.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private String Remove(String s, Int32 startIndex, Int32 count)\n    {\n      return FastReport.Functions.StdFunctions.Remove(s, startIndex, count);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P059",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoVehiculos.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "else//MODIFICA VEHICULO\n                        {\n                            _vehiculo.Id = new IDVehiculo { Pk_Vehiculo = Convert.ToInt32(EditVehiculo.GetNestedControlValueByFieldName(\"Id.Pk_Vehiculo\").ToString()) };\n                            _serviceVehiculo.ModificaElementoTrafico(_vehiculo, requiereDatosPoliza);\n                        }\n                    }\n                    else\n                    {\n\n                        if (_activate)\n                        {\n                            //cambia estatus de vehiculo\n                            int id = Convert.ToInt32(e.Parameter.ToString().Split('|')[2]);\n                            _vehiculo = _serviceVehiculo.ConsultaElementoVehiculo(new IDVehiculo { Pk_Vehiculo = id });\n\n                            _vehiculo.Estatus = StringEnum.GetStringValue(EstatusVehiculo.ACTIVO);\n                            _vehiculo.Au_Usuario = (ViewState[\"RowUsuario\"] as Usuario).Id.Login;\n                            _vehiculo.Au_Terminal = Request.UserHostName;\n                            _vehiculo.Fecha_Baja = null;\n                            _vehiculo.Observaciones_Baja =  string.Empty;\n                            _serviceVehiculo.ActivaElementoTrafico(_vehiculo);\n                        }\n                        else\n                        {\n                            _vehiculo.Id = new IDVehiculo { Pk_Vehiculo = Convert.ToInt32(flBajaVehiculo.GetNestedControlValueByFieldName(\"Id.Pk_Vehiculo\").ToString()) };\n                            _vehiculo = _serviceVehiculo.ConsultaElementoVehiculo(_vehiculo.Id);\n\n                            _vehiculo.Au_Usuario = (ViewState[\"RowUsuario\"] as Usuario).Id.Login;\n                            _vehiculo.Au_Terminal = Request.UserHostName;\n                            _vehiculo.Fecha_Baja = Convert.ToDateTime(flBajaVehiculo.GetNestedControlValueByFieldName(\"Fecha_Baja_Vehiculo\"));\n                            _vehiculo.Estatus = flBajaVehiculo.GetNestedControlValueByFieldName(\"Estatus_Baja_Vehiculo\") != null ? flBajaVehiculo.GetNestedControlValueByFieldName(\"Estatus_Baja_Vehiculo\").ToString().Trim().ToUpper() : string.Empty;\n                            _vehiculo.Observaciones_Baja = flBajaVehiculo.GetNestedControlValueByFieldName(\"Observaciones_Baja_Vehiculo\") != null ? flBajaVehiculo.GetNestedControlValueByFieldName(\"Observaciones_Baja_Vehiculo\").ToString().Trim().ToUpper() : string.Empty;\n\n                            _serviceVehiculo.BajaElementoTrafico(_vehiculo);\n                        }\n                       \n                            // _serviceVehiculo.BajaElementoTrafico(_vehiculo);\n                            //int id = Convert.ToInt32(e.Parameter.ToString().Split('|')[1]);\n                            //_vehiculo = _serviceVehiculo.ConsultaElementoVehiculo(new IDVehiculo { Pk_Vehiculo = id });\n\n                            //if (_vehiculo != null && _vehiculo.Estatus != StringEnum.GetStringValue(EstatusVehiculo.BAJA))//BAJA DE VEHICULO\n                            //{\n                            //    _vehiculo.Estatus = StringEnum.GetStringValue(EstatusVehiculo.BAJA);\n                            //    _vehiculo.Au_Usuario = (ViewState[\"RowUsuario\"] as Usuario).Id.Login;\n                            //    _vehiculo.Au_Terminal = Request.UserHostName;\n\n                            //    _serviceVehiculo.EliminaElementoTrafico(_vehiculo);\n                            //}\n                            //else\n                            //{\n                            //    _resultado = \"E|Error, Sistema no encontro vehículo valido.\";",
+    "A": "Catálogo de Vehículos: permite modificar la información de un vehículo existente o cambiar su estatus a activo, registrando el usuario, terminal y limpiando datos de baja. También gestiona la baja de un vehículo, capturando la fecha, el nuevo estatus y las observaciones asociadas a la desactivación.",
+    "B": "Catálogo de Vehículos: permite modificar la información de un vehículo existente, activarlo restableciendo su estatus a activo y limpiando datos de baja, o darlo de baja registrando fecha, estatus y observaciones."
+  },
+  {
+    "par": "P060",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/Monitoreo.aspx.Async.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// \n        /// </summary>\n        /// <returns></returns>\n        private void CargarTiposIncidencias()\n        {\n            cbTipoIncidencia.DataSource = Mediator.RymSend(new GetAllQueryGeneric { RequestType = typeof(TipoIncidencia), ResponseType = typeof(TipoIncidenciaResponse) }); ;\n            cbTipoIncidencia.DataBind();\n        }",
+    "A": "Monitoreo.aspx: Carga y vincula la lista de tipos de incidencia disponibles en el sistema para poblar el control de selección correspondiente.",
+    "B": "Monitoreo.aspx: Carga la lista de tipos de incidencia disponibles en el sistema para poblar el control de selección correspondiente."
+  },
+  {
+    "par": "P061",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptRolesMonitoreoConductores.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private String ToWords(Object value, String one, String many)\n    {\n      return FastReport.Functions.StdFunctions.ToWords(value, one, many);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "RptRolesMonitoreoConductores: Convierte un valor numérico a su representación en palabras, especificando las formas singulares y plurales para el texto resultante."
+  },
+  {
+    "par": "P062",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/FrmCatalogoPlanesRutasUrbanos.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// \n        /// </summary>\n        /// <param name=\"source\"></param>\n        /// <param name=\"e\"></param>\n        protected void pcBaja_WindowCallback(object source, PopupWindowCallbackArgs e)\n        {\n            ASPxEdit.ClearEditorsInContainer(pcBaja);\n            rbTipoBaja.SelectedIndex = 0;\n            var tipo = rbTipoBaja.Value;\n        }",
+    "A": "Formulario de Catálogo de Planes de Rutas Urbanos: al cerrar la ventana emergente de baja, se limpian los campos de entrada y se restablece el tipo de baja a su opción predeterminada.",
+    "B": "Formulario de Catálogo de Planes de Rutas Urbanos: al cerrar la ventana emergente de baja, se limpian los campos de entrada y se restablece la selección del tipo de baja a su opción predeterminada."
+  },
+  {
+    "par": "P063",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptPrenominasPersonal.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private Single Abs(Single value)\n    {\n      return System.Math.Abs(value);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P064",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/PreliquidacionTrafico.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "txtKilometrosReales.ClientEnabled = txtKilometrosFinales.ClientEnabled = true;\n                    else\n                        txtKilometrosFinales.ClientEnabled = true;\n                }\n            }\n\n            else\n            {\n                txtKilometrosReales.ClientEnabled = false;\n            }\n\n            #endregion\n\n            #region Gastos asignados\n\n            //Obtenemos los gastos asignados.\n            NViajesGastos serviceViajesGastos = new NViajesGastos();\n            List<ViajesGastos> listaViajesGastos = new List<ViajesGastos>();\n            listaViajesGastos = serviceViajesGastos.ConsultarElementosViaje(viaje);\n\n            #endregion\n\n            #region LoadCombos\n\n            //Load ComboBox con proveedores.\n            LoadComboProveedores(usuario);\n\n            //Load ComboBox con conceptos de gasto.\n            LoadComboConceptosGasto(usuario);\n\n            //Load ComboBox con casetas de contado.\n            LoadComboCasetas(usuario);\n\n            #endregion\n\n            //Load anticipos.\n            LoadAnticipos(listaViajesGastos, listaConceptosValidos);\n\n            //Load datos cummin.\n            LoadCummins(liquidacion);\n\n            //Load datos real.\n            LoadReal(liquidacion, viaje.Urbano);\n\n            //Load información de los proveedores convenio.\n            LoadProveedoresConvenio(listaViajesGastos, viaje.Estatus, listaConceptosValidos, listaLiquidacionesDetalle);\n\n            //Load información de los proveedores normales.\n            LoadProveedoresNormales(listaConceptosValidos, listaLiquidacionesDetalle);\n\n            //Load informacion de las casetas de contado.",
+    "A": "La pantalla de preliquidación de tráfico habilita los campos de kilómetros según las condiciones del viaje y carga la información de gastos asignados. Además, prepara los listados desplegables de proveedores, conceptos de gasto y casetas, junto con los datos de anticipos, Cummins, real y proveedores para su visualización.",
+    "B": "La pantalla de preliquidación de tráfico habilita los campos de kilómetros según las condiciones del viaje y carga los gastos asignados. Además, prepara las listas de proveedores, conceptos de gasto, casetas, anticipos y datos de liquidación para su visualización."
+  },
+  {
+    "par": "P065",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptMovimientosPrenomina.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private Int32 Month(DateTime date)\n    {\n      return FastReport.Functions.StdFunctions.Month(date);\n    }",
+    "A": "RptMovimientosPrenomina: Obtiene el número del mes correspondiente a una fecha específica proporcionada.",
+    "B": "RptMovimientosPrenomina: Obtiene el número del mes correspondiente a una fecha específica proporcionada."
+  },
+  {
+    "par": "P066",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/OrdenTrabajo.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "protected void btnImpresion_Click(object sender, EventArgs e)\n        {\n            try\n            {\n                List<object> fieldValues = dgvOrdenTrabajo.GetSelectedFieldValues(new string[] { \"ID_Vehiculo\", \"TipoVehiculo\" });\n                foreach (object[] item in fieldValues)\n                {\n                }\n            }\n            catch (Exception ex)\n            {\n                pnlAlerta.ClientVisible = false;\n                pnlAlerta.CssClass = \"mensajeError\";\n                lblTextoAlerta.Text = \"Error, Impresión no se ha completado, contacte a sistemas.\";\n            }\n        }",
+    "A": "Pantalla de Orden de Trabajo: al solicitar la impresión, el sistema intenta recuperar los datos del vehículo seleccionado; si falla, muestra un mensaje de error indicando que la impresión no se completó y sugiere contactar a sistemas.",
+    "B": "La pantalla de Orden de Trabajo: al solicitar la impresión, el sistema intenta recuperar los datos del vehículo seleccionado; si falla, muestra un mensaje de error indicando que la impresión no se completó y sugiriendo contactar a sistemas."
+  },
+  {
+    "par": "P067",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptVehiculosGeoTab.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private object Sum(TableCell cell)\n    {\n      return cell.Table.Sum(cell);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P068",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptDieselProveedorMonitor.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "protected override void Page_Load(object sender, EventArgs e)\n        {\n            base.Page_Load(sender, e);\n\n            if (!IsPostBack)\n            {\n                CargaDatosFiltros();\n                //dgvRendimientos.DataBind();\n            }\n        }",
+    "A": "RptDieselProveedorMonitor.aspx.cs: Al cargar la página por primera vez, se inicializan los datos de los filtros disponibles para el usuario.",
+    "B": "RptDieselProveedorMonitor.aspx.cs: Al cargar la página por primera vez, se inicializan los datos de los filtros disponibles para el usuario."
+  },
+  {
+    "par": "P069",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptVehiculosIndicadoresPromedio.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private String ToWordsEs(Object value, String one, String many)\n    {\n      return FastReport.Functions.StdFunctions.ToWordsEs(value, one, many);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P070",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptTarjetaSellos.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "Hora = evento.Field<DateTime>(\"HORA\").TimeOfDay,\n                                                 Descripcion = evento.Field<string>(\"DESCRIPCION\"),\n                                                 Kms = evento.Field<decimal>(\"KILOMETRAJE\"),\n                                                 Turno = evento.Field<int>(\"TURNO\"),\n                                                 TipoEvento = _contenedoresDetalle.Where(_i => _i.Id.Pk_contenedor_catalogo_det == evento.Field<string>(\"FK_CT_TIPO_EVENTO\")).FirstOrDefault().Descripcion\n                                             }).ToList();\n\n                var _agrupado =\n                    from item in _listTarjetaSellosDet\n                    group item by item.Fecha into newGroup\n                    orderby newGroup.Key\n                    select newGroup;\n\n                #endregion\n                \n                //DATASOURCE\n                objReporte.RegisterData(_agrupado.FirstOrDefault(), \"DatosGenerales\");\n                \n                //PARAMETROS\n                objReporte.SetParameterValue(\"FechaPeriodo\", string.Format(\"{0} - {1}\", _listTarjetaSellosDet.FirstOrDefault().Fecha.ToString(\"dddd\").ToUpper(), _listTarjetaSellosDet.Last().Fecha.ToString(\"dddd\").ToUpper()));\n                objReporte.SetParameterValue(\"Usuario\", _session.Usuario.Id.Login);\n                objReporte.SetParameterValue(\"Unidad\", _tarjetaSellos.Vehiculo.Numero_Economico);\n                objReporte.SetParameterValue(\"TotalEventos\", _tarjetaSellos.TotalEventos);\n                objReporte.SetParameterValue(\"TotalKilometros\", _tarjetaSellos.TotalKilometros);\n                objReporte.SetParameterValue(\"Operador\", _tarjetaSellos.Conductor.Nombre_Completo);\n                objReporte.SetParameterValue(\"FechaInicio\", _tarjetaSellos.FechaInicio.ToShortDateString());\n                objReporte.SetParameterValue(\"FechaTermino\", _tarjetaSellos.FechaTermino.ToShortDateString());\n                objReporte.SetParameterValue(\"HoraInicio\", _tarjetaSellos.HoraInicio);\n                objReporte.SetParameterValue(\"HoraTermino\", _tarjetaSellos.HoraTermino);\n                objReporte.SetParameterValue(\"PersonalRegistra\", _tarjetaSellos.PersonalRegistra.Nombre_Completo);\n                objReporte.SetParameterValue(\"PlanRuta\", _tarjetaSellos.PlanRutaUrbano.Nombre);\n                objReporte.SetParameterValue(\"Empresa\", _tarjetaSellos.Sucursal.Empresa.Razon_social);\n                objReporte.SetParameterValue(\"Sucursal\", _tarjetaSellos.Sucursal.Nombre_sucursal);\n\n                //Impresion directa en PDF\n                FastReport.Utils.Config.WebMode = true;\n                objReporte.Prepare();\n\n                //Export report to PDF stream\n                FastReport.Export.Pdf.PDFExport pdfExport = new FastReport.Export.Pdf.PDFExport();\n                using (MemoryStream strm = new MemoryStream())\n                {\n                    objReporte.Export(pdfExport, strm);\n\n                    // Stream the PDF back to the client as an attachment\n                    Response.ClearContent();\n                    Response.ClearHeaders();\n                    Response.Buffer = true;\n                    Response.ContentType = \"Application/PDF\";\n                    //inline muestra el archivo en la misma pantalla\n                    //attachment descarga el archivo",
+    "A": "El reporte de tarjeta de sellos agrupa los eventos de operación por fecha y genera un documento PDF descargable. Este archivo incluye los detalles del vehículo, el conductor, la ruta, la empresa y los totales acumulados de eventos y kilómetros recorridos durante el periodo.",
+    "B": "El reporte de tarjeta de sellos agrupa los eventos del vehículo por fecha y genera un documento PDF descargable. Este archivo incluye el período, la unidad económica, el operador, los kilómetros totales, la ruta planificada y los datos de la empresa y sucursal."
+  },
+  {
+    "par": "P071",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptFacturasDiario.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private Int64 Maximum(Int64 val1, Int64 val2)\n    {\n      return FastReport.Functions.StdFunctions.Maximum(val1, val2);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P072",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptRendimiento.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "protected override void Page_Load(object sender, EventArgs e)\n        {\n            if (!IsPostBack)\n            {\n                ConsultarElementos();\n                dgvRendimientos.DataBind();\n            }\n        }",
+    "A": "RptRendimiento.aspx.cs: Al cargar la página por primera vez, consulta los elementos necesarios y vincula los datos de rendimiento a la tabla de visualización.",
+    "B": "RptRendimiento.aspx.cs: Al cargar la página por primera vez, consulta los elementos necesarios y vincula los datos de rendimiento a la cuadrícula para su visualización."
+  },
+  {
+    "par": "P073",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/CalculoPrenomina.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "criterios.Clear();\n                    criterios.Add(new CriterioValor\n                    {\n                        Criterio = new Criterio { Alias = \"ttcp\", Campo = \"FK_PRENOMINA\" },\n                        Operador = OperadoresLogicos.IGUAL,\n                        Valor = folio.ToString(),\n                        OperadorCriterio = OperadoresBoleanos.AND\n                    });\n                    criterios.Add(new CriterioValor\n                    {\n                        Criterio = new Criterio { Alias = \"ttcp\", Campo = \"ESTATUS\" },\n                        Operador = OperadoresLogicos.IGUAL,\n                        Valor = StringEnum.GetStringValue(EstatusCalculoPrenomina.ACTIVO),\n                        OperadorCriterio = OperadoresBoleanos.AND\n                    });\n\n                    var calculos = objNCalculoPrenomina.ConsultaCalculosPrenomina(criterios);\n                    var calculo = calculos.FirstOrDefault();\n                    var estatusPrenomina = Enum.GetName(typeof(EstatusCalculoPrenomina), EstatusCalculoPrenomina.ACTIVO);\n                    var estatus = string.Empty;\n\n                    if (calculo == null)\n                        throw new Exception($\"No se encontró un cálculo <b>{estatusPrenomina}</b> para la Pre-nómina con folio <b>{folio}</b>\");\n\n                    if (strEnumEstatus.GetStringValueFromEnumValue(calculo.Prenomina.Estatus) != StringEnum.GetStringValue(EstatusPrenomina.ABIERTO))\n                    {\n                        estatusPrenomina = Enum.GetName(typeof(EstatusPrenomina), Convert.ToInt32(calculo.Prenomina.Estatus));\n                        estatus = Enum.GetName(typeof(EstatusPrenomina), EstatusPrenomina.ABIERTO);\n\n                        throw new Exception($\"Sólo se puden cancelar los cálculos de las pre-nóminas con estatus <b>{estatus}</b>. \" +\n                            $\"La pre-nómina con folio <b>{folio}</b> tiene el estatus de <b>{estatusPrenomina}</b>\");\n                    }\n\n                    calculo.Estatus = StringEnum.GetStringValue(EstatusCalculoPrenomina.CANCELADO);\n                    calculo.Au_Usuario = usuario.Id.Login;\n                    calculo.Au_Terminal = Request.UserHostName;\n                    calculo.Au_Borrado = 0;\n\n                    objNCalculoPrenomina.ModificarElemento(calculo);\n\n                    // Se elimina la variable de sesión del cálculo\n                    Session[\"CalculosPrenomina\"] = null;\n\n                    resultado = \"4|El Cálculo de Pre-nómina se ha cancelado correctamente.\";\n                }\n\n                // Cierra la pre-nómina seleccionada\n                if (e.Parameter.Equals(\"5\"))\n                {\n                    if (Session[\"FolioPrenomina\"] == null)\n                        throw new Exception(\"Debe buscar una pre-nómina para Cerrar\");",
+    "A": "Proceso de Cálculo de Pre-nómina: Cancela el cálculo activo de una pre-nómina solo si su estatus es \"Abierto\", registrando el usuario y terminal; si no existe el cálculo o el estatus es distinto, genera un error específico.",
+    "B": "Proceso de Cálculo de Pre-nómina: Cancela el cálculo activo asociado a un folio específico, validando previamente que la pre-nómina tenga estatus \"Abierto\". Registra los datos de auditoría del usuario y terminal, elimina la sesión temporal y confirma la cancelación exitosa."
+  },
+  {
+    "par": "P074",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptOrdenCompra.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private DateTime AddSeconds(DateTime date, Double value)\n    {\n      return FastReport.Functions.StdFunctions.AddSeconds(date, value);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P075",
+    "ruta": "ReyOneWeb/ReyOneWeb/Comun/UCLostSession.ascx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "protected void Page_Load(object sender, EventArgs e)\n        {\n\n        }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P076",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorAclaracionesCapufe.aspx.designer.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// smAclaracionesCapufe control.\n        /// </summary>\n        /// <remarks>\n        /// Auto-generated field.\n        /// To modify move field declaration from designer file to code-behind file.\n        /// </remarks>\n        protected global::System.Web.UI.ScriptManager smAclaracionesCapufe;\n        \n        /// <summary>\n        /// upAclaracionesCapufe control.\n        /// </summary>\n        /// <remarks>\n        /// Auto-generated field.\n        /// To modify move field declaration from designer file to code-behind file.\n        /// </remarks>\n        protected global::System.Web.UI.UpdatePanel upAclaracionesCapufe;\n        \n        /// <summary>\n        /// cbSave control.\n        /// </summary>\n        /// <remarks>\n        /// Auto-generated field.\n        /// To modify move field declaration from designer file to code-behind file.\n        /// </remarks>\n        protected global::DevExpress.Web.ASPxCallback cbSave;\n        \n        /// <summary>\n        /// pnlAlerta control.\n        /// </summary>\n        /// <remarks>\n        /// Auto-generated field.\n        /// To modify move field declaration from designer file to code-behind file.\n        /// </remarks>\n        protected global::DevExpress.Web.ASPxPanel pnlAlerta;\n        \n        /// <summary>\n        /// lblTextoAlerta control.\n        /// </summary>\n        /// <remarks>\n        /// Auto-generated field.\n        /// To modify move field declaration from designer file to code-behind file.\n        /// </remarks>\n        protected global::DevExpress.Web.ASPxLabel lblTextoAlerta;\n        \n        /// <summary>\n        /// rbFiltrado control.\n        /// </summary>\n        /// <remarks>\n        /// Auto-generated field.\n        /// To modify move field declaration from designer file to code-behind file.\n        /// </remarks>\n        protected global::DevExpress.Web.ASPxRibbon rbFiltrado;\n        \n        /// <summary>\n        /// dgvAclaracionCapufe control.\n        /// </summary>\n        /// <remarks>\n        /// Auto-generated field.\n        /// To modify move field declaration from designer file to code-behind file.\n        /// </remarks>\n        protected global::DevExpress.Web.ASPxGridView dgvAclaracionCapufe;",
+    "A": "Pantalla de Monitoreo de Aclaraciones CAPUFE: define los elementos visuales para gestionar aclaraciones, incluyendo un panel de alertas, una barra de filtrado y una cuadrícula de datos.",
+    "B": "Pantalla de Monitoreo de Aclaraciones CAPUFE: define los elementos visuales para filtrar y visualizar aclaraciones, incluyendo un panel de alertas, un botón de guardado y una cuadrícula de datos."
+  },
+  {
+    "par": "P077",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptOrdenCompra.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private String Substring(String s, Int32 startIndex)\n    {\n      return FastReport.Functions.StdFunctions.Substring(s, startIndex);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P078",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/FastReport/RptCalculoPrenominaCaratula.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private Decimal Ceiling(Decimal d)\n    {\n      return System.Math.Ceiling(d);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P079",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRutasLocales.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "protected override void Page_Load(object sender, EventArgs e)\n        {\n            if (Session[\"SessionR1\"] == null)\n            {\n                Response.Redirect(\"~/Login.aspx\");\n            }\n            else\n            {\n                if (!IsPostBack)\n                {\n                    //CargarInformacionGrid();\n                    gvRutasLocales.DataBind();\n                    InitializeData();\n                }\n            }\n\n            ValidateAllActions();\n        }",
+    "A": "Catálogo de Rutas Locales: exige autenticación previa redirigiendo a la pantalla de inicio de sesión si no hay sesión activa, y al cargar por primera vez inicializa la lista de rutas y valida todas las acciones disponibles.",
+    "B": "Catálogo de Rutas Locales: exige sesión activa para acceder, redirigiendo al inicio si no existe; al cargar por primera vez, vincula los datos a la tabla y valida todas las acciones permitidas."
+  },
+  {
+    "par": "P080",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptLiquidaciones.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private Decimal Abs(Decimal value)\n    {\n      return System.Math.Abs(value);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P081",
+    "ruta": "ReyOneWeb/ReyOneWeb/Comun/SmtpSender.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "// Con SSL activo, Auto sigue sin cifrar si el servidor no ofrece STARTTLS. Se rechaza antes de\n        // autenticar para no enviar credenciales ni contenido en claro.\n        private static void EnsureSecure(SmtpClient smtp, SmtpConfiguracion servidor)\n        {\n            if (servidor.SSL && !smtp.IsSecure)\n                throw new SmtpSenderException($\"El servidor de email '{servidor.Host}:{servidor.Puerto}' no ofrece una conexión cifrada y Smtp.SSL = true.\");\n        }",
+    "A": "El envío de correos: si la configuración exige cifrado pero el servidor no ofrece una conexión segura, se bloquea el proceso para evitar enviar credenciales o contenido en claro.",
+    "B": "El envío de correos: si la configuración exige cifrado pero el servidor no ofrece una conexión segura, se bloquea el envío para evitar transmitir credenciales o contenido en claro."
+  },
+  {
+    "par": "P082",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptValeGastos.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "\"OgfGL9DbjXHclDBB6mCxhccVyiDI0gPmsfZFuu4284zsgFWy0V1fIaLKyOj+AYiy+AptreqfvjqYjoKx\" +\n        \"AtOE59aJotcbHENAKveDZPeQQVQyHXUypVixdM/RglXpaNSCgryZP7pp+6e5UySvfG9iQ987WufKSjIF\" +\n        \"aezWlJSQX7oxZqLY6W0vFrfcWG81wb5qoxPTIs3h8qCs/QtMVxie1gYXvXVu9povj2WITdPqqqb9MVhW\" +\n        \"XlmQfvrPF07zT1Bz5P0XKcuTFfPgucxtBI8sm2uYJiasBeTE1wO08E7AdQEPg+JSNV70FiaORuEyKOgo\" +\n        \"MwaG50E+OkALl/CEkq0Zr3dey3B9QZBxHgdGh49udzZrOTnjYA1ckvm5hf0tcODw+PiRokXFA6yyOtov\" +\n        \"yFMbyoHTkKHoRRV1OuyKEZPLvpT/SM8c3lucCg4ErAhyH6BMfr+zaLiQqmvr5NL7gupr3tW6dFHH026+\" +\n        \"zOfcpaUFIHY1MAq4P7MxbhATGKWjEORJkzbdH1P1mCdpyJSdLCbzwzrm9YtMYDzxd2m0b4U7USO5BY6U\" +\n        \"dttgMC16RvY1XLR2QPJlSMKMhWRi1CeL20d3SB7mwjtK/qYR0NjC2rXfAmNTJEBeBdXYigpAkAkXm73s\";\n      reportString += \"qShpGL68MK1EjhxgrBqADQTDJWOOrQJpRoAzkT+5RP7dwQKAI+g9lXvgtHxehEwiEGUS6YevzPIjC79g\" +\n        \"yMSGpMH8rYoU+ACNKgDUHE9pjdLR7Zj8IFvvo+6tcs830SnMgBf1ZDf2dUPbMINwP6xkpyaK2eRakpKC\" +\n        \"4lTFd9Eb8F6sI2Njfl/9Stfvre0pBDKa5KwSLAzggwv9j4WK3WNZw+xacuaIGWV1broi7NPXgCaU1feC\" +\n        \"vbtgCvoFuB8XGVhYVGZKecz2UG+hteEJxOm9BX8CPX2noMi5ZWohfMK4ZXJ+mwOlZFbVCsbm9tWWDYA8\" +\n        \"+kLh7NWfE+mqafQYDq6h7W9pr69qedExmaqAfFlZFU1nIB4A+KEcwjQkVNZaoA8ntfMKarSBYAE8k4gc\" +\n        \"8F/VXWDpOsrGFZBmAagE3IWy+APCSft+boGPn/NqdqwmFyZmpnT/EunMo51VQdO0jNtIhwDR4zSCqHaW\" +\n        \"YX0Wk3Dvos/KGLBerDxyYbHHh3MuPezdzurqqqkrKIKF4mAMFRHgxzk66iWYXG8mckHowiDPscTdZG8P\" +\n        \"uYC8aRHo5G67IfAWkIv90EnjofnyuDgkD4dFxh2u5ebvxHWrT2B17wewpULUA7EfJYLFp4rw+OTOjSnO\" +\n        \"RlCJfT09ksAXzMBEHxgHOm5VVpWGGJmPIvLhLz58wD4np7EV1PQq18LkgqMZhVl4TGUdYw2XhbHOIb04\" +\n        \"axthOdv4BhTUh2c8ypC+LbEJmSilm3VJyuLSqoQeqEDu5+24UMvRl/QGxzFB7ympKJBiahNbilcR8YnL\" +\n        \"P0CjOMR5OjYVHh0twL8+He+fcbtXnivBenrt6mxsYD77/vKvZWVldLSclbCIujFBDla/E7EgQmamti+I\" +\n        \"b14GwV38mmEueMp4klPhnB2g6IN3pdMhB7zNneuQKiuZw7blvSsMu00rddXO0wwD0C3xS8Y98Bef2gDf\" +\n        \"6v3FsJ7dR2VIVycpyUpiY5N12sQOH+A0T80ZuZ/aQRQPI9rae0wRqfHZINgMdy+BqR9sG5pmZKcjhr9N\";\n      reportString += \"cYXjEqgHtFtc2NNa2slXNqWm0glE/omosGRcR3fDo2GThRQW2xgIYyAANYTEhCSrs9cHxBbgAyn4ph0X\" +\n        \"kEZ8CDA0eIF56uH97a2npXm5ka5dPFiwczMzFstOF+/0YtHRgZT/+EfxNnQ0KBhzuuI5cUAOSktVyYmJ\" +\n        \"5So0LJMmObS2QHxsmagvI6fNrMbEDaWcuDZ/EGNDF0OlAZgl5eXpBNhi7/LwHdQ0MOpgNuVYIQv1+Yzy\" +\n        \"vyFFGMIWRp2+XgMFaqheWdbysqd8AC+3dbks+zCan1oS42AYRQAs925BeVqBDwmICwHnjGmnv06cC3Ae\" +\n        \"H4T2L8vzqGhmeubiMSXflcjFC+jplYWjmM5+ldWVg2dFcuye0VGcH3voGTTNzVyAgtdWM5APVFnHidSJ\" +\n        \"KegStd/GR2bdMjcO4h87hdIPOi9URKfmCkDg8P64Nn09FTV0tJSsAXlG2+jo6Pv+MeujrK62hpQ+w5JT\" +\n        \"M7ExZDQYTHegdHiqK7T+VADrhGyycSUHBTdybo2yAMgc4bDE4DTq40AaCuMs0PHEZr7BgZ01WFwJPKPg\" +\n        \"kyADcivBZig8nP1cESC4Og8mZ23WS+X1N5Q0sM1YiQovjjOHzmTnsAQzmNMnmZtuicRMeY+NBS+AmJwa\" +\n        \"BjM+g0AVsO4pSVWMN+fRXBxHvOmhwKeKQGnMsAPSlCDosYHW56Zm5Hjp5KloaVTtlGO8U3xauwEVr3VM\" +\n        \"no6AvXDNyhAb3xDL98eSEDpubqaBg7Fl7WkZeQCi0jk3WjxDYiWdpSvPV1d0tf7oHPt0qUP6yrKn2X77\" +\n        \"uhoxNmvfuVMa0sLatazcvQ4GTUtJ1LCY07rQAUbYABmI65CubDQQLA6Dp0dSzIzHAoyQ7cJ3zbQKuhsc\" +\n        \"ZkZOaquPauPQjJ3m/xtQroB2wi9nHsNa5D07Eqcu25yKgDgAnaSD55PAyAAadnlWmYwLB+QoFuys7srJ\" +\n        \"0KhbBzjx2sDpA4w1jceXzZGpEtwz3arAWmbIIw8HiEZ4oG9JxhycHi65OWXAOwiCYvNRZm0KPOQ4yFml\";\n      reportString += \"YznCQBr68AC1gaXeisqq0O+hwNZgxoUvtKwsaVVPI/Q0aIAcATyuUNGx4alq6OdizLKdWLhZ904fPnoI\" +\n        \"498GKza2d3TJRVkykfCLJCjJCu7iCHBDJ9pCLmOfLGLOswBgOPN8Bm8mTNSBmgDtpHTCOPoEEAPjc7W1\" +\n        \"xtwKc3xMCiJCtgXhq8DwLUUs4RMk28LuIL8r7kXMjqKMgY1uQcVr8dlSUt7jxqf8VwLYBzLQf9AAMzr+\" +\n        \"PJ6OMdZ2/xThh+t83kujikECGwHz/VC2mHK4YtYmRqYhmi8PuhrbWOHbG6ug902ot9JCiwfCTKAcg99H\" +\n        \"KNAPwCXr3ziAj17mTLTH6dJR8fGUPdCr+q9kRIZbZ5F6u/rkacQmi8tu+78yOhP2yYmHvmDb/b2fuqBB\" +\n        \"77q5ItH0tIRHmhBANkPoZojJ8vuJSjQhGmC7OLLvKPQYAXZmuXQPRR/B7DZwRKELr4nSldMQAFK0mwLh\" +\n        \"6IOADchzUgGCF+bRg/mVC70rkBN6xWE/K8GkCYnInLAlGetsGvCs1nxeEt2wUaDIuB9AENXJOKc9NxKW\" +\n        \"eG7MvH9bQZxByGxLIWB+SBSsI0E15ueidKNRuqBfWxioSzCcOfmFiQoFKnL6u++oSuw1Av0AR35nEiU1\" +\n        \"o5+HQDSsEyAUSLNLy5IajrSguo+SvyPRyvnGYf3Pv7tbzsvXXJ/cH5+/qe/uuGNNhTN/+Wh7q57+uDFf\" +\n        \"f0DsBw0SG8ULkGn4qQJIZzs0fZihpMB5DK/4xwf5UgLgbY9+jVAW8KRnW6UNVztEJect2/hByHdFiukq\" +\n        \"RGkgWD1m8ENehUUHhVHI8D3UDCVnpBaqoDxewPMgRcy8sQm5VnHmuNDorJkWGenXgvsnYC+JVdg2J39I\" +\n        \"xKdiLoY7dF2QzyOp+sjJV19Q7KB0qqsArmXfVdQ7X4f0oXqB6G5okZWNDRbrBm65CSPlqt+1HkkWHOEv\" +\n        \"lZjemZavvPYsHN1xf3x2dnZgyHJN7N957HHwgCyY2hoAPVWj5wIRoHNcA12HYUarKOzS9cBmVwMq+PjG\";\n      reportString += \"ygbPK3JittkH+jDHUySlOxCtfSxsWnxDyFBMyTNeDlZ+WFJhceQiFiT7gCMLNU/iGuTDgwhp8ApmyihF\" +\n        \"GDNwQYY/s9yqAT5f99oGFKxr6pp0fD9sy20J7O+qW+i7egakKSMUrQLbUbqKbdq2P6BITnC+XWbk6jHs\" +\n        \"u+2HrCHI6RkFOkS26tXr+iCCgK8ur4qdQ1N4mNxH0ZOvvFvfn4O9e6w84UlV8n585M/e959o42lE0COG\" +\n        \"ejvrRobG9W3nAecwE0BsqdfpCQkZyBk9GjYUlKA8MK/uXpCi/Gj9GRbDgN94NVeJxKkAiXZ2uo6okIXQ\" +",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "RptValeGastos.cs: El archivo acumula en una variable de texto una secuencia de caracteres codificados, que representa el contenido binario de un informe de vales de gastos listo para su generación."
+  },
+  {
+    "par": "P083",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptRolesMonitoreoConductores.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private Double Tan(Double a)\n    {\n      return System.Math.Tan(a);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P084",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/FrmSiniestros.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "#region ORDEN DE COMPRA\n\n        /// <summary>\n        /// \n        /// </summary>\n        /// <param name=\"source\"></param>\n        /// <param name=\"e\"></param>\n        protected void pcOrdenCompra_WindowCallback(object source, PopupWindowCallbackArgs e)\n        {\n            ASPxEdit.ClearEditorsInContainer(pcOrdenCompra);\n            CargarElementosOrdenCompra();\n            //e.Result = \"5|\";\n        }",
+    "A": "Pantalla de siniestros: al cerrar la ventana emergente de orden de compra, se limpian los campos de entrada y se recargan los elementos relacionados con dicha orden.",
+    "B": "Pantalla de Siniestros: al cerrar la ventana emergente de la orden de compra, el sistema limpia los campos de edición y recarga los elementos de la orden."
+  },
+  {
+    "par": "P085",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/MonitorEmbarques.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "protected override void Page_Load(object sender, EventArgs e)\n        {\n            base.Page_Load(sender, e);\n\n            if (!IsPostBack)\n            {\n                if (ViewState[\"RowUsuario\"] == null)\n                {\n                    if (Session[\"SessionR1\"] == null)\n                        Response.Redirect(\"~/Login.aspx\");\n                    //Usuario en informacion de pagina.\n                    ViewState[\"RowUsuario\"] = (Session[\"SessionR1\"] as Session).Usuario;\n                }\n\n                InformacionGrid();\n                FiltroInicial();\n            }\n            //validacion de permisos en botonera\n            ValidateAllActions(\"btnAsignacion,btnEliminar,btnExterno,btnComplementario,btnEliminarViaje,btnCancelarEmbarque\");\n        }",
+    "A": "MonitorEmbarques: Al cargar la página, verifica que el usuario esté autenticado y redirige al inicio de sesión si no lo está. Inicializa los datos de la cuadrícula y filtros, además de validar los permisos para acciones como asignación, eliminación o cancelación de embarques.",
+    "B": "MonitorEmbarques: Al cargar la página, verifica que el usuario esté autenticado y redirige al inicio de sesión si no lo está. Inicializa la información de la cuadrícula y los filtros, y valida los permisos para mostrar o ocultar botones de acciones específicas como asignación, eliminación o cancelación."
+  },
+  {
+    "par": "P086",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoConceptosNomina.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// Inserta el nuevo concepto de nómina.\n        /// </summary>\n        /// <param name=\"indicador\">El concepto de nómina.</param>\n        private void InsertarConceptoNomina(ASPxDataInsertValues aspxIndicador)\n        {\n            var negocio = new NConceptoNomina();\n            var concepto = new ConceptoNomina\n            {\n                ID = new IDConceptoNomina(),\n                Personal_Registra = (Session[\"SessionR1\"] as Session).Usuario.Id.Personal,\n                Descripcion = (string)aspxIndicador.NewValues[\"Descripcion\"],\n                Tipo_Concepto = (string)aspxIndicador.NewValues[\"Tipo_Concepto\"],\n                Estatus = \"0\", // Es el valor entero de la Enumeración EstatusConceptoNomina\n                Clave = (string)aspxIndicador.NewValues[\"Clave\"],\n                Au_Usuario = (Session[\"SessionR1\"] as Session).Usuario.Id.Login,\n                Au_Terminal = Request.UserHostName,\n                Au_Borrado = 0\n            };\n\n            // Valida que la Clave sólo contenga letras y números.\n            var res = Regex.IsMatch(concepto.Clave, @\"^[A-Z0-9]+$\");\n\n            if (!res)\n                throw new Exception(\"La CLAVE sólo puede contener letras mayúsculas y números\");\n\n            negocio.AgregarElemento(concepto);\n        }",
+    "A": "Catálogo de Conceptos de Nómina: al registrar un nuevo concepto, se valida que su clave contenga únicamente letras mayúsculas y números; si cumple, se guarda con estatus inicial inactivo y se registra el usuario y terminal que lo crearon.",
+    "B": "Catálogo de Conceptos de Nómina: al registrar un nuevo concepto, el sistema valida que su clave contenga únicamente letras mayúsculas y números; si cumple esta regla, guarda la descripción, tipo y clave asignando automáticamente el usuario actual como responsable del registro."
+  },
+  {
+    "par": "P087",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptRolesMonitoreoConductores.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private Decimal Minimum(Decimal val1, Decimal val2)\n    {\n      return FastReport.Functions.StdFunctions.Minimum(val1, val2);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P088",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoMovimientosPrenomina.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "public partial class CatalogoMovimientosPrenomina : WFMaestro",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P089",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/PreliquidacionTrafico.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// Metodo que define el datatable de los conceptos de gasto.\n        /// </summary>\n        /// <returns>Datatable</returns>\n        private DataTable GetDataTableConceptoGasto()\n        {\n            DataTable dttConceptos = new DataTable();\n            dttConceptos.Clear();\n\n            //Cabeceras\n            dttConceptos.Columns.Add(\"ID\", typeof(Int32));\n            dttConceptos.Columns.Add(\"idConcepto\", typeof(Int32));\n            dttConceptos.Columns.Add(\"Concepto\", typeof(String));\n            dttConceptos.Columns.Add(\"Cantidad\", typeof(Int32));\n            dttConceptos.Columns.Add(\"Importe_Autorizado\", typeof(Decimal));\n            dttConceptos.Columns.Add(\"Importe_Unitario\", typeof(Decimal));\n            dttConceptos.Columns.Add(\"Total\", typeof(Decimal));\n            dttConceptos.Columns.Add(\"EsNuevo\", typeof(Boolean));\n            dttConceptos.Columns.Add(\"EsModificado\", typeof(Boolean));\n            dttConceptos.Columns.Add(\"EsEliminado\", typeof(Boolean));\n\n            DataColumn[] keyColumnGasto = new DataColumn[1];\n            keyColumnGasto[0] = dttConceptos.Columns[\"ID\"];\n            dttConceptos.PrimaryKey = keyColumnGasto;\n\n            return dttConceptos;\n        }",
+    "A": "Preliquidación de Tráfico: Define la estructura de datos para los conceptos de gasto, estableciendo campos como concepto, cantidad, importes autorizados y unitarios, total, y estados de modificación, con el ID como identificador único.",
+    "B": "Preliquidación de Tráfico: Define la estructura de datos para los conceptos de gasto, incluyendo campos como concepto, cantidad, importes autorizados y unitarios, total, y estados de modificación."
+  },
+  {
+    "par": "P090",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptLiquidaciones.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private String PadLeft(String s, Int32 totalWidth)\n    {\n      return FastReport.Functions.StdFunctions.PadLeft(s, totalWidth);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P091",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoTipoSiniestro.aspx.designer.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// pnlAlerta control.\n        /// </summary>\n        /// <remarks>\n        /// Auto-generated field.\n        /// To modify move field declaration from designer file to code-behind file.\n        /// </remarks>\n        protected global::DevExpress.Web.ASPxPanel pnlAlerta;\n\n        /// <summary>\n        /// lblTextoAlerta control.\n        /// </summary>\n        /// <remarks>\n        /// Auto-generated field.\n        /// To modify move field declaration from designer file to code-behind file.\n        /// </remarks>\n        protected global::DevExpress.Web.ASPxLabel lblTextoAlerta;\n\n        /// <summary>\n        /// dgvCatalogoTipoSiniestro control.\n        /// </summary>\n        /// <remarks>\n        /// Auto-generated field.\n        /// To modify move field declaration from designer file to code-behind file.\n        /// </remarks>\n        protected global::DevExpress.Web.ASPxGridView dgvCatalogoTipoSiniestro;\n\n        /// <summary>\n        /// btnEliminar control.\n        /// </summary>\n        /// <remarks>\n        /// Auto-generated field.\n        /// To modify move field declaration from designer file to code-behind file.\n        /// </remarks>\n        protected global::DevExpress.Web.GridViewCommandColumnCustomButton btnEliminar;\n\n        /// <summary>\n        /// btnReactivar control.\n        /// </summary>\n        /// <remarks>\n        /// Auto-generated field.\n        /// To modify move field declaration from designer file to code-behind file.\n        /// </remarks>\n        protected global::DevExpress.Web.GridViewCommandColumnCustomButton btnReactivar;",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P092",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptMovimientosPrenomina.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private Double ToDouble(Object value)\n    {\n      return System.Convert.ToDouble(value);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P093",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/RepocitorioReportes/RptBono.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "private String ToWordsEs(Object value, String one, String many)\n    {\n      return FastReport.Functions.StdFunctions.ToWordsEs(value, one, many);\n    }",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P094",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoRolesMonitoreo.aspx.cs",
+    "lenguaje": "CSharp",
+    "fragmento": "/// <summary>\n        /// Monitoristas the tiene turno abierto.\n        /// </summary>\n        /// <returns>System.String.</returns>\n        private string MonitoristaTieneTurnoAbierto(RolMonitoreoTurno rolMonitoreo)\n        {\n            var objNRolMonitoreoTurno = new NRolMonitoreoTurno();\n            var criterios = new List<CriterioValor>();\n            var usuario = (Session[\"SessionR1\"] as Session).Usuario;\n            var objNMonitoreo = new NMonitoreoTurno();\n            var turnoAbierto = objNMonitoreo.ConsultarTurnoAbierto(new Personal { Id = new IDPersonal { Pk_personal = (int)rolMonitoreo.FK_PERSONAL_MONITOREO } });\n\n            criterios.Add(new CriterioValor\n            {\n                Criterio = new Criterio { Alias = \"tcr\", Campo = \"FK_PERSONAL_MONITOREO\" },\n                Operador = OperadoresLogicos.IGUAL,\n                Valor = rolMonitoreo.FK_PERSONAL_MONITOREO.ToString(),\n                OperadorCriterio = OperadoresBoleanos.AND\n            });\n            criterios.Add(new CriterioValor\n            {\n                Criterio = new Criterio { Alias = \"tcr\", Campo = \"FECHA\" },\n                Operador = OperadoresLogicos.IGUAL,\n                Valor = rolMonitoreo.FECHA.ToString(\"yyyy-MM-dd\"),\n                OperadorCriterio = OperadoresBoleanos.AND\n            });\n\n            // Se consulta el turno que tiene registrado el monitorista\n            var rol = objNRolMonitoreoTurno.ConsultarRolPersonalMonitoreo(criterios, usuario.Id.Login);\n\n            if (rol == null)\n                return string.Empty;\n\n            var turno = rol[\"TURNO\"].ToString();\n\n            if (turnoAbierto != null)\n            {\n                var (turnoUsuario, fechaInicio, fechaFin) = ObtenerTurnoHorario(turnoAbierto);\n\n                if (StringEnum.GetStringValue(turnoUsuario) == turno)\n                    return $\"E|No se puede modificar el turno del monitorista {rol[2].ToString()} debido a que ya abrió su turno del día \" +\n                        $\"{rolMonitoreo.FECHA.ToString(\"dd/MM/yyyy\")} en el horario de {fechaInicio.ToShortTimeString()} a {fechaFin.ToShortTimeString()}\";\n            }\n\n            return string.Empty;\n        }",
+    "A": "Catálogo de Roles de Monitoreo: Verifica si un monitorista tiene un turno abierto el mismo día y horario asignado. Si coincide, impide modificar su turno y muestra un mensaje indicando que ya inició su jornada en ese rango específico.",
+    "B": "Catálogo de roles de monitoreo: impide modificar el turno de un monitorista si ya abrió su turno del día, mostrando un error con el nombre del monitorista, la fecha y el horario específico del turno abierto."
+  },
+  {
+    "par": "P095",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/JS/jsPlanesRutasUrbanos.js",
+    "lenguaje": "JavaScript",
+    "fragmento": "//pnlAlertaCopiaCliente.SetVisible(false);\n    panelAlertas.SetVisible(false);\n    pcCopiaCliente.PerformCallback();\n    pcCopiaCliente.Show();\n}\n\n/**\n * \n * @param {any} s\n * @param {any} e\n */\nfunction btnGuardarCopiaDiaClick(s, e) {\n    if (ASPxClientEdit.ValidateGroup('Copia')) {\n        cbGeneralCliente.PerformCallback(3);\n    }\n}\n\n/**\n * \n * @param {any} s\n * @param {any} e\n */\nfunction cbGeneralesComplete(s, e) {\n    if (e.result != null) {\n        var res = e.result.split('|');\n\n        if (res[0] === '0') {\n            ShowPopupPanelSuperior('mensajeError', res[1]);\n        }\n        else if (res[0] === '-0') {\n            ShowPopupPanelSuperiorRutaCopia('mensajeError', res[1]);\n        }\n    }\n    else {\n        pcCopiaCliente.Hide();\n        pcPlanRutaUrbanoCliente.Hide();\n        dgvPlanRutaUrbanoCliente.Refresh();\n    }\n}\n\n/**\n * \n * @param {any} s\n * @param {any} e\n */\nfunction btnCancelarClick(s, e) {\n    panelAlertas.SetVisible(false);\n\n    if (dgvPlanRutaUrbanoCliente.GetFocusedRowIndex() > -1) {\n        pcBajaCliente.PerformCallback();\n        pcBajaCliente.Show();",
+    "A": "La pantalla de gestión de rutas urbanas valida los datos del cliente antes de guardar la copia diaria. Si el proceso falla, muestra un mensaje de error específico; si tiene éxito, cierra las ventanas activas y actualiza la lista de planes.",
+    "B": "La pantalla de copias de rutas urbanas valida los datos antes de guardar y muestra mensajes de error si la operación falla. Al completar con éxito, oculta los paneles de edición y actualiza la lista de rutas."
+  },
+  {
+    "par": "P096",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/JS/jsEditGrid.js",
+    "lenguaje": "JavaScript",
+    "fragmento": "grid.GetEditor(\"Descripcion\").SetText(origen + \" - \" + destino);\n}\n\nfunction keyPressLowToUpper(s, e) {\n    if (e.htmlEvent.keyCode != 8 && e.htmlEvent.keyCode != 9 && e.htmlEvent.keyCode != 37 && e.htmlEvent.keyCode != 39) {\n        if (s.GetValue() != null) {\n            s.SetValue(s.GetValue().toUpperCase());\n        }\n    }\n}\n///--------------------------------------------------------------------------------------------\n///--------------------------------------------------------------------------------------------\n///-----FUNCIONES USADAS PARA LA IMPLEMENTACIÓN DEL POPUP PARA CONFIRMAR ACCION ELIMINAR-------\n///--------------------------------------------------------------------------------------------\n///--------------------------------------------------------------------------------------------\n\n//*********************************************************************************\n//Función que controla los eventos del grid, esta función es la que inicia el \n//flijo de la implementación del popup\n//*********************************************************************************\nfunction btnEliminarClick(s, e) {\n    if (e.buttonID != 'btnEliminar') return;\n    rowVisibleIndex = e.visibleIndex;\n    s.GetRowValues(e.visibleIndex, 'Id.Pk_Ruta', ShowPopup);\n}\n//*********************************************************************************\n//Función que activa el popup segun el boton que se haya accionado, \n//en esta funcuión se establece el mensaje que se leera en el popup\n//*********************************************************************************\nfunction ShowPopup(rowId) {\nif (rowId == null)\nMensaje.SetText(\"¿Confirma que desea eliminar el nuevo registro?\");\nelse\nMensaje.SetText(\"¿Confirma que desea eliminar la ruta No: \" + rowId + \"?\");\n\npcConfirmacion.Show();\nbtnCancelar.Focus();\n}\n//*********************************************************************************\n//Función que completa la acción segune el boton que se haya seleccionado,\n//Boton Aceptar : True, Elimina el registro.\n//Boton Cancelar : False, Cancela la acción sin editar el grid\n//*********************************************************************************\nfunction ClosePopup(result) {\npcConfirmacion.Hide();\nif (result) DeleteGridRow(rowVisibleIndex);\n}\n//*********************************************************************************\n//Función que se encarga de eliminar el registro seleccionado del grid\n//*********************************************************************************\nfunction DeleteGridRow(visibleIndex) {",
+    "A": "La pantalla de tráfico permite eliminar rutas mediante un botón que abre una ventana de confirmación. El mensaje de advertencia varía según si se trata de un registro nuevo o una ruta existente, identificada por su número. Si el usuario confirma, la ruta se elimina de la lista; si cancela, la acción se revierte.",
+    "B": "La pantalla de tráfico permite eliminar rutas mediante un botón que solicita confirmación al usuario. El sistema distingue entre registros nuevos y existentes, mostrando el número de ruta en el mensaje de confirmación para los segundos. Si el usuario acepta, se elimina la fila seleccionada de la lista; si cancela, no se realiza ninguna modificación."
+  },
+  {
+    "par": "P097",
+    "ruta": "ReyOneWeb/ReyOneWeb/Trafico/JS/MonitorLicencias.js",
+    "lenguaje": "JavaScript",
+    "fragmento": "e.validationInfo[noLicFedIndex].isValid = false;\n        e.validationInfo[noLicFedIndex].errorText = \"Valor no valido.\";\n    } else if (e.validationInfo[noLicFedIndex].value !== null) {\n        if (e.validationInfo[noLicFedIndex].value.trim() === '') {\n            e.validationInfo[noLicFedIndex].isValid = false;\n            e.validationInfo[noLicFedIndex].errorText = \"Valor no valido.\";\n        }\n\n        // Validate vigencia lic federal\n        var vigLicFedIndex = s.GetColumnByField(\"VIGENCIA_LICENCIA_FEDERAL\").index;\n\n        if (e.validationInfo[vigLicFedIndex].value === null) {\n            e.validationInfo[vigLicFedIndex].isValid = false;\n            e.validationInfo[vigLicFedIndex].errorText = \"Valor no valido.\";\n        }\n\n        // Validate tipo lic federal\n        var tipoLicFedIndex = s.GetColumnByField(\"TIPO_LICENCIA_FEDERAL\").index;\n\n        //if (e.validationInfo[tipoLicFedIndex].value === null || e.validationInfo[tipoLicFedIndex].value === '') {\n        //    e.validationInfo[tipoLicFedIndex].isValid = false;\n        //    e.validationInfo[tipoLicFedIndex].errorText = \"Valor no valido.\";\n        //} else\n        if (e.validationInfo[tipoLicFedIndex].value === null) {\n            e.validationInfo[tipoLicFedIndex].isValid = false;\n            e.validationInfo[tipoLicFedIndex].errorText = \"Valor no valido.\";\n        }\n    }\n\n\n    // Validate folio lic estatal\n    var noLicEstIndex = s.GetColumnByField(\"NO_LICENCIA_ESTATAL\").index;\n    var EstAllowNullIndex = s.GetColumnByField(\"ESTATAL_ALLOW_NULL\").index;\n    var EstAllowNullValue = e.validationInfo[EstAllowNullIndex].value;\n\n    if (e.validationInfo[noLicEstIndex].value === null && EstAllowNullValue === null) {\n        e.validationInfo[noLicEstIndex].isValid = false;\n        e.validationInfo[noLicEstIndex].errorText = \"Valor no valido.\";\n    } else if (e.validationInfo[noLicEstIndex].value !== null) {\n        if (e.validationInfo[noLicEstIndex].value.trim() === '') {\n            e.validationInfo[noLicEstIndex].isValid = false;\n            e.validationInfo[noLicEstIndex].errorText = \"Valor no valido.\";\n        }\n\n        // Validate vigencia lic estatal\n        var vigLicEstIndex = s.GetColumnByField(\"VIGENCIA_LICENCIA_ESTATAL\").index;\n\n        if (e.validationInfo[vigLicEstIndex].value === null) {\n            e.validationInfo[vigLicEstIndex].isValid = false;\n            e.validationInfo[vigLicEstIndex].errorText = \"Valor no valido.\";\n        }",
+    "A": "MonitorLicencias.js: valida que los números de licencia federal y estatal no estén vacíos, y exige la vigencia correspondiente si el número existe; para licencias estatales, solo es obligatorio si el sistema no permite valores nulos.",
+    "B": "MonitorLicencias.js: valida que los números de licencia federal y estatal no estén vacíos, y que, si se proporcionan, incluyan su vigencia y tipo de licencia federal."
+  },
+  {
+    "par": "P098",
+    "ruta": "ReyOneWeb/ReyOneWeb/ReyOneWeb.csproj",
+    "lenguaje": "PlainText",
+    "fragmento": "<DependentUpon>CatalogoVehiculoComponentes.aspx</DependentUpon>\n    </Compile>\n    <Compile Include=\"Trafico\\Catalogos\\CatalogoVehiculoDocumentos.aspx.cs\">\n      <DependentUpon>CatalogoVehiculoDocumentos.aspx</DependentUpon>\n      <SubType>ASPXCodeBehind</SubType>\n    </Compile>\n    <Compile Include=\"Trafico\\Catalogos\\CatalogoVehiculoDocumentos.aspx.designer.cs\">\n      <DependentUpon>CatalogoVehiculoDocumentos.aspx</DependentUpon>\n    </Compile>\n    <Compile Include=\"Trafico\\Catalogos\\CatalogoVehiculos.aspx.cs\">\n      <DependentUpon>CatalogoVehiculos.aspx</DependentUpon>\n      <SubType>ASPXCodeBehind</SubType>\n    </Compile>\n    <Compile Include=\"Trafico\\Catalogos\\CatalogoVehiculos.aspx.designer.cs\">\n      <DependentUpon>CatalogoVehiculos.aspx</DependentUpon>\n    </Compile>\n    <Compile Include=\"Trafico\\Catalogos\\DescargaPolizasNoValidas.aspx.cs\">\n      <DependentUpon>DescargaPolizasNoValidas.aspx</DependentUpon>\n      <SubType>ASPXCodeBehind</SubType>\n    </Compile>\n    <Compile Include=\"Trafico\\Catalogos\\DescargaPolizasNoValidas.aspx.designer.cs\">\n      <DependentUpon>DescargaPolizasNoValidas.aspx</DependentUpon>\n    </Compile>\n    <Compile Include=\"Trafico\\Catalogos\\FrmCatalogoContenedorDetalles.aspx.cs\">\n      <DependentUpon>FrmCatalogoContenedorDetalles.aspx</DependentUpon>\n      <SubType>ASPXCodeBehind</SubType>\n    </Compile>\n    <Compile Include=\"Trafico\\Catalogos\\FrmCatalogoContenedorDetalles.aspx.designer.cs\">\n      <DependentUpon>FrmCatalogoContenedorDetalles.aspx</DependentUpon>\n    </Compile>\n    <Compile Include=\"Trafico\\Catalogos\\FrmCatalogoPlanesRutasUrbanos.aspx.cs\">\n      <DependentUpon>FrmCatalogoPlanesRutasUrbanos.aspx</DependentUpon>\n      <SubType>ASPXCodeBehind</SubType>\n    </Compile>\n    <Compile Include=\"Trafico\\Catalogos\\FrmCatalogoPlanesRutasUrbanos.aspx.designer.cs\">\n      <DependentUpon>FrmCatalogoPlanesRutasUrbanos.aspx</DependentUpon>\n    </Compile>\n    <Compile Include=\"Trafico\\Emails\\Factory\\ConcreteEmailsCreators\\CalculoPrenominaCreator.cs\" />\n    <Compile Include=\"Trafico\\Emails\\Factory\\ConcreteEmailsCreators\\ModificacionViajeCreator.cs\" />\n    <Compile Include=\"Trafico\\Emails\\Factory\\ConcreteEmails\\CalculoPrenominaEmail.cs\" />\n    <Compile Include=\"Trafico\\Emails\\Factory\\ConcreteEmails\\ModificacionViajeEmail.cs\" />\n    <Compile Include=\"Trafico\\Emails\\Factory\\Email.cs\" />\n    <Compile Include=\"Trafico\\Emails\\Factory\\EmailCreator.cs\" />\n    <Compile Include=\"Trafico\\Emails\\Factory\\EmailFactory.cs\" />\n    <Compile Include=\"Trafico\\Emails\\Factory\\IEmail.cs\" />\n    <Compile Include=\"Trafico\\Emails\\Factory\\Types\\EmailTypes.cs\" />\n    <Compile Include=\"Trafico\\Emails\\Templates\\EmailTemplatesKeys.cs\" />\n    <Compile Include=\"Trafico\\Emails\\Templates\\Extensions\\EngineRazorExtensions.cs\" />\n    <Compile Include=\"Trafico\\Extensions\\ExecutionAsyncExtensions.cs\" />\n    <Compile Include=\"Trafico\\Models\\ReymaFileData.cs\" />\n    <Compile Include=\"Trafico\\Procesos\\CalculoPrenomina.aspx.cs\">",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P099",
+    "ruta": "ReyOneWeb/ReyOneWeb/ReyOneWeb.csproj",
+    "lenguaje": "PlainText",
+    "fragmento": "<Content Include=\"Imagenes\\reporte.ico\" />\n    <Content Include=\"Imagenes\\reporte.png\" />\n    <Content Include=\"Imagenes\\reporte2.png\" />\n    <Content Include=\"Imagenes\\reportes.png\" />\n    <Content Include=\"Imagenes\\Reportes128X128.png\" />\n    <Content Include=\"Imagenes\\Reportes256X256.png\" />\n    <Content Include=\"Imagenes\\reyma.png\" />\n    <Content Include=\"Imagenes\\reymaFondoCarta.png\" />\n    <Content Include=\"Imagenes\\sellos_seguridad.png\" />\n    <Content Include=\"Imagenes\\Trafico\\06DetalleRutas.png\" />\n    <Content Include=\"Imagenes\\Trafico\\10Programación.png\" />\n    <Content Include=\"Imagenes\\Trafico\\117.png\" />\n    <Content Include=\"Imagenes\\Trafico\\118.png\" />\n    <Content Include=\"Imagenes\\Trafico\\119.png\" />\n    <Content Include=\"Imagenes\\Trafico\\11Taller.png\" />\n    <Content Include=\"Imagenes\\Trafico\\120.png\" />\n    <Content Include=\"Imagenes\\Trafico\\121.png\" />\n    <Content Include=\"Imagenes\\Trafico\\12Preliquidacion.png\" />\n    <Content Include=\"Imagenes\\Trafico\\13Liquidacion.png\" />\n    <Content Include=\"Imagenes\\Trafico\\14DetalleEvento.png\" />\n    <Content Include=\"Imagenes\\Trafico\\15NuevoViaje.png\" />\n    <Content Include=\"Imagenes\\Trafico\\16HistoricoVentas.png\" />\n    <Content Include=\"Imagenes\\Trafico\\18ReporteUnidadesCargadas.png\" />\n    <Content Include=\"Imagenes\\Trafico\\19ReporteGastosViaje.png\" />\n    <Content Include=\"Imagenes\\Trafico\\20ReporteRendimiento.png\" />\n    <Content Include=\"Imagenes\\Trafico\\AclaracionCapufe.png\" />\n    <Content Include=\"Imagenes\\Trafico\\Analisis_Clientedos.png\" />\n    <Content Include=\"Imagenes\\Trafico\\Analisis_Vehiculos.png\" />\n    <Content Include=\"Imagenes\\Trafico\\33Interplanta.png\" />\n    <Content Include=\"Imagenes\\Trafico\\bonos.png\" />\n    <Content Include=\"Imagenes\\Trafico\\Busqueda.png\" />\n    <Content Include=\"Imagenes\\Trafico\\CalculoPrenomina.png\" />\n    <Content Include=\"Imagenes\\Trafico\\casetas.png\" />\n    <Content Include=\"Imagenes\\Trafico\\checklist.png\" />\n    <Content Include=\"Imagenes\\Trafico\\Componentes.png\" />\n    <Content Include=\"Imagenes\\Trafico\\Conceptos.png\" />\n    <Content Include=\"Imagenes\\Trafico\\ConceptosNomina.png\" />\n    <Content Include=\"Imagenes\\Trafico\\Conductores.png\" />\n    <Content Include=\"Imagenes\\Trafico\\ContenedorCatDet.png\" />\n    <Content Include=\"Imagenes\\Trafico\\DetalleDerutas.png\" />\n    <Content Include=\"Imagenes\\Trafico\\diesel.png\" />\n    <Content Include=\"Imagenes\\Trafico\\Documentos.png\" />\n    <Content Include=\"Imagenes\\Trafico\\Embarques.png\" />\n    <Content Include=\"Imagenes\\Trafico\\Eventos.png\" />\n    <Content Include=\"Imagenes\\Trafico\\FacturasDiario.png\" />\n    <Content Include=\"Imagenes\\Trafico\\gastosNew.png\" />\n    <Content Include=\"Imagenes\\Trafico\\general.jpg\" />\n    <Content Include=\"Imagenes\\Trafico\\historial.png\" />\n    <Content Include=\"Imagenes\\Trafico\\icono_verificaciones.png\" />\n    <EmbeddedResource Include=\"Imagenes\\Trafico\\Monitoreo.png\" />\n    <EmbeddedResource Include=\"Imagenes\\Trafico\\Infraccion.png\" />",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  },
+  {
+    "par": "P100",
+    "ruta": "ReyOneWeb/ReyOneWeb/ReyOneWeb.csproj",
+    "lenguaje": "PlainText",
+    "fragmento": "</Compile>\n    <Compile Include=\"Comun\\MensajeGenerico.ascx.designer.cs\">\n      <DependentUpon>MensajeGenerico.ascx</DependentUpon>\n    </Compile>\n    <Compile Include=\"Comun\\UCLostSession.ascx.cs\">\n      <DependentUpon>UCLostSession.ascx</DependentUpon>\n      <SubType>ASPXCodeBehind</SubType>\n    </Compile>\n    <Compile Include=\"Comun\\UCLostSession.ascx.designer.cs\">\n      <DependentUpon>UCLostSession.ascx</DependentUpon>\n    </Compile>\n    <Compile Include=\"Comun\\VistaPreviaReporte.ascx.cs\">\n      <DependentUpon>VistaPreviaReporte.ascx</DependentUpon>\n      <SubType>ASPXCodeBehind</SubType>\n    </Compile>\n    <Compile Include=\"Comun\\VistaPreviaReporte.ascx.designer.cs\">\n      <DependentUpon>VistaPreviaReporte.ascx</DependentUpon>\n    </Compile>\n    <Compile Include=\"Comun\\BusquedaGenerica.ascx.cs\">\n      <DependentUpon>BusquedaGenerica.ascx</DependentUpon>\n      <SubType>ASPXCodeBehind</SubType>\n    </Compile>\n    <Compile Include=\"Comun\\BusquedaGenerica.ascx.designer.cs\">\n      <DependentUpon>BusquedaGenerica.ascx</DependentUpon>\n    </Compile>\n    <Compile Include=\"FrmUpdateContraseña.aspx.cs\">\n      <DependentUpon>FrmUpdateContraseña.aspx</DependentUpon>\n      <SubType>ASPXCodeBehind</SubType>\n    </Compile>\n    <Compile Include=\"FrmUpdateContraseña.aspx.designer.cs\">\n      <DependentUpon>FrmUpdateContraseña.aspx</DependentUpon>\n    </Compile>\n    <Compile Include=\"Global.asax.cs\">\n      <DependentUpon>Global.asax</DependentUpon>\n    </Compile>\n    <Compile Include=\"MasterPageConsultaBasica.master.cs\">\n      <DependentUpon>MasterPageConsultaBasica.master</DependentUpon>\n      <SubType>ASPXCodeBehind</SubType>\n    </Compile>\n    <Compile Include=\"MasterPageConsultaBasica.master.designer.cs\">\n      <DependentUpon>MasterPageConsultaBasica.master</DependentUpon>\n    </Compile>\n    <Compile Include=\"Default.aspx.cs\">\n      <DependentUpon>Default.aspx</DependentUpon>\n      <SubType>ASPXCodeBehind</SubType>\n    </Compile>\n    <Compile Include=\"Default.aspx.designer.cs\">\n      <DependentUpon>Default.aspx</DependentUpon>\n    </Compile>\n    <Compile Include=\"Login.aspx.cs\">\n      <DependentUpon>Login.aspx</DependentUpon>",
+    "A": "SIN_CONTENIDO_DE_NEGOCIO",
+    "B": "SIN_CONTENIDO_DE_NEGOCIO"
+  }
+]

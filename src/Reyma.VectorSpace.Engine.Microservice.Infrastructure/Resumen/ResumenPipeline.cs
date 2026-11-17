@@ -7,8 +7,11 @@ using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Vectorization;
 
 namespace Reyma.VectorSpace.Engine.Microservice.Infrastructure.Resumen;
 
-/// <summary>Conteos de una corrida de la fase 2 (1.7.7).</summary>
-public sealed record ResumenResultado(int Resumidos, int Pendientes, int TokensConsumidos, int SinContenidoDeNegocio)
+/// <summary>
+/// Conteos de una corrida de la fase 2 (1.7.7). <see cref="OmitidosPorFiltro"/> (1.27): puntos que el filtro previo
+/// marco como procesados sin LLM; no cuentan en <see cref="Resumidos"/> (que sigue siendo "paso por el LLM o la cache").
+/// </summary>
+public sealed record ResumenResultado(int Resumidos, int Pendientes, int TokensConsumidos, int SinContenidoDeNegocio, int OmitidosPorFiltro = 0)
 {
     public static readonly ResumenResultado Vacio = new(0, 0, 0, 0);
 }
@@ -29,39 +32,41 @@ public sealed class ResumenPipeline
 {
     private readonly QdrantVectorStore _store;
     private readonly IVectorizationBrainFactory _embeddingsFactory;
-    private readonly ILlmResumenBrain _llm;
     private readonly ICacheDeResumenes _cache;
+    private readonly FiltroPrevioDeResumen _filtro;
     private readonly ResumenOptions _options;
     private readonly ILogger<ResumenPipeline> _logger;
 
     public ResumenPipeline(
         QdrantVectorStore store,
         IVectorizationBrainFactory embeddingsFactory,
-        ILlmResumenBrain llm,
         ICacheDeResumenes cache,
+        FiltroPrevioDeResumen filtro,
         IOptions<MotorOptions> options,
         ILogger<ResumenPipeline> logger)
     {
         _store = store;
         _embeddingsFactory = embeddingsFactory;
-        _llm = llm;
         _cache = cache;
+        _filtro = filtro;
         _options = options.Value.Resumen;
         _logger = logger;
     }
 
-    public async Task<ResumenResultado> ProcesarPendientesAsync(string coleccion, CancellationToken ct)
+    /// <param name="llm">Perfil de LLM que pidio la ingesta (o el por defecto), ya resuelto por <see cref="ILlmResumenBrainFactory"/>.</param>
+    public async Task<ResumenResultado> ProcesarPendientesAsync(string coleccion, ILlmResumenBrain llm, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(_options.PerfilEmbeddings))
             return ResumenResultado.Vacio; // el llamador ya deberia haber evitado esto (resumen no habilitado aqui)
 
         var resueltoEmbeddings = _embeddingsFactory.Resolver(_options.PerfilEmbeddings);
-        var promptVersion = _llm.PromptVersion;
-        var modelo = _llm.ModelName;
+        var promptVersion = llm.PromptVersion;
+        var modelo = llm.ModelName;
 
         var tokensGastados = 0;
         var resumidos = 0;
         var sinNegocio = 0;
+        var omitidosPorFiltro = 0;
         var cortado = false;
 
         PointId? offset = null;
@@ -76,6 +81,17 @@ public sealed class ResumenPipeline
                     break;
                 }
 
+                // 1.27: QUE no se resume lo decide una regla determinista, antes de la cache y del LLM. El punto queda
+                // procesado (resumen_pending=false), sin vector ni texto, con el filtro como "modelo".
+                if (_filtro.Motivo(punto.RutaRelativa, punto.TipoDeChunk, punto.Contenido) is { } motivo)
+                {
+                    _logger.LogDebug("Filtro previo ({Motivo}): '{Ruta}' ({Tipo}) no se manda al LLM.",
+                        motivo, punto.RutaRelativa, punto.TipoDeChunk);
+                    await _store.ActualizarResumenAsync(coleccion, punto.Id, null, null, _filtro.Modelo, _filtro.Identidad, ct);
+                    omitidosPorFiltro++;
+                    continue;
+                }
+
                 string texto;
                 bool esContenidoDeNegocio;
                 if (_cache.TryObtener(punto.ContentHash, promptVersion, modelo, out var cacheado))
@@ -88,7 +104,7 @@ public sealed class ResumenPipeline
                     ResumenLlmResultado? resultado;
                     try
                     {
-                        resultado = await _llm.ResumirAsync(punto.Lenguaje, punto.RutaRelativa, punto.Contenido, ct);
+                        resultado = await llm.ResumirAsync(punto.Lenguaje, punto.RutaRelativa, punto.Contenido, ct);
                     }
                     catch (BadRequestException)
                     {
@@ -125,7 +141,11 @@ public sealed class ResumenPipeline
             offset = cortado ? null : pagina.SiguienteOffset;
         } while (offset is not null);
 
+        if (omitidosPorFiltro > 0)
+            _logger.LogInformation("Filtro previo {Modelo} ({Identidad}): {Omitidos} puntos de '{Coleccion}' marcados sin llamar al LLM.",
+                _filtro.Modelo, _filtro.Identidad, omitidosPorFiltro, coleccion);
+
         var pendientes = await _store.ContarPendientesDeResumenAsync(coleccion, ct);
-        return new ResumenResultado(resumidos, (int)Math.Min(pendientes, int.MaxValue), tokensGastados, sinNegocio);
+        return new ResumenResultado(resumidos, (int)Math.Min(pendientes, int.MaxValue), tokensGastados, sinNegocio, omitidosPorFiltro);
     }
 }

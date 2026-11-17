@@ -30,6 +30,7 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
     private readonly QdrantSemanticRetriever _retriever;
     private readonly DocumentIngestionPipeline _pipeline;
     private readonly ResumenPipeline _resumenPipeline;
+    private readonly ILlmResumenBrainFactory _llmFactory;
     private readonly GitOptions _git;
     private readonly ILogger<MotorVectorial> _logger;
 
@@ -39,6 +40,7 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
         QdrantSemanticRetriever retriever,
         DocumentIngestionPipeline pipeline,
         ResumenPipeline resumenPipeline,
+        ILlmResumenBrainFactory llmFactory,
         IOptions<MotorOptions> options,
         ILogger<MotorVectorial> logger)
     {
@@ -47,17 +49,18 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
         _retriever = retriever;
         _pipeline = pipeline;
         _resumenPipeline = resumenPipeline;
+        _llmFactory = llmFactory;
         _git = options.Value.Git;
         _logger = logger;
     }
 
     /// <summary>
     /// 1.7.7: si la ingesta dejo la coleccion con el resumen de negocio habilitado, corre la fase 2 (reanudable) a
-    /// continuacion, respetando el tope de tokens de <c>Motor:Resumen:TopeTokensPorCorrida</c> por invocacion. Si no
-    /// esta habilitada, no toca el LLM ni gasta tokens.
+    /// continuacion con el perfil de LLM que pidio la ingesta, respetando el tope de tokens de
+    /// <c>Motor:Resumen:TopeTokensPorCorrida</c> por invocacion. Si no esta habilitada, no toca el LLM ni gasta tokens.
     /// </summary>
-    private async Task<ResumenResultado> ResumirSiCorrespondeAsync(string coleccion, bool resumenHabilitado, CancellationToken ct) =>
-        resumenHabilitado ? await _resumenPipeline.ProcesarPendientesAsync(coleccion, ct) : ResumenResultado.Vacio;
+    private async Task<ResumenResultado> ResumirSiCorrespondeAsync(string coleccion, bool resumenHabilitado, PerfilLlmResuelto llm, CancellationToken ct) =>
+        resumenHabilitado ? await _resumenPipeline.ProcesarPendientesAsync(coleccion, llm.Brain, ct) : ResumenResultado.Vacio;
 
     /// <summary>Vectores de documento (sin prefijo de consulta): los mismos que se guardarian al ingestar esos textos.</summary>
     public Task<EmbeddingsResponse> CalcularAsync(string coleccion, IReadOnlyList<string> textos, string? perfil, CancellationToken cancellationToken) =>
@@ -71,10 +74,12 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
 
     public Task<BusquedaResponse> BuscarAsync(
         string coleccion, string consulta, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos,
-        EspacioDeBusqueda espacio, CancellationToken cancellationToken) =>
+        EspacioDeBusqueda espacio, IReadOnlyList<string>? modulos, string? lenguaje, string? @namespace,
+        CancellationToken cancellationToken, int? prefetchPorRama = null) =>
         ConQdrantAsync(async () =>
         {
-            var hits = await _retriever.SearchAsync(coleccion, consulta, topK, perfil, simbolosDefinidos, espacio, cancellationToken);
+            var hits = await _retriever.SearchAsync(coleccion, consulta, topK, perfil, simbolosDefinidos, espacio, modulos,
+                lenguaje, @namespace, cancellationToken, prefetchPorRama);
             return new BusquedaResponse(coleccion,
                 hits.Select(h => new ResultadoBusquedaResponse(
                     h.ChunkId, h.Score, h.RelativePath, h.Content,
@@ -84,17 +89,25 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
         });
 
     public Task<IngestaResponse> IngerirAsync(
-        string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken) =>
+        string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken,
+        PerfilDeIngesta? perfilIngesta = null, string? perfilLlm = null) =>
         ConQdrantAsync(async () =>
         {
+            // Antes de escribir: un perfil de LLM desconocido no debe dejar chunks indexados sin su resumen pedido.
+            var llm = _llmFactory.Resolver(perfilLlm);
             var resultado = await _pipeline.IngestAsync(coleccion, perfil,
-                documentos.Select(d => (d.Ruta!, d.Contenido!)).ToArray(), cancellationToken, resumenSolicitado: resumen);
-            var resumenResultado = await ResumirSiCorrespondeAsync(coleccion, resultado.ResumenHabilitado, cancellationToken);
+                documentos.Select(d => (d.Ruta!, d.Contenido!)).ToArray(), cancellationToken, resumenSolicitado: resumen, perfilIngesta: perfilIngesta);
+            var resumenResultado = await ResumirSiCorrespondeAsync(coleccion, resultado.ResumenHabilitado, llm, cancellationToken);
             return new IngestaResponse(Guid.NewGuid(), coleccion, "completada",
                 resultado.Received, resultado.Indexed, resultado.Unchanged, resultado.Omitted,
                 ResumenesGenerados: resumenResultado.Resumidos, ResumenesPendientes: resumenResultado.Pendientes,
-                ResumenTokensConsumidos: resumenResultado.TokensConsumidos);
+                ResumenTokensConsumidos: resumenResultado.TokensConsumidos,
+                PerfilIngesta: perfilIngesta?.Nombre, RepositorioLogico: perfilIngesta?.RepositorioLogico,
+                ResumenesOmitidosPorFiltro: resumenResultado.OmitidosPorFiltro);
         });
+
+    public Task VerificarPerfilDeIngestaAsync(string coleccion, PerfilDeIngesta? perfil, CancellationToken cancellationToken) =>
+        _store.VerificarPerfilDeIngestaAsync(coleccion, perfil, cancellationToken);
 
     /// <summary>
     /// 1.7.5: lee y valida el .zip subido (limites de tamano/entradas/ratio, Zip Slip, enlaces, perfil de escaneo del
@@ -115,15 +128,17 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
 
     /// <summary>Mismo pipeline que <see cref="IngerirAsync"/>, mas el barrido de documentos ausentes del proyecto (1.7.5).</summary>
     public Task<ResultadoIngestaProyecto> ProcesarAsync(
-        string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken) =>
+        string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken,
+        PerfilDeIngesta? perfilIngesta = null, string? perfilLlm = null) =>
         ConQdrantAsync(async () =>
         {
+            var llm = _llmFactory.Resolver(perfilLlm);
             var resultado = await _pipeline.IngestAsync(coleccion, perfil,
                 documentos.Select(d => (d.Ruta!, d.Contenido!)).ToArray(), cancellationToken,
-                barrerDocumentosAusentes: true, resumenSolicitado: resumen);
-            var resumenResultado = await ResumirSiCorrespondeAsync(coleccion, resultado.ResumenHabilitado, cancellationToken);
+                barrerDocumentosAusentes: true, resumenSolicitado: resumen, perfilIngesta: perfilIngesta);
+            var resumenResultado = await ResumirSiCorrespondeAsync(coleccion, resultado.ResumenHabilitado, llm, cancellationToken);
             return new ResultadoIngestaProyecto(resultado.Received, resultado.Indexed, resultado.Unchanged, resultado.Omitted, resultado.DocumentsSweptAway,
-                resumenResultado.Resumidos, resumenResultado.Pendientes, resumenResultado.TokensConsumidos);
+                resumenResultado.Resumidos, resumenResultado.Pendientes, resumenResultado.TokensConsumidos, resumenResultado.OmitidosPorFiltro);
         });
 
     /// <summary>
@@ -143,8 +158,11 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
     /// al terminar, con exito o con error.
     /// </summary>
     public async Task<ResultadoIngestaProyecto> ProcesarGitAsync(
-        string coleccion, Uri url, string? carpetaRaiz, string? perfil, bool resumen, CancellationToken cancellationToken)
+        string coleccion, Uri url, string? carpetaRaiz, string? perfil, bool resumen, CancellationToken cancellationToken,
+        PerfilDeIngesta? perfilIngesta = null, string? perfilLlm = null)
     {
+        var llm = _llmFactory.Resolver(perfilLlm);
+        await _store.VerificarPerfilDeIngestaAsync(coleccion, perfilIngesta, cancellationToken);
         Directory.CreateDirectory(_git.DirectorioTemporal);
         var destino = Path.Combine(_git.DirectorioTemporal, Guid.NewGuid().ToString("N"));
 
@@ -177,10 +195,10 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
             return await ConQdrantAsync(async () =>
             {
                 var resultado = await _pipeline.IngestAsync(coleccion, perfil, documentos, cancellationToken,
-                    barrerDocumentosAusentes: true, resumenSolicitado: resumen);
-                var resumenResultado = await ResumirSiCorrespondeAsync(coleccion, resultado.ResumenHabilitado, cancellationToken);
+                    barrerDocumentosAusentes: true, resumenSolicitado: resumen, perfilIngesta: perfilIngesta);
+                var resumenResultado = await ResumirSiCorrespondeAsync(coleccion, resultado.ResumenHabilitado, llm, cancellationToken);
                 return new ResultadoIngestaProyecto(resultado.Received, resultado.Indexed, resultado.Unchanged, resultado.Omitted, resultado.DocumentsSweptAway,
-                    resumenResultado.Resumidos, resumenResultado.Pendientes, resumenResultado.TokensConsumidos);
+                    resumenResultado.Resumidos, resumenResultado.Pendientes, resumenResultado.TokensConsumidos, resumenResultado.OmitidosPorFiltro);
             });
         }
         finally
@@ -230,9 +248,14 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
         ConQdrantAsync(async () =>
         {
             var colecciones = await _store.ListarColeccionesAsync(cancellationToken);
-            return (IReadOnlyList<ColeccionInfoResponse>)colecciones
-                .Select(c => new ColeccionInfoResponse(c.Nombre, c.Perfil?.Perfil, c.Perfil?.Modelo, c.Perfil?.Dimension))
-                .ToList();
+            var result = new List<ColeccionInfoResponse>();
+            foreach (var c in colecciones)
+            {
+                var ingestion = await _store.LeerPerfilDeIngestaAsync(c.Nombre, cancellationToken);
+                result.Add(new(c.Nombre, c.Perfil?.Perfil, c.Perfil?.Modelo, c.Perfil?.Dimension,
+                    ingestion?.Nombre, ingestion?.RepositorioLogico, c.TieneResumen));
+            }
+            return (IReadOnlyList<ColeccionInfoResponse>)result;
         });
 
     /// <summary>
@@ -246,7 +269,8 @@ public sealed class MotorVectorial : IMotorDeEmbeddings, IMotorDeBusqueda, IMoto
         ConQdrantAsync(async () =>
         {
             var documentos = await _store.ListarDocumentosConHuellaAsync(coleccion, cancellationToken);
-            var prefijo = coleccion + "/";
+            var ingestion = await _store.LeerPerfilDeIngestaAsync(coleccion, cancellationToken);
+            var prefijo = (ingestion?.RepositorioLogico ?? coleccion) + "/";
             return (IReadOnlyList<DocumentoIndexadoResponse>)documentos
                 .Select(kv =>
                 {

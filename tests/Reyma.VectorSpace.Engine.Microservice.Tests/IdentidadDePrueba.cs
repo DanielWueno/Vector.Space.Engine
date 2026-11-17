@@ -114,6 +114,11 @@ public sealed class MotorDePrueba : IMotorDeEmbeddings, IMotorDeBusqueda, IMotor
     /// <summary>Espacio de la ultima busqueda recibida (item 1.20).</summary>
     public EspacioDeBusqueda? UltimoEspacio { get; private set; }
 
+    /// <summary>Modulos de la ultima busqueda recibida (item 1.21.1); null si no vinieron.</summary>
+    public IReadOnlyList<string>? UltimosModulos { get; private set; }
+    public string? UltimoLenguaje { get; private set; }
+    public string? UltimoNamespace { get; private set; }
+
     public Task<EmbeddingsResponse> CalcularAsync(string coleccion, IReadOnlyList<string> textos, string? perfil, CancellationToken cancellationToken)
     {
         Llamadas.Enqueue(("embeddings", coleccion, textos));
@@ -122,14 +127,18 @@ public sealed class MotorDePrueba : IMotorDeEmbeddings, IMotorDeBusqueda, IMotor
 
     public Task<BusquedaResponse> BuscarAsync(
         string coleccion, string consulta, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos,
-        EspacioDeBusqueda espacio, CancellationToken cancellationToken)
+        EspacioDeBusqueda espacio, IReadOnlyList<string>? modulos, string? lenguaje, string? @namespace,
+        CancellationToken cancellationToken, int? prefetchPorRama = null)
     {
         UltimoEspacio = espacio;
+        UltimosModulos = modulos;
+        UltimoLenguaje = lenguaje;
+        UltimoNamespace = @namespace;
         Llamadas.Enqueue(("busqueda", coleccion, topK));
         return Task.FromResult(new BusquedaResponse(coleccion, [new ResultadoBusquedaResponse("id-1", 0.9f, "a.md", "texto")]));
     }
 
-    public Task<IngestaResponse> IngerirAsync(string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken)
+    public Task<IngestaResponse> IngerirAsync(string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken, PerfilDeIngesta? perfilIngesta = null, string? perfilLlm = null)
     {
         Llamadas.Enqueue(("ingesta", coleccion, documentos.Count));
         return Task.FromResult(new IngestaResponse(Guid.NewGuid(), coleccion, "completada", documentos.Count, documentos.Count, 0));

@@ -13,8 +13,10 @@ public sealed record BusquedaResponse(string Coleccion, IReadOnlyList<ResultadoB
 /// directo a Qdrant. <see cref="PerfilEmbeddings"/>/<see cref="Modelo"/>/<see cref="Dimension"/> salen de la
 /// metadata guardada en la coleccion (item 1.7.4); los tres null si la coleccion no la tiene (creada antes de
 /// 1.7.4 y nunca tocada desde entonces).
+/// <see cref="TieneResumen"/> indica la presencia real de dense-resumen en el esquema, no la metadata informativa.
 /// </summary>
-public sealed record ColeccionInfoResponse(string Coleccion, string? PerfilEmbeddings, string? Modelo, int? Dimension);
+public sealed record ColeccionInfoResponse(string Coleccion, string? PerfilEmbeddings, string? Modelo, int? Dimension,
+    string? PerfilIngesta = null, string? RepositorioLogico = null, bool? TieneResumen = null);
 
 /// <summary>
 /// Un documento indexado en una coleccion (item 1.19), agrupado por su clave de identidad (<c>file_path</c>, sin
@@ -62,6 +64,9 @@ public sealed record ResultadoBusquedaResponse(
 /// ingesta sobre la misma coleccion (no repite los ya resumidos).
 /// <see cref="MensajeError"/> (item 1.15): solo tiene valor cuando <see cref="Estado"/> es "error" (el mensaje de la
 /// excepcion que corto el procesamiento en segundo plano); null en cualquier otro estado.
+/// <see cref="ResumenesOmitidosPorFiltro"/> (item 1.27): chunks pendientes que el filtro previo determinista marco como
+/// procesados sin llamar al LLM (codigo generado, .csproj, constructores...); no cuentan en
+/// <see cref="ResumenesGenerados"/>. Siempre 0 en una coleccion sin resumen habilitado.
 /// </summary>
 public sealed record IngestaResponse(
     Guid IngestaId,
@@ -75,4 +80,7 @@ public sealed record IngestaResponse(
     int ResumenesGenerados = 0,
     int ResumenesPendientes = 0,
     int ResumenTokensConsumidos = 0,
-    string? MensajeError = null);
+    string? MensajeError = null,
+    string? PerfilIngesta = null,
+    string? RepositorioLogico = null,
+    int ResumenesOmitidosPorFiltro = 0);

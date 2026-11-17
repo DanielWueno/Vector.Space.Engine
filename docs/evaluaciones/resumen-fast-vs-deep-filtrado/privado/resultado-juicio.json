@@ -1,0 +1,204 @@
+{
+  "j5": {
+    "fast": {
+      "afirmaciones": {
+        "fragmento": 204,
+        "codigo": 5,
+        "inventada": 15,
+        "contradice": 3
+      },
+      "clase_desconocida": 0,
+      "omisiones": 28,
+      "centinela_ok_false": 25,
+      "puntos": {
+        "fidelidad": 271.0,
+        "cobertura": 265.0,
+        "utilidad_negocio": 193.0,
+        "formato": 220.0
+      }
+    },
+    "deep": {
+      "afirmaciones": {
+        "fragmento": 240,
+        "codigo": 3,
+        "inventada": 2,
+        "contradice": 3
+      },
+      "clase_desconocida": 0,
+      "omisiones": 4,
+      "centinela_ok_false": 26,
+      "puntos": {
+        "fidelidad": 291.0,
+        "cobertura": 297.0,
+        "utilidad_negocio": 189.0,
+        "formato": 248.0
+      }
+    },
+    "preferido": {
+      "fast": 10,
+      "deep": 46,
+      "empate": 44
+    },
+    "pares_con_ganador": 56,
+    "deep_pct_entre_ganadores": 82.1,
+    "signos_p_unilateral_deep_mejor": 0.0,
+    "signos_p_unilateral_fast_mejor": 1.0
+  },
+  "j6": {
+    "fast": {
+      "afirmaciones": {
+        "fragmento": 187,
+        "codigo": 5,
+        "inventada": 16,
+        "contradice": 10
+      },
+      "clase_desconocida": 0,
+      "omisiones": 30,
+      "centinela_ok_false": 12,
+      "puntos": {
+        "fidelidad": 269.0,
+        "cobertura": 245.0,
+        "utilidad_negocio": 253.0,
+        "formato": 261.0
+      }
+    },
+    "deep": {
+      "afirmaciones": {
+        "fragmento": 231,
+        "codigo": 0,
+        "inventada": 4,
+        "contradice": 6
+      },
+      "clase_desconocida": 0,
+      "omisiones": 2,
+      "centinela_ok_false": 13,
+      "puntos": {
+        "fidelidad": 291.0,
+        "cobertura": 271.0,
+        "utilidad_negocio": 243.0,
+        "formato": 274.0
+      }
+    },
+    "preferido": {
+      "fast": 10,
+      "deep": 49,
+      "empate": 41
+    },
+    "pares_con_ganador": 59,
+    "deep_pct_entre_ganadores": 83.1,
+    "signos_p_unilateral_deep_mejor": 0.0,
+    "signos_p_unilateral_fast_mejor": 1.0
+  },
+  "combinado": {
+    "fast": {
+      "afirmaciones": {
+        "fragmento": 391,
+        "codigo": 10,
+        "inventada": 31,
+        "contradice": 13
+      },
+      "puntos": {
+        "fidelidad": 540.0,
+        "cobertura": 510.0,
+        "utilidad_negocio": 446.0,
+        "formato": 481.0
+      },
+      "inventada_mas_contradice": 44,
+      "codigo": 10,
+      "centinela_ok_false": 37,
+      "omisiones": 58
+    },
+    "deep": {
+      "afirmaciones": {
+        "fragmento": 471,
+        "codigo": 3,
+        "inventada": 6,
+        "contradice": 9
+      },
+      "puntos": {
+        "fidelidad": 582.0,
+        "cobertura": 568.0,
+        "utilidad_negocio": 432.0,
+        "formato": 522.0
+      },
+      "inventada_mas_contradice": 15,
+      "codigo": 3,
+      "centinela_ok_false": 39,
+      "omisiones": 6
+    }
+  },
+  "acuerdo": {
+    "pares": 100,
+    "coinciden": 90,
+    "pct": 90.0,
+    "opuestos_fast_vs_deep": 3,
+    "discrepancias": [
+      {
+        "par": "R040",
+        "ruta": "ReyOneWeb/Reyma.Negocio.Trafico/NRutaLocal.cs",
+        "j5": "empate",
+        "j6": "fast"
+      },
+      {
+        "par": "R043",
+        "ruta": "ReyOneWeb/Reyma.Negocio.Trafico/NPrenomina.cs",
+        "j5": "empate",
+        "j6": "deep"
+      },
+      {
+        "par": "R044",
+        "ruta": "ReyOneWeb/Reyma.Negocio.Trafico/NPoliza.cs",
+        "j5": "empate",
+        "j6": "deep"
+      },
+      {
+        "par": "R046",
+        "ruta": "ReyOneWeb/Reyma.Negocio.Trafico/NRecepcionFacturas.cs",
+        "j5": "empate",
+        "j6": "deep"
+      },
+      {
+        "par": "R065",
+        "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoTipoSiniestro.aspx.cs",
+        "j5": "empate",
+        "j6": "deep"
+      },
+      {
+        "par": "R074",
+        "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/AgregarViajeManual.aspx.Business.cs",
+        "j5": "fast",
+        "j6": "deep"
+      },
+      {
+        "par": "R085",
+        "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Procesos/PreliquidacionTrafico.aspx.cs",
+        "j5": "deep",
+        "j6": "empate"
+      },
+      {
+        "par": "R086",
+        "ruta": "ReyOneWeb/ReyOneWeb/Trafico/Catalogos/CatalogoPagosGPS.aspx.cs",
+        "j5": "deep",
+        "j6": "empate"
+      },
+      {
+        "par": "R099",
+        "ruta": "ReyOneWeb/ReyOneWeb/Trafico/JS/jsInfracciones.js",
+        "j5": "fast",
+        "j6": "deep"
+      },
+      {
+        "par": "R100",
+        "ruta": "ReyOneWeb/ReyOneWeb/Trafico/JS/jsSiniestros.js",
+        "j5": "deep",
+        "j6": "fast"
+      }
+    ]
+  },
+  "decision": {
+    "c1_deep_preferido_60pct_ambos": true,
+    "c2_menos_inventada_contradice": true,
+    "c3_utilidad_no_menor": false,
+    "modelo": "qwen3.8-27b-fast"
+  }
+}

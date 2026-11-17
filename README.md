@@ -1,55 +1,70 @@
 # Vector.Space.Engine
 
-Servicio independiente de embeddings e ingesta: el "músculo" de vectorización,
-separado de `Rag.Context.Engine` para poder exponerse como API compartida al
-equipo sin arrastrar retrieval, generación RAG, vista o analíticas.
+Shared ingestion, embedding and native search service, separated from
+`Rag.Context.Engine`. VectorSpace manages the indexed data; its consumers retain
+their RAG orchestration, conversational answer generation and presentation.
 
-## Estado
+## Current state
 
-2026-10-19: API generada desde `Reyma.Microservice.Template` (`dotnet new reyma-api`,
-`Reyma.VectorSpace.Engine`) con el contrato de embeddings/ingesta y control de acceso por
-coleccion. 2026-10-21 (item 1.4): motor portado de `Rag.Context.Engine` (chunking, sparse,
-adaptador Qdrant) con el vector denso de un sidecar TEI; corre en local contra
-`docker-compose.motor.yml`. Sin repositorio remoto, sin despliegue, sin conexion a ningun
-servidor. Ver `docs/plan/ejecucion-plan.estado.json`.
+The implementation includes chunking, embedding profiles, Qdrant indexing,
+indexed business summaries, native dense/sparse search, summary search, source
+metadata and explicit filters. Qdrant was selected in item `1.2`; that decision
+is no longer pending. HTTP authentication remains in place; the former
+per-collection `ControlDeAcceso` mechanism was removed in item `1.14`.
 
-- Contrato HTTP y multi-tenencia: [docs/servicio/contrato-api.md](docs/servicio/contrato-api.md).
-- Operacion del servicio generado (configuracion, Docker, pipeline):
-  [docs/servicio/README.md](docs/servicio/README.md).
+The `Rag.VectorSpace.Client` integration remains under evaluation in `1.12`.
+H3 search screening passed, but primary acceptance was rejected by a new
+fabrication. The client is not accepted or enabled by updating this README.
+Current state and historical results are recorded in
+`docs\plan\ejecucion-plan.estado.json`.
 
-```powershell
-dotnet build Reyma.VectorSpace.Engine.Microservice.sln
-dotnet test --no-build
-docker compose -f docker-compose.motor.yml up -d   # Qdrant + TEI locales para correr el motor
-```
+## Scope and ownership
 
-## Origen
+- **VectorSpace:** ingestion, chunking, embeddings, index lifecycle, indexed
+  business summaries and native search/filtering over code and summary spaces.
+  Native dense/sparse fusion and summary generation during ingestion belong here.
+- **RAG consumers:** final code/summary fusion, symbol-hop orchestration,
+  reranking/calibration, meta-intent, confidence gating, context assembly,
+  prompts, conversational answer generation, history and response streaming.
+- **Client applications:** API/CLI, presentation, explicit profile/collection
+  selection and transport. `Rag.VectorSpace.Client` is a client of the data
+  service, not a presentation-only application.
+- Moving the remaining RAG orchestration into VectorSpace would be a separate
+  architecture expansion. The unexecuted `1.12.1` through `1.12.6` proposals were
+  discarded from the current plan; they are not acceptance prerequisites.
 
-Separado de `Rag.Context.Engine` el 2026-10-19 (`25.7-separar-motor-en-proyecto-independiente`
-en el ledger de ese repo). El análisis completo, la evidencia de código de origen y las
-preguntas abiertas que motivaron la separación están en
-`Rag.Context.Engine/docs/analisis-futuro/motor-embeddings-ingesta-servicio-compartido.md`.
-Este repositorio no duplica ese documento; lo referencia.
+## Remaining work
 
-## Alcance
+For local client acceptance, no additional RAG relocation is required. The
+remaining client-owned work is tracked by `1.12.7` through `1.12.10`: complete
+source oracles, genuine risk evidence, a supplementary evaluation producer and
+effective-ask diagnosis. The parent `1.12` retains the full quality gate.
+Integration tests can expose engine defects; any such defect needs evidence and
+a scoped fix rather than a presumed architectural migration.
 
-- Cálculo de embeddings y pipeline de ingesta (chunking, vectorización, upsert al
-  vector store que se decida) como servicio de red para cualquier equipo que lo
-  necesite.
-- Explícitamente fuera: generación RAG, gate de confianza, caché de resúmenes de
-  negocio, historial de conversación, consola de administración, vistas y
-  analíticas/paneles. Eso se queda en `Rag.Context.Engine` u otros proyectos.
-- Vector store: hoy Qdrant es el vigente en `Rag.Context.Engine`; Milvus está en
-  pruebas por el administrador del servidor destino. Se decide con evidencia en
-  `1.1-comparar-qdrant-vs-milvus`, no por preferencia.
+Separate, pre-existing conditional work remains: Azure DevOps ingestion
+automation (`1.7.2`), tenant semantics (`1.21.5`) and restricted-access design
+(`1.21.6`). These are not prerequisites for the explicit Local client.
+The old access-condition reference in `1.7.2` must be reconciled with `1.14`
+before that separate task executes; this scope alignment does not authorize it.
 
-## Servidor destino
+## Documentation and development
 
-Servidor de la empresa, distinto de `reyma-dev` y de `Servidor.IA` (Mac mini,
-acotado a Ollama). Acceso SSH anunciado, no otorgado. Sin despliegue ni conexión
-hasta tener acceso y aprobación explícita.
+- [HTTP contract and authentication](docs/servicio/contrato-api.md).
+- [Search filters and supported capabilities](docs/servicio/filtros.md).
+- [Service setup, Docker and operations](docs/servicio/README.md).
+- [Current 1.12 preparation and limits](docs/evaluaciones/1.12/preparacion.md).
 
-## Ledger
+This documentation is not deployment or connection authorization. Environment
+access, credentials and shared data retain their explicit scope restrictions.
 
-`docs/plan/ejecucion-plan.estado.json` es la fuente de verdad del avance de este
-proyecto, igual que en `Rag.Context.Engine` y `Mcp.ContextForge`.
+## Origin and plan
+
+Separated from `Rag.Context.Engine` on 2026-10-19, following its item `25.7`.
+The original analysis is retained in that repository at
+`docs\analisis-futuro\motor-embeddings-ingesta-servicio-compartido.md`.
+
+`docs\plan\ejecucion-plan.estado.json` is the authoritative plan, including
+client-owned 1.12 tasks. New active documentation is written in English;
+existing ledger keys, stable IDs and historical evidence retain their original
+form for compatibility and provenance.

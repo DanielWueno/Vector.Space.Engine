@@ -8,6 +8,7 @@ namespace Reyma.VectorSpace.Engine.Microservice.Business.Motor;
 // Reciben la coleccion ya autorizada: no repiten el control de acceso.
 
 // perfil: nombre del perfil de embeddings a usar (1.7.4); null = perfil por defecto de la coleccion/instancia.
+// perfilLlm: nombre del perfil de LLM que resume esta ingesta (si la coleccion tiene resumen); null = el por defecto.
 
 public interface IMotorDeEmbeddings
 {
@@ -32,17 +33,26 @@ public interface IMotorDeBusqueda
     /// de este item). No vacio = solo puntos cuyo defined_symbols contenga alguno de esos nombres.
     /// espacio (item 1.20): ver <see cref="EspacioDeBusqueda"/>; con <see cref="EspacioDeBusqueda.Resumen"/>,
     /// perfil llega siempre null (lo fija la instancia, no el cliente).
+    /// modulos (item 1.21.1): filtro exacto opcional, null = sin filtro. No vacio = cada modulo debe coincidir (AND)
+    /// con el namespace (exacto o prefijo seguido de '.') o con la ruta relativa (exacta o prefijo seguido de '/').
+    /// Una coleccion existente sin preparacion completa para este filtro responde 409, nunca una lista vacia.
+    /// lenguaje (1.21.4): nombre canonico validado o null; Match.Text sobre language.
+    /// namespace (1.21.4): blanco/null no filtra; texto literal en Match.Text solo sobre namespace.
+    /// Ambos se combinan por AND con cada modulo y con el ANY de simbolos, antes del corte.
+    /// prefetchPorRama (1.12): 40..1200 solo codigo/FusionNativa; null conserva max(4*topK,40).
     /// </summary>
     Task<BusquedaResponse> BuscarAsync(
         string coleccion, string consulta, int topK, string? perfil, IReadOnlyList<string>? simbolosDefinidos,
-        EspacioDeBusqueda espacio, CancellationToken cancellationToken);
+        EspacioDeBusqueda espacio, IReadOnlyList<string>? modulos, string? lenguaje, string? @namespace,
+        CancellationToken cancellationToken, int? prefetchPorRama = null);
 }
 
 public interface IMotorDeIngesta
 {
     /// <summary>resumen: opt-in del resumen de negocio (1.7.7); solo tiene efecto al crear la coleccion.</summary>
     Task<IngestaResponse> IngerirAsync(
-        string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken);
+        string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken,
+        PerfilDeIngesta? perfilIngesta = null, string? perfilLlm = null);
 }
 
 /// <summary>
@@ -52,7 +62,7 @@ public interface IMotorDeIngesta
 /// ingesta de siempre, mas el barrido de documentos que ya no estan en el .zip, y corre en segundo plano porque un
 /// proyecto completo tarda minutos u horas (1.7.3).
 /// </summary>
-public interface IMotorDeIngestaProyecto
+public interface IMotorDeIngestaProyecto : IPerfilDeIngestaColeccion
 {
     /// <summary>Lee y valida el .zip (limites de tamano, entradas, ratio, Zip Slip, enlaces); 400 si no es admisible.</summary>
     IReadOnlyList<DocumentoRequest> LeerProyectoZip(byte[] zip, string? carpetaRaiz);
@@ -60,7 +70,8 @@ public interface IMotorDeIngestaProyecto
     /// <summary>Ingesta normal mas el barrido de documentos ausentes, acotado a lo que el .zip trajo esta vez.</summary>
     /// <param name="resumen">Ver <see cref="IMotorDeIngesta.IngerirAsync"/> (1.7.7).</param>
     Task<ResultadoIngestaProyecto> ProcesarAsync(
-        string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken);
+        string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken,
+        PerfilDeIngesta? perfilIngesta = null, string? perfilLlm = null);
 }
 
 /// <summary>
@@ -68,12 +79,12 @@ public interface IMotorDeIngestaProyecto
 /// conoce de forma sincrona (a diferencia del .zip, que lo lee antes de admitir), asi que <c>IngerirProyectoGitCommand</c>
 /// crea el registro de estado con 0 y dependia de este campo para corregirlo al terminar; sin el, quedaba en 0 para
 /// siempre, rompiendo la invariante "Recibidos = Indexados + SinCambios + Omitidos". <see cref="ResumenesGenerados"/>/
-/// <see cref="ResumenesPendientes"/>/<see cref="ResumenTokensConsumidos"/> (1.7.7): siempre 0 en una coleccion sin
-/// resumen habilitado.
+/// <see cref="ResumenesPendientes"/>/<see cref="ResumenTokensConsumidos"/> (1.7.7) y <see cref="ResumenesOmitidosPorFiltro"/>
+/// (1.27): siempre 0 en una coleccion sin resumen habilitado.
 /// </summary>
 public sealed record ResultadoIngestaProyecto(
     int Recibidos, int Indexados, int SinCambios, int Omitidos, int DocumentosEliminados,
-    int ResumenesGenerados = 0, int ResumenesPendientes = 0, int ResumenTokensConsumidos = 0);
+    int ResumenesGenerados = 0, int ResumenesPendientes = 0, int ResumenTokensConsumidos = 0, int ResumenesOmitidosPorFiltro = 0);
 
 /// <summary>
 /// Origen 'proyecto' desde una URL Git (1.7.6, decidido en 1.7.3). Mismo patron de dos pasos que
@@ -82,7 +93,7 @@ public sealed record ResultadoIngestaProyecto(
 /// admision); clonar (superficial y endurecido), escanear el checkout y ejecutar el mismo pipeline de ingesta de
 /// proyecto (con barrido de ausentes) tarda segundos a minutos y corre en segundo plano, igual que el .zip.
 /// </summary>
-public interface IMotorDeIngestaProyectoGit
+public interface IMotorDeIngestaProyectoGit : IPerfilDeIngestaColeccion
 {
     /// <summary>
     /// Valida la URL contra la lista blanca de origenes Git permitidos (esquema, host, puerto y prefijo de ruta
@@ -97,7 +108,32 @@ public interface IMotorDeIngestaProyectoGit
     /// </summary>
     /// <param name="resumen">Ver <see cref="IMotorDeIngesta.IngerirAsync"/> (1.7.7).</param>
     Task<ResultadoIngestaProyecto> ProcesarGitAsync(
-        string coleccion, Uri url, string? carpetaRaiz, string? perfil, bool resumen, CancellationToken cancellationToken);
+        string coleccion, Uri url, string? carpetaRaiz, string? perfil, bool resumen, CancellationToken cancellationToken,
+        PerfilDeIngesta? perfilIngesta = null, string? perfilLlm = null);
+}
+
+/// <summary>
+/// Catalogo de lo que una ingesta o busqueda puede pedir en ESTA instancia: perfiles de embeddings, perfiles de LLM y
+/// origenes Git permitidos. Sale de la configuracion con la que arranco el servicio (la misma que valida cada
+/// solicitud), no de un listado mantenido a mano; los perfiles se sondean en vivo contra su servidor para decir si
+/// se pueden consumir ahora. Nunca expone URLs, claves ni certificados.
+/// </summary>
+public interface IMotorDeCatalogo
+{
+    /// <summary>Perfiles de embeddings declarados, con su estado en vivo. Nunca falla por un servidor caido: lo reporta.</summary>
+    Task<IReadOnlyList<PerfilEmbeddingsInfoResponse>> ListarPerfilesEmbeddingsAsync(CancellationToken cancellationToken);
+
+    /// <summary>Perfiles de LLM declarados, con su estado en vivo. Nunca falla por un servidor caido: lo reporta.</summary>
+    Task<IReadOnlyList<PerfilLlmInfoResponse>> ListarPerfilesLlmAsync(CancellationToken cancellationToken);
+
+    /// <summary>Origenes desde los que <c>POST {coleccion}/ingestas/git</c> acepta clonar.</summary>
+    IReadOnlyList<OrigenGitInfoResponse> ListarOrigenesGit();
+
+    /// <summary>
+    /// 400 si <paramref name="perfilLlm"/> viene y no esta registrado, o si esta instancia no tiene el resumen de
+    /// negocio habilitado. Null/ausente no valida nada (se usara el por defecto). Sin red: solo nombres.
+    /// </summary>
+    void ValidarPerfilLlm(string? perfilLlm);
 }
 
 /// <summary>
@@ -117,8 +153,8 @@ public interface IMotorDeColecciones
     /// <summary>
     /// Documentos indexados en una coleccion (item 1.19): ruta, huella (<c>document_fingerprint</c>) y cantidad de
     /// puntos (chunks) de cada uno, agrupados por su clave de identidad (<c>file_path</c>). Hallazgo al revisar
-    /// <see cref="ListarRutasDocumentadasAsync"/> (ese metodo solo trae rutas e ids, para el barrido de ausentes del
-    /// origen 'proyecto') y <see cref="GetDocumentPointsAsync"/> (trae la huella, pero solo de rutas pedidas
+    /// <c>QdrantVectorStore.ListarRutasDocumentadasAsync</c> (ese metodo solo trae rutas e ids, para el barrido de ausentes del
+    /// origen 'proyecto') y <c>QdrantVectorStore.GetDocumentPointsAsync</c> (trae la huella, pero solo de rutas pedidas
     /// explicitamente): ninguno de los dos expone un listado legible por coleccion. No es el "manifiesto" que el
     /// item 1.4 declaro no portado; es un listado de solo lectura, mas simple, sin paginar (catalogo de
     /// descubrimiento, no ruta caliente, igual criterio que <see cref="ListarAsync"/>). La huella de un documento es

@@ -27,7 +27,7 @@ public sealed class MotorOptions
     /// <summary>Origen 'proyecto' desde URL Git (1.7.6): lista blanca y limites del clonado.</summary>
     public GitOptions Git { get; set; } = new();
 
-    /// <summary>Perfil de LLM para el resumen de negocio (1.7.7). Vacio/sin <see cref="LlmOptions.UrlBase"/> = resumen no disponible en esta instancia.</summary>
+    /// <summary>Perfiles de LLM para el resumen de negocio (1.7.7). Vacio/sin <see cref="LlmOptions.UrlBase"/> = resumen no disponible en esta instancia.</summary>
     public LlmOptions Llm { get; set; } = new();
 
     /// <summary>Fase 2 reanudable de resumen de negocio (1.7.7): perfil de embeddings del vector <c>dense-resumen</c> y tope de tokens por corrida.</summary>
@@ -236,45 +236,152 @@ public sealed class BusquedaOptions
     public float UmbralSimilitudResumen { get; set; }
 }
 
-/// <summary>
-/// Seccion <c>Motor:Llm</c> (1.7.7): perfil de LLM para el resumen de negocio de un chunk, por la misma ruta
-/// OpenAI-compatible de AltheIA que <see cref="EmbeddingsOptions"/>, pero para <c>chat/completions</c>. 1.7.3 midio
-/// contra AltheIA real: <c>qwen3.8-27b-fast</c> con <c>max_tokens</c> 160 responde 30/30; <c>qwen3.8-27b-deep</c> (el
-/// perfil de LLM por defecto de 1.13) razona por defecto y gasta los 160 tokens sin escribir el resumen (0/30) salvo
-/// que se envie <c>chat_template_kwargs.enable_thinking=false</c> (entonces 30/30, igual que <c>fast</c>).
-/// </summary>
-public sealed class LlmOptions
+/// <summary>Lo que necesita un perfil de LLM para llamar a chat-completions (AltheIA) e interpretar su respuesta.</summary>
+public interface IPerfilLlmConfig
 {
+    string Ruta { get; }
+
+    string Modelo { get; }
+
+    int MaxTokens { get; }
+
+    double Temperatura { get; }
+
+    double TopP { get; }
+
+    bool? EnableThinking { get; }
+}
+
+/// <summary>
+/// Seccion <c>Motor:Llm</c> (1.7.7): perfiles de LLM para el resumen de negocio de un chunk, por la misma ruta
+/// OpenAI-compatible de AltheIA que <see cref="EmbeddingsOptions"/>, pero para <c>chat/completions</c>. Igual que en
+/// embeddings, las propiedades de esta clase describen el perfil por defecto (<see cref="Nombre"/>) y
+/// <see cref="Perfiles"/> agrega otros, seleccionables por nombre en cada ingesta (<c>perfilLlm</c>).
+/// 1.7.3 midio contra AltheIA real: <c>qwen3.8-27b-fast</c> con <c>max_tokens</c> 160 responde 30/30;
+/// <c>qwen3.8-27b-deep</c> razona por defecto y gasta los 160 tokens sin escribir el resumen (0/30) salvo que se envie
+/// <c>chat_template_kwargs.enable_thinking=false</c> (entonces 30/30, igual que <c>fast</c>). El perfil por defecto fue
+/// <c>deep</c> con ese <c>false</c> (decision del usuario, 2026-11-09) y desde el 2026-11-17 es <c>deep</c> CON
+/// pensamiento y <c>max_tokens</c> 4096: con juicio ciego (docs/evaluaciones/resumen-fast-vs-deep-filtrado) escribe
+/// resumenes mas fieles (15 frente a 44 afirmaciones inventadas o contradictorias por cada 200 juicios, 6 frente a 58
+/// omisiones) a ~10x de latencia y ~2x de tokens. Decision del usuario por encima de la regla preregistrada, porque en
+/// modo simple el cliente sustituye el codigo por el resumen al generar la respuesta.
+/// </summary>
+public sealed class LlmOptions : IPerfilLlmConfig
+{
+    /// <summary>
+    /// Nombre del perfil por defecto que describen las propiedades de esta clase: el que se usa cuando una ingesta no
+    /// pide <c>perfilLlm</c>. No puede repetirse como clave de <see cref="Perfiles"/>.
+    /// </summary>
+    public string Nombre { get; set; } = "altheia-qwen-deep";
+
     /// <summary>URL base del servidor de chat-completions (AltheIA). Vacio = resumen de negocio no disponible en esta instancia.</summary>
     public string? UrlBase { get; set; }
 
     /// <summary>Ruta OpenAI-compatible de chat-completions.</summary>
     public string Ruta { get; set; } = "v1/chat/completions";
 
-    /// <summary>1.7.3: modelo que responde sin razonar con el limite de tokens del prompt de resumen.</summary>
-    public string Modelo { get; set; } = "qwen3.8-27b-fast";
+    /// <summary>
+    /// Modelo del perfil por defecto. Con <c>deep</c>, <see cref="EnableThinking"/> debe ir explicito: <c>true</c> con
+    /// <see cref="MaxTokens"/> holgado, o <c>false</c> (1.7.3).
+    /// </summary>
+    public string Modelo { get; set; } = "qwen3.8-27b-deep";
 
-    /// <summary>Igual que el origen (OllamaBusinessSummaryGenerator): debe caber holgadamente el resumen (1 a 3 oraciones).</summary>
-    public int MaxTokens { get; set; } = 160;
+    /// <summary>
+    /// Tope de tokens de la respuesta, razonamiento incluido (AltheIA lo cuenta en <c>completion_tokens</c>). 4096 con
+    /// pensamiento: medido el 2026-11-17, mediana 633, p90 1249 y maximo 2084 sobre 100 chunks, ninguno cortado. Sin
+    /// pensamiento basta 160 (1 a 3 oraciones, como el origen OllamaBusinessSummaryGenerator).
+    /// </summary>
+    public int MaxTokens { get; set; } = 4096;
 
     public double Temperatura { get; set; } = 0.15;
 
     public double TopP { get; set; } = 0.95;
 
     /// <summary>
-    /// Null (por defecto, perfil <c>fast</c>): no se envia el campo <c>chat_template_kwargs.enable_thinking</c>.
-    /// <c>false</c> (obligatorio con un modelo <c>deep</c>, 1.7.3): fuerza respuesta directa sin razonar; sin esto
-    /// <c>deep</c> gasta los <c>MaxTokens</c> razonando y devuelve una respuesta vacia (medido, 0/30).
+    /// Null: no se envia el campo <c>chat_template_kwargs.enable_thinking</c> (lo que necesita <c>fast</c>).
+    /// <c>true</c> (por defecto desde el 2026-11-17): <c>deep</c> razona antes de resumir; solo se guarda
+    /// <c>message.content</c>, no el razonamiento. Exige <see cref="MaxTokens"/> holgado: con 160, <c>deep</c> gasta los
+    /// tokens razonando y devuelve una respuesta vacia (medido, 0/30). <c>false</c>: respuesta directa sin razonar (1.7.3).
     /// </summary>
-    public bool? EnableThinking { get; set; }
+    public bool? EnableThinking { get; set; } = true;
 
-    public int TiempoMaximoSegundos { get; set; } = 120;
+    /// <summary>Por llamada. Con pensamiento se midio un maximo de 63 s (p90 37 s) con 4 llamadas simultaneas.</summary>
+    public int TiempoMaximoSegundos { get; set; } = 180;
 
     /// <summary>Opcional. Va por variable de entorno o user-secrets (Motor__Llm__ApiKey), nunca en appsettings.</summary>
     public string? ApiKey { get; set; }
 
     /// <summary>Opcional: igual que <see cref="EmbeddingsOptions.RutaCertificadoCA"/> pero para el perfil de LLM.</summary>
     public string? RutaCertificadoCA { get; set; }
+
+    /// <summary>
+    /// Perfiles adicionales de LLM, seleccionables por nombre (<c>perfilLlm</c> de las ingestas) junto con el por
+    /// defecto (<see cref="Nombre"/>). Clave = nombre del perfil (p. ej. <c>altheia-qwen-fast</c>).
+    /// </summary>
+    public Dictionary<string, PerfilLlmOptions> Perfiles { get; set; } = new();
+
+    /// <summary>Nombres de todos los perfiles de LLM declarados: el por defecto primero, luego los adicionales.</summary>
+    public IReadOnlyList<string> NombresDePerfiles() => [Nombre, .. Perfiles.Keys];
+
+    /// <summary>
+    /// Configuracion efectiva de un perfil adicional ya declarado: lo que el perfil deja vacio se hereda de este (el
+    /// por defecto), salvo <see cref="PerfilLlmOptions.EnableThinking"/>, que es propio del modelo y no se hereda.
+    /// </summary>
+    public PerfilLlmEfectivo Efectivo(string nombre)
+    {
+        var p = Perfiles[nombre];
+        return new PerfilLlmEfectivo(
+            nombre,
+            string.IsNullOrWhiteSpace(p.UrlBase) ? UrlBase : p.UrlBase,
+            string.IsNullOrWhiteSpace(p.Ruta) ? Ruta : p.Ruta,
+            p.Modelo,
+            p.MaxTokens ?? MaxTokens,
+            p.Temperatura ?? Temperatura,
+            p.TopP ?? TopP,
+            p.EnableThinking,
+            p.TiempoMaximoSegundos ?? TiempoMaximoSegundos,
+            string.IsNullOrWhiteSpace(p.ApiKey) ? ApiKey : p.ApiKey,
+            string.IsNullOrWhiteSpace(p.RutaCertificadoCA) ? RutaCertificadoCA : p.RutaCertificadoCA);
+    }
+}
+
+/// <summary>
+/// Un perfil de LLM adicional, registrado por nombre en <see cref="LlmOptions.Perfiles"/>. Todo es opcional salvo
+/// <see cref="Modelo"/>: lo vacio se hereda del perfil por defecto (mismo servidor y clave de AltheIA, normalmente).
+/// </summary>
+public sealed class PerfilLlmOptions
+{
+    public string? UrlBase { get; set; }
+
+    public string? Ruta { get; set; }
+
+    /// <summary>Obligatorio.</summary>
+    public string Modelo { get; set; } = "";
+
+    public int? MaxTokens { get; set; }
+
+    public double? Temperatura { get; set; }
+
+    public double? TopP { get; set; }
+
+    /// <summary>Propio de este perfil, no se hereda: ver <see cref="LlmOptions.EnableThinking"/>.</summary>
+    public bool? EnableThinking { get; set; }
+
+    public int? TiempoMaximoSegundos { get; set; }
+
+    /// <summary>Opcional. Va por variable de entorno o user-secrets, nunca en appsettings.</summary>
+    public string? ApiKey { get; set; }
+
+    public string? RutaCertificadoCA { get; set; }
+}
+
+/// <summary>Perfil de LLM adicional con la herencia del por defecto ya aplicada (<see cref="LlmOptions.Efectivo"/>).</summary>
+public sealed record PerfilLlmEfectivo(
+    string Nombre, string? UrlBase, string Ruta, string Modelo, int MaxTokens, double Temperatura, double TopP,
+    bool? EnableThinking, int TiempoMaximoSegundos, string? ApiKey, string? RutaCertificadoCA) : IPerfilLlmConfig
+{
+    /// <summary>Sin <see cref="ApiKey"/> ni <see cref="UrlBase"/>: el ToString generado del record los imprimiria en un log.</summary>
+    public override string ToString() => $"PerfilLlmEfectivo {{ Nombre = {Nombre}, Modelo = {Modelo} }}";
 }
 
 /// <summary>
@@ -286,8 +393,9 @@ public sealed class ResumenOptions
 {
     /// <summary>
     /// Nombre de un perfil de embeddings YA declarado (<see cref="MotorOptions.PerfilEmbeddingsPorDefecto"/> o una
-    /// clave de <see cref="EmbeddingsOptions.Perfiles"/>) que sirve el vector <c>dense-resumen</c>. 1.7.3: bge-m3
-    /// 1024d via AltheIA, SIN truncar (no es Matryoshka). Vacio = resumen no disponible en esta instancia.
+    /// clave de <see cref="EmbeddingsOptions.Perfiles"/>) que sirve el vector <c>dense-resumen</c>. Por diseno es arctic@256
+    /// (1.6; 1.7.3 descarto bge-m3); 1.7.3 solo probo el mecanismo del tercer vector con bge-m3 1024d de AltheIA, sin
+    /// truncar porque no es Matryoshka. Vacio = resumen no disponible en esta instancia.
     /// </summary>
     public string? PerfilEmbeddings { get; set; }
 
@@ -302,4 +410,74 @@ public sealed class ResumenOptions
 
     /// <summary>Chunks pendientes de resumen leidos por pagina de Qdrant (scroll) en cada corrida.</summary>
     public int TamanoPaginaPendientes { get; set; } = 64;
+
+    /// <summary>Que NO se resume (1.27): regla determinista aplicada antes de la cache y del LLM.</summary>
+    public FiltroPrevioOptions FiltroPrevio { get; set; } = new();
+}
+
+/// <summary>
+/// Seccion <c>Motor:Resumen:FiltroPrevio</c> (item 1.27): decide de forma determinista que chunks pendientes NO se mandan
+/// al LLM, separado de COMO se resumen. Un chunk excluido queda <c>resumen_pending=false</c> sin vector ni texto, con
+/// <c>resumen_modelo = "filtro-previo:v{Version}"</c>. No cambia chunks, vectores <c>dense</c> ni que se indexa
+/// (ChunkingContract no sube). Medido el 2026-11-11 (docs/evaluaciones/1.27): sobre la muestra de 100 chunks de
+/// reyoneweb con juicio de dos jueces excluye 8 de los 9 chunks tecnicos que deep resumio de mas y 0 de los 48 en los que
+/// ambos jueces vieron negocio. Desde la v2 eso lo logra junto con el <c>.ragignore</c> del repo: el filtro solo lleva
+/// reglas genericas (FiltroPrevioMuestraTests).
+/// </summary>
+public sealed class FiltroPrevioOptions
+{
+    /// <summary>false = todo pendiente va al LLM, igual que antes de 1.27 (rollback sin desplegar codigo).</summary>
+    public bool Habilitado { get; set; } = true;
+
+    /// <summary>
+    /// Subirla a mano cuando cambie la regla por defecto: va en <c>resumen_modelo</c> de cada punto excluido. v2
+    /// (2026-11-17): se retiro el patron de los envoltorios de FastReport de reyoneweb, que era de un solo repo.
+    /// </summary>
+    public int Version { get; set; } = 2;
+
+    /// <summary>
+    /// Expresiones regulares .NET sobre la ruta relativa con separador '/'. Null (sin configurar) =
+    /// <see cref="PatronesDeRutaPorDefecto"/>; configurarlas REEMPLAZA esa lista entera (no la extiende).
+    /// </summary>
+    public string[]? PatronesDeRuta { get; set; }
+
+    /// <summary>
+    /// Nombres de <c>ChunkType</c> excluidos en bloque. Null = <see cref="TiposDeChunkPorDefecto"/>. <c>Property</c> NO
+    /// esta: en la muestra, dos grupos de propiedades de entidades (Silos, CompraDirecta) tenian negocio para ambos
+    /// jueces; solo se excluyen las propiedades automaticas de una linea (<see cref="PropiedadesAutomaticasDeUnaLinea"/>).
+    /// No existe un tipo <c>Field</c>: los campos viajan en el chunk <c>Class</c>.
+    /// </summary>
+    public string[]? TiposDeChunk { get; set; }
+
+    /// <summary>
+    /// Excluir un chunk <c>Property</c> cuyo codigo (sin comentarios ni atributos) es UNA sola declaracion con accesores
+    /// automaticos (<c>{ get; set; }</c>, <c>{ get; init; }</c>...) y sin <c>=&gt;</c>.
+    /// </summary>
+    public bool PropiedadesAutomaticasDeUnaLinea { get; set; } = true;
+
+    /// <summary>Excluir un chunk con <c>&lt;auto-generated</c> en sus primeras 5 lineas (cabecera de codigo generado).</summary>
+    public bool CabeceraAutoGenerada { get; set; } = true;
+
+    /// <summary>
+    /// Solo convenciones genericas de codigo generado o de proyecto, validas para cualquier repo. El motor es agnostico:
+    /// lo que es propio de un repo o de sus herramientas (p. ej. los envoltorios de FastReport de reyoneweb, que v1
+    /// excluia aqui) va en el <c>.ragignore</c> de ese repo, que tambien lo saca del indice
+    /// (<see cref="Scanning.IgnoreRules"/>; propuesta para reyoneweb en docs/corpus/reyoneweb.ragignore).
+    /// </summary>
+    public static IReadOnlyList<string> PatronesDeRutaPorDefecto { get; } =
+    [
+        @"(?i)\.designer\.cs$",
+        @"(?i)\.g\.cs$",
+        @"(?i)\.generated\.cs$",
+        @"(?i)(^|/)AssemblyInfo\.cs$",
+        @"(?i)\.csproj$",
+        @"(?i)\.json$",
+        @"(?i)\.xml$",
+    ];
+
+    public static IReadOnlyList<string> TiposDeChunkPorDefecto { get; } = ["Constructor"];
+
+    public IReadOnlyList<string> PatronesDeRutaEfectivos => PatronesDeRuta ?? PatronesDeRutaPorDefecto;
+
+    public IReadOnlyList<string> TiposDeChunkEfectivos => TiposDeChunk ?? TiposDeChunkPorDefecto;
 }

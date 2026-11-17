@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using Qdrant.Client;
 using Reyma.VectorSpace.Engine.Microservice.Business.Motor;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Abstractions;
+using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Catalogo;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Chunking;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Ingestion;
 using Reyma.VectorSpace.Engine.Microservice.Infrastructure.Resumen;
@@ -81,8 +82,23 @@ public static class MotorServiceCollectionExtensions
             .Validate(o => o.Llm.TiempoMaximoSegundos > 0, "Motor:Llm:TiempoMaximoSegundos debe ser positivo.")
             .Validate(o => string.IsNullOrWhiteSpace(o.Llm.RutaCertificadoCA) || File.Exists(o.Llm.RutaCertificadoCA),
                 "Motor:Llm:RutaCertificadoCA debe apuntar a un archivo existente si se define.")
+            // Perfiles de LLM adicionales (perfilLlm de las ingestas): lo que dejan vacio se hereda de Motor:Llm.
+            .Validate(o => !string.IsNullOrWhiteSpace(o.Llm.Nombre), "Motor:Llm:Nombre (nombre del perfil de LLM por defecto) es obligatorio.")
+            .Validate(o => !o.Llm.Perfiles.ContainsKey(o.Llm.Nombre),
+                "Motor:Llm:Perfiles no puede redefinir el perfil de LLM por defecto (Motor:Llm:Nombre).")
+            .Validate(o => o.Llm.Perfiles.Values.All(p => !string.IsNullOrWhiteSpace(p.Modelo)), "Cada perfil de Motor:Llm:Perfiles necesita Modelo.")
+            .Validate(o => o.Llm.Perfiles.Keys.Select(o.Llm.Efectivo).All(p => p.MaxTokens > 0 && p.TiempoMaximoSegundos > 0),
+                "Cada perfil de Motor:Llm:Perfiles necesita MaxTokens y TiempoMaximoSegundos positivos.")
+            .Validate(o => string.IsNullOrWhiteSpace(o.Resumen.PerfilEmbeddings) ||
+                           o.Llm.Perfiles.Keys.Select(o.Llm.Efectivo).All(p => Uri.TryCreate(p.UrlBase, UriKind.Absolute, out var u) && (u.Scheme == "http" || u.Scheme == "https")),
+                "Cada perfil de Motor:Llm:Perfiles necesita una UrlBase http(s) absoluta (propia o heredada de Motor:Llm:UrlBase) cuando Motor:Resumen:PerfilEmbeddings esta configurado.")
+            .Validate(o => o.Llm.Perfiles.Values.All(p => string.IsNullOrWhiteSpace(p.RutaCertificadoCA) || File.Exists(p.RutaCertificadoCA)),
+                "Cada RutaCertificadoCA de Motor:Llm:Perfiles debe existir si se define.")
             .Validate(o => o.Resumen.TopeTokensPorCorrida > 0, "Motor:Resumen:TopeTokensPorCorrida debe ser positivo.")
             .Validate(o => o.Resumen.TamanoPaginaPendientes > 0, "Motor:Resumen:TamanoPaginaPendientes debe ser positivo.")
+            // 1.27: un patron o tipo invalido del filtro previo debe fallar al arrancar, no en la primera corrida de resumen.
+            .Validate(o => FiltroPrevioDeResumen.ErrorDeConfiguracion(o.Resumen.FiltroPrevio) is null,
+                "Motor:Resumen:FiltroPrevio es invalido: Version positiva, PatronesDeRuta como expresiones regulares .NET validas y TiposDeChunk de ChunkType.")
             .ValidateOnStart();
 
         services.AddSingleton(sp =>
@@ -189,7 +205,42 @@ public static class MotorServiceCollectionExtensions
                 return handler;
             });
         services.AddSingleton<ILlmResumenBrain, LlmResumenBrain>();
+
+        // Un HttpClient nombrado por cada perfil de LLM adicional (Motor:Llm:Perfiles), con la configuracion efectiva
+        // (lo vacio heredado de Motor:Llm). Igual que el por defecto, solo se crea cuando algo lo pide.
+        var nombresDePerfilesLlm = config.GetSection($"{MotorOptions.Seccion}:Llm:Perfiles").GetChildren()
+            .Select(seccion => seccion.Key)
+            .ToArray();
+        foreach (var nombrePerfil in nombresDePerfilesLlm)
+        {
+            services.AddHttpClient(LlmResumenBrainFactory.NombreCliente(nombrePerfil), (sp, http) =>
+                {
+                    var o = sp.GetRequiredService<IOptions<MotorOptions>>().Value.Llm.Efectivo(nombrePerfil);
+                    http.BaseAddress = new Uri(o.UrlBase!.TrimEnd('/') + "/");
+                    http.Timeout = TimeSpan.FromSeconds(o.TiempoMaximoSegundos);
+                    if (!string.IsNullOrWhiteSpace(o.ApiKey))
+                        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", o.ApiKey);
+                })
+                .ConfigurePrimaryHttpMessageHandler(sp =>
+                {
+                    var o = sp.GetRequiredService<IOptions<MotorOptions>>().Value.Llm.Efectivo(nombrePerfil);
+                    var handler = new HttpClientHandler();
+                    if (!string.IsNullOrWhiteSpace(o.RutaCertificadoCA))
+                    {
+                        var caAdicional = X509CertificateLoader.LoadCertificateFromFile(o.RutaCertificadoCA);
+                        handler.ServerCertificateCustomValidationCallback = (_, cert, chain, errors) =>
+                            ValidaConCaAdicional(cert, chain, errors, caAdicional);
+                    }
+                    return handler;
+                });
+        }
+        services.AddSingleton<ILlmResumenBrainFactory>(sp => new LlmResumenBrainFactory(
+            sp.GetRequiredService<IHttpClientFactory>(),
+            sp.GetRequiredService<IOptions<MotorOptions>>(),
+            sp.GetRequiredService<ILoggerFactory>(),
+            sp.GetRequiredService<ILlmResumenBrain>()));
         services.AddSingleton<ICacheDeResumenes, CacheDeResumenes>();
+        services.AddSingleton(sp => new FiltroPrevioDeResumen(sp.GetRequiredService<IOptions<MotorOptions>>().Value.Resumen.FiltroPrevio));
         services.AddSingleton<ResumenPipeline>();
 
         services.AddSingleton<ISparseTokenizer, SparseTokenizer>();
@@ -221,6 +272,7 @@ public static class MotorServiceCollectionExtensions
         services.AddSingleton<IMotorDeIngestaProyecto>(sp => sp.GetRequiredService<MotorVectorial>());
         services.AddSingleton<IMotorDeIngestaProyectoGit>(sp => sp.GetRequiredService<MotorVectorial>());
         services.AddSingleton<IMotorDeColecciones>(sp => sp.GetRequiredService<MotorVectorial>());
+        services.AddSingleton<IMotorDeCatalogo, CatalogoDelMotor>();
 
         return services;
     }

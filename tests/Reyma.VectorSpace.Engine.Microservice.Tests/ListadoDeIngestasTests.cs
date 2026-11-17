@@ -136,8 +136,11 @@ public sealed class ListadoDeIngestasTests(ApiFactory factory)
         public IReadOnlyList<DocumentoRequest> LeerProyectoZip(byte[] zip, string? carpetaRaiz) =>
             [new DocumentoRequest { Ruta = "docs/guia.md", Contenido = "contenido de prueba" }];
 
+        public Task VerificarPerfilDeIngestaAsync(string coleccion, PerfilDeIngesta? perfil, CancellationToken cancellationToken) =>
+            Task.CompletedTask;
+
         public Task<ResultadoIngestaProyecto> ProcesarAsync(
-            string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken) =>
+            string coleccion, IReadOnlyList<DocumentoRequest> documentos, string? perfil, bool resumen, CancellationToken cancellationToken, PerfilDeIngesta? perfilIngesta = null, string? perfilLlm = null) =>
             falla
                 ? throw new InvalidOperationException(MensajeDeFallo)
                 : Task.FromResult(new ResultadoIngestaProyecto(documentos.Count, documentos.Count, 0, 0, 0));

@@ -11,6 +11,23 @@ Proyecto `Reyma.VectorSpace.Engine.Microservice.Api`. Expone REST y compone el s
 - Listados: un `Get` con `SieveModel` que devuelve `PagedResponse<TResponse>`.
 - Documentar con XML y atributos de Swagger (`ProducesResponseType`) cuando aporten.
 
+## Documentacion para Swagger
+
+Api y Business generan su XML (`GenerateDocumentationFile`); `AddReymaSwagger` lo carga. Lo que se escribe ahi es
+lo que lee quien abre Swagger sin conocer el servicio, asi que:
+
+- Cada accion lleva `<summary>` (que hace), `<remarks>` si hace falta contexto, `<param>` de la ruta/query y un
+  `<response code="...">` por cada codigo que puede devolver.
+- Cada propiedad de un request lleva `<summary>` que se explique sola: que es, si es opcional, que pasa si se omite y
+  **de donde salen los valores validos** (p. ej. `GET api/catalogo/perfiles-embeddings`). Sin remitir a otra clase
+  ("Ver X.Perfil") ni a numeros de item del plan: eso no se ve en Swagger.
+- Respuestas como `record` posicional: documentar cada campo con `<param name="Campo">` en el record.
+- Un formulario multipart va como clase con `[FromForm]` (ver `Models/IngestaProyectoZipForm.cs`), no como
+  parametros sueltos: asi Swagger muestra la descripcion de cada campo.
+- Los valores aceptados que cambian por instancia (perfiles, origenes) no se enumeran a mano en la documentacion: se
+  exponen en `CatalogoController`, leidos de la misma configuracion que valida las solicitudes.
+- `CatalogoTests` comprueba que los campos de ingesta tienen descripcion; extenderlo al agregar campos.
+
 ## Seguridad y permisos
 
 - Las acciones de negocio llevan `[Authorize(Policy = ApiSecurityConstants.Policies.X)]` con la politica acordada.

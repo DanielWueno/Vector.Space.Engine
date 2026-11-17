@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
@@ -22,7 +23,11 @@ public interface ILlmResumenBrain
 {
     string ModelName { get; }
 
-    /// <summary>Version del prompt vigente (hash de prompt+modelo): clave de cache junto con el content_hash del chunk.</summary>
+    /// <summary>
+    /// Identidad de la peticion de resumen (1.26): hash de prompt de sistema, modelo y parametros de muestreo
+    /// (<c>EnableThinking</c>, <c>MaxTokens</c>, temperatura, <c>top_p</c>). Clave de cache junto con el content_hash del
+    /// chunk, y <c>resumen_prompt_version</c> en el payload.
+    /// </summary>
     string PromptVersion { get; }
 
     /// <summary>
@@ -40,7 +45,12 @@ public sealed class LlmResumenBrain : ILlmResumenBrain
     /// <summary>Mismo centinela que <c>OllamaBusinessSummaryGenerator.Sentinel</c> (Rag.Context.Engine).</summary>
     public const string Sentinel = "SIN_CONTENIDO_DE_NEGOCIO";
 
-    private const string VersionBase = "v1";
+    /// <summary>
+    /// v1: hash de version base, modelo y prompt de sistema. v2 (1.26, 2026-11-12): agrega los parametros de muestreo que tambien
+    /// viajan en la peticion; con v1, dos perfiles del mismo modelo y distinto <c>MaxTokens</c> o <c>EnableThinking</c>
+    /// mezclaban sus resumenes en la cache y en la coleccion sin poder distinguirlos.
+    /// </summary>
+    private const string VersionBase = "v2";
 
     // Prompt de sistema literal de OllamaBusinessSummaryGenerator (Rag.Context.Engine), ya validado en 1.7.3 contra
     // AltheIA real (30/30 con qwen3.8-27b-fast). No se traduce ni se reformula: cambiarlo cambia PromptVersion y,
@@ -64,23 +74,39 @@ public sealed class LlmResumenBrain : ILlmResumenBrain
         SIN_CONTENIDO_DE_NEGOCIO
         """;
 
+    /// <summary>
+    /// <see cref="SystemPrompt"/> con finales de linea LF. El literal hereda los del archivo fuente, que dependen del
+    /// checkout (core.autocrlf): sin normalizar, un build de Windows con CRLF y la imagen Linux enviarian prompts
+    /// distintos y calcularian <see cref="PromptVersion"/> distintos para la misma configuracion (1.26).
+    /// </summary>
+    private static readonly string SystemPromptLf = SystemPrompt.ReplaceLineEndings("\n");
+
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly LlmOptions _options;
+    private readonly string _httpClientName;
+    private readonly IPerfilLlmConfig _options;
     private readonly ILogger<LlmResumenBrain> _logger;
     private HttpClient? _http;
 
     /// <summary>Perfil por defecto: resuelve el HttpClient de forma perezosa (ver <see cref="Http"/>).</summary>
     public LlmResumenBrain(IHttpClientFactory httpClientFactory, IOptions<MotorOptions> options, ILogger<LlmResumenBrain> logger)
+        : this(httpClientFactory, HttpClientName, options.Value.Llm, logger)
+    {
+    }
+
+    /// <summary>Un perfil cualquiera con su HttpClient nombrado (ver <see cref="LlmResumenBrainFactory"/>), tambien perezoso.</summary>
+    internal LlmResumenBrain(IHttpClientFactory httpClientFactory, string httpClientName, IPerfilLlmConfig options, ILogger<LlmResumenBrain> logger)
     {
         _httpClientFactory = httpClientFactory;
-        _options = options.Value.Llm;
+        _httpClientName = httpClientName;
+        _options = options;
         _logger = logger;
     }
 
     /// <summary>Puerta de prueba: HttpClient ya construido (sidecar simulado), igual patron que TeiVectorizationBrain.</summary>
-    internal LlmResumenBrain(HttpClient http, LlmOptions options, ILogger<LlmResumenBrain> logger)
+    internal LlmResumenBrain(HttpClient http, IPerfilLlmConfig options, ILogger<LlmResumenBrain> logger)
     {
         _httpClientFactory = null!;
+        _httpClientName = HttpClientName;
         _options = options;
         _logger = logger;
         _http = http;
@@ -93,15 +119,28 @@ public sealed class LlmResumenBrain : ILlmResumenBrain
     /// configuracion por defecto. Solo <see cref="ResumirAsync"/> -llamado unicamente cuando una coleccion ya tiene
     /// el resumen habilitado- fuerza la creacion real del HttpClient.
     /// </summary>
-    private HttpClient Http => _http ??= _httpClientFactory.CreateClient(HttpClientName);
+    private HttpClient Http => _http ??= _httpClientFactory.CreateClient(_httpClientName);
 
     public string ModelName => _options.Modelo;
 
-    public string PromptVersion => ComputePromptVersion(_options.Modelo);
+    public string PromptVersion => ComputePromptVersion(_options);
 
-    internal static string ComputePromptVersion(string modelo)
+    /// <summary>
+    /// Hash de <c>v2|modelo|EnableThinking|MaxTokens|Temperatura|TopP|SystemPrompt</c>, con formato invariante de cultura
+    /// (un servidor en es-MX no debe escribir "0,15") y <c>EnableThinking</c> en tres valores: <c>null</c> (no se envia
+    /// el campo) es una peticion distinta de <c>false</c>.
+    /// </summary>
+    internal static string ComputePromptVersion(IPerfilLlmConfig perfil)
     {
-        var input = $"{VersionBase}|{modelo}|{SystemPrompt}";
+        var enableThinking = perfil.EnableThinking switch { null => "null", true => "true", false => "false" };
+        var input = string.Join('|',
+            VersionBase,
+            perfil.Modelo,
+            enableThinking,
+            perfil.MaxTokens.ToString(CultureInfo.InvariantCulture),
+            perfil.Temperatura.ToString(CultureInfo.InvariantCulture),
+            perfil.TopP.ToString(CultureInfo.InvariantCulture),
+            SystemPromptLf);
         var hash = SHA256.HashData(Encoding.UTF8.GetBytes(input));
         return Convert.ToHexString(hash)[..8].ToLowerInvariant();
     }
@@ -111,7 +150,7 @@ public sealed class LlmResumenBrain : ILlmResumenBrain
         var userPrompt = $"[Contexto: Lenguaje: {lenguaje}, Ruta: {rutaRelativa}]\n\n{contenido}";
         var mensajes = new object[]
         {
-            new { role = "system", content = SystemPrompt },
+            new { role = "system", content = SystemPromptLf },
             new { role = "user", content = userPrompt }
         };
         var chatTemplateKwargs = _options.EnableThinking is null ? null : (object)new { enable_thinking = _options.EnableThinking.Value };

@@ -1,0 +1,100 @@
+# Escenario "tunel a datos reales": NO levanta Qdrant/TEI propios (a diferencia de
+# docker-compose.motor.yml). Se usa cuando ya existe un tunel/VPN upstream que deja
+# Qdrant y el sidecar TEI alcanzables como si fueran locales en el HOST (127.0.0.1),
+# para consultar lo ya ingestado ahi sin reingestar ni levantar un stack descartable.
+#
+# No se combina con docker-compose.motor.yml (ese trae su propio Qdrant/TEI en otros
+# puertos). Se usa solo, o junto con el compose del cliente (Rag.VectorSpace.Client)
+# en la misma red, para que el cliente le hable a esta API por su nombre de servicio.
+#
+# host.docker.internal: en Windows/Docker Desktop resuelve al host que ejecuta Docker,
+# para alcanzar el tunel que corre ahi fuera de cualquier contenedor.
+#
+# Build de la imagen: igual que docker-compose.api.yml (feed privado Gr-Api via
+# secrets FEED_USERNAME/FEED_PASSWORD; CORP_CA_CERT_PATH opcional si tu red
+# intercepta TLS). Ninguno de los dos va en este archivo.
+#
+# Autenticacion: SIN CAMBIOS respecto al servicio real -- JWT del IdentityServer
+# corporativo contra la audiencia de Development compartida (permissions.service.api).
+# No se desactiva ni se debilita: ver docs/constitucion/README.md ("No desactivar
+# validaciones JWT para resolver problemas de login"). Entra por Swagger
+# (http://localhost:18081/swagger en este compose) con tu login normal; el token que
+# devuelve expira en 1h y hay que repetir el login y actualizar VectorSpace:ApiKey en
+# el cliente cuando expire -- no hay refresco automatico todavia.
+#
+# Esta API NO se publica en la LAN: solo la alcanza el cliente, dentro de la red de
+# Docker (o loopback del host si se prueba suelta). Compartir hacia el equipo es
+# trabajo del compose del cliente (Rag.VectorSpace.Client/infra), no de este archivo.
+#
+# ControlDeAcceso: el item 1.14 retiro esa tabla por completo (ver docs/constitucion/
+# README.md, "Consideraciones de la base inicial"); a diferencia de docker-compose.
+# api.yml (que quedo con ese bloque de una version anterior a 1.14), este archivo no
+# lo declara porque ya no aplica.
+#
+# Uso:
+#   docker network create vse-tunel-compartida   # una sola vez; red compartida con
+#                                                 # el compose del cliente (Rag.VectorSpace.Client)
+#   $env:FEED_USERNAME = "<usuario-feed>"; $env:FEED_PASSWORD = "<password-feed>"
+#   docker compose -f docker-compose.tunnel.yml up -d --build
+#   Luego: http://localhost:18081/swagger -> Authorize -> login -> copiar el token.
+#
+# Rollback: docker compose -f docker-compose.tunnel.yml down
+# (no hay volumen de Qdrant que borrar: esta API no tiene Qdrant propio aqui). La red
+# externa "vse-tunel-compartida" sobrevive al down; se borra aparte con
+# 'docker network rm vse-tunel-compartida' si ya no se necesita.
+
+name: vse-motor-tunel
+
+services:
+  api:
+    container_name: vse-motor-tunel-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+      secrets:
+        - feed-username
+        - feed-password
+        - corp-ca-cert
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      # Alcanzan el tunel que corre en el HOST (fuera de Docker), no un servicio de
+      # este compose: este archivo no trae Qdrant/TEI propios.
+      Motor__Qdrant__Host: host.docker.internal
+      Motor__Qdrant__PuertoGrpc: "6334"
+      Motor__Embeddings__UrlBase: http://host.docker.internal:8081
+    ports:
+      # 18081: solo para pruebas sueltas/Swagger local del motor (login JWT).
+      #
+      # 443: NO es un puerto de este servicio. VectorSpace:BaseUrl (Rag.VectorSpace.
+      # Client) exige HTTPS o HTTP-loopback explicito (ver VectorSpaceOptions.
+      # Validate) -- un hostname interno de Docker por HTTP simple no pasa esa
+      # validacion a proposito. Para que el cliente pueda usar "http://localhost:..."
+      # de verdad (loopback real, no solo de nombre), el servicio rag-api del compose
+      # del cliente comparte el network namespace de ESTE contenedor via
+      # 'network_mode: "container:vse-motor-tunel-api"'. Por eso el puerto que el
+      # PROXY/equipo alcanza en 443 se publica aqui, aunque quien escucha ahi
+      # adentro es el proceso rag-api, no este motor. Si cambias el host/puerto que
+      # tu proxy reenvia, ajusta este mapeo, no el compose del cliente (que no puede
+      # declarar 'ports' propio mientras comparta este namespace).
+      - "18081:8080"
+      - "443:443"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - default
+      - vse-tunel-compartida
+
+networks:
+  # Red externa compartida con el compose del cliente (Rag.VectorSpace.Client), para
+  # que su contenedor rag-api alcance a este servicio "api" por nombre, entre dos
+  # proyectos de compose distintos. No se publica nada de esta red en la LAN.
+  vse-tunel-compartida:
+    external: true
+
+secrets:
+  feed-username:
+    environment: FEED_USERNAME
+  feed-password:
+    environment: FEED_PASSWORD
+  corp-ca-cert:
+    file: ${CORP_CA_CERT_PATH:-./certs/corp-ca-placeholder.crt}

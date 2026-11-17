@@ -4,6 +4,10 @@ Definido en el item `1.3-definir-contrato-api-y-autenticacion` del ledger. Rutas
 ruta base del servicio (`/reyma/vectorspace/engine` desplegado; vacia en local) y al prefijo global
 `api/` de la plantilla. Swagger (solo Development) publica el mismo contrato.
 
+Guia de uso: [filtros de busqueda y ejemplos](filtros.md). Distingue los filtros
+HTTP disponibles de las capacidades aun pendientes del cliente de Rag.
+Lenguaje y namespace estan disponibles desde 1.21.4; el adaptador de Rag sigue pendiente.
+
 | Metodo | Ruta | Operacion | Respuesta 200 |
 |---|---|---|---|
 | GET | `api/sesion` | — (solo login) | Usuario en sesion desde los claims |
@@ -16,6 +20,10 @@ ruta base del servicio (`/reyma/vectorspace/engine` desplegado; vacia en local) 
 | GET | `api/colecciones/ingestas` | `Consultar` | Lista las ingestas de proyecto, en cualquier estado; `?coleccion=` opcional filtra por una (items 1.15/1.16) |
 | GET | `api/colecciones` | `Consultar` | Lista las colecciones existentes en el vector store, con su perfil de embeddings si lo tiene (item 1.16) |
 | GET | `api/colecciones/{coleccion}/documentos` | `Consultar` | Lista los documentos indexados en la coleccion: ruta, huella y cantidad de puntos (item 1.19) |
+| GET | `api/catalogo/perfiles-embeddings` | `Consultar` | Valores validos de `perfil`, con su estado en vivo (ver "Catalogo de lo que acepta la instancia") |
+| GET | `api/catalogo/perfiles-llm` | `Consultar` | Valores validos de `perfilLlm`, con su estado en vivo |
+| GET | `api/catalogo/perfiles-ingesta` | `Consultar` | Valores validos de `perfilIngesta` |
+| GET | `api/catalogo/origenes-git` | `Consultar` | Origenes desde los que `ingestas/git` acepta clonar |
 
 Codigos comunes: **401** sin token valido (firma, emisor, audiencia y vigencia se validan como en
 la plantilla); **400** cuerpo invalido, incluido pedir un `perfil` de embeddings no registrado en el servicio o un modelo que el servidor remoto
@@ -28,7 +36,8 @@ pero de otro perfil de embeddings (1.7.4: el perfil, no solo la dimension, ident
 comparables), **o** se pide `resumen: true` sobre una coleccion existente que no tiene el vector
 `dense-resumen` (1.7.7: el tercer vector no se puede agregar despues de crear la coleccion), **o** se busca con
 `espacio: "resumen"` en una coleccion sin `dense-resumen` o cuyo resumen se genero con otro perfil o dimension
-(1.20); **413**
+(1.20), **o** se busca con `modulos` en una coleccion existente sin preparacion completa del filtro de modulo, o se
+ingesta en una coleccion con un relleno de modulo en curso o interrumpido (1.21.1); **413**
 (`ingestas` e `ingestas/proyecto`) el cuerpo de la solicitud supera el limite de la accion (1.7.1/1.7.5);
 **429** (`ingestas`, `ingestas/proyecto` e `ingestas/git`) hay demasiadas ingestas en curso o en espera,
 reintentar despues de `Retry-After` (1.7); **501** parte del contrato aun sin implementado (origen
@@ -54,6 +63,8 @@ El motor es el de Rag.Context.Engine portado (ver
   Cada resultado trae ademas los metadatos de chunk ya guardados en el payload y admite un filtro exacto opcional
   por simbolos definidos (item 1.18, ver seccion dedicada abajo); igual en ambos modos de busqueda. Con
   `espacio: "resumen"` consulta el vector `dense-resumen` en vez del del codigo (item 1.20, ver seccion dedicada).
+  `modulos` acota por namespace/ruta antes del corte en todas las ramas (item 1.21.1, ver seccion dedicada).
+  `lenguaje` y `namespace` agregan filtros textuales antes del corte sobre sus campos de payload (1.21.4).
 - **ingestas**: cada documento se trocea por su extension con el perfil del CLI de Rag.Context.Engine
   (`.cs .ts .tsx .js .jsx .xaml .sql .md .txt .json .xml .csproj`, hasta 512 KB en UTF-8), con
   `MaxTokensPerChunk` 1024 (1.11). La coleccion hace de repositorio: el Id de un chunk sale de
@@ -91,6 +102,60 @@ El motor es el de Rag.Context.Engine portado (ver
   reintentar el 429 despues de `Retry-After` y reintentar ante fallos de red: repetir una ingesta es
   idempotente y solo vuelve a vectorizar los documentos que no quedaron completos.
 
+## Perfil de ingesta compatible opt-in (1.12)
+
+`perfilIngesta: "rag-local-1.12"` y `repositorioLogico` se admiten juntos en el
+JSON de documentos/Git y como campos del formulario ZIP. Ambos ausentes conservan
+el perfil nativo (1024 tokens/configuracion existente, repositorio=coleccion).
+No son el campo `perfil` de embeddings ni cambian el modo de busqueda.
+Un perfil desconocido, tipo no textual, nombre blanco, de mas de128 caracteres
+o con separadores/caracteres de control responde400; un nombre sin perfil tambien.
+
+El opt-in reutiliza los chunkers/admisiones del servidor con 512/64 tokens,
+lote 32 y sin declaraciones cortas. `ParentContextLines=5` y `SplitWithOverlap`
+(los valores del control) solo entran en la huella del documento
+(`document_fingerprint`, identidad del perfil): ninguna estrategia de chunking los
+lee, asi que no cambian el corte (1.28). El unico contexto padre real es la
+cabecera semantica de clase/namespace de cada chunk. La cabecera
+de ruta usa `\` como el control Windows; la identidad normaliza separadores.
+El nombre logico, no la coleccion fisica, identifica repositorio/documentos/chunks.
+El cliente sigue enviando documentos completos, nunca fragmentos preparados.
+
+La coleccion H2 se crea con `perfil_ingesta` y `repositorio_logico` atomicos en su
+metadata. Una coleccion nativa/legacy, incluso vacia, no se adopta como H2.
+Omitir/cambiar el perfil o nombre de una H2 responde409 antes de embeddings;
+ZIP/Git verifican el binding antes de admitir el job y al procesarlo.
+Los campos se propagan a respuestas/estado de ingesta y al catalogo de colecciones.
+El listado y barrido de documentos usan el nombre logico; no se renombra el indice.
+Los jobs siguen siendo memoria de instancia: un404 tras reinicio no es completitud.
+
+**Implementado, no aceptado como sustituto del control:** la igualdad exhaustiva
+de representacion paso, pero el diagnostico H2 perdio any/full@10 en tickets014.
+Ver [preparacion y resultado de1.12](../evaluaciones/1.12/preparacion.md).
+Defaults nativos, autenticacion, filtros y resumenes no cambian.
+Revertir codigo o desactivar el opt-in no revierte puntos existentes.
+
+## Presupuesto opt-in de busqueda (H3, 1.12)
+
+`prefetchPorRama` es opcional, entero JSON estricto entre **40 y 1200**, solo
+para `codigo` con `Motor:Busqueda:Modo=FusionNativa`. Tipos/rangos invalidos,
+modo `Denso` o espacio `resumen` responden **400 antes de consultar colecciones
+o consumir embeddings**. Omitido o `null` conserva exactamente
+`max(4*topK,40)`; no cambia los defaults nativos.
+
+El presupuesto corta cada rama elegible; `topK` (1..100) limita por separado
+los resultados fusionados. Los filtros siguen aplicandose antes de cada corte,
+con piso denso 0.1, RRF f32 k=2, orden denso-luego-sparse y desempate UUID ordinal.
+Dos prefijos de40 ofrecen **como maximo80 candidatos distintos**, menos si hay
+solapamiento o menor elegibilidad: pedir100 no garantiza100. No hay relleno.
+Las consultas exactas pueden examinar mas puntos para resolver empates completos;
+ese trabajo no amplia el prefijo elegible solicitado.
+
+El cliente experimental activa `VectorSpace:UseRetrievalBudget` (defaultfalse)
+solo para su busqueda primaria: `max(4*B,40)`, con `B=TopK` o `3*TopK` si hay
+reranking. Resumen y saltos por simbolos no envian override. El ranking puede
+cambiar con el opt-in; implementar este contrato no acredita calidad ni cierra1.12.
+
 ## Cuerpos
 
 ```jsonc
@@ -101,6 +166,9 @@ El motor es el de Rag.Context.Engine portado (ver
 // POST .../busquedas    (consulta de hasta 2048 caracteres; topK 1..100, por defecto 10)
 { "consulta": "como se configura X", "topK": 10, "perfil": "altheia-bge-m3-256",
   "simbolosDefinidos": ["MiMetodo"],    // "perfil" y "simbolosDefinidos" opcionales, ver seccion "Metadatos de chunk..." abajo
+  "modulos": ["Empresa.Ventas"],        // opcional, 1..50; AND entre modulos y con simbolosDefinidos (item 1.21.1)
+  "lenguaje": "CSharp",                 // opcional, nombre exacto del enum; Match.Text sobre language (1.21.4)
+  "namespace": "Empresa.Ventas",        // opcional; Match.Text SOLO sobre namespace, sin rutas ni normalizacion
   "espacio": "codigo" }                 // opcional, "codigo" (por defecto) | "resumen"; con "resumen", sin "perfil" (item 1.20)
 // 200: { "coleccion", "resultados": [{ "id", "puntuacion", "ruta", "texto",
 //        "lineaInicio", "lineaFin", "lenguaje", "tipoChunk", "contentHash",      // item 1.18
@@ -108,26 +176,39 @@ El motor es el de Rag.Context.Engine portado (ver
 //        "simbolosDefinidos", "simbolosConsumidos",                             // item 1.18, lista vacia, nunca null
 //        "resumen" }] }                                                         // item 1.20, null si el chunk no lo tiene
 
+// H3/1.12, solo codigo y Motor:Busqueda:Modo=FusionNativa:
+// campo opcional "prefetchPorRama": 40..1200, entero JSON estricto (no "40",40.0,4e1,true).
+// Omitido/null conserva max(4*topK,40); topK sigue limitando resultados, no cada rama.
+
 // POST .../ingestas     origen 'documentos': 1 a 100 documentos, ruta unica y contenido <= 1 MiB c/u
 { "origen": { "tipo": "documentos", "documentos": [{ "ruta": "docs/a.md", "contenido": "..." }] },
   "perfil": "altheia-bge-m3-256",   // "perfil" opcional, ver abajo
-  "resumen": false }                // "resumen" opcional, item 1.7.7, ver seccion "Resumen de negocio" abajo
+  "resumen": false,                 // "resumen" opcional, item 1.7.7, ver seccion "Resumen de negocio" abajo
+  "perfilLlm": "altheia-qwen-fast" } // opcional; ausente = perfil de LLM por defecto (GET api/catalogo/perfiles-llm)
 // origen 'ruta': reservado para el item 1.7, hoy responde 501
 { "origen": { "tipo": "ruta", "ruta": "/ruta/accesible/al/servicio" } }
 // 200: { "ingestaId", "coleccion", "estado": "completada", "documentosRecibidos",
 //        "documentosIndexados", "documentosSinCambios", "documentosOmitidos", "documentosEliminados",
-//        "resumenesGenerados", "resumenesPendientes", "resumenTokensConsumidos" }   // 1.7.7, siempre 0 sin resumen
+//        "resumenesGenerados", "resumenesPendientes", "resumenTokensConsumidos",
+//        "perfilIngesta", "repositorioLogico",   // binding 1.12; null para nativo
+//        "resumenesOmitidosPorFiltro" }          // 1.27: marcados sin LLM por el filtro previo
 
 // POST .../ingestas/proyecto   origen 'proyecto' desde .zip (item 1.7.5); multipart/form-data, no JSON:
-//   zip          archivo .zip (campo de archivo), hasta 100 MiB, leido en memoria
-//   carpetaRaiz  opcional: quita el envoltorio "repo-rama/" de un "descargar como zip"
-//   perfil       opcional, igual que en los demas endpoints
-//   resumen      opcional (1.7.7), igual semantica que en 'documentos'
+//   zip               archivo .zip (campo de archivo), hasta 100 MiB, leido en memoria; es el proyecto entero:
+//                     lo que ya estaba en la coleccion y no viene en el .zip se borra
+//   carpetaRaiz       opcional: carpeta envoltorio a quitar de las rutas ("repo-rama/" de un "descargar como zip");
+//                     toda entrada debe estar debajo de ella (si no, 400). NO es lo mismo que en ingestas/git
+//   perfil            opcional, igual que en los demas endpoints
+//   resumen           opcional (1.7.7), igual semantica que en 'documentos'
+//   perfilLlm         opcional, igual que en 'documentos'
+//   perfilIngesta     opcional (1.12), junto con repositorioLogico
 // 202: { "ingestaId", "coleccion", "estado": "pendiente", "documentosRecibidos", ... } (conteos en 0)
 
 // POST .../ingestas/git   origen 'proyecto' desde URL Git (item 1.7.6); JSON, no multipart:
 { "url": "https://dev.azure.com/<organizacion-en-lista-blanca>/<proyecto>/_git/<repo>",
-  "carpetaRaiz": null, "perfil": null, "resumen": false }   // opcionales, igual que en el .zip ("resumen": 1.7.7)
+  "carpetaRaiz": null, "perfil": null, "resumen": false, "perfilLlm": null }   // opcionales ("resumen": 1.7.7)
+// carpetaRaiz aqui es la SUBCARPETA del repositorio a indexar (p. ej. "src"); lo de fuera no se indexa y se barre
+// de la coleccion. Origenes aceptados: GET api/catalogo/origenes-git
 // 202: { "ingestaId", "coleccion", "estado": "pendiente", "documentosRecibidos", ... } (conteos en 0)
 // 400 si la URL no esta en Motor:Git:OrigenesPermitidos (esquema, host, puerto y prefijo de ruta exactos),
 //     sin que el servicio abra ninguna conexion hacia ella
@@ -145,10 +226,11 @@ El motor es el de Rag.Context.Engine portado (ver
 //      (nunca 404); sin orden garantizado
 
 // GET api/colecciones   lista las colecciones existentes en el vector store (item 1.16)
-// 200: [ { "coleccion", "perfilEmbeddings", "modelo", "dimension" }, ... ]
+// 200: [ { "coleccion", "perfilEmbeddings", "modelo", "dimension", "perfilIngesta", "repositorioLogico", "tieneResumen" }, ... ]
 //      perfilEmbeddings/modelo/dimension salen de la metadata de la coleccion (item 1.7.4); los tres null si la
 //      coleccion no la tiene (creada antes de 1.7.4 y nunca tocada desde entonces); lista vacia si no hay ninguna
 //      coleccion (nunca 404)
+//      tieneResumen indica si dense-resumen existe en config.params.vectors, no si todos los puntos estan resumidos
 
 // GET api/colecciones/{coleccion}/documentos   documentos indexados en la coleccion (item 1.19)
 // 200: [ { "ruta", "huella", "puntos" }, ... ]
@@ -246,6 +328,98 @@ una RRF ponderada de tres ramas calibrada para MiniLM, que 1.10 mostro que no se
   solo vivia en una cache en memoria por instancia y no se recupera sin volver a llamar al LLM. 1.20 no rellena esos
   chunks (0 tokens); hoy no existe un mecanismo para volver a marcar como pendiente un chunk sin cambios, asi que el
   texto aparece cuando el documento cambia y se vuelve a resumir, o al reingestar en una coleccion nueva.
+
+## Filtro exacto de modulo en busquedas (item 1.21.1)
+
+Decision en `docs/evaluaciones/1.21/decision.md`: `modulos` es un filtro opcional para acotar consultas y pruebas.
+**No es autorizacion** (1.14 sigue retirada: no lee claims ni restringe a nadie), no hace reranking ni salto por
+simbolo y no promete mejora de recall.
+
+- **`modulos` en el cuerpo de `POST .../busquedas`** (opcional): ausente o `null` = la busqueda no cambia (mismos
+  ids, orden y puntuaciones que antes de este item, medido pareado sobre la misma coleccion). Presente: arreglo de 1
+  a 50 cadenas no blancas; arreglo vacio, mas de 50, elemento null/vacio/solo espacios o cualquier tipo que no sea un
+  arreglo de cadenas JSON (numero, booleano, objeto, cadena suelta, elemento numerico) → **400** antes del motor. No
+  se recorta, no se pasa a minusculas ni se normaliza nada: `" alpha"` es otro modulo.
+- **Predicado por modulo `m`**, comparacion ordinal: el punto cumple si `namespace == m` o empieza por `m + "."`,
+  **o** si `relative_path == m` o empieza por `m + "/"`. Pidiendo `alpha`: cumplen `alpha`, `alpha.Foo`, `alpha..Bar`,
+  `alpha.`, `alpha/child/Foo.cs`, `alpha//x.md`; no cumplen `alpha-private`, `alpha_private`, `Alpha`,
+  `Company.alpha`, `.alpha`, `src/alpha/Foo.cs`, `/alpha/x.md`, `alphabet/x.md`, ni un punto sin namespace cuya ruta no
+  case. Varios modulos: **AND** (cada uno puede cumplirse por campos distintos); con `simbolosDefinidos`: AND con el
+  ANY interno de simbolos. Una conjuncion imposible devuelve 200 sin resultados.
+- **Antes del corte, en todas las ramas**: el predicado va como filtro de Qdrant dentro de la consulta densa exacta,
+  de cada rama de `FusionNativa` (denso y sparse, antes del pool y de la RRF) y del espacio `resumen`. Si hay K
+  elegibles por encima del umbral, se devuelven K aunque haya falsos candidatos de mayor score. Mismo umbral,
+  mismas escalas y mismo desempate por id ordinal.
+- **Indice**: cada punto lleva `module_prefixes` (keyword, indexado): la union ordinal de el namespace completo y
+  cada prefijo anterior a un `.`, y la ruta completa y cada prefijo anterior a un `/` (separadores repetidos
+  incluidos; nunca la cadena vacia), y `module_prefixes_version` (entero, indexado). La consulta es una condicion
+  keyword exacta por modulo, no `Match.Text`. Las ingestas nuevas siempre los escriben; los Ids, vectores,
+  `content_hash`, huella, resumenes y `ChunkingContract.Version` no cambian.
+- **Completitud, en este orden y antes de vectorizar la consulta**: coleccion inexistente → **200** sin resultados.
+  Coleccion existente con `modulos` → **409** si la metadata no tiene `module_prefixes: "completo:1"`, si falta o es
+  incompatible cualquiera de los dos indices, o si **algun** punto no tiene `module_prefixes_version = 1` (conteo
+  exacto); nunca una lista vacia de exito sobre un indice incompleto. Sin `modulos` no se exige preparacion.
+  Las colecciones creadas desde este item nacen completas.
+- **Colecciones anteriores**: se preparan con la herramienta explicita `tools/relleno-modulo` (ver su README):
+  SetPayload paginado, sin revectorizar ni llamar al LLM, idempotente y reanudable, con marca
+  `en_curso:<run>:<expira>` y lease. Mientras la marca este en curso (o interrumpida), las **ingestas** de este
+  servicio en esa coleccion responden **409** y la busqueda con `modulos` tambien; relanzar el relleno la completa.
+  Una reingesta de documentos sin cambios los omite y **no** repara sus puntos antiguos: hace falta el relleno.
+- **Escritores antiguos**: un proceso con el codigo anterior a este item no conoce la marca ni escribe
+  `module_prefixes`. El procedimiento exige detenerlo o actualizarlo antes del relleno; si aun asi escribe, el relleno
+  no marca completo y, si escribe despues, la busqueda con `modulos` vuelve a responder 409 (por conteo) hasta
+  relanzar el relleno. Qdrant no ofrece compare-and-set de metadata: la exclusion entre dos rellenos es por lease
+  verificado en cada pagina y sus escrituras son deterministas e idempotentes.
+- **Rollback**: revertir el commit restaura contrato, escritor y lector anteriores. `module_prefixes`,
+  `module_prefixes_version`, sus indices y la marca son aditivos y quedan inertes: el lector anterior los ignora
+  (comprobado con el lector de 538cb96 sobre una coleccion de prueba preparada: mismos ids, orden y puntuaciones).
+  Si hiciera falta retirarlos de una coleccion real, solo con alcance autorizado y respaldo verificado (ver el README
+  de la herramienta); nunca borrar colecciones como rollback.
+
+## Filtros textuales de lenguaje y namespace (item 1.21.4)
+
+Disponibles en `POST .../busquedas`, sin migracion ni nuevos indices. No son permisos:
+la autenticacion HTTP sigue obligatoria y tenant/Authorized no se implementan aqui.
+
+- **`lenguaje`**: ausente/null no filtra. Solo admite cadenas con uno de los nombres exactos
+  `CSharp`, `TypeScript`, `JavaScript`, `Xaml`, `Sql`, `Markdown`, `PlainText`, `Unknown`.
+  Vacio/blanco, otro nombre (incluido `"csharp"`), numero, booleano, arreglo u objeto: **400 antes del motor**.
+  El nombre valido viaja literal en `Match.Text` sobre `language`, no como igualdad keyword.
+- **`namespace`**: ausente/null/vacio/blanco no filtra. Cualquier cadena no blanca se conserva literalmente
+  (espacios, mayusculas y separadores incluidos); los tipos JSON distintos de cadena/null responden **400**.
+  Se envia como `Match.Text` SOLO sobre `namespace`: no es `StartsWith`, keyword, modulo ni OR con ruta.
+- **Combinacion**: lenguaje AND namespace AND cada modulo AND el ANY interno de `simbolosDefinidos`.
+  El filtro se aplica dentro de la rama densa, la sparse de `FusionNativa` y la densa de resumen,
+  antes del pool/corte. No cambia los umbrales, el desempate por id ni las escalas coseno/RRF.
+- **Campos ausentes**: un punto sin `language` o sin `namespace` no satisface el filtro activo de ese campo.
+  Sin ese filtro, la ausencia no lo excluye. Una ruta coincidente nunca suple un namespace ausente/distinto.
+  El filtro textual no exige el relleno de modulo; si ademas se piden `modulos`, se conserva su puerta 409.
+- **Version y esquema**: comprobado con Qdrant **1.19.2**, sin indices full-text de estos campos, contra
+  consultas directas `Match.Text` independientes sobre los mismos puntos. En esa referencia
+  `Reyma.Ventas` y `reyma.ventas` coinciden con `Reyma.Ventas.Api`, no con
+  `Reyma.VentasExtra.Api` ni `xReyma.Ventas`. El operador depende de version/tokenizacion/indices:
+  no se promete paridad con 1.14.1 ni con otra instancia no comprobada.
+- **Sin filtros nuevos**: IDs, orden y scores identicos al lector de `da1b3d0` en el banco pareado,
+  incluidos los filtros anteriores y ambos espacios/modos. Payload, vectores, huellas e indices intactos.
+  No es evidencia de mejora de recall ni activa el cliente remoto de Rag.
+
+Ejemplo, con ambos filtros y los existentes:
+
+```json
+{
+  "consulta": "confirmar pedido",
+  "topK": 5,
+  "lenguaje": "CSharp",
+  "namespace": "Empresa.Ventas",
+  "modulos": ["Empresa", "pruebas"],
+  "simbolosDefinidos": ["ConfirmarPedido", "CancelarPedido"]
+}
+```
+
+Para resumen se agrega `"espacio": "resumen"` sin `perfil`, con el resumen configurado y su vector presente.
+Reproduccion, evidencia y limites: [banco 1.21.4](../evaluaciones/1.21/filtros-textuales.md).
+Rollback: revertir el commit de 1.21.4; no hay escrituras/migracion de datos que revertir.
+Un cliente que requiera filtros no debe reintentar sin ellos contra un servidor anterior.
 
 ## Modelo de consumo (item 1.7)
 
@@ -391,6 +565,9 @@ la tabla de tenencia por usuario, no las colecciones reales de Qdrant, asi que n
   responde (mismo criterio que el resto del contrato, sin exponer host ni puerto).
   `perfilEmbeddings`/`modelo`/`dimension` son null si la coleccion no tiene esa metadata guardada (creada antes de
   1.7.4 y nunca tocada desde entonces).
+- `tieneResumen` se obtiene del esquema real de Qdrant en la misma lectura REST que la metadata. No se infiere
+  de `resumen_habilitado`, del nombre del perfil ni del contenido de los puntos. Si no se puede leer el esquema,
+  falla el catalogo: no se inventa `false`. El campo es aditivo para consumidores existentes.
 - No esta protegido por tenencia (item 1.14 retiro el control de acceso por coleccion): `[Authorize]` basta, igual
   que el resto del contrato.
 
@@ -431,14 +608,38 @@ chunking + `dense` + `sparse-code`, sin cambios).
   EXISTENTE que no tiene ese vector responde **409** con un mensaje claro ("no se puede activar el resumen sobre
   una coleccion existente"), nunca 500: Qdrant en si respondia 400 "Not existing vector name" al intentar
   agregarlo (medido en 1.7.3), y el servicio lo anticipa antes de llegar a Qdrant.
-- **Perfil de LLM** (`Motor:Llm`): modelo, `max_tokens` (160, igual que el origen), temperatura/top_p y, si el
-  modelo razona por defecto, `chat_template_kwargs.enable_thinking=false`. 1.7.3 midio contra AltheIA real:
-  `qwen3.8-27b-fast` responde 30/30 sin razonar; `qwen3.8-27b-deep` (el perfil de LLM de 1.13) gasta los 160
-  tokens razonando y responde VACIO en 0/30 si no se fuerza `enable_thinking=false` (con el, igual que `fast`).
-  El perfil por defecto de este servicio es `qwen3.8-27b-fast`.
+- **Perfiles de LLM** (`Motor:Llm`, seleccionables con `perfilLlm`): modelo, `max_tokens`, temperatura/top_p y
+  `chat_template_kwargs.enable_thinking` si el modelo razona. 1.7.3 midio contra AltheIA real: `qwen3.8-27b-fast`
+  responde 30/30 sin razonar; `qwen3.8-27b-deep` gasta 160 tokens razonando y responde VACIO en 0/30 si no se fuerza
+  `enable_thinking=false` (con el, 30/30).
+  El perfil por defecto es **`altheia-qwen-deep`**: desde el 2026-11-17, `qwen3.8-27b-deep` CON
+  `enable_thinking=true`, `max_tokens` 4096 y plazo de 180 s por llamada (antes: `enable_thinking=false` y 160,
+  decision del 2026-11-09). Con juicio ciego escribe resumenes mas fieles que fast (15 frente a 44 afirmaciones
+  inventadas o contradictorias, 6 frente a 58 omisiones, 100 chunks y 2 jueces) a ~10x de latencia (mediana 19 s)
+  y ~2x de tokens (~1 400 por chunk); `docs/evaluaciones/resumen-fast-vs-deep-filtrado/informe.md`. Solo se guarda
+  `message.content`, no el razonamiento. Con este perfil, `Motor:Resumen:TopeTokensPorCorrida` alcanza para unos
+  70 chunks por cada 100 000 tokens: dimensionarlo en cada despliegue. `Motor:Llm:Perfiles` agrega otros (p. ej.
+  `altheia-qwen-fast`); lo que dejan vacio (servidor, ruta, clave, CA, max_tokens, temperatura, top_p, plazo) se
+  hereda de `Motor:Llm`, salvo `EnableThinking`, que es propio de cada modelo (un fast que hereda 4096 para solo,
+  pero su version de prompt cambia; fijar su `MaxTokens` si se quiere conservarla). Cambiar de modelo o de perfil
+  cambia la version de prompt: los chunks ya resumidos NO se regeneran (`resumen_pending` solo se marca al escribir
+  un chunk nuevo o cambiado) y la cache en memoria no se comparte entre perfiles. Una coleccion puede tener chunks
+  resumidos por modelos distintos (`resumen_modelo` en el payload de cada punto): el vector `dense-resumen` lo
+  calcula siempre el mismo perfil de embeddings, asi que siguen siendo comparables.
+- **Version de prompt** (`resumen_prompt_version`, item 1.26): identifica la peticion completa, no solo el texto del
+  prompt. Es el hash (8 hex) de `v2|modelo|EnableThinking|MaxTokens|Temperatura|TopP|prompt de sistema`, con
+  formato invariante de cultura, `EnableThinking` como `null`/`true`/`false` (no enviarlo es otra peticion que
+  `false`) y el prompt con finales de linea LF (el mismo valor en un checkout Windows y en la imagen Linux). Dos
+  perfiles del mismo modelo con otro `max_tokens` o razonamiento dan versiones distintas y ya no comparten cache.
+  Hasta 1.26 el hash era `v1|modelo|prompt`: los puntos resumidos antes conservan su version v1 (tienen
+  `resumen_pending=false` y no se regeneran, 0 tokens); los chunks nuevos o cambiados llevan la v2, asi que una
+  coleccion puede tener ambas conviviendo, igual que puede tener dos modelos. Comparar resumenes entre versiones
+  de prompt distintas no es directo.
 - **Perfil de embeddings del resumen** (`Motor:Resumen:PerfilEmbeddings`): un nombre de perfil YA declarado en
-  `Motor:Embeddings` (el por defecto o uno de `Motor:Embeddings:Perfiles`, 1.7.4). 1.7.3: bge-m3 1024d via
-  AltheIA, **sin truncar** (bge-m3 no es Matryoshka, a diferencia del perfil por defecto arctic@256). Vacio
+  `Motor:Embeddings` (el por defecto o uno de `Motor:Embeddings:Perfiles`, 1.7.4). Por diseno es **arctic@256**,
+  el mismo modelo que `dense` (1.6; en 1.7.3 el usuario fijo arctic y descarto bge-m3). 1.7.3 solo probo el
+  mecanismo del tercer vector con bge-m3 1024d de AltheIA, sin truncar porque no es Matryoshka; eso fue una prueba,
+  no el perfil elegido. Cada despliegue fija el valor en su configuracion. Vacio
   (por defecto) = el resumen de negocio no esta disponible en esta instancia; pedirlo responde **400** con un
   mensaje claro ("Motor:Resumen:PerfilEmbeddings"), nunca 500.
 - **Cache por `content_hash` + version de prompt + modelo**: antes de llamar al LLM, se busca en una cache en
@@ -453,14 +654,65 @@ chunking + `dense` + `sparse-code`, sin cambios).
   coleccion (no repite los chunks ya resumidos). `resumenesPendientes` en la respuesta indica cuanto falta.
 - **Sentinel `SIN_CONTENIDO_DE_NEGOCIO`**: un chunk puramente tecnico (imports, boilerplate) no lleva vector de
   resumen (como el origen); su `resumen_pending` igual se apaga (ya se proceso, no vuelve a intentarse).
+- **Filtro previo determinista** (`Motor:Resumen:FiltroPrevio`, item 1.27, habilitado por defecto): antes de la
+  cache y del LLM, una regla decide QUE no se resume. Un chunk pendiente excluido queda `resumen_pending=false`, sin
+  `dense-resumen` ni `resumen_texto`, con `resumen_modelo = "filtro-previo:v{Version}"` y en
+  `resumen_prompt_version` un hash de la regla efectiva; no gasta tokens y cuenta en `resumenesOmitidosPorFiltro`,
+  no en `resumenesGenerados`. Regla por defecto (v2), solo convenciones genericas: rutas (regex .NET sobre la ruta
+  relativa con `/`) `.designer.cs`, `.g.cs`, `.generated.cs`, `AssemblyInfo.cs`, `.csproj`, `.json`, `.xml`;
+  `chunk_type` `Constructor`; propiedades automaticas de una linea (NO todo `Property`: hay grupos de propiedades de
+  entidad con negocio); cabecera `<auto-generated` en las primeras 5 lineas. El motor es agnostico: lo propio de un
+  repo o de sus herramientas va en el `.ragignore` de ese repo, que ademas lo saca del indice. La v1 excluia aqui los
+  envoltorios FastReport de reyoneweb; desde la v2 (2026-11-17) eso esta en la propuesta
+  `docs/corpus/reyoneweb.ragignore`, que tambien cubre la subcarpeta `RepocitorioReportes/FastReport/` (124 puntos
+  que la v1 dejaba pasar). `PatronesDeRuta` y `TiposDeChunk` configurados REEMPLAZAN la lista por defecto; un patron
+  o tipo invalido impide arrancar. Medido sobre la muestra juzgada de 100 chunks, filtro v2 mas ese `.ragignore`:
+  8/9 tecnicos sobrerresumidos y 0/48 con negocio excluidos (`FiltroPrevioMuestraTests`;
+  `docs/evaluaciones/1.27/resultado.md` midio la v1). No cambia que se
+  indexa ni los vectores `dense` (`ChunkingContract` no sube) y no toca los puntos ya resumidos. Rollback:
+  `Motor:Resumen:FiltroPrevio:Habilitado=false`; los puntos ya marcados por el filtro no vuelven a pendiente solos
+  (no existe mecanismo para volver a marcarlos, ver arriba).
 - **Nombres literales en Qdrant** (fijados en el ledger): vector `dense-resumen`; payload `resumen_pending`
-  (bool), `resumen_modelo` (string) y `resumen_prompt_version` (string, hash de prompt+modelo); desde 1.20 tambien
+  (bool), `resumen_modelo` (string) y `resumen_prompt_version` (string, hash de prompt, modelo y muestreo desde
+  1.26; ver "Version de prompt" arriba); desde 1.20 tambien
   `resumen_texto` (payload, solo en chunks con `dense-resumen`) y `perfil_resumen` (metadata de la coleccion).
 - **Buscar sobre el resumen**: item 1.20, ver "Busqueda en el espacio resumen" arriba.
 - **Aislamiento de fallos**: una respuesta vacia del LLM para UN chunk se salta (aislado, recuperable en la
   siguiente corrida, igual que el origen); un perfil de LLM mal configurado (modelo no permitido o de otra
   capacidad) responde 400 sin tocar el tope de tokens; cualquier otro fallo (conexion) corta la corrida completa
   dejando el resto pendiente, en vez de insistir contra una dependencia caida chunk a chunk.
+
+## Catalogo de lo que acepta la instancia
+
+Antes, saber que poner en `perfil`, `perfilLlm`, `perfilIngesta` o la URL de `ingestas/git` dependia de leer
+appsettings, el codigo o esta documentacion, y nada aseguraba que el valor existiera ni que su servidor respondiera.
+`GET api/catalogo/*` (token valido, como el resto) lo responde la propia instancia:
+
+```jsonc
+// GET api/catalogo/perfiles-embeddings   valores de "perfil"
+// 200: [ { "nombre", "modelo", "dimension", "esPorDefecto", "usadoPorResumen",
+//          "disponible", "modeloVerificado", "ventanaTokens", "detalle" }, ... ]   // el por defecto primero
+// GET api/catalogo/perfiles-llm          valores de "perfilLlm"
+// 200: [ { "nombre", "modelo", "maxTokens", "razonamiento", "esPorDefecto",
+//          "disponible", "modeloVerificado", "ventanaTokens", "detalle" }, ... ]
+// GET api/catalogo/perfiles-ingesta      valores de "perfilIngesta" (omitirlo = ingesta nativa)
+// 200: [ { "nombre", "descripcion", "requiereRepositorioLogico" } ]
+// GET api/catalogo/origenes-git          de donde acepta clonar ingestas/git
+// 200: [ { "esquema", "host", "puerto", "prefijoRuta", "ejemplo" } ]   // lista vacia = sin ingesta por Git
+```
+
+- **Sin mantenimiento**: perfiles y origenes salen de la misma `MotorOptions` con que las fabricas validan cada
+  solicitud; los perfiles de ingesta, de `PerfilDeIngesta.Catalogo`, la misma lista contra la que se valida
+  `perfilIngesta`. Agregar, quitar o cambiar un perfil en configuracion se refleja al reiniciar, sin tocar docs.
+- **Sondeo en vivo, sin gastar tokens** (solo GET, plazo de 5 s por perfil, en paralelo, con el mismo HttpClient,
+  clave y CA del perfil): `GET .../models` OpenAI-compatible (AltheIA/vLLM: confirma que el modelo esta habilitado
+  para la clave del servicio y da su ventana), si no `GET info` de TEI (confirma `model_id`), si no `GET health`
+  (solo responde, `modeloVerificado=false`). `disponible=false` con `detalle` dice por que: credencial rechazada,
+  modelo no ofrecido (lista los que si), sin respuesta en el plazo, caido. Sin resumen habilitado, todos los
+  perfiles de LLM salen `disponible=false` y no se llama al servidor.
+- **Nunca expone** URL de servidores, claves ni certificados; los mensajes no llevan host ni puerto.
+- `perfilLlm` desconocido, o pedido en una instancia sin resumen, responde **400** antes de admitir la ingesta
+  (tambien en `.zip` y Git), con los perfiles disponibles.
 
 ## Identidad
 

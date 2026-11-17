@@ -13,9 +13,12 @@ namespace Reyma.VectorSpace.Engine.Microservice.Business.Queries.Colecciones;
 /// <see cref="Espacio"/> (item 1.20): <c>"codigo"</c> (por defecto, ausente) o <c>"resumen"</c>; cualquier otro valor,
 /// 400. Con <c>"resumen"</c> no se admite <see cref="Perfil"/>: el perfil de esa consulta lo fija la instancia
 /// (<c>Motor:Resumen:PerfilEmbeddings</c>), y un perfil enviado responde 400 en vez de ignorarse en silencio.
+/// <see cref="Modulos"/> (item 1.21.1): filtro exacto opcional, 1 a 50 cadenas no blancas (fuera de ese rango, 400);
+/// ver <c>BuscarRequest.Modulos</c>. No se recortan ni se normalizan: la comparacion es ordinal.
 /// </summary>
 public sealed record BuscarEnColeccionQuery(
-    string Coleccion, string? Consulta, int? TopK, string? Perfil, IReadOnlyList<string>? SimbolosDefinidos = null, string? Espacio = null)
+    string Coleccion, string? Consulta, int? TopK, string? Perfil, IReadOnlyList<string>? SimbolosDefinidos = null, string? Espacio = null,
+    IReadOnlyList<string>? Modulos = null, string? Lenguaje = null, string? Namespace = null, int? PrefetchPorRama = null)
     : IRequest<BusquedaResponse>, IValidable
 {
     public const string EspacioCodigo = "codigo";
@@ -29,6 +32,10 @@ public sealed record BuscarEnColeccionQuery(
             yield return $"Consulta admite como maximo {Limites.MaxCaracteresConsulta} caracteres.";
         if (TopK is < 1 or > Limites.MaxTopK)
             yield return $"TopK debe estar entre 1 y {Limites.MaxTopK}.";
+        if (PrefetchPorRama is < 40 or > 1200)
+            yield return "PrefetchPorRama debe estar entre 40 y 1200.";
+        if (PrefetchPorRama is not null && Espacio == EspacioResumen)
+            yield return "PrefetchPorRama solo se admite en el espacio 'codigo' con FusionNativa.";
 
         if (Perfil is not null && Perfil.Trim().Length == 0)
             yield return "Perfil no puede ser una cadena vacia si se especifica.";
@@ -43,6 +50,18 @@ public sealed record BuscarEnColeccionQuery(
                 yield return "SimbolosDefinidos no admite cadenas vacias.";
         }
 
+        if (Modulos is not null)
+        {
+            if (Modulos.Count is < 1 or > Limites.MaxModulosPorConsulta)
+                yield return $"Modulos admite entre 1 y {Limites.MaxModulosPorConsulta} cadenas.";
+            else if (Modulos.Any(string.IsNullOrWhiteSpace))
+                yield return "Modulos no admite cadenas vacias o en blanco.";
+        }
+
+        // El enum del chunker vive en Infrastructure; Business valida el contrato HTTP sin invertir la dependencia.
+        if (Lenguaje is not null and not ("CSharp" or "TypeScript" or "JavaScript" or "Xaml" or "Sql" or "Markdown" or "PlainText" or "Unknown"))
+            yield return "Lenguaje admite CSharp, TypeScript, JavaScript, Xaml, Sql, Markdown, PlainText o Unknown.";
+
         if (Espacio is not null and not EspacioCodigo and not EspacioResumen)
             yield return $"Espacio admite '{EspacioCodigo}' (por defecto) o '{EspacioResumen}'.";
         else if (Espacio == EspacioResumen && Perfil is not null)
@@ -56,6 +75,8 @@ public sealed record BuscarEnColeccionQuery(
             motor.BuscarAsync(request.Coleccion, request.Consulta!, request.TopK ?? Limites.TopKPorDefecto, request.Perfil,
                 request.SimbolosDefinidos,
                 request.Espacio == EspacioResumen ? EspacioDeBusqueda.Resumen : EspacioDeBusqueda.Codigo,
-                cancellationToken);
+                request.Modulos,
+                request.Lenguaje, request.Namespace,
+                cancellationToken, request.PrefetchPorRama);
     }
 }

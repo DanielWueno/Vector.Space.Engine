@@ -76,6 +76,7 @@ public sealed class IngestaProyectoGitTests(ApiFactory factory)
         config["Motor:Git:OrigenesPermitidos:0:Esquema"] = "http";
         config["Motor:Git:OrigenesPermitidos:0:Host"] = "127.0.0.1";
         config["Motor:Git:OrigenesPermitidos:0:Puerto"] = "1";
+        config["Motor:Git:OrigenesPermitidos:0:PrefijoRuta"] = "/repo";
         using var client = factory.ConIdentidad(config).Cliente(TokenAna);
         using var response = await client.PostJson("/api/colecciones/propia/ingestas/git", Cuerpo("http://127.0.0.1:1/repo"));
 
@@ -126,8 +127,11 @@ public sealed class IngestaProyectoGitTests(ApiFactory factory)
     {
         public Uri ValidarUrlGit(string? url) => new(url!);
 
+        public Task VerificarPerfilDeIngestaAsync(string coleccion, PerfilDeIngesta? perfil, CancellationToken cancellationToken) =>
+            Task.CompletedTask;
+
         public Task<ResultadoIngestaProyecto> ProcesarGitAsync(
-            string coleccion, Uri url, string? carpetaRaiz, string? perfil, bool resumen, CancellationToken cancellationToken) =>
+            string coleccion, Uri url, string? carpetaRaiz, string? perfil, bool resumen, CancellationToken cancellationToken, PerfilDeIngesta? perfilIngesta = null, string? perfilLlm = null) =>
             Task.FromResult(new ResultadoIngestaProyecto(recibidos, indexados, sinCambios, Omitidos: 0, DocumentosEliminados: 0));
 
         public static Action<IServiceCollection> Registrar(MotorGitControlable motor) => services =>

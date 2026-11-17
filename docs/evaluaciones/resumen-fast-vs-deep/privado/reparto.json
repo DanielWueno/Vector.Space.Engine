@@ -1,0 +1,92 @@
+[
+  {
+    "estrato": "Reyma.Datos.Produccion|CSharp",
+    "tamano": 171,
+    "asignados": 3
+  },
+  {
+    "estrato": "Reyma.Datos.Produccion|PlainText",
+    "tamano": 2,
+    "asignados": 0
+  },
+  {
+    "estrato": "Reyma.Datos.Trafico|CSharp",
+    "tamano": 805,
+    "asignados": 12
+  },
+  {
+    "estrato": "Reyma.Datos.Trafico|PlainText",
+    "tamano": 4,
+    "asignados": 3
+  },
+  {
+    "estrato": "Reyma.Datos.Trafico|Sql",
+    "tamano": 2,
+    "asignados": 0
+  },
+  {
+    "estrato": "Reyma.Entidades.Produccion|CSharp",
+    "tamano": 15,
+    "asignados": 3
+  },
+  {
+    "estrato": "Reyma.Entidades.Produccion|PlainText",
+    "tamano": 2,
+    "asignados": 0
+  },
+  {
+    "estrato": "Reyma.Entidades.Trafico|CSharp",
+    "tamano": 143,
+    "asignados": 3
+  },
+  {
+    "estrato": "Reyma.Entidades.Trafico|PlainText",
+    "tamano": 4,
+    "asignados": 3
+  },
+  {
+    "estrato": "Reyma.Negocio.Produccion|CSharp",
+    "tamano": 94,
+    "asignados": 3
+  },
+  {
+    "estrato": "Reyma.Negocio.Produccion|PlainText",
+    "tamano": 3,
+    "asignados": 3
+  },
+  {
+    "estrato": "Reyma.Negocio.Trafico|CSharp",
+    "tamano": 400,
+    "asignados": 6
+  },
+  {
+    "estrato": "Reyma.Negocio.Trafico|PlainText",
+    "tamano": 4,
+    "asignados": 3
+  },
+  {
+    "estrato": "Reyma.Trafico.Negocio|CSharp",
+    "tamano": 83,
+    "asignados": 3
+  },
+  {
+    "estrato": "Reyma.Trafico.Negocio|PlainText",
+    "tamano": 1,
+    "asignados": 0
+  },
+  {
+    "estrato": "ReyOneWeb|CSharp",
+    "tamano": 3325,
+    "asignados": 49
+  },
+  {
+    "estrato": "ReyOneWeb|JavaScript",
+    "tamano": 227,
+    "asignados": 3
+  },
+  {
+    "estrato": "ReyOneWeb|PlainText",
+    "tamano": 39,
+    "asignados": 3
+  }
+]
